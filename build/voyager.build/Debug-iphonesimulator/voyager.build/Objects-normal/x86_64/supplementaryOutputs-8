@@ -1,0 +1,30 @@
+"/Users/grapestree/Desktop/apps/voyager/voyager/Core/Search/Views/SearchView.swift":
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchView.dia"
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchView.swiftdeps"
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchView.swiftconstvalues"
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchView.d"
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchView.o"
+"/Users/grapestree/Desktop/apps/voyager/voyager/Core/Profile/ViewModel/ProfileViewModel.swift":
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileViewModel.o"
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileViewModel.dia"
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileViewModel.d"
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileViewModel.swiftdeps"
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileViewModel.swiftconstvalues"
+"/Users/grapestree/Desktop/apps/voyager/voyager/Core/Profile/Views/ProfileView.swift":
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileView.swiftdeps"
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileView.o"
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileView.d"
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileView.swiftconstvalues"
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileView.dia"
+"/Users/grapestree/Desktop/apps/voyager/voyager/Services/ImageUploader.swift":
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ImageUploader.d"
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ImageUploader.o"
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ImageUploader.swiftconstvalues"
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ImageUploader.dia"
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ImageUploader.swiftdeps"
+"/Users/grapestree/Desktop/apps/voyager/voyager/Core/Feed/Views/FeedView.swift":
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedView.swiftdeps"
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedView.d"
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedView.swiftconstvalues"
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedView.o"
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedView.dia"

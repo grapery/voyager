@@ -1,0 +1,30 @@
+"/Users/grapestree/Desktop/apps/voyager/voyager/Core/Profile/Views/MainUserProfileView.swift":
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainUserProfileView.swiftconstvalues"
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainUserProfileView.dia"
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainUserProfileView.swiftdeps"
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainUserProfileView.o"
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainUserProfileView.d"
+"/Users/grapestree/Desktop/apps/voyager/voyager/Services/aliyun/aliyun.swift":
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/aliyun.d"
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/aliyun.swiftconstvalues"
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/aliyun.o"
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/aliyun.dia"
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/aliyun.swiftdeps"
+"/Users/grapestree/Desktop/apps/voyager/voyager/Persistence.swift":
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Persistence.swiftdeps"
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Persistence.d"
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Persistence.o"
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Persistence.swiftconstvalues"
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Persistence.dia"
+"/Users/grapestree/Desktop/apps/voyager/voyager/Services/Authhelper.swift":
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Authhelper.swiftdeps"
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Authhelper.d"
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Authhelper.swiftconstvalues"
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Authhelper.o"
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Authhelper.dia"
+"/Users/grapestree/Desktop/apps/voyager/voyager/Core/TabBar/MainTabView.swift":
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainTabView.d"
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainTabView.o"
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainTabView.swiftdeps"
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainTabView.dia"
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainTabView.swiftconstvalues"

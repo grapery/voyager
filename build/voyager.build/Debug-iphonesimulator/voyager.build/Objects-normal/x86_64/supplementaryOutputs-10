@@ -1,0 +1,30 @@
+"/Users/grapestree/Desktop/apps/voyager/voyager/utils/network.swift":
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/network.o"
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/network.swiftconstvalues"
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/network.dia"
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/network.d"
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/network.swiftdeps"
+"/Users/grapestree/Desktop/apps/voyager/voyager/Core/Authentication/ViewModel/LoginViewModel.swift":
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginViewModel.dia"
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginViewModel.d"
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginViewModel.swiftdeps"
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginViewModel.o"
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginViewModel.swiftconstvalues"
+"/Users/grapestree/Desktop/apps/voyager/voyager/Core/Feed/ViewModel/FeedViewModel.swift":
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedViewModel.d"
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedViewModel.swiftconstvalues"
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedViewModel.swiftdeps"
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedViewModel.o"
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedViewModel.dia"
+"/Users/grapestree/Desktop/apps/voyager/voyager/Core/Authentication/Views/CompleteRegistrationView.swift":
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CompleteRegistrationView.swiftconstvalues"
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CompleteRegistrationView.dia"
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CompleteRegistrationView.d"
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CompleteRegistrationView.swiftdeps"
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CompleteRegistrationView.o"
+"/Users/grapestree/Desktop/apps/voyager/voyager/Core/Components/ThreadCell.swift":
+  diagnostics: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadCell.dia"
+  dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadCell.d"
+  object: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadCell.o"
+  const-values: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadCell.swiftconstvalues"
+  swift-dependencies: "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadCell.swiftdeps"

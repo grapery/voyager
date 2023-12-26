@@ -1,0 +1,408 @@
+{
+  "" : {
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyager-master.dia",
+    "emit-module-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyager-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyager-master-emit-module.dia",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyager-master.swiftdeps"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/DerivedSources/CoreDataGenerated/voyager/Item+CoreDataClass.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataClass.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataClass.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataClass.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataClass.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataClass.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataClass.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataClass.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataClass~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/DerivedSources/CoreDataGenerated/voyager/Item+CoreDataProperties.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataProperties.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataProperties.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataProperties.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataProperties.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataProperties.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataProperties.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataProperties.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Item+CoreDataProperties~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/DerivedSources/CoreDataGenerated/voyager/voyager+CoreDataModel.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyager+CoreDataModel.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyager+CoreDataModel.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyager+CoreDataModel.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyager+CoreDataModel.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyager+CoreDataModel.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyager+CoreDataModel.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyager+CoreDataModel.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyager+CoreDataModel~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/GeneratedAssetSymbols~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Authentication/Service/AuthService.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/AuthService.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/AuthService.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/AuthService.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/AuthService.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/AuthService.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/AuthService.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/AuthService.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/AuthService~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Authentication/ViewModel/LoginViewModel.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginViewModel.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginViewModel.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginViewModel.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginViewModel.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginViewModel.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginViewModel.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginViewModel.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginViewModel~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Authentication/ViewModel/RegistrationViewModel.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationViewModel.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationViewModel.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationViewModel.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationViewModel.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationViewModel.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationViewModel.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationViewModel.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationViewModel~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Authentication/Views/CompleteRegistrationView.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CompleteRegistrationView.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CompleteRegistrationView.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CompleteRegistrationView.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CompleteRegistrationView.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CompleteRegistrationView.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CompleteRegistrationView.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CompleteRegistrationView.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CompleteRegistrationView~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Authentication/Views/LoginView.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginView.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginView.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginView.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginView.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginView.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginView.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginView.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LoginView~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Authentication/Views/RegistrationView.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationView.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationView.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationView.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationView.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationView.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationView.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationView.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/RegistrationView~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Components/CircularProfileImageView.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CircularProfileImageView.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CircularProfileImageView.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CircularProfileImageView.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CircularProfileImageView.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CircularProfileImageView.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CircularProfileImageView.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CircularProfileImageView.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/CircularProfileImageView~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Components/ThreadCell.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadCell.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadCell.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadCell.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadCell.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadCell.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadCell.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadCell.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadCell~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Feed/ViewModel/FeedViewModel.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedViewModel.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedViewModel.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedViewModel.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedViewModel.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedViewModel.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedViewModel.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedViewModel.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedViewModel~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Feed/Views/FeedView.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedView.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedView.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedView.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedView.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedView.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedView.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedView.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/FeedView~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Profile/ViewModel/EditProfileViewModel.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileViewModel.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileViewModel.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileViewModel.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileViewModel.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileViewModel.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileViewModel.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileViewModel.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileViewModel~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Profile/ViewModel/ProfileViewModel.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileViewModel.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileViewModel.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileViewModel.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileViewModel.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileViewModel.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileViewModel.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileViewModel.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileViewModel~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Profile/ViewModel/ThreadFilterViewModel.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadFilterViewModel.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadFilterViewModel.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadFilterViewModel.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadFilterViewModel.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadFilterViewModel.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadFilterViewModel.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadFilterViewModel.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadFilterViewModel~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Profile/Views/EditProfileView.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileView.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileView.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileView.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileView.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileView.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileView.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileView.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/EditProfileView~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Profile/Views/MainUserProfileView.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainUserProfileView.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainUserProfileView.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainUserProfileView.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainUserProfileView.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainUserProfileView.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainUserProfileView.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainUserProfileView.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainUserProfileView~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Profile/Views/ProfileView.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileView.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileView.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileView.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileView.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileView.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileView.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileView.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ProfileView~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Root/ViewModel/ContentViewModel.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentViewModel.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentViewModel.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentViewModel.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentViewModel.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentViewModel.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentViewModel.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentViewModel.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentViewModel~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Root/Views/ContentView.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentView.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentView.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentView.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentView.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentView.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentView.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ContentView~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Search/ViewModel/SearchViewModel.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchViewModel.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchViewModel.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchViewModel.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchViewModel.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchViewModel.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchViewModel.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchViewModel.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchViewModel~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/Search/Views/SearchView.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchView.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchView.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchView.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchView.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchView.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchView.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchView.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/SearchView~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/TabBar/MainTabView.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainTabView.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainTabView.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainTabView.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainTabView.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainTabView.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainTabView.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainTabView.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/MainTabView~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/UploadPost/ViewModel/NewThreadViewModel.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadViewModel.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadViewModel.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadViewModel.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadViewModel.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadViewModel.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadViewModel.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadViewModel.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadViewModel~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Core/UploadPost/Views/NewThreadView.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadView.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadView.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadView.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadView.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadView.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadView.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadView.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/NewThreadView~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Model/Thread.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Thread.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Thread.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Thread.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Thread.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Thread.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Thread.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Thread.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Thread~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Model/User.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/User.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/User.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/User.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/User.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/User.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/User.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/User.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/User~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Persistence.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Persistence.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Persistence.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Persistence.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Persistence.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Persistence.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Persistence.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Persistence.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Persistence~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Services/aliyun/aliyun.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/aliyun.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/aliyun.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/aliyun.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/aliyun.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/aliyun.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/aliyun.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/aliyun.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/aliyun~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Services/Authhelper.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Authhelper.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Authhelper.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Authhelper.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Authhelper.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Authhelper.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Authhelper.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Authhelper.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/Authhelper~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Services/ImageUploader.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ImageUploader.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ImageUploader.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ImageUploader.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ImageUploader.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ImageUploader.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ImageUploader.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ImageUploader.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ImageUploader~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Services/ThreadService.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadService.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadService.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadService.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadService.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadService.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadService.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadService.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/ThreadService~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/Services/UserService.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/UserService.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/UserService.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/UserService.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/UserService.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/UserService.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/UserService.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/UserService.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/UserService~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/utils/colors.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/colors.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/colors.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/colors.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/colors.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/colors.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/colors.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/colors.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/colors~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/utils/LocalStorageManager.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LocalStorageManager.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LocalStorageManager.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LocalStorageManager.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LocalStorageManager.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LocalStorageManager.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LocalStorageManager.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LocalStorageManager.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/LocalStorageManager~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/utils/network.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/network.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/network.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/network.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/network.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/network.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/network.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/network.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/network~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/utils/resources.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/resources.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/resources.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/resources.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/resources.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/resources.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/resources.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/resources.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/resources~partial.swiftmodule"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyager/voyagerApp.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyagerApp.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyagerApp.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyagerApp.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyagerApp.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyagerApp.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyagerApp.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyagerApp.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyager.build/Objects-normal/x86_64/voyagerApp~partial.swiftmodule"
+  }
+}

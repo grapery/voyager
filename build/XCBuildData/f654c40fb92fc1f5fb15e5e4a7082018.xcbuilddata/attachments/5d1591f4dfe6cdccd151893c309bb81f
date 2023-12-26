@@ -1,0 +1,18 @@
+{
+  "" : {
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyagerTests.build/Objects-normal/x86_64/voyagerTests-master.dia",
+    "emit-module-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyagerTests.build/Objects-normal/x86_64/voyagerTests-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyagerTests.build/Objects-normal/x86_64/voyagerTests-master-emit-module.dia",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyagerTests.build/Objects-normal/x86_64/voyagerTests-master.swiftdeps"
+  },
+  "/Users/grapestree/Desktop/apps/voyager/voyagerTests/voyagerTests.swift" : {
+    "const-values" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyagerTests.build/Objects-normal/x86_64/voyagerTests.swiftconstvalues",
+    "dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyagerTests.build/Objects-normal/x86_64/voyagerTests.d",
+    "diagnostics" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyagerTests.build/Objects-normal/x86_64/voyagerTests.dia",
+    "index-unit-output-path" : "/voyager.build/Debug-iphonesimulator/voyagerTests.build/Objects-normal/x86_64/voyagerTests.o",
+    "llvm-bc" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyagerTests.build/Objects-normal/x86_64/voyagerTests.bc",
+    "object" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyagerTests.build/Objects-normal/x86_64/voyagerTests.o",
+    "swift-dependencies" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyagerTests.build/Objects-normal/x86_64/voyagerTests.swiftdeps",
+    "swiftmodule" : "/Users/grapestree/Desktop/apps/voyager/build/voyager.build/Debug-iphonesimulator/voyagerTests.build/Objects-normal/x86_64/voyagerTests~partial.swiftmodule"
+  }
+}
