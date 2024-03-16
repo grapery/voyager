@@ -28,8 +28,17 @@ class FeedViewModel: ObservableObject {
     func fetchLeaves() async throws{
         self.leaves = try await APIClient.shared.fetchFeedLeaves(offset: self.page,size: self.size)
     }
+}
+
+class TimeLineModel: ObservableObject{
+    @Published var rootId: Int64
+    @Published var totalCount: Int64
+    @Published var currentId: Int64
     
-    
-    
+    init(rootId: Int64, totalCount: Int64, currentId: Int64) {
+        self.rootId = rootId
+        self.totalCount = totalCount
+        self.currentId = currentId
+    }
     
 }

@@ -14,7 +14,6 @@ class RegistrationViewModel: ObservableObject {
     @Published var email = ""
     @Published var password = ""
     @Published var fullname = ""
-    
     init(username: String = "", email: String = "", password: String = "", fullname: String = "") {
         self.username = username
         self.email = email

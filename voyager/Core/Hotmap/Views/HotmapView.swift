@@ -6,3 +6,12 @@
 //
 
 import Foundation
+import SwiftUI
+
+struct HotmapView: View {
+    //var hotmapEvent: HotmapViewModel
+    var body: some View{
+        Text("Message")
+    }
+}
+

@@ -10,10 +10,8 @@ import Kingfisher
 
 struct LeafCell: View {
     let leaves: LeafItem
-    
     var body: some View {
         HStack {
-            
             VStack {
                 if let user = leaves.user {
                     CircularProfileImageView(avatarUrl: user.avatar, size: .leaf)

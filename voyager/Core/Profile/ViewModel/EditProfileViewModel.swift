@@ -79,13 +79,10 @@ class EditProjectProfileViewModel: ObservableObject {
 
 @MainActor
 class EditGroupProfileViewModel: ObservableObject {
-    
     @Published var profile: GroupProfile
-    
     @Published var selectedImage: PhotosPickerItem? {
         didSet { Task { await loadImage(fromItem: selectedImage)}}
     }
-    
     @Published var groupImage: Image?
     private var uiImage: UIImage?
     

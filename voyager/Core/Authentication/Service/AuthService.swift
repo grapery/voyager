@@ -42,7 +42,7 @@ class AuthService {
 //        guard let currentUid = self.userSession?.uid else { return }
 //        self.currentUser = try await UserService.fetchUser(withUid: currentUid)
     }
-    
+    @MainActor
     func signout() async throws{
         // TODO： 删除本地缓存的token，然后和服务器交互、或者写入本地标记位需要重新登录
         if self.token == "" {
@@ -61,18 +61,13 @@ class AuthService {
         }
         return
     }
-    
+    @MainActor
     func register(account email: String,password: String,name: String,full_name: String) async throws -> Int32{
         // 注册用户
         let result = try await APIClient.shared.Register(account: email, password: password, name: name)
         
         print("register result:\(result.status)")
         return result.status
-    }
-    
-    func uploadUserData(uid: String, username: String, email: String, fullname: String) async {
-//        let user = User(id: uid, email: email, username: username, fullname: fullname, isCurrentUser:true)
-//        self.currentUser = user
     }
 }
 

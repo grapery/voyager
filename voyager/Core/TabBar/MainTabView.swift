@@ -19,31 +19,31 @@ struct MainTabView: View {
         TabView (selection: $selectedItem){
             FeedView()
                 .tabItem {
-                    Image(systemName: "house")
+                    Image(systemName: "tornado")
                 }
                 .tag(1)
             
-            SearchView()
+            HotmapView()
                 .tabItem {
-                    Image(systemName: "magnifyingglass").symbolRenderingMode(.hierarchical)
+                    Image(systemName: "map")
                 }
                 .tag(2)
             
             Text("New...")
                 .tabItem {
-                    Image(systemName: "square.and.pencil")
+                    Image(systemName: "rectangle.and.pencil.and.ellipsis")
                 }
                 .tag(3)
             
             Text("Subscript")
                 .tabItem {
-                    Image(systemName: "envelope.badge")
+                    Image(systemName: "bubble")
                 }
                 .tag(4)
             
             MainUserProfileView(user: user)
                 .tabItem {
-                    Image(systemName: "person")
+                    Image(systemName: "shared.with.you")
                 }
                 .tag(5)
         }

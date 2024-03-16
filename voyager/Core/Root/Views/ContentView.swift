@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct GraperyApp: View {
-    
     @StateObject var viewModel = LoginViewModel()
     @StateObject var registrationViewModel = RegistrationViewModel()
     var body: some View {

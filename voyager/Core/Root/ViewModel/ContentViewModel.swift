@@ -11,11 +11,9 @@ import Combine
 class ContentViewModel: ObservableObject {
     
     private let service = AuthService.shared
-    @Published var currentUser: User?
-    @Published var userSession: String?
     
     init() {
-        loadUserToken()
+
     }
     
     func loadUserToken() {

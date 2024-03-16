@@ -44,6 +44,9 @@
 		0F8855622B3B10BE002AD7E4 /* base.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F88555B2B3B10BD002AD7E4 /* base.pb.swift */; };
 		0F8855632B3B10BE002AD7E4 /* project.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F88555C2B3B10BD002AD7E4 /* project.pb.swift */; };
 		0F8855642B3B10BE002AD7E4 /* service.connect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F88555D2B3B10BE002AD7E4 /* service.connect.swift */; };
+		0F88556B2B3C673C002AD7E4 /* HotmapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F88556A2B3C673C002AD7E4 /* HotmapView.swift */; };
+		0F88556E2B3C6759002AD7E4 /* HotmapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F88556D2B3C6759002AD7E4 /* HotmapViewModel.swift */; };
+		0F8855702B3C6BEF002AD7E4 /* Strategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F88556F2B3C6BEF002AD7E4 /* Strategy.swift */; };
 		0F95603B2B065A9C00C1DA0D /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 0F95603A2B065A9C00C1DA0D /* OpenAPIRuntime */; };
 		0F95603F2B065AA800C1DA0D /* SwiftProtobufPluginLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = 0F95603E2B065AA800C1DA0D /* SwiftProtobufPluginLibrary */; };
 		0FA8EACA2B08B11C00FFE00C /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA8EAC92B08B11C00FFE00C /* Project.swift */; };
@@ -136,6 +139,9 @@
 		0F88555B2B3B10BD002AD7E4 /* base.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = base.pb.swift; sourceTree = "<group>"; };
 		0F88555C2B3B10BD002AD7E4 /* project.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = project.pb.swift; sourceTree = "<group>"; };
 		0F88555D2B3B10BE002AD7E4 /* service.connect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = service.connect.swift; sourceTree = "<group>"; };
+		0F88556A2B3C673C002AD7E4 /* HotmapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotmapView.swift; sourceTree = "<group>"; };
+		0F88556D2B3C6759002AD7E4 /* HotmapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotmapViewModel.swift; sourceTree = "<group>"; };
+		0F88556F2B3C6BEF002AD7E4 /* Strategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strategy.swift; sourceTree = "<group>"; };
 		0FA8EAC92B08B11C00FFE00C /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
 		0FA8EAD02B08BE3400FFE00C /* MessageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageViewModel.swift; sourceTree = "<group>"; };
 		0FA8EAD22B08BE4B00FFE00C /* MessageCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCellViewModel.swift; sourceTree = "<group>"; };
@@ -303,6 +309,31 @@
 			path = Generated;
 			sourceTree = "<group>";
 		};
+		0F8855662B3C66CE002AD7E4 /* Hotmap */ = {
+			isa = PBXGroup;
+			children = (
+				0F8855692B3C6718002AD7E4 /* ViewModel */,
+				0F8855672B3C66E8002AD7E4 /* Views */,
+			);
+			path = Hotmap;
+			sourceTree = "<group>";
+		};
+		0F8855672B3C66E8002AD7E4 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				0F88556A2B3C673C002AD7E4 /* HotmapView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		0F8855692B3C6718002AD7E4 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				0F88556D2B3C6759002AD7E4 /* HotmapViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		0F9560392B065A9C00C1DA0D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -348,6 +379,7 @@
 		0FFA50542B0857D900D3A4CF /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				0F8855662B3C66CE002AD7E4 /* Hotmap */,
 				0FA8EACB2B08BDC200FFE00C /* Message */,
 				0FFA50552B0857D900D3A4CF /* TabBar */,
 				0FFA50572B0857D900D3A4CF /* Search */,
@@ -567,6 +599,7 @@
 				0FFA50872B0857DA00D3A4CF /* LeafItem.swift */,
 				0F0047612B08A4CF005FF1A6 /* Group.swift */,
 				0FA8EAC92B08B11C00FFE00C /* Project.swift */,
+				0F88556F2B3C6BEF002AD7E4 /* Strategy.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -760,6 +793,8 @@
 				0FFA50952B0857DA00D3A4CF /* ContentViewModel.swift in Sources */,
 				0FA8EAD52B08BE6000FFE00C /* MessageView.swift in Sources */,
 				0FFA50892B0857DA00D3A4CF /* SearchViewModel.swift in Sources */,
+				0F88556B2B3C673C002AD7E4 /* HotmapView.swift in Sources */,
+				0F88556E2B3C6759002AD7E4 /* HotmapViewModel.swift in Sources */,
 				0FFA508B2B0857DA00D3A4CF /* CircularProfileImageView.swift in Sources */,
 				0FFA508D2B0857DA00D3A4CF /* EditProfileViewModel.swift in Sources */,
 				0F59E7B52B065409007C2B74 /* colors.swift in Sources */,
@@ -785,6 +820,7 @@
 				0F59E7B42B065409007C2B74 /* resources.swift in Sources */,
 				0F0709282B1F65760023F8EC /* GroupService.swift in Sources */,
 				0F07092C2B1F65B80023F8EC /* HelperService.swift in Sources */,
+				0F8855702B3C6BEF002AD7E4 /* Strategy.swift in Sources */,
 				0F8855642B3B10BE002AD7E4 /* service.connect.swift in Sources */,
 				0FFA509C2B0857DA00D3A4CF /* RegistrationView.swift in Sources */,
 				0FFA509B2B0857DA00D3A4CF /* AuthService.swift in Sources */,
