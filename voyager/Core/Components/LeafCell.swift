@@ -13,8 +13,8 @@ struct LeafCell: View {
     var body: some View {
         HStack {
             VStack {
-                if let user = leaves.user {
-                    CircularProfileImageView(avatarUrl: user.avatar, size: .leaf)
+                if let avator = leaves.avator {
+                    CircularProfileImageView(avatarUrl: avator, size: .leaf)
                 }
                 
                 Rectangle()
@@ -47,10 +47,8 @@ struct LeafCell: View {
             
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    if let user = leaves.user {
-                        Text(user.name)
-                            .font(.headline)
-                    }
+                    Text(leaves.title)
+                        .font(.headline)
                     
                     Spacer()
                     

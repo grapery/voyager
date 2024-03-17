@@ -12,6 +12,7 @@ struct LeafItem: Identifiable, Hashable {
     let ownerUid: String
     let avator: String?
     let text: String?
+    let title: String
     let likes: Int
     let replies: Int
     let imageUrl: String?
@@ -22,7 +23,8 @@ struct LeafItem: Identifiable, Hashable {
     let prevItem: Int64
     let nextItem: Int64
     let is_leaf: Bool
-    init(id: String, ownerUid: String, text: String?, likes: Int, replies: Int, imageUrl: String?, timestamp: Int64,videoUrl: String,content: String,prompt: String,prevItem: Int64,nextItem: Int64,is_leaf: Bool,avator: String) {
+    let user: User?
+    init(id: String, ownerUid: String, text: String?, likes: Int, replies: Int, imageUrl: String?, timestamp: Int64,videoUrl: String,content: String,prompt: String,prevItem: Int64,nextItem: Int64,is_leaf: Bool,avator: String,title: String,user: User) {
         self.id = id
         self.ownerUid = ownerUid
         self.text = text
@@ -37,8 +39,9 @@ struct LeafItem: Identifiable, Hashable {
         self.prevItem = prevItem
         self.prompt = prompt
         self.avator = avator
+        self.title = title
+        self.user = user
     }
-    
 }
 
 
