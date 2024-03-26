@@ -20,4 +20,20 @@ open class AliyunClient {
         config.endpoint = "nas.cn-hangzhou.aliyuncs.com"
         return try AlibabacloudNAS20170626.Client(config)
     }
+    
+    public static func UploadImage(){
+        
+    }
+    
+    public static func DownloadImage(){
+        
+    }
+    
+    public static func UploadVideo(){
+        
+    }
+    
+    public static func DownloadVideo(){
+        
+    }
 }

@@ -19,9 +19,7 @@ struct voyagerApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup {
-            NavigationView{
-                GraperyApp()
-            }
+            GraperyApp()
         }
     }
 }

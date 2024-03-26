@@ -12,7 +12,7 @@ import Connect
 import SwiftUI
 
 extension APIClient {
-    func fetchUser(withUid uid: Int64) async throws -> User {
+    func fetchUser(withUid uid: Int64) async -> User {
         var result = User()
         var resp :ResponseMessage<Common_UserInfoResponse>
         do {
@@ -30,7 +30,7 @@ extension APIClient {
         return result
     }
     
-    func fetchUsersInSameProject(projectId:Int64,userId: Int64) async throws -> ([User],Int32,Dictionary<String,Int64>) {
+    func fetchUsersInSameProject(projectId:Int64,userId: Int64) async -> ([User],Int32,Dictionary<String,Int64>) {
         var resp :ResponseMessage<Common_GetProjectMembersResponse>
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)
@@ -46,7 +46,7 @@ extension APIClient {
         return (resp.message!.list,resp.message!.total,resp.message!.role)
     }
     
-    func fetchUsersInSameGroup(groupId:Int64,userId: Int64,offset: Int64,size: Int64) async throws -> [User] {
+    func fetchUsersInSameGroup(groupId:Int64,userId: Int64,offset: Int64,size: Int64) async  -> [User] {
         var resp :ResponseMessage<Common_FetchGroupMembersResponse>
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)
@@ -63,8 +63,16 @@ extension APIClient {
         return resp.message!.list
     }
     // 如果project有权限设置，就需要检查当前用户的权限
-    func fetchUsersIsProjectWatcher(projectId:Int64,userId: Int64) async throws -> [User] {
+    func fetchUsersIsProjectWatcher(projectId:Int64,userId: Int64) async -> [User] {
         let users: [User] = []
         return users
+    }
+    
+    func fetchUserProfile(userId: Int64) async -> UserProfile{
+        return UserProfile()
+    }
+    
+    func updateUserProfile(userId: Int64,profile: UserProfile) async -> UserProfile{
+        return UserProfile()
     }
 }

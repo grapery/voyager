@@ -18,7 +18,6 @@ extension Date{
 struct FeedView: View {
     
     @StateObject var viewModel = FeedViewModel(timeStamp: Int64(Date().timeStamp) ?? 0)
-    
     var body: some View {
         NavigationStack {
             ScrollView {

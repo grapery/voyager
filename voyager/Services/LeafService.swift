@@ -9,18 +9,23 @@ import Foundation
 
 extension APIClient {
 
-    func fetchFeedLeaves(offset: Int64,size: Int64) async throws -> [LeafItem] {
+    func fetchFeedLeaves(offset: Int64,size: Int64,filter: [String]) async -> ([LeafItem],Int64,Int64) {
+        let items: [LeafItem] = []
+        return (items,0,0)
+    }
+    
+    func fetchUserLeaves(uid: Int64,offset: Int64,size: Int64,filter: [String]) async  -> ( [LeafItem],Int64,Int64)? {
+        let items: [LeafItem] = []
+        return (items,0,0)
+    }
+    
+    func fetchGroupLeaves(groupId: Int64,offset: Int64,size: Int64,filter: [String]) async  -> [LeafItem] {
         let items: [LeafItem] = []
         return items
     }
     
-    func fetchUserLeaves(uid: UInt64,offset: Int64,size: Int64) async throws -> [LeafItem] {
+    func fetchProjectLeaves(groupId: Int64,projextId: Int64,offset: Int64,size: Int64,filter: [String]) async -> ([LeafItem],Int64,Int64){
         let items: [LeafItem] = []
-        return items
-    }
-    
-    func fetchGroupLeaves(groupId: UInt64,offset: Int64,size: Int64) async throws -> [LeafItem] {
-        let items: [LeafItem] = []
-        return items
+        return (items,0,0)
     }
 }

@@ -6,3 +6,20 @@
 //
 
 import Foundation
+import SwiftData
+
+
+typealias License = Int64
+
+
+@available(iOS 17, *)
+class LicenseDataModel{
+    @Attribute(.unique) var id: String
+    var name: String
+    var content: String
+    init(id: String, name: String, content: String) {
+        self.id = id
+        self.name = name
+        self.content = content
+    }
+}

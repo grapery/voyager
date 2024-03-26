@@ -22,14 +22,18 @@ class AuthService {
     }
     
     @MainActor
-    func login(withEmail email: String, password: String) async throws{
-        let result = try await APIClient.shared.Login(account: email, password: password)
-        if result.token == "" {
-            return
+    func login(withEmail email: String, password: String) async{
+        do{
+            let result = try await APIClient.shared.Login(account: email, password: password)
+            if result.token == "" {
+                return
+            }
+            self.token = result.token
+            self.currentUser = try await APIClient.shared.GetUserInfo(userId: result.userID)
+            print("user \(String(describing: self.currentUser))")
+        }catch{
+            print("login error")
         }
-        self.token = result.token
-        self.currentUser = try await APIClient.shared.GetUserInfo(userId: result.userID)
-        print("user \(String(describing: self.currentUser))")
     }
     
      
@@ -43,31 +47,46 @@ class AuthService {
 //        self.currentUser = try await UserService.fetchUser(withUid: currentUid)
     }
     @MainActor
-    func signout() async throws{
+    func signout() async{
         // TODO： 删除本地缓存的token，然后和服务器交互、或者写入本地标记位需要重新登录
         if self.token == "" {
             return 
         }
         self.token = ""
-        let result = try await APIClient.shared.Logout()
-        print("logout result:\(result)")
+        do {
+            let result = try await APIClient.shared.Logout()
+            print("logout result:\(result)")
+        }catch {
+            print("logout error")
+        }
     }
     
-    func refreshToken() async throws{
+    func refreshToken() {
        // 程序自动和服务程序交互，刷新token
-        if self.token != "" {
-            let result = try await APIClient.shared.RefreshToken(curToken:self.token!)
-            print("refresh new token: \(result)")
+        Task{
+            do {
+                if self.token != "" {
+                    let result = try await APIClient.shared.RefreshToken(curToken:self.token!)
+                    print("refresh new token: \(result)")
+                }
+            }catch{
+                print("refresh token failed")
+            }
         }
         return
     }
     @MainActor
-    func register(account email: String,password: String,name: String,full_name: String) async throws -> Int32{
+    func register(account email: String,password: String,name: String,full_name: String) async  -> Int32{
         // 注册用户
-        let result = try await APIClient.shared.Register(account: email, password: password, name: name)
-        
-        print("register result:\(result.status)")
-        return result.status
+        do {
+            var result = try await APIClient.shared.Register(account: email, password: password, name: name)
+            
+            print("register result:\(result.code)")
+            return result.code
+        }catch{
+            print("register error")
+        }
+        return -1
     }
 }
 

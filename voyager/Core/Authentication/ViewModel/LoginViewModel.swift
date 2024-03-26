@@ -19,7 +19,7 @@ class LoginViewModel: ObservableObject {
         loadUserToken()
         if token.isEmpty {
             Task{
-                try await service.login(withEmail: email, password: password)
+                await service.login(withEmail: email, password: password)
                 self.token = service.token!
                 self.currentUser = service.currentUser
                 self.email = self.currentUser!.email

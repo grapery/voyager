@@ -61,7 +61,7 @@ struct APIClient{
                 $0.name = name;
             }
             resp = await authClient.register(request: request, headers: [:])
-            result.status = resp.message!.status
+            result.code = resp.message!.code
         }
         return result
     }

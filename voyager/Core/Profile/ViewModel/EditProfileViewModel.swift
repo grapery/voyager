@@ -9,7 +9,6 @@ import Foundation
 import PhotosUI
 import SwiftUI
 
-@MainActor
 class EditProfileViewModel: ObservableObject {
     
     @Published var user: User
@@ -52,7 +51,6 @@ class EditProfileViewModel: ObservableObject {
     }
 }
 
-@MainActor
 class EditProjectProfileViewModel: ObservableObject {
     @Published var projectProfile: ProjectProfile
     
@@ -77,7 +75,6 @@ class EditProjectProfileViewModel: ObservableObject {
     }
 }
 
-@MainActor
 class EditGroupProfileViewModel: ObservableObject {
     @Published var profile: GroupProfile
     @Published var selectedImage: PhotosPickerItem? {
