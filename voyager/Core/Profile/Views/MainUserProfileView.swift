@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MainUserProfileView: View {
-    @State private var selectedFilter: LeafFilterViewModel = .leaves
+    @State private var selectedFilter: LeafFilterViewModel = .storyitems
     @State private var showingEditProfile = false
     @Namespace var animation
     var user: User

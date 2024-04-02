@@ -11,7 +11,7 @@ struct ProfileView: View {
     
     var user: User
     
-    @State private var selectedFilter: LeafFilterViewModel = .leaves
+    @State private var selectedFilter: LeafFilterViewModel = .storyitems
     
     @Namespace var animation
     

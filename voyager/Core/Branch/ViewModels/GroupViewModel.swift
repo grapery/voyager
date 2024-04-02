@@ -20,16 +20,16 @@ class GroupViewModel: ObservableObject {
         self.user = user
         self.projectList = [Project]()
         self.members = [User]()
-        self.groupProfile = GroupProfile()
-        self.info  = BranchGroup()
+        self.groupProfile = GroupProfile(profile: Common_GroupProfileInfo())
+        self.info  = BranchGroup(info: Common_GroupInfo())
     }
     
     func fetchGroupInfo() async{
-        self.info  = BranchGroup()
+        self.info  = BranchGroup(info: Common_GroupInfo())
     }
     
     func fetchGroupProfile() async {
-        self.groupProfile = GroupProfile()
+        self.groupProfile = GroupProfile(profile: Common_GroupProfileInfo())
     }
     
     func fetchGroupMembers() async {

@@ -21,15 +21,21 @@ class SearchViewModel: ObservableObject {
     @Published var groups = [BranchGroup]()
     @Published var currentUser :User?
     @Published var query: String = ""
-    @Published var LastVisionTime: UInt64 = 0
-    
     @Published var useAI: Bool = false
     @Published var useLocation: Bool = false
     @Published var offset: Int = 0
     @Published var limit: Int = 10
     
-    init() {
-        Task { await FetchTrending(trendingType: .AllTrandingType) }
+    init(currentUser: User? = nil, query: String, useAI: Bool, useLocation: Bool, offset: Int, limit: Int) {
+        self.users = [User]()
+        self.projects = [Project]()
+        self.groups = [BranchGroup]()
+        self.currentUser = currentUser
+        self.query = query
+        self.useAI = useAI
+        self.useLocation = useLocation
+        self.offset = offset
+        self.limit = limit
     }
     
     @MainActor
@@ -58,11 +64,11 @@ class SearchViewModel: ObservableObject {
     }
     
     @MainActor
-    func SearchProjectCreatedByUser() async {
+    func SearchUserProjectCreated() async {
         
     }
     @MainActor
-    func SearchProjectJointedByUser() async {
+    func SearchUserProjectJointed() async {
         
     }
     @MainActor
@@ -70,11 +76,11 @@ class SearchViewModel: ObservableObject {
         
     }
     @MainActor
-    func SearchGroupCreatedByUser() async {
+    func SearchUserGroupCreated() async {
         
     }
     @MainActor
-    func SearchGroupJointedByUser() async {
+    func SearchUserJointedGroup() async {
         
     }
     

@@ -8,6 +8,17 @@
 import Foundation
 
 // 组织，或者志趣相投的一群人
-typealias BranchGroup = Common_GroupInfo
 
-typealias GroupProfile = Common_GroupProfileInfo
+class BranchGroup: Identifiable{
+    var info: Common_GroupInfo
+    init(info: Common_GroupInfo) {
+        self.info = info
+    }
+}
+
+class GroupProfile: Identifiable{
+    var profile: Common_GroupProfileInfo
+    init(profile: Common_GroupProfileInfo) {
+        self.profile = profile
+    }
+}
