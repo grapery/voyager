@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct GroupView: View {
     public var user: User?
@@ -16,5 +17,22 @@ struct GroupView: View {
     }
     var body: some View {
         Text("Group view")
+        KFImage(URL(string: self.user!.avatar))
+            .resizable()
+            .scaledToFill()
+            .clipShape(Circle())
+            .frame(width: 48, height: 48)
+    }
+}
+
+
+struct GroupCellView: View{
+    public var info: BranchGroup
+    var body: some View{
+        KFImage(URL(string: self.info.info.avatar))
+            .resizable()
+            .scaledToFill()
+            .clipShape(Circle())
+            .frame(width: 48, height: 48)
     }
 }
