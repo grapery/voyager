@@ -34,7 +34,11 @@ struct MainTabView: View {
                     Image(systemName: "bubble")
                 }
                 .tag(3)
-            
+            ProjectView(textValue: "dev")
+                .tabItem {
+                    Image(systemName: "compass")
+                }
+                .tag(2)
             MainUserProfileView(user: user)
                 .tabItem {
                     Image(systemName: "shared.with.you")

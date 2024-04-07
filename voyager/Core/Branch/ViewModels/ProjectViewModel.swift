@@ -25,25 +25,28 @@ class ProjectViewModel: ObservableObject{
     }
     
     func fetchProjectInfo(projrctId: Int64) async {
-        var realInfo = await APIClient.shared.getProjectInfo(userId: self.currentUser.userID, projrctId:projrctId)
+        var realInfo = await APIClient.shared.getProjectInfo(userId: self.currentUser.userID, projectId:projrctId)
         self.info = realInfo
-    }
-    
-    func fetchProjectJoinedUsers() async  {
-        var users = await APIClient.shared.getProjectProfile(userId: <#T##Int64#>, projrctId: <#T##Int64#>)
-        self.activeUsers = [User]()
         return
     }
     
-    func fetchProjectTimeline() async {
+    func fetchProjectJoinedUsers(projrctId: Int64,filter: [String]) async  {
+        let (users,total,offset) = await APIClient.shared.getProjectJoinedUsers(projectId: projrctId, filter:filter)
+        self.activeUsers = users
+        return
+    }
+    
+    func fetchProjectTimeline(projrctId: Int64,forkId: Int64,timeStamp: Int64,filter: [String]) async {
+        
         self.limelines = [TimeLineModel]()
     }
     
-    func fetchProjectForkItem() async{
-        
+    func fetchProjectForkItems(projrctId: Int64,forkId: Int64,timeStamp: Int64,filter: [String]) async -> ([StoryItem],Int64,Int64){
+        return ([StoryItem](),0,0)
     }
     
-    func fetchProjectItem(timelineId: Int64,offset: Int64,num: Int64,filter:[String]) async {
-        return
+    func fetchProjectItems(timelineId: Int64,timeStamp: Int64,offset: Int64,num: Int64,filter:[String]) async -> ([StoryItem],Int64,Int64){
+        
+        return ([StoryItem](),0,0)
     }
 }
