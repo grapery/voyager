@@ -19,12 +19,12 @@ extension APIClient {
         return (items,0,0)
     }
     
-    func fetchGroupLeaves(groupId: Int64,offset: Int64,size: Int64,filter: [String]) async  -> [StoryItem] {
+    func fetchGroupLeaves(groupId: Int64,offset: Int64,size: Int64,filter: [String]) async  -> ([StoryItem],Int64,Int64){
         let items: [StoryItem] = []
-        return items
+        return (items,0,0)
     }
     
-    func fetchProjectLeaves(groupId: Int64,projextId: Int64,offset: Int64,size: Int64,filter: [String]) async -> ([StoryItem],Int64,Int64){
+    func fetchProjectLeaves(groupId: Int64,projectId: Int64,offset: Int64,size: Int64,filter: [String]) async -> ([StoryItem],Int64,Int64){
         let items: [StoryItem] = []
         return (items,0,0)
     }

@@ -11,7 +11,14 @@ import SwiftUI
 
 @MainActor
 class NewStoryItemViewModel: ObservableObject {
+    @Published var description: String
+    @Published var prompt: String
     
+    @Published var userImage: Image?
+    private var uiImage: UIImage?
+    @Published var user: User
+    @Published var projectId: Int64
+    @Published var timelineId: Int64
     @Published var selectedImage: PhotosPickerItem? {
         didSet {
             Task {
@@ -20,10 +27,17 @@ class NewStoryItemViewModel: ObservableObject {
         }
     }
     
-    @Published var userImage: Image?
-    @Published var content: String?
+    init(description: String, prompt: String, userImage: Image? = nil, uiImage: UIImage? = nil, user: User, projectId: Int64, timelineId: Int64, selectedImage: PhotosPickerItem? = nil) {
+        self.description = description
+        self.prompt = prompt
+        self.userImage = userImage
+        self.uiImage = uiImage
+        self.user = user
+        self.projectId = projectId
+        self.timelineId = timelineId
+        self.selectedImage = selectedImage
+    }
     
-    private var uiImage: UIImage?
     
     func loadImage(fromItem item: PhotosPickerItem?) async {
         guard let item = item else { return }

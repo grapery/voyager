@@ -9,11 +9,11 @@ import Foundation
 
 
 class FeedCellViewModel: ObservableObject {
-    var user: User?
-    var item: StoryItem?
-    init(user: User? = nil, item: StoryItem? = nil) {
+    @Published var user: User?
+    @Published var items: StoryItem?
+    init(user: User? = nil, items: StoryItem? = nil) {
         self.user = user
-        self.item = item
+        self.items = items
     }
     
     func like() async{
@@ -24,5 +24,13 @@ class FeedCellViewModel: ObservableObject {
     func unlike() async{
         //await APIClient.shared.
         print("unlike buttom is pressed")
+    }
+    
+    func fetchItemComments() async -> [Comment] {
+        return [Comment]()
+    }
+    
+    func addCommentForItem(comment:Comment) async -> Void{
+        return
     }
 }
