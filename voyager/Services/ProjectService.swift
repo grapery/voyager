@@ -10,9 +10,20 @@ import Connect
 
 extension APIClient {
     // ptype: create/transfer/owned
-    func getUserProjects(offset: Int64,size: Int64,ptype: Int32,filter: [String]) async  -> ([Project],Int64,Int64) {
-        
-        return ([Project](),0,0)
+    func getUserProjects(userId: Int64,offset: Int64,size: Int64,ptype: Int32,filter: [String]) async  -> ([Project],Int64,Int64) {
+        var resp: ResponseMessage<Common_GetProjectListResponse>
+        var result = Common_GetProjectListResponse()
+        do{
+            let projectClient = Common_TeamsApiClient(client: self.client!)
+            // Performed within an async context.
+            let request = Common_GetProjectListRequest.with {
+                $0.userID = userId
+            }
+            resp = await projectClient.getProjectList(request: request, headers: [:])
+            result = resp.message!
+        }
+        let ret = result.list
+        return (ret,result.offset,result.pageSize)
     }
     
     func getProjectInfo(userId: Int64,projectId: Int64) async  -> Project {
