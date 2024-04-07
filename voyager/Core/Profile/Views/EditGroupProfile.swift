@@ -1,14 +1,14 @@
 //
-//  EditProfileView.swift
+//  EditGroupProfile.swift
 //  voyager
 //
-//  Created by grapestree on 2023/11/16.
+//  Created by grapestree on 2024/4/7.
 //
 
 import SwiftUI
 import PhotosUI
 
-struct EditProfileView: View {
+struct EditGroupProfile: View {
     @State private var selectedImage: PhotosPickerItem?
     @StateObject var viewModel: EditProfileViewModel
     @Environment(\.dismiss) var dismiss
@@ -87,3 +87,6 @@ struct EditProfileView: View {
     }
 }
 
+#Preview {
+    EditGroupProfile(user: User())
+}

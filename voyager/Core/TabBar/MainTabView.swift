@@ -29,17 +29,17 @@ struct MainTabView: View {
                 }
                 .tag(2)
             
-            Text("Subscript")
+            SearchView()
                 .tabItem {
                     Image(systemName: "bubble")
                 }
-                .tag(4)
+                .tag(3)
             
             MainUserProfileView(user: user)
                 .tabItem {
                     Image(systemName: "shared.with.you")
                 }
-                .tag(5)
+                .tag(4)
         }
         .accentColor(.primary)
         .onChange(of: selectedItem) {
