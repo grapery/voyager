@@ -11,22 +11,26 @@ import Foundation
 class ProjectViewModel: ObservableObject{
     @Published var groupInfo: BranchGroup
     @Published var activeUsers: [User]
+    @Published var currentUser: User
     @Published var info: Project
     @Published var projectProfile: ProjectProfile
     @Published var limelines: [TimeLineModel]
-    init(groupInfo: BranchGroup, activeUsers: [User], projectInfo: Project, projectProfile: ProjectProfile, limelines: [TimeLineModel]) {
+    init(groupInfo: BranchGroup, activeUsers: [User], currentUser: User, info: Project, projectProfile: ProjectProfile, limelines: [TimeLineModel]) {
         self.groupInfo = groupInfo
         self.activeUsers = activeUsers
-        self.info = projectInfo
+        self.currentUser = currentUser
+        self.info = info
         self.projectProfile = projectProfile
         self.limelines = limelines
     }
     
-    func fetchProjectInfo() async {
-        self.info = Project()
+    func fetchProjectInfo(projrctId: Int64) async {
+        var realInfo = await APIClient.shared.getProjectInfo(userId: self.currentUser.userID, projrctId:projrctId)
+        self.info = realInfo
     }
     
     func fetchProjectJoinedUsers() async  {
+        var users = await APIClient.shared.getProjectProfile(userId: <#T##Int64#>, projrctId: <#T##Int64#>)
         self.activeUsers = [User]()
         return
     }

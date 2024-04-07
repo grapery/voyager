@@ -6,29 +6,70 @@
 //
 
 import Foundation
+import Connect
 
 extension APIClient {
     // ptype: create/transfer/owned
-    func getUserProjects(offset: Int64,size: Int64,ptype: Int32,filter: [String]) async  -> [Project] {
-        let items: [Project] = []
-        return items
+    func getUserProjects(offset: Int64,size: Int64,ptype: Int32,filter: [String]) async  -> ([Project],Int64,Int64) {
+        
+        return ([Project](),0,0)
     }
     
-    func getProjectInfo(userId: Int64,projrctId: Int64) async  -> Project {
-        return Project()
+    func getProjectInfo(userId: Int64,projectId: Int64) async  -> Project {
+        var resp: ResponseMessage<Common_GetProjectResponse>
+        var result = Common_GetProjectResponse()
+        do{
+            let projectClient = Common_TeamsApiClient(client: self.client!)
+            // Performed within an async context.
+            let request = Common_GetProjectRequest.with {
+                $0.projectID = projectId;
+                $0.userID = userId
+            }
+            resp = await projectClient.getProjectInfo(request: request, headers: [:])
+            result = resp.message!
+        }
+        return result.info
     }
     
-    func getProjectProfile(userId: Int64,projrctId: Int64) async  -> ProjectProfile {
-        return ProjectProfile()
+    func getProjectProfile(userId: Int64,projectId: Int64) async  -> ProjectProfile {
+        var resp: ResponseMessage<Common_GetProjectProfileResponse>
+        var result = Common_GetProjectProfileResponse()
+        do{
+            let projectClient = Common_TeamsApiClient(client: self.client!)
+            // Performed within an async context.
+            let request = Common_GetProjectProfileRequest.with {
+                $0.projectID = projectId;
+                $0.userID = userId
+            }
+            resp = await projectClient.getProjectProfile(request: request, headers: [:])
+            result = resp.message!
+        }
+        return result.info
     }
     
-    func UpdateProjectProfile(userId: Int64,projrctId: Int64) async  -> ProjectProfile {
+    func UpdateProjectProfile(userId: Int64,projectId: Int64,profile: ProjectProfile) async  -> ProjectProfile {
         return ProjectProfile()
     }
     
     func getUserWatchingProject(uid: UInt64,offset: Int64,size: Int64) async  -> [Project] {
         let items: [Project] = []
         return items
+    }
+    
+    func getProjectJoinedUsers(projectId: Int64,filter: [String])async -> ([User],Int64,Int64){
+        var resp: ResponseMessage<Common_GetProjectMembersResponse>
+        var result = Common_GetProjectMembersResponse()
+        do{
+            let projectClient = Common_TeamsApiClient(client: self.client!)
+            // Performed within an async context.
+            let request = Common_GetProjectMembersRequest.with {
+                $0.projectID = Int32(projectId);
+            }
+            resp = await projectClient.getProjectMembers(request: request, headers: [:])
+            result = resp.message!
+        }
+        var ret = result.list
+        return (ret,Int64(result.total),Int64(result.total))
     }
     
     func UnWatchingProject(uid: UInt64,offset: Int64,size: Int64) async  {
@@ -43,6 +84,12 @@ extension APIClient {
         return
     }
     
+    func CreateTimelineForProject(userId: Int64,projectId: Int64,currentId: Int64) async ->TimeBranch{
+        return TimeBranch(id: " ")
+    }
+    
+    
+    
     func CloseProject(projectId: Int64,userId: Int64) async   {
         return
     }
@@ -50,4 +97,5 @@ extension APIClient {
     func DeleteProject(projectId: Int64,userId: Int64) async   {
         return
     }
+    
 }

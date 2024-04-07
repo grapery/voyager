@@ -37,12 +37,14 @@ class FeedViewModel: ObservableObject {
 class TimeLineModel: ObservableObject{
     @Published var rootId: Int64
     @Published var totalCount: Int64
+    @Published var forkId: [Int64]
     @Published var currentId: Int64
     @Published var tags: [String]
     
-    init(rootId: Int64, totalCount: Int64, currentId: Int64, tags: [String]) {
+    init(rootId: Int64, totalCount: Int64, forkId: [Int64], currentId: Int64, tags: [String]) {
         self.rootId = rootId
         self.totalCount = totalCount
+        self.forkId = forkId
         self.currentId = currentId
         self.tags = tags
     }
