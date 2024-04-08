@@ -15,7 +15,7 @@ struct NewStoryItemView: View {
     @State private var leafText = ""
     
     @State private var imagePickerPresented = false
-    @StateObject var viewModel = NewStoryItemViewModel()
+    @StateObject var viewModel = NewStoryItemViewModel(description: <#String#>, prompt: <#String#>, user: <#User#>, projectId: <#Int64#>, timelineId: <#Int64#>)
     
     let user: User
     

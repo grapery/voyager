@@ -79,7 +79,7 @@ extension APIClient {
             resp = await projectClient.getProjectMembers(request: request, headers: [:])
             result = resp.message!
         }
-        var ret = result.list
+        let ret = result.list
         return (ret,Int64(result.total),Int64(result.total))
     }
     

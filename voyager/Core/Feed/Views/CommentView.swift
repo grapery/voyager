@@ -9,9 +9,7 @@ import Foundation
 import SwiftUI
 
 struct CommentsCell: View {
-    
     let comment: Comment
-    
     private var user: User? {
         return comment.commentUser
     }
@@ -24,8 +22,8 @@ struct CommentsCell: View {
                 HStack(spacing: 2) {
                     Text(self.comment.commentUser.name)
                         .fontWeight(.semibold)
-//                    Text(comment.realComment.ctime)
-//                        .foregroundColor(.gray)
+                    Text(comment.realComment.ctime.formatted())
+                        .foregroundColor(.gray)
                 }
                 
                 Text(comment.realComment.content)
@@ -42,12 +40,10 @@ struct CommentsView: View {
     @State public var commentText = ""
     @StateObject var viewModel : CommentsViewModel
     var user: User
-    
     init(user:User,item: StoryItem) {
         self.user = user
         _viewModel = StateObject(wrappedValue: CommentsViewModel(user: user,item:item))
     }
-    
     var body: some View {
         VStack {
             Text("Comments")
@@ -65,12 +61,9 @@ struct CommentsView: View {
                 }
             }
             .padding(.top)
-            
             Divider()
-            
             HStack(spacing: 12) {
                 CircularProfileImageView(avatarUrl: viewModel.user!.avatar, size: .profile)
-                
                 ZStack(alignment: .trailing) {
                     TextField("Add a comment...", text: $commentText, axis: .vertical)
                         .font(.footnote)
@@ -80,7 +73,6 @@ struct CommentsView: View {
                             Capsule()
                                 .stroke(Color(.systemGray5), lineWidth: 1)
                         }
-                    
                     Button {
                         Task {
                             try await viewModel.uploadComment(commentText: commentText)

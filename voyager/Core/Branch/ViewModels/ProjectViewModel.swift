@@ -25,13 +25,13 @@ class ProjectViewModel: ObservableObject{
     }
     
     func fetchProjectInfo(projrctId: Int64) async {
-        var realInfo = await APIClient.shared.getProjectInfo(userId: self.currentUser.userID, projectId:projrctId)
+        let realInfo = await APIClient.shared.getProjectInfo(userId: self.currentUser.userID, projectId:projrctId)
         self.info = realInfo
         return
     }
     
     func fetchProjectJoinedUsers(projrctId: Int64,filter: [String]) async  {
-        let (users,total,offset) = await APIClient.shared.getProjectJoinedUsers(projectId: projrctId, filter:filter)
+        let (users,_,_) = await APIClient.shared.getProjectJoinedUsers(projectId: projrctId, filter:filter)
         self.activeUsers = users
         return
     }
