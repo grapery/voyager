@@ -33,4 +33,9 @@ class FeedCellViewModel: ObservableObject {
     func addCommentForItem(comment:Comment) async -> Void{
         return
     }
+    
+    func share() async{
+        //await APIClient.shared.
+        print("share buttom is pressed")
+    }
 }

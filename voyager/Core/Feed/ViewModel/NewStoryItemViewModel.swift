@@ -27,15 +27,15 @@ class NewStoryItemViewModel: ObservableObject {
         }
     }
     
-    init(description: String, prompt: String, userImage: Image? = nil, uiImage: UIImage? = nil, user: User, projectId: Int64, timelineId: Int64, selectedImage: PhotosPickerItem? = nil) {
-        self.description = description
-        self.prompt = prompt
-        self.userImage = userImage
-        self.uiImage = uiImage
+    init(user: User, projectId: Int64, timelineId: Int64) {
+        self.description = ""
+        self.prompt = ""
+        self.uiImage = UIImage()
+        self.userImage = Image(uiImage: self.uiImage!)
         self.user = user
         self.projectId = projectId
         self.timelineId = timelineId
-        self.selectedImage = selectedImage
+        self.selectedImage = PhotosPickerItem(itemIdentifier: "default")
     }
     
     
@@ -48,10 +48,8 @@ class NewStoryItemViewModel: ObservableObject {
         self.userImage = Image(uiImage: uiImage)
     }
     
-    func uploadLeaf(text: String) async {
-//        guard let uiImage = uiImage else { return }
-//        let data = uiImage.jpegData(compressionQuality: 0.9)!
-//        let result = try await UploadLeaf(text: text, image: data)
-//        print(result)
+    func uploadItem() async {
+        
+        return
     }
 }

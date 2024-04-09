@@ -31,11 +31,11 @@ extension APIClient {
     // userId check is user is in block list
     // projectId check is project visable os is public
     // filter used to do some option work
-    func fetchItemsComment(userId: Int64,projectId: Int64,itemId: Int64,filter: [String],pageSize: Int64,pageNum : Int64)async -> ([Comment],Int64,Int64) {
+    func fetchItemsComment(userId: Int64,itemId: Int64,filter: [String],pageSize: Int64,pageNum : Int64)async -> ([Comment],Int64,Int64) {
         let comments: [Comment] = []
         return(comments,0,0)
     }
-    func createCommentForItems(userId: Int64,projectId: Int64,itemId: Int64,info: Common_CommentInfo) async ->Void {
+    func createCommentForItems(userId: Int64,itemId: Int64,info: Common_CommentInfo) async ->Void {
         return
     }
 }

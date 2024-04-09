@@ -17,6 +17,7 @@ class StoryItem: Identifiable,Equatable{
     @Published var projectId: Int64 = 0
     @Published var prevItem: Int64
     @Published var nextItem: Int64
+    @Published var ableFork: Bool
     var likes: Int64
     static func == (lhs: StoryItem, rhs: StoryItem) -> Bool {
         if lhs.itemId == rhs.itemId{
@@ -24,12 +25,21 @@ class StoryItem: Identifiable,Equatable{
         }
         return false
     }
-    init(user: User, itemId: Int64, items: [LeafItem], prevItem: Int64, nextItem: Int64) {
+    init(user: User, itemId: Int64) {
         self.user = user
         self.itemId = itemId
         self.items = items
-        self.prevItem = prevItem
-        self.nextItem = nextItem
+        self.prevItem = 0
+        self.nextItem = 0
         self.likes = 0
+    }
+    func fetchStoryItem()async -> Bool {
+        
+    }
+    func formStoryItem()async ->Bool{
+        if !self.ableFork{
+            return false
+        }
+        return true
     }
 }

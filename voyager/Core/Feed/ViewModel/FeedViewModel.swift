@@ -22,7 +22,7 @@ class FeedViewModel: ObservableObject {
     init(user: User) {
         self.projectId = 0
         self.groupId = 0
-        self.timeline = timeline
+        self.timeline = 0
         self.leaves = [StoryItem]()
         self.filters = [String]()
         self.page = 0
@@ -94,7 +94,7 @@ class TimeLineModel: ObservableObject{
         self.user = user
     }
     
-    func fetchTimelineLeaves()async -> Void {
+    func fetchTimelineLeaves() async -> Void {
         
     }
 }

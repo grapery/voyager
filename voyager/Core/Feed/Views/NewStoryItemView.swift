@@ -13,11 +13,13 @@ struct NewStoryItemView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var leafText = ""
-    
+    @State public  var projectId: Int64
+    @State public var timelineId: Int64
+    @State public var user: User
     @State private var imagePickerPresented = false
-    @StateObject var viewModel = NewStoryItemViewModel(description: <#String#>, prompt: <#String#>, user: <#User#>, projectId: <#Int64#>, timelineId: <#Int64#>)
+    @StateObject var viewModel = NewStoryItemViewModel(user: user,projectId: projectId,timelineId: timelineId)
     
-    let user: User
+    
     
     var body: some View {
         VStack {

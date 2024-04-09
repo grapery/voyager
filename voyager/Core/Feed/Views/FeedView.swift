@@ -32,7 +32,8 @@ struct FeedView: View {
     public var feedType: FeedType
     @StateObject var viewModel : FeedViewModel
     init(user: User) {
-        self._viewModel = StateObject(wrappedValue: FeedViewModel(projectId: <#T##Int64#>, groupId: <#T##Int64#>, timeline: <#T##Int64#>, page: <#T##Int64#>, size: <#T##Int64#>, timeStamp: <#T##Int64#>, user: <#T##User#>, tags: <#T##[String]#>))
+        self._viewModel = StateObject(wrappedValue: FeedViewModel(user: user))
+        self.feedType = .UserSelfAndFriend
     }
     var body: some View {
         NavigationStack {
