@@ -22,7 +22,7 @@ struct FeedCellView: View{
     }
     
     public var items: StoryItem? {
-        return viewModel.item
+        return self.viewModel.items
     }
     
     init(viewModel: FeedCellViewModel, showComments: Bool = false, showAlert: Bool = false) {
@@ -49,7 +49,7 @@ struct FeedCellView: View{
             .padding(.leading, 8)
             
             // Post Image
-            Text("\(String(describing: viewModel.item?.items[0].title))")
+            Text("\(String(describing: viewModel.items?.items[0].title))")
                 .padding(.trailing, 8)
                 .padding(.leading, 54)
             
@@ -65,8 +65,8 @@ struct FeedCellView: View{
                     }
                     
                     //Likes Label
-                    if (viewModel.item?.items[0].likes)!  > 0 {
-                        Text("\(String(describing: viewModel.item?.items[0].likes))")
+                    if (viewModel.items?.items[0].likes)!  > 0 {
+                        Text("\(String(describing: viewModel.items?.items[0].likes))")
                             .font(.footnote)
                     }
                 }
@@ -79,7 +79,7 @@ struct FeedCellView: View{
                 
                 Spacer()
                 
-                Text(String((viewModel.item?.items[0].timestamp)!))
+                Text(String((viewModel.items?.items[0].timestamp)!))
                     .font(.footnote)
                     .padding(.trailing, 20)
                     .foregroundColor(.gray)

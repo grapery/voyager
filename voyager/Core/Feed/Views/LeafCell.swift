@@ -13,34 +13,36 @@ struct LeafCell: View {
     var body: some View {
         HStack {
             VStack {
+                Text(leaves.title).font(.headline)
                 if let avator = leaves.avator {
                     CircularProfileImageView(avatarUrl: avator, size: .leaf)
                 }
-                
-                Rectangle()
-                    .frame(width: 2)
-                    .frame(maxHeight: .infinity)
-                    .foregroundColor(.secondary)
-                
-                ZStack{
-                    Image("Harry")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20)
-                        .clipShape(Circle())
-                        .offset(x: 0, y: 30)
-                    Image("Draco")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 25)
-                        .clipShape(Circle())
-                        .offset(x: -15, y: 10)
-                    Image("Ron")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30)
-                        .clipShape(Circle())
-                        .offset(x: 15, y: 5)
+                Section{
+                    Rectangle()
+                        .frame(width: 2)
+                        .frame(maxHeight: .infinity)
+                        .foregroundColor(.secondary)
+                    
+                    ZStack{
+                        Image("Harry")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20)
+                            .clipShape(Circle())
+                            .offset(x: 0, y: 30)
+                        Image("Draco")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 25)
+                            .clipShape(Circle())
+                            .offset(x: -15, y: 10)
+                        Image("Ron")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30)
+                            .clipShape(Circle())
+                            .offset(x: 15, y: 5)
+                    }
                 }
             }
             .padding(8)

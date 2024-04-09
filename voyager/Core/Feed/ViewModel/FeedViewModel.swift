@@ -11,7 +11,7 @@ class FeedViewModel: ObservableObject {
     @Published var projectId: Int64
     @Published var groupId: Int64
     @Published var timeline: Int64
-    @Published var leaves = [StoryItem]()
+    @Published var leaves: [StoryItem]
     @Published var filters = [String]()
     @Published var page: Int64
     @Published var size: Int64
@@ -19,17 +19,17 @@ class FeedViewModel: ObservableObject {
     @Published var user:User
     @Published var tags: [String]
     
-    init(projectId: Int64, groupId: Int64, timeline: Int64, leaves: [StoryItem] = [StoryItem](), filters: [String] = [String](), page: Int64, size: Int64, timeStamp: Int64, user: User, tags: [String]) {
-        self.projectId = projectId
-        self.groupId = groupId
+    init(user: User) {
+        self.projectId = 0
+        self.groupId = 0
         self.timeline = timeline
-        self.leaves = leaves
-        self.filters = filters
-        self.page = page
-        self.size = size
-        self.timeStamp = timeStamp
+        self.leaves = [StoryItem]()
+        self.filters = [String]()
+        self.page = 0
+        self.size = 0
+        self.timeStamp = 0
         self.user = user
-        self.tags = tags
+        self.tags = [String]()
     }
     
     @MainActor
@@ -80,17 +80,17 @@ class TimeLineModel: ObservableObject{
     @Published var timeStamp: Int64
     @Published var user:User
     
-    init(timelineId: Int64, rootId: Int64, totalCount: Int64, forkId: [Int64], currentId: Int64, leaves: [StoryItem] = [StoryItem](), filters: [String] = [String](), page: Int64, size: Int64, timeStamp: Int64, user: User) {
+    init(timelineId: Int64, user: User) {
         self.timelineId = timelineId
-        self.rootId = rootId
-        self.totalCount = totalCount
-        self.forkId = forkId
-        self.currentId = currentId
-        self.leaves = leaves
-        self.filters = filters
-        self.page = page
-        self.size = size
-        self.timeStamp = timeStamp
+        self.rootId = 0
+        self.totalCount = 0
+        self.forkId = [Int64]()
+        self.currentId = 0
+        self.leaves = [StoryItem]()
+        self.filters = [String]()
+        self.page = 0
+        self.size = 0
+        self.timeStamp = 0
         self.user = user
     }
     
