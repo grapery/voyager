@@ -97,8 +97,6 @@ struct NewStoryItemView: View {
     
     func clearLeafDataAndReturn() {
         leafText = ""
-        viewModel.userImage = nil
-        viewModel.selectedImage = nil
         dismiss()
     }
 }

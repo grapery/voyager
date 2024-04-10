@@ -28,7 +28,6 @@ struct MainTabView: View {
                     Image(systemName: "map")
                 }
                 .tag(2)
-            
             SearchView()
                 .tabItem {
                     Image(systemName: "bubble")
@@ -38,12 +37,12 @@ struct MainTabView: View {
                 .tabItem {
                     Image(systemName: "compass")
                 }
-                .tag(2)
+                .tag(4)
             MainUserProfileView(user: user)
                 .tabItem {
                     Image(systemName: "shared.with.you")
                 }
-                .tag(4)
+                .tag(5)
         }
         .accentColor(.primary)
         .onChange(of: selectedItem) {

@@ -10,7 +10,7 @@ import Foundation
 // 仅仅是图片、文字、视频的contaniner
 struct LeafItem: Identifiable, Hashable {
     let id: String
-    let ownerUid: String
+    let ownerUid: Int64
     let avator: String?
     let text: String?
     let title: String
@@ -21,7 +21,22 @@ struct LeafItem: Identifiable, Hashable {
     let content: String?
     let prompt: String?
     let timestamp: Int64
-    let is_leaf: Bool
+    
+    init(info: Common_ItemInfo) {
+        self.id = UUID().uuidString
+        self.ownerUid = info.userID
+        self.avator = "avator"
+        self.text = ""
+        self.title = info.title
+        self.likes = 0
+        self.replies = 0
+        self.imageUrl = "imageUrl"
+        self.videoUrl = "videoUrl"
+        self.content = "content"
+        self.prompt = "prompt"
+        self.timestamp = 0
+    }
 }
+
 
 

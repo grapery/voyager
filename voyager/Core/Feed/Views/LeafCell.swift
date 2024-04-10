@@ -10,6 +10,9 @@ import Kingfisher
 
 struct LeafCell: View {
     let leaves: LeafItem
+    init(info: Common_ItemInfo) {
+        self.leaves = LeafItem(info: info)
+    }
     var body: some View {
         HStack {
             VStack {

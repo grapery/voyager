@@ -47,7 +47,7 @@ struct FeedView: View {
                 
                 LazyVStack() {
                     ForEach(viewModel.leaves) { item in
-                        LeafCell(leaves: item.items[0])
+                        LeafCell(info: item.realItem)
                             .padding(.bottom, 24)
                         Divider()
                     }
