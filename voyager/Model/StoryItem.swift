@@ -7,34 +7,33 @@
 
 import Foundation
 
-class StoryItem: Identifiable,Equatable{
+
+class StoryItem: Identifiable{
+    var id: String
+    var realItem: Common_ItemInfo
     @Published var user: User
-//    @Published var project: Project
-//    @Published var group: BranchGroup
-//    @Published var timeline: TimeBranch
     @Published var itemId: Int64 = 0
-    @Published var items: [LeafItem]
-    @Published var projectId: Int64 = 0
-    @Published var prevItem: Int64
-    @Published var nextItem: Int64
-    @Published var ableFork: Bool
-    var likes: Int64
+    var prevItem = 0
+    var nextItem = 0
+    var ableFork = true
+    init(id: String, user: User, itemId: Int64) {
+        self.id = UUID().uuidString
+        self.itemId = itemId
+    }
+    init(user: User,realItem: Common_ItemInfo) {
+        self.id = UUID().uuidString
+        self.realItem = realItem
+        self.user = user
+    }
     static func == (lhs: StoryItem, rhs: StoryItem) -> Bool {
         if lhs.itemId == rhs.itemId{
             return true
         }
         return false
     }
-    init(user: User, itemId: Int64) {
-        self.user = user
-        self.itemId = itemId
-        self.items = items
-        self.prevItem = 0
-        self.nextItem = 0
-        self.likes = 0
-    }
-    func fetchStoryItem()async -> Bool {
-        
+    func fetchStoryItem(itemId: Int64)async -> Bool {
+        let info = APIClient.shared.fe
+        return true
     }
     func formStoryItem()async ->Bool{
         if !self.ableFork{
@@ -43,3 +42,4 @@ class StoryItem: Identifiable,Equatable{
         return true
     }
 }
+

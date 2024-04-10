@@ -12,7 +12,7 @@ class Comment: Identifiable{
     var realComment: Common_CommentInfo
     var commentUser: User
     init(id: String, realComment: Common_CommentInfo, commentUser: User) {
-        self.id = id
+        self.id = UUID().uuidString
         self.realComment = realComment
         self.commentUser = commentUser
     }
