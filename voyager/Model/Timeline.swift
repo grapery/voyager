@@ -8,17 +8,19 @@
 import Foundation
 
 
-class TimeBranch: Identifiable{
-    @Published var id: Int64
+class TimeLineBranch: Identifiable{
+    @Published var id: String
     @Published var rootId: Int64
     @Published var forkId: Int64
     @Published var timeStamp: Int64
     @Published var projectId: Int64
-    init(id: Int64, rootId: Int64, forkId: Int64, timeStamp: Int64, projectId: Int64) {
-        self.id = id
-        self.rootId = rootId
-        self.forkId = forkId
-        self.timeStamp = timeStamp
-        self.projectId = projectId
+    @Published var creatorId: Int64
+    init(info: Common_TimeLine) {
+        self.id = UUID().uuidString
+        self.rootId = info.rootID
+        self.forkId = info.rootID
+        self.timeStamp = info.ctime
+        self.projectId = info.projectID
+        self.creatorId = info.creatorID
     }
 }

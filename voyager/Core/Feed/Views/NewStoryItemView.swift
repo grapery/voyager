@@ -12,13 +12,22 @@ struct NewStoryItemView: View {
     
     @Environment(\.dismiss) var dismiss
     
-    @State private var leafText = ""
+    @State public var leafText = ""
     @State public  var projectId: Int64
     @State public var timelineId: Int64
     @State public var user: User
     @State private var imagePickerPresented = false
-    @StateObject var viewModel = NewStoryItemViewModel(user: user,projectId: projectId,timelineId: timelineId)
+    @State var viewModel :NewStoryItemViewModel
     
+    @MainActor
+    init(projectId: Int64, timelineId: Int64, user: User) {
+        self.leafText = ""
+        self.projectId = projectId
+        self.timelineId = timelineId
+        self.user = user
+        self.imagePickerPresented = false
+        self.viewModel = NewStoryItemViewModel(user: user,projectId: projectId,timelineId: timelineId)
+    }
     
     
     var body: some View {
@@ -33,15 +42,17 @@ struct NewStoryItemView: View {
                     }
                 }
                 Spacer()
-                Text("新的分叉点")
-                    .fontWeight(.semibold)
-                    .padding(.horizontal, 32)
-                
+                Button("分叉") {
+                    Task {
+                        await viewModel.uploadItem()
+                        clearLeafDataAndReturn()
+                    }
+                }
                 Spacer()
                 
                 Button("发布") {
                     Task {
-                        await viewModel.uploadLeaf(text: leafText)
+                        await viewModel.uploadItem()
                         clearLeafDataAndReturn()
                     }
                 }

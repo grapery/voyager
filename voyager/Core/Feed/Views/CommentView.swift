@@ -42,7 +42,7 @@ struct CommentsView: View {
     var user: User
     init(user:User,item: StoryItem) {
         self.user = user
-        _viewModel = StateObject(wrappedValue: CommentsViewModel(user: user,item:item))
+        _viewModel = StateObject(wrappedValue: CommentsViewModel(user: user,itemId:item.itemId))
     }
     var body: some View {
         VStack {
@@ -75,7 +75,7 @@ struct CommentsView: View {
                         }
                     Button {
                         Task {
-                            try await viewModel.uploadComment(commentText: commentText)
+                            await viewModel.uploadComment(commentText: commentText)
                             commentText = ""
                         }
                     } label: {

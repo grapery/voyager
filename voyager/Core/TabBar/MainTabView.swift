@@ -53,8 +53,8 @@ struct MainTabView: View {
                 self.oldSelectedItem = $0
             }
         }
-        .sheet(isPresented: $showingNewPostView) {
-            NewStoryItemView(user: user)
-        }
+//        .sheet(isPresented: $showingNewPostView) {
+//            NewStoryItemView(user: user)
+//        }
     }
 }

@@ -34,7 +34,7 @@ struct FeedCellView: View{
     var body: some View {
         VStack(alignment: .leading) {
             Divider()
-            // Image + Username
+
             HStack {
                 if viewModel.user != nil {
                     CircularProfileImageView(avatarUrl: self.user!.avatar, size: .profile)
@@ -49,7 +49,7 @@ struct FeedCellView: View{
             .padding(.leading, 8)
             
             // Post Image
-            Text("\(String(describing: viewModel.items?.items[0].title))")
+            Text(" ")
                 .padding(.trailing, 8)
                 .padding(.leading, 54)
             
@@ -65,8 +65,8 @@ struct FeedCellView: View{
                     }
                     
                     //Likes Label
-                    if (viewModel.items?.items[0].likes)!  > 0 {
-                        Text("\(String(describing: viewModel.items?.items[0].likes))")
+                    if (viewModel.items?.realItem.ctime)!  > 0 {
+                        Text("likes")
                             .font(.footnote)
                     }
                 }
@@ -79,7 +79,7 @@ struct FeedCellView: View{
                 
                 Spacer()
                 
-                Text(String((viewModel.items?.items[0].timestamp)!))
+                Text(String((viewModel.items?.realItem.ctime)!))
                     .font(.footnote)
                     .padding(.trailing, 20)
                     .foregroundColor(.gray)

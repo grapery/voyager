@@ -95,8 +95,9 @@ extension APIClient {
         return
     }
     
-    func CreateTimelineForProject(userId: Int64,projectId: Int64,currentId: Int64) async ->TimeBranch{
-        return TimeBranch(id: " ")
+    func CreateTimelineForProject(userId: Int64,projectId: Int64,currentId: Int64) async ->TimeLineBranch{
+        let info = Common_TimeLine()
+        return TimeLineBranch(info: info)
     }
     
     
