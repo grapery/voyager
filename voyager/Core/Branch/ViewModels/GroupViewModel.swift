@@ -47,5 +47,13 @@ class GroupViewModel: ObservableObject {
     func updateGroupStatus() async{
         
     }
+    
+    func createNewGroup() async{
+        
+    }
+    
+    func AchiveGroup() async{
+        
+    }
 
 }

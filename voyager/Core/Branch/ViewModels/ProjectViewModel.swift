@@ -49,4 +49,8 @@ class ProjectViewModel: ObservableObject{
         
         return ([StoryItem](),0,0)
     }
+    
+    func closeProject(projectId:Int64,userId: Int64) async{
+        
+    }
 }
