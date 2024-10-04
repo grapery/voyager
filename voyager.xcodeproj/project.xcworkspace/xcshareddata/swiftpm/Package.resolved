@@ -1,0 +1,204 @@
+{
+  "originHash" : "330139f3e9de1261c839dbdfd023c839974bd95f2647af5568d243cc06957705",
+  "pins" : [
+    {
+      "identity" : "alamofire",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Alamofire/Alamofire.git",
+      "state" : {
+        "revision" : "3dc6a42c7727c49bf26508e29b0a0b35f9c7e1ad",
+        "version" : "5.8.1"
+      }
+    },
+    {
+      "identity" : "credentials-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/aliyun/credentials-swift",
+      "state" : {
+        "revision" : "c6ca7e06b25edb58f33437971091cfaf5412d72d",
+        "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "cryptoswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
+      "state" : {
+        "revision" : "db51c407d3be4a051484a141bf0bff36c43d3b1e",
+        "version" : "1.8.0"
+      }
+    },
+    {
+      "identity" : "darabonba-openapi",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alibabacloud-sdk-swift/darabonba-openapi",
+      "state" : {
+        "revision" : "2efb59d771c8197f0247252d5ededfb15036155d",
+        "version" : "1.0.2"
+      }
+    },
+    {
+      "identity" : "endpoint-util",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alibabacloud-sdk-swift/endpoint-util",
+      "state" : {
+        "revision" : "ac1d85012515312e51f8e69a942b386ebeca7204",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "nas-20170626",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alibabacloud-sdk-swift/nas-20170626.git",
+      "state" : {
+        "revision" : "0b3f793ad850e039834fd08657d174c138230e87",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "openapi-util",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alibabacloud-sdk-swift/openapi-util",
+      "state" : {
+        "revision" : "2068e853fca2685d129b1b860f924f6fe0f23e12",
+        "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "openapikit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mattpolzin/OpenAPIKit.git",
+      "state" : {
+        "revision" : "35dd374038497a8118d89300851861fb40c36209",
+        "version" : "3.2.2"
+      }
+    },
+    {
+      "identity" : "swift-algorithms",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-algorithms",
+      "state" : {
+        "revision" : "f6919dfc309e7f1b56224378b11e28bab5bccc42",
+        "version" : "1.2.0"
+      }
+    },
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser.git",
+      "state" : {
+        "revision" : "41982a3656a71c768319979febd796c6fd111d5c",
+        "version" : "1.5.0"
+      }
+    },
+    {
+      "identity" : "swift-atomics",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-atomics.git",
+      "state" : {
+        "revision" : "cd142fd2f64be2100422d658e7411e39489da985",
+        "version" : "1.2.0"
+      }
+    },
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections.git",
+      "state" : {
+        "revision" : "a902f1823a7ff3c9ab2fba0f992396b948eda307",
+        "version" : "1.0.5"
+      }
+    },
+    {
+      "identity" : "swift-http-types",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-http-types",
+      "state" : {
+        "revision" : "99d066e29effa8845e4761dd3f2f831edfdf8925",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "swift-nio",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-nio.git",
+      "state" : {
+        "revision" : "665206000b8307cab5ac51203d29b0f232d7e31b",
+        "version" : "2.74.0"
+      }
+    },
+    {
+      "identity" : "swift-nio-http2",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-nio-http2.git",
+      "state" : {
+        "revision" : "b5f7062b60e4add1e8c343ba4eb8da2e324b3a94",
+        "version" : "1.34.0"
+      }
+    },
+    {
+      "identity" : "swift-nio-ssl",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-nio-ssl.git",
+      "state" : {
+        "revision" : "7b84abbdcef69cc3be6573ac12440220789dcd69",
+        "version" : "2.27.2"
+      }
+    },
+    {
+      "identity" : "swift-numerics",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-numerics.git",
+      "state" : {
+        "revision" : "0a5bc04095a675662cf24757cc0640aa2204253b",
+        "version" : "1.0.2"
+      }
+    },
+    {
+      "identity" : "swift-protobuf",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-protobuf.git",
+      "state" : {
+        "revision" : "ebc7251dd5b37f627c93698e4374084d98409633",
+        "version" : "1.28.2"
+      }
+    },
+    {
+      "identity" : "swift-system",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-system.git",
+      "state" : {
+        "revision" : "d2ba781702a1d8285419c15ee62fd734a9437ff5",
+        "version" : "1.3.2"
+      }
+    },
+    {
+      "identity" : "tea-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/aliyun/tea-swift.git",
+      "state" : {
+        "revision" : "a5bba9447809d568e49b1bd6547deaa635ca28f0",
+        "version" : "1.0.2"
+      }
+    },
+    {
+      "identity" : "tea-utils",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alibabacloud-sdk-swift/tea-utils",
+      "state" : {
+        "revision" : "5bbd6a2fdf63f319e4537cbaebc2dc38dbd33f1f",
+        "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "yams",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jpsim/Yams.git",
+      "state" : {
+        "revision" : "0d9ee7ea8c4ebd4a489ad7a73d5c6cad55d6fed3",
+        "version" : "5.0.6"
+      }
+    }
+  ],
+  "version" : 3
+}
