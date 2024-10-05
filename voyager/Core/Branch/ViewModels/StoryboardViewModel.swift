@@ -27,8 +27,14 @@ class StoryboardViewModel: ObservableObject {
     
     private let apiClient = APIClient.shared
     
-    func fetchStoryboard()async{
-        
+    func fetchStoryboard() async{
+        let (board,err) = await apiClient.GetStoryboard(boardId: self.storyboardId)
+        if err != nil {
+            print("fetchStoryboard failed: ",err as Any)
+            return
+        }
+        self.storyboard = board
+        return
     }
     
     func genStoryboadDetail() async{

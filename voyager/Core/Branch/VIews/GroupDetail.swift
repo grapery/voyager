@@ -12,7 +12,7 @@ import Combine
 struct GroupDetailView: View {
     var user: User
     @Binding var group: BranchGroup?
-    @State var showGroupProfile: Bool = false
+    @State var showNewStoryView: Bool = false
     @State var viewModel: GroupDetailViewModel
     @State private var selectedTab = 0
     
@@ -25,7 +25,44 @@ struct GroupDetailView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Group Info Header
-            GroupInfoHeader(group: group!)
+            
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    KFImage(URL(string: group!.info.avatar))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 60, height: 60)
+                        .clipShape(Circle())
+                    
+                    VStack(alignment: .leading) {
+                        Text(group!.info.name)
+                            .font(.title2)
+                            .fontWeight(.bold)
+                    }
+                    
+                    Spacer()
+                    Spacer()
+                    
+                    Button(action: {
+                        Task{
+                            await self.viewModel.JoinGroup(groupdId: self.viewModel.groupId)
+                        }
+                    }) {
+                        Text("已加入")
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.gray.opacity(0.2))
+                            .cornerRadius(16)
+                    }
+                }
+                
+                Text(group!.info.desc)
+                    .font(.subheadline)
+                    .lineLimit(3)
+            }
+            .padding()
+            .background(Color.white)
+            
             
             // Tab View
             CustomTabView(selectedTab: $selectedTab)
@@ -43,54 +80,23 @@ struct GroupDetailView: View {
         }
         .navigationBarItems(trailing: 
             Button(action: {
-                showGroupProfile = true
+                showNewStoryView = true
             }) {
-                Image(systemName: "ellipsis")
+                Image(systemName: "plus")
             }
         )
-        .sheet(isPresented: $showGroupProfile) {
-            GroupProfileView(groupId: (self.group?.info.groupID)!, userId: self.user.userID)
-        }
-    }
-}
-
-struct GroupInfoHeader: View {
-    let group: BranchGroup
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                KFImage(URL(string: group.info.avatar))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 60, height: 60)
-                    .clipShape(Circle())
-                
-                VStack(alignment: .leading) {
-                    Text(group.info.name)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                }
-                
-                Spacer()
-            
-                Button(action: {}) {
-                    Text("已加入")
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(16)
+        .sheet(isPresented: $showNewStoryView) {
+            NewStoryView(groupId:(self.group?.info.groupID)!,userId: self.user.userID).onDisappear(){
+                Task{
+                    showNewStoryView = false
+                    await viewModel.fetchGroupStorys(groupdId:(self.group?.info.groupID)! )
                 }
             }
-            
-            Text(group.info.desc)
-                .font(.subheadline)
-                .lineLimit(3)
         }
-        .padding()
-        .background(Color.white)
     }
 }
+ 
+
 
 struct CustomTabView: View {
     @Binding var selectedTab: Int
@@ -105,15 +111,15 @@ struct CustomTabView: View {
                 }) {
                     Text(tabs[index])
                         .foregroundColor(selectedTab == index ? .black : .gray)
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 2)
                 }
                 .overlay(
                     Rectangle()
                         .frame(height: 2)
                         .foregroundColor(selectedTab == index ? .black : .clear)
-                        .offset(y: 12)
+                        .offset(y: 2)
                 )
-                Spacer().padding(.horizontal, 8)
+                Spacer().padding(.horizontal, 2)
             }
         }
         .padding(.horizontal)

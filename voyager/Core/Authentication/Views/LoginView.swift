@@ -13,6 +13,7 @@ struct LoginView: View {
         self.viewModel = viewModel
     }
     var body: some View {
+        ZStack {
             VStack {
                 VStack {
                     Image("Pattern")
@@ -61,8 +62,9 @@ struct LoginView: View {
                 
                 Spacer()
             }
-            .ignoresSafeArea()
             .background(Color(.systemGray6))
-            .foregroundColor(/*@START_MENU_TOKEN@*/.blue/*@END_MENU_TOKEN@*/)
+            .ignoresSafeArea()
+            .foregroundColor(.blue)
+        }
     }
 }

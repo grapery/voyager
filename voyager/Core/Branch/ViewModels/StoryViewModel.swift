@@ -15,6 +15,7 @@ class StoryViewModel: ObservableObject {
     @Published var storyId: Int64
     @Published var storyboards:[StoryBoard]?
     var isUpdateOk: Bool = false
+    var isCreateOk: Bool = false
     var isGenerate: Bool = false
     var err: Error? = nil
     var page: Int64 = 0
@@ -25,8 +26,13 @@ class StoryViewModel: ObservableObject {
         self.storyId = storyId
         self.userId = userId
         self.branchId = storyId
-        Task{
-            await fetchStory(withBoards:false)
+        if storyId > 0 {
+            Task{
+                await fetchStory(withBoards:false)
+            }
+        }else{
+            self.story = Story()
+            self.story?.storyInfo = Common_Story()
         }
     }
     
@@ -48,7 +54,6 @@ class StoryViewModel: ObservableObject {
         
         if withBoards {
             await self.fetchStoryBoards()
-            print("fetchStory storyboard ",self.storyboards![0].boardInfo.title)
         }
     }
     
@@ -91,23 +96,57 @@ class StoryViewModel: ObservableObject {
         } catch {
             self.err = ("Error fetching storyboards: \(error.localizedDescription)" as! any Error)
             self.isLoading = false
+            self.isLoading = false
         }
     }
     
-    func createStoryBoard(){
+    func createStoryBoard() async{
         
     }
     
-    func createStoryRole(){
+    func createStoryRole() async{
         
     }
     
-    func forkStory(){
+    func forkStory() async{
         
     }
     
-    func genStory(){
+    func genStory() async{
         
+    }
+    
+    func CreateStory(groupId:Int64) async{
+        var newStory: Story?
+        var storyId: Int64
+        var err: Error?
+        do {
+            (newStory,storyId,_,err) = await apiClient.CreateStory(
+                name: (self.story?.storyInfo.name)!,
+                title: (self.story?.storyInfo.title)!,
+                short_desc: (self.story?.storyInfo.desc)!,
+                creator: (self.userId),
+                groupId: groupId,
+                isAiGen: (self.story?.storyInfo.isAiGen)!,
+                origin: (self.story?.storyInfo.origin)!,
+                params: (self.story?.storyInfo.params)!)
+            if err != nil {
+                self.isCreateOk = false
+                print("CreateStory failed",err!)
+                return
+            }
+            if storyId == 0 {
+                self.isCreateOk = false
+            }else {
+                self.isCreateOk = true
+                self.storyId = storyId
+                self.story?.Id = newStory!.Id
+                self.story?.storyInfo.creatorID = self.userId
+                self.story?.storyInfo.ownerID = self.userId
+            }
+        } catch {
+            self.isCreateOk = false
+        }
     }
 }
 

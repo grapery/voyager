@@ -93,6 +93,30 @@ extension APIClient {
         }
     }
     
+    func LeaveGroup(userId: Int64, groupId: Int64) async -> (Bool, Error?) {
+        do {
+            let request = Common_LeaveGroupRequest.with {
+                $0.userID = userId
+                $0.groupID = groupId
+            }
+            
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let response = try await authClient.leaveGroup(request: request, headers: header)
+            
+            if response.message?.code == 0 {
+                return (true, nil)
+            } else {
+                let errorMessage = response.message?.message ?? "Unknown error occurred while joining group"
+                return (false, NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: errorMessage]))
+            }
+        } catch {
+            return (false, error)
+        }
+    }
+    
     func CreateGroup(userId: Int64, name: String) async -> (BranchGroup?, Error?) {
         let result = BranchGroup(info: Common_GroupInfo())
         var response :ResponseMessage<Common_CreateGroupResponse>

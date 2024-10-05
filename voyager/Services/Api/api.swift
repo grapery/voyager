@@ -8,6 +8,7 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
 import Connect
+import Foundation
 
 let GrpcGatewayCookie = "grpcgateway-cookie"
 var token : String?
@@ -29,26 +30,27 @@ struct APIClient{
             )
         }
     }
-    public func Login(account: String,password: String) async throws ->Common_LoginResponse{
-        var resp: ResponseMessage<Common_LoginResponse>
-        var result = Common_LoginResponse()
-        do{
+    public func Login(account: String, password: String) async throws -> Common_LoginResponse {
+        do {
             let authClient = Common_TeamsApiClient(client: self.client!)
             // Performed within an async context.
             let request = Common_LoginRequest.with {
-                $0.account = account;
+                $0.account = account
                 $0.password = password
             }
-            resp = await authClient.login(request: request, headers: [:])
+            let resp = await authClient.login(request: request, headers: [:])
             print("resp \(resp)")
-            result.userID = resp.message!.userID
-            result.token = resp.message!.token
-            token = result.token
-            print("token ", token)
+            
+            guard let message = resp.message, !message.token.isEmpty else {
+                throw NSError(domain: "LoginError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Login failed: Empty token"])
+            }
+            
+            token = message.token
+            return message
+        } catch {
+            throw error
         }
-        return result
     }
-    
     
     public func Register(account: String,password: String,name: String) async throws -> Common_RegisterResponse{
         var resp: ResponseMessage<Common_RegisterResponse>

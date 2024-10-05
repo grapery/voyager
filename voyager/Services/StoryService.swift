@@ -15,8 +15,8 @@ import SwiftUI
 
 extension APIClient {
     
-    func CreateStory(name: String,title: String,short_desc: String,creator: Int64,groupId: Int64,isAiGen: Bool,origin: String,params: Common_StoryParams) async -> (Story,Int64,Int64) {
-        var result = Story()
+    func CreateStory(name: String,title: String,short_desc: String,creator: Int64,groupId: Int64,isAiGen: Bool,origin: String,params: Common_StoryParams) async -> (Story?,Int64,Int64,Error?) {
+        let result = Story()
         var resp :ResponseMessage<Common_CreateStoryResponse>
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)
@@ -35,15 +35,19 @@ extension APIClient {
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(token!)"]
             resp = await authClient.createStory(request: request, headers:header)
+            if resp.code.rawValue != 0 {
+                return (nil,-1,-1,NSError(domain: "CreateStory", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
+            }
             result.Id = Int64(resp.message!.data.storyID)
             result.storyInfo.id = Int64(resp.message!.data.storyID)
             result.storyInfo.rootBoardID = Int64(resp.message!.data.boardID)
         }
-        return (result,result.storyInfo.id,result.storyInfo.rootBoardID)
+        
+        return (result,result.storyInfo.id,result.storyInfo.rootBoardID,nil)
     }
     
     func GetStory(storyId: Int64) async -> (Story, Error?) {
-        var result = Story()
+        let result = Story()
         var err : Error? = nil
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)
@@ -181,7 +185,7 @@ extension APIClient {
             
             let resp = await authClient.getStoryboard(request: request, headers: header)
             
-            if resp.message?.code != 1 {
+            if resp.message?.code != 0 {
                 // If the response code is not 1, it indicates an error
                 return (result, NSError(domain: "GetStoryboardError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
             }

@@ -32,6 +32,7 @@ class GroupDetailViewModel: ObservableObject {
     @Published var storys: [Story]
     @Published var members: [User]
     @Published var profile: GroupProfile?
+    @Published var joinedGroup: Bool = true
     var page: Int = 0
     var size: Int = 10
     var memberPage: Int64 = 0
@@ -83,6 +84,36 @@ class GroupDetailViewModel: ObservableObject {
             return
         }
         self.storys = storys!
+    }
+    
+    func JoinGroup(groupdId: Int64) async  {
+        var err: Error?
+        var joined: Bool = false
+        (joined,err) = await APIClient.shared.JoinGroup(userId: self.user.userID, groupId: self.groupId)
+        if err != nil {
+            print("JoinGroup err",err!)
+            return
+        }
+        if joined {
+            joinedGroup = true
+        }else{
+            joinedGroup = false
+        }
+    }
+    
+    func LeaveGroup(groupdId: Int64) async  {
+        var err: Error?
+        var leaved: Bool = false
+        (leaved,err) = await APIClient.shared.LeaveGroup(userId: self.user.userID, groupId: self.groupId)
+        if err != nil {
+            print("fleaveGroup err",err!)
+            return
+        }
+        if leaved {
+            joinedGroup = false
+        }else{
+            joinedGroup = true
+        }
     }
     
 }
