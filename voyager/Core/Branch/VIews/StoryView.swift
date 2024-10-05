@@ -14,6 +14,7 @@ struct StoryView: View {
     @State private var isEditing: Bool = false
     @State public var storyId: Int64
     var userId: Int64
+    
     init(storyId: Int64,userId:Int64) {
         self.storyId = storyId
         self.userId = userId
@@ -21,31 +22,62 @@ struct StoryView: View {
     }
     
     var body: some View {
-        VStack{
-            HStack{
-                KFImage(URL(string: (self.viewModel.story?.storyInfo.avatar)!))
-                    .resizable()
-                    .scaledToFill()
-                    .clipShape(Circle())
-                    .frame(width: 48, height: 48)
+        VStack(spacing: 0) {
+            // Story Info Header
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    KFImage(URL(string: self.viewModel.story?.storyInfo.avatar ?? ""))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 60, height: 60)
+                        .clipShape(Circle())
+                    
+                    VStack(alignment: .leading) {
+                        Text(self.viewModel.story?.storyInfo.name ?? "")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        if let createdAt = self.viewModel.story?.storyInfo.ctime {
+                            Text("创建于: \(formatDate(timestamp: createdAt))")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    
+                    Spacer()
+                }
                 
-                Text((self.viewModel.story?.storyInfo.name)!)
-                    .font(.headline)
+                Text(self.viewModel.story?.storyInfo.origin ?? "")
+                    .font(.subheadline)
+                    .lineLimit(3)
                 
-                Spacer()
+                HStack {
+                    Label("\(self.viewModel.story?.storyInfo.desc ?? "")", systemImage: "bubble.left")
+                    Spacer()
+                    Label("10", systemImage: "heart")
+                    Spacer()
+                    Label("1", systemImage: "bell")
+                    Spacer()
+                    Label("分享", systemImage: "square.and.arrow.up")
+                }
+                .foregroundColor(.secondary)
+                .font(.caption)
             }
             .padding()
-            .blur(radius: CGFloat(0.5))
-            Spacer()
+            .background(Color.white)
+            
+            // Storyboards ScrollView
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    if viewModel.isLoading {
-                        ProgressView()
-                    } else {
-                        storyContent(self.viewModel.story!)
+                if viewModel.isLoading {
+                    ProgressView()
+                } else if let boards = viewModel.storyboards {
+                    LazyVStack {
+                        ForEach(boards, id: \.id) { board in
+                            StoryBoardCellView(board: board, userId: userId, groupId: self.viewModel.story?.storyInfo.groupID ?? 0, storyId: storyId)
+                        }
                     }
+                    .padding()
                 }
-                .padding()
             }
         }
         .navigationTitle("Story Details")
@@ -53,7 +85,7 @@ struct StoryView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(isEditing ? "Save" : "Edit") {
                     if isEditing {
-                        Task{
+                        Task {
                             await viewModel.updateStory()
                         }
                     }
@@ -62,23 +94,15 @@ struct StoryView: View {
             }
         }
         .onAppear {
-            Task{
+            Task {
                 await viewModel.fetchStory(withBoards: true)
             }
         }
     }
     
-    @ViewBuilder
-    private func storyContent(_ story: Story) -> some View {
-        VStack(spacing: 16) {
-            // 其他 story 内容...
-            
-            if let boards = viewModel.storyboards {
-                ForEach(boards, id: \.id) { board in
-                    StoryBoardCellView(board: board, userId: userId, groupId: story.storyInfo.groupID, storyId: storyId)
-                }
-            }
-        }
+    private func formatDate(timestamp: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        return DateFormatter.shortDate.string(from: date)
     }
 }
 
@@ -87,9 +111,11 @@ struct StoryBoardCellView: View {
     var userId: Int64
     var groupId: Int64
     var storyId: Int64
+    @State private var isShowingBoardDetail = false
+    
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 2) {
             Text(board?.boardInfo.title ?? "无标题故事章节")
                 .font(.headline)
                 .foregroundColor(.primary)
@@ -111,6 +137,12 @@ struct StoryBoardCellView: View {
         .background(Color(.systemBackground))
         .cornerRadius(10)
         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .onTapGesture {
+            isShowingBoardDetail = true
+        }
+        .fullScreenCover(isPresented: $isShowingBoardDetail) {
+            StoryBoardView(board: board, userId: userId, groupId: groupId, storyId: storyId)
+        }
     }
     
     private func formatDate(timestamp: Int64) -> String {

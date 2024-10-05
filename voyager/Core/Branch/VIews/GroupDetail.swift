@@ -100,7 +100,7 @@ struct GroupDetailView: View {
 
 struct CustomTabView: View {
     @Binding var selectedTab: Int
-    let tabs = ["我的关注", "最近创建", "最近更新","我参与的"]
+    let tabs = ["关注", "最近","参与"]
     
     var body: some View {
         HStack {
@@ -111,14 +111,8 @@ struct CustomTabView: View {
                 }) {
                     Text(tabs[index])
                         .foregroundColor(selectedTab == index ? .black : .gray)
-                        .padding(.vertical, 2)
+                        .padding(.vertical, 8)
                 }
-                .overlay(
-                    Rectangle()
-                        .frame(height: 2)
-                        .foregroundColor(selectedTab == index ? .black : .clear)
-                        .offset(y: 2)
-                )
                 Spacer().padding(.horizontal, 2)
             }
         }
