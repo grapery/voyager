@@ -94,11 +94,11 @@ struct GroupInfoHeader: View {
 
 struct CustomTabView: View {
     @Binding var selectedTab: Int
-    let tabs = ["全部", "最近创建", "最近更新","我参与的"]
+    let tabs = ["我的关注", "最近创建", "最近更新","我参与的"]
     
     var body: some View {
         HStack {
-            Spacer().padding(.horizontal, 8)
+            Spacer().padding(.horizontal, 2)
             ForEach(0..<tabs.count) { index in
                 Button(action: {
                     selectedTab = index

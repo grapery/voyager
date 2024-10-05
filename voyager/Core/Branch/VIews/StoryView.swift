@@ -17,7 +17,7 @@ struct StoryView: View {
     init(storyId: Int64,userId:Int64) {
         self.storyId = storyId
         self.userId = userId
-        self.viewModel = StoryViewModel(storyId: storyId)
+        self.viewModel = StoryViewModel(storyId: storyId,userId:userId)
     }
     
     var body: some View {
@@ -41,10 +41,8 @@ struct StoryView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     if viewModel.isLoading {
                         ProgressView()
-                    } else if let story = viewModel.story {
-                        storyContent(story)
                     } else {
-                        Text("Failed to load story")
+                        storyContent(self.viewModel.story!)
                     }
                 }
                 .padding()
@@ -65,33 +63,61 @@ struct StoryView: View {
         }
         .onAppear {
             Task{
-                await viewModel.fetchStory()
+                await viewModel.fetchStory(withBoards: true)
             }
         }
     }
     
     @ViewBuilder
     private func storyContent(_ story: Story) -> some View {
-        if story.storyInfo.rootBoardID == 0 {
-            VStack{
-                
+        VStack(spacing: 16) {
+            // 其他 story 内容...
+            
+            if let boards = viewModel.storyboards {
+                ForEach(boards, id: \.id) { board in
+                    StoryBoardCellView(board: board, userId: userId, groupId: story.storyInfo.groupID, storyId: storyId)
+                }
             }
         }
-        
     }
 }
 
-struct StoryBoardCellView: View{
+struct StoryBoardCellView: View {
     var board: StoryBoard?
     var userId: Int64
     var groupId: Int64
     var storyId: Int64
-    var body: some View{
-        return VStack{}
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(board?.boardInfo.title ?? "无标题故事章节")
+                .font(.headline)
+                .foregroundColor(.primary)
+            
+            if let description = board?.boardInfo.content, !description.isEmpty {
+                Text(description)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+            }
+            
+            if let createdAt = board?.boardInfo.ctime {
+                Text("创建于 : \(formatDate(timestamp: createdAt))")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(10)
+        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+    }
+    
+    private func formatDate(timestamp: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        return DateFormatter.shortDate.string(from: date)
     }
 }
-
-
 
 extension DateFormatter {
     static let shortDate: DateFormatter = {

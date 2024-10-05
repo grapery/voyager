@@ -15,22 +15,27 @@ class StoryViewModel: ObservableObject {
     @Published var storyId: Int64
     @Published var storyboards:[StoryBoard]?
     var isUpdateOk: Bool = false
+    var isGenerate: Bool = false
     var err: Error? = nil
-    init(storyId: Int64) {
+    var page: Int64 = 0
+    var pageSize: Int64 = 10
+    var branchId: Int64 = 0
+    var userId: Int64
+    init(storyId: Int64,userId: Int64) {
         self.storyId = storyId
+        self.userId = userId
+        self.branchId = storyId
         Task{
-            await fetchStory()
+            await fetchStory(withBoards:false)
         }
     }
     
     private let apiClient = APIClient.shared
     
-    func fetchStory() async {
+    func fetchStory(withBoards:Bool) async {
         let currentStoryId: Int64 = getCurrentStoryId()
-        print("fetchStory id ",self.storyId)
         do {
             let fetchedStory = await apiClient.GetStory(storyId: currentStoryId)
-            print("fetchStory fetchedStory ",fetchedStory.self.0)
             if fetchedStory.self.1 == nil {
                 self.story = fetchedStory.self.0
                 self.isLoading = false
@@ -40,7 +45,11 @@ class StoryViewModel: ObservableObject {
             self.err = ("Error fetching story: \(error.localizedDescription)" as! any Error)
             self.isLoading = false
         }
-        print("fetchStory story ",self.story?.storyInfo)
+        
+        if withBoards {
+            await self.fetchStoryBoards()
+            print("fetchStory storyboard ",self.storyboards![0].boardInfo.title)
+        }
     }
     
     // 添加一个方法来获取当前的 storyId
@@ -70,7 +79,34 @@ class StoryViewModel: ObservableObject {
         }
     }
     
-    func fetchStoryBoards(page:Int64,size:Int64,userId:Int64,branchId:Int64){
+    func fetchStoryBoards() async{
+        let currentStoryId: Int64 = getCurrentStoryId()
+        do {
+            let result = await apiClient.GetStoryboards(storyId: currentStoryId, branchId: self.branchId, startTime: 0, endTime: 0, offset: self.page, size: self.pageSize)
+            if result.self.3 == nil {
+                self.storyboards = result.self.0
+                self.isLoading = false
+                self.err = nil
+            }
+        } catch {
+            self.err = ("Error fetching storyboards: \(error.localizedDescription)" as! any Error)
+            self.isLoading = false
+        }
+    }
+    
+    func createStoryBoard(){
+        
+    }
+    
+    func createStoryRole(){
+        
+    }
+    
+    func forkStory(){
+        
+    }
+    
+    func genStory(){
         
     }
 }

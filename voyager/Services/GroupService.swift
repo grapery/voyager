@@ -120,11 +120,38 @@ extension APIClient {
     }
     
     func GetGroupProfile(groupId: Int64,userId:Int64) -> (Common_GroupProfileInfo,Error?){
+        
         return (Common_GroupProfileInfo(),nil)
     }
     
     func UpdateGroupProfile(groupId: Int64,userId:Int64,profile:Common_GroupProfileInfo)->Error?{
         return nil
+    }
+    
+    func getGroupMembers(groupId: Int64,page: Int64,size: Int64) async-> ([Common_UserInfo]?,Int64,Int64,Error?){
+        do {
+            let request = Common_FetchGroupMembersRequest.with {
+                $0.groupID = groupId
+                $0.offset = page
+                $0.pageSize = size
+            }
+            
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let response = await apiClient.fetchGroupMembers(request: request, headers: header)
+            
+            if response.message?.code != 0{
+                let users = response.message?.data.list
+                return (users, page, size,nil)
+            } else {
+                return ([], 0,  0,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Group members list failed"]))
+            }
+        } catch {
+            print("Error fetching user in groups: \(error.localizedDescription)")
+            return ([], 0,  0,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Group members list failed"]))
+        }
     }
     
     func GetGroupStorys(groupId: Int64,userId: Int64,page: Int64,size: Int64) async -> ([Story]?,Int64,Int64,Error?){

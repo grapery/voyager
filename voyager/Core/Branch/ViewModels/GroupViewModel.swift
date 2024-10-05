@@ -33,7 +33,9 @@ class GroupDetailViewModel: ObservableObject {
     @Published var members: [User]
     @Published var profile: GroupProfile?
     var page: Int = 0
-    var size: Int = 0
+    var size: Int = 10
+    var memberPage: Int64 = 0
+    var memberPagesize: Int64 = 10
     init(user: User,groupId:Int64) {
         self.user = user
         self.storys = [Story]()
@@ -55,8 +57,19 @@ class GroupDetailViewModel: ObservableObject {
         self.profile = GroupProfile(profile: profileInfo!)
     }
     
-    func fetchGroupMembers(groupdId: Int64)  {
-        
+    func fetchGroupMembers(groupdId: Int64) async  {
+        var err: Error?
+        var users: [User]?
+        var page: Int64
+        var pageSize: Int64
+        (users,page,pageSize,err) = await APIClient.shared.getGroupMembers(groupId: self.groupId, page: self.memberPage,size: self.memberPagesize)
+        if err != nil {
+            print("fetchGroup members err",err!)
+            return
+        }
+        self.memberPage = page
+        self.memberPagesize = pageSize
+        self.members = users!
     }
     
     func fetchGroupStorys(groupdId: Int64) async  {

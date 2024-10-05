@@ -249,7 +249,7 @@ extension APIClient {
             
             let resp = await authClient.getStoryboards(request: request, headers: header)
             
-            if resp.message?.code != 1 {
+            if resp.message?.code != 0 {
                 let error = NSError(domain: "GetStoryboardsError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
                 return ([], 0, 0, error)
             }
@@ -280,7 +280,7 @@ extension APIClient {
             
             let resp = await authClient.delStoryboard(request: request, headers: header)
             
-            if resp.message?.code != 1 {
+            if resp.message?.code != 0 {
                 // If the response code is not 1, it indicates an error
                 return NSError(domain: "DelStoryboardError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
             }
@@ -307,7 +307,7 @@ extension APIClient {
             
             let resp = await authClient.forkStoryboard(request: request, headers: header)
             
-            if resp.message?.code != 1 {
+            if resp.message?.code != 0 {
                 let error = NSError(domain: "ForkStoryboardError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
                 return (0, 0, error)
             }
@@ -335,7 +335,7 @@ extension APIClient {
             
             let resp = await authClient.likeStoryboard(request: request, headers: header)
             
-            if resp.message?.code != 1 {
+            if resp.message?.code != 0 {
                 // If the response code is not 1, it indicates an error
                 return NSError(domain: "LikeStoryboardError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
             }
@@ -361,7 +361,7 @@ extension APIClient {
             
             let resp = await authClient.shareStoryboard(request: request, headers: header)
             
-            if resp.message?.code != 1 {
+            if resp.message?.code != 0 {
                 // If the response code is not 1, it indicates an error
                 return NSError(domain: "ShareStoryboardError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
             }
@@ -388,7 +388,7 @@ extension APIClient {
             
             let resp = await authClient.renderStory(request: request, headers: header)
             
-            if resp.message?.code != 1 {
+            if resp.message?.code != 0 {
                 let error = NSError(domain: "RenderStoryError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
                 return (Common_RenderStoryDetail(), error)
             }
@@ -418,7 +418,7 @@ extension APIClient {
             
             let resp = await authClient.renderStoryboard(request: request, headers: header)
             
-            if resp.message?.code != 1 {
+            if resp.message?.code != 0 {
                 let error = NSError(domain: "RenderStoryboardError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
                 return (Common_RenderStoryboardDetail(), error)
             }
@@ -450,7 +450,7 @@ extension APIClient {
             
             let resp = await authClient.genStoryboardImages(request: request, headers: header)
             
-            if resp.message?.code != 1 {
+            if resp.message?.code != 0 {
                 let error = NSError(domain: "GenStoryboardImagesError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
                 return (Common_RenderStoryboardDetail(), error)
             }
@@ -482,7 +482,7 @@ extension APIClient {
             
             let resp = await authClient.genStoryboardText(request: request, headers: header)
             
-            if resp.message?.code != 1 {
+            if resp.message?.code != 0 {
                 let error = NSError(domain: "GenStoryboardTextError", 
                                     code: Int(resp.message?.code ?? 0), 
                                     userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
