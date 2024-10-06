@@ -29,7 +29,9 @@ struct EditUserProfileView: View {
                         .fontWeight(.semibold)
                     Spacer()
                     Button("Done") {
-                        Task { try await viewModel.updateUserDate() }
+                        Task {
+                            try await viewModel.updateUserDate()
+                        }
                         dismiss()
                     }
                 }

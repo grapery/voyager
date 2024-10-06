@@ -72,6 +72,22 @@ struct StoryView: View {
                     ProgressView()
                 } else if let boards = viewModel.storyboards {
                     LazyVStack {
+                        // Add new StoryBoard button at the top
+                        Button(action: {
+                            // Action to create new StoryBoard
+                        }) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.secondary.opacity(0.1))
+                                    .frame(height: 60)
+                                
+                                Image(systemName: "plus")
+                                    .foregroundColor(.primary)
+                                    .font(.title2)
+                            }
+                        }
+                        .padding(.bottom)
+                        
                         ForEach(boards, id: \.id) { board in
                             StoryBoardCellView(board: board, userId: userId, groupId: self.viewModel.story?.storyInfo.groupID ?? 0, storyId: storyId)
                         }

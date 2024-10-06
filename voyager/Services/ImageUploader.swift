@@ -6,27 +6,45 @@
 //
 
 import UIKit
+import NIO
+import Connect
 
-struct ImageUploader {
-    
-    static func uploadImage(image: UIImage) async throws -> String? {
-//        guard let imageData = image.jpegData(compressionQuality: 0.5) else { return nil }
-//        
-//        let filename = NSUUID().uuidString
-//        let ref = Storage.storage().reference(withPath: "/profile_images/\(filename)")
-//        
-//        do {
-//            let _ = try await ref.putDataAsync(imageData)
-//            let url = try await ref.downloadURL()
-//            return url.absoluteString
-//        } catch {
-//            print("DEBUG: Failed to upload image with error \(error.localizedDescription)")
-//            return nil
-//        }
+enum ImageUploadError: Error {
+    case invalidImage
+    case compressionFailed
+    case rpcError(Error)
+    case invalidResponse
+}
+
+extension APIClient {
+    func uploadImage(image: UIImage, filename: String) async throws -> String {
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            throw ImageUploadError.compressionFailed
+        }
+        // 假设我们有一个gRPC服务定义了上传图片的方法
+        let request = Common_UploadImageRequest.with {
+            $0.filename = filename
+            $0.imageData = imageData
+        }
+        
+        do {
+            // 假设我们有一个gRPC客户端实例
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            let response = await apiClient.uploadImageFile(request: request, headers: header)
+            if response.code.rawValue != 0 {
+                return ""
+            }
+            let imageUrl = (response.message?.data.url)!
+            return imageUrl
+        } catch {
+            throw ImageUploadError.rpcError(error)
+        }
         return ""
     }
-    static func downloadImage(url: String) async throws -> UIImage?{
+    
+    func downloadImage(url: String) async throws -> UIImage?{
         return nil
     }
-    
 }

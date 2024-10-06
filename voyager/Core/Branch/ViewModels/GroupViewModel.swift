@@ -99,6 +99,7 @@ class GroupDetailViewModel: ObservableObject {
         }else{
             joinedGroup = false
         }
+        print("JoinGroup success")
     }
     
     func LeaveGroup(groupdId: Int64) async  {
@@ -114,6 +115,7 @@ class GroupDetailViewModel: ObservableObject {
         }else{
             joinedGroup = true
         }
+        print("LeaveGroup success")
     }
     
 }

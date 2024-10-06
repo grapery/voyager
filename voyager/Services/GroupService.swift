@@ -130,7 +130,6 @@ extension APIClient {
             }
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(token!)"]
-            print("request: ",request)
             response = await authClient.createGroup(request:request,headers:header)
             if let group = response.message?.data.info {
                 result.info = group
@@ -149,6 +148,37 @@ extension APIClient {
     }
     
     func UpdateGroupProfile(groupId: Int64,userId:Int64,profile:Common_GroupProfileInfo)->Error?{
+        return nil
+    }
+    
+    func UpdateGroup(groupId: Int64,userId:Int64,avator: String,desc:String,owner:Int64,location: String,status: Int64) async->Error?{
+        let result = BranchGroup(info: Common_GroupInfo())
+        var response :ResponseMessage<Common_UpdateGroupInfoResponse>
+        do {
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            // Performed within an async context.
+            var groupInfo = Common_GroupInfo()
+            groupInfo.avatar = avator
+            groupInfo.desc = desc
+            groupInfo.location = location
+            groupInfo.status = Int32(status)
+            groupInfo.owner = userId
+            let request = Common_UpdateGroupInfoRequest.with {
+                $0.groupID = groupId;
+                $0.info = groupInfo
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            response = await apiClient.updateGroupInfo(request:request,headers:header)
+            if let group = response.message?.data.info {
+                result.info = group
+                return nil
+            } else {
+                return  NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Update Group failed"])
+            }
+        } catch {
+            return error
+        }
         return nil
     }
     

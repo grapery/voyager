@@ -15,7 +15,9 @@ struct GroupDetailView: View {
     @State var showNewStoryView: Bool = false
     @State var viewModel: GroupDetailViewModel
     @State private var selectedTab = 0
-    
+    @State private var showUpdateGroupView = false
+    @State private var needsRefresh = false
+
     init(user: User, group: Binding<BranchGroup?>) {
         self.user = user
         self._group = group
@@ -25,20 +27,18 @@ struct GroupDetailView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Group Info Header
-            
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    KFImage(URL(string: group!.info.avatar))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 60, height: 60)
-                        .clipShape(Circle())
-                    
-                    VStack(alignment: .leading) {
-                        Text(group!.info.name)
-                            .font(.title2)
-                            .fontWeight(.bold)
+                    NavigationLink(destination: UpdateGroupView(group: self.group!, userId: self.user.userID)) {
+                        VStack(alignment: .leading) {
+                            KFImage(URL(string: group!.info.avatar))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 60, height: 60)
+                            .clipShape(Circle())
+                        }
                     }
+                    .buttonStyle(PlainButtonStyle())
                     
                     Spacer()
                     Spacer()
@@ -62,7 +62,9 @@ struct GroupDetailView: View {
             }
             .padding()
             .background(Color.white)
-            
+            .onTapGesture {
+                showUpdateGroupView = true
+            }
             
             // Tab View
             CustomTabView(selectedTab: $selectedTab)
@@ -79,10 +81,12 @@ struct GroupDetailView: View {
             }
         }
         .navigationBarItems(trailing: 
-            Button(action: {
-                showNewStoryView = true
-            }) {
-                Image(systemName: "plus")
+            VStack{
+                Button(action: {
+                    showNewStoryView = true
+                }) {
+                    Image(systemName: "plus")
+                }
             }
         )
         .sheet(isPresented: $showNewStoryView) {
@@ -90,6 +94,14 @@ struct GroupDetailView: View {
                 Task{
                     showNewStoryView = false
                     await viewModel.fetchGroupStorys(groupdId:(self.group?.info.groupID)! )
+                }
+            }
+        }
+        .onChange(of: needsRefresh) { _ in
+            if needsRefresh {
+                Task {
+                    await viewModel.fetchGroupStorys(groupdId: group!.info.groupID)
+                    needsRefresh = false
                 }
             }
         }

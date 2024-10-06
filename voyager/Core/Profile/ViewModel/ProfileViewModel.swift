@@ -56,7 +56,7 @@ class ProfileViewModel: ObservableObject {
     func updateUserDate() async throws {
         var data = [String: Any]()
         if let uiImage = self.uiImage {
-            let imageUrl = try? await ImageUploader.uploadImage(image: uiImage)
+            let imageUrl = try? await APIClient.shared.uploadImage(image: uiImage,filename: "data.jpg")
             data["profileImageUrl"] = imageUrl
         }
         if !fullname.isEmpty && user!.name != fullname {

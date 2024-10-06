@@ -34,6 +34,7 @@
 		0F2916312CB0DF62002366BE /* StoryboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2916302CB0DF56002366BE /* StoryboardViewModel.swift */; };
 		0F2916342CB124FC002366BE /* NewStoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2916332CB124F5002366BE /* NewStoryView.swift */; };
 		0F2916372CB1250D002366BE /* NewStoryBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2916362CB12504002366BE /* NewStoryBoardView.swift */; };
+		0F2916392CB20CAE002366BE /* tencent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2916382CB20CA6002366BE /* tencent.swift */; };
 		0F3568B22B2212CE00F6CA74 /* vstore.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0F3568B02B2212CE00F6CA74 /* vstore.xcdatamodeld */; };
 		0F3FF9E72BB0FEF000AAD4EE /* License.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F3FF9E62BB0FEF000AAD4EE /* License.swift */; };
 		0F54890A2B0CEA96009BD805 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 0F5489092B0CEA96009BD805 /* OpenAPIURLSession */; };
@@ -164,6 +165,7 @@
 		0F2916302CB0DF56002366BE /* StoryboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryboardViewModel.swift; sourceTree = "<group>"; };
 		0F2916332CB124F5002366BE /* NewStoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewStoryView.swift; sourceTree = "<group>"; };
 		0F2916362CB12504002366BE /* NewStoryBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewStoryBoardView.swift; sourceTree = "<group>"; };
+		0F2916382CB20CA6002366BE /* tencent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tencent.swift; sourceTree = "<group>"; };
 		0F3568B12B2212CE00F6CA74 /* vstore.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = vstore.xcdatamodel; sourceTree = "<group>"; };
 		0F3FF9E62BB0FEF000AAD4EE /* License.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = License.swift; sourceTree = "<group>"; };
 		0F59E7272B064E2D007C2B74 /* voyager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = voyager.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -660,6 +662,7 @@
 		0FFA50AA2B085E4000D3A4CF /* aliyun */ = {
 			isa = PBXGroup;
 			children = (
+				0F2916382CB20CA6002366BE /* tencent.swift */,
 				0FFA50AE2B086D4100D3A4CF /* aliyun.swift */,
 			);
 			path = aliyun;
@@ -848,6 +851,7 @@
 				0FF3C5952BC37A2A00CA9827 /* Model.xcdatamodeld in Sources */,
 				0F6F16C82C8678CA004FAAD9 /* agents.pb.swift in Sources */,
 				0F88555E2B3B10BE002AD7E4 /* group.pb.swift in Sources */,
+				0F2916392CB20CAE002366BE /* tencent.swift in Sources */,
 				0FFA509A2B0857DA00D3A4CF /* RegistrationViewModel.swift in Sources */,
 				0F59E7342B064E2F007C2B74 /* Persistence.swift in Sources */,
 				0FF7FF5C2CA23D8700F92343 /* StoryViewModel.swift in Sources */,

@@ -15,7 +15,7 @@ struct StoryBoardView: View {
     var groupId: Int64
     var storyId: Int64
     @Environment(\.presentationMode) var presentationMode
-    
+    var AiGenFinStage: Int = 0
     var body: some View {
         NavigationView {
             ScrollView {
