@@ -28,7 +28,7 @@ class StoryViewModel: ObservableObject {
         self.branchId = storyId
         if storyId > 0 {
             Task{
-                await fetchStory(withBoards:false)
+                await fetchStory(withBoards:true)
             }
         }else{
             self.story = Story()

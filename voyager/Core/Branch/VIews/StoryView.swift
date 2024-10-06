@@ -25,26 +25,28 @@ struct StoryView: View {
         VStack(spacing: 0) {
             // Story Info Header
             VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    KFImage(URL(string: self.viewModel.story?.storyInfo.avatar ?? ""))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 60, height: 60)
-                        .clipShape(Circle())
-                    
-                    VStack(alignment: .leading) {
-                        Text(self.viewModel.story?.storyInfo.name ?? "")
-                            .font(.title2)
-                            .fontWeight(.bold)
+                NavigationLink(destination: StoryDetailView(storyId: self.storyId,story: self.viewModel.story!)) {
+                    HStack {
+                        KFImage(URL(string: self.viewModel.story?.storyInfo.avatar ?? ""))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 60, height: 60)
+                            .clipShape(Circle())
                         
-                        if let createdAt = self.viewModel.story?.storyInfo.ctime {
-                            Text("创建于: \(formatDate(timestamp: createdAt))")
-                                .font(.caption)
-                                .foregroundColor(.gray)
+                        VStack(alignment: .leading) {
+                            Text(self.viewModel.story?.storyInfo.name ?? "")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            
+                            if let createdAt = self.viewModel.story?.storyInfo.ctime {
+                                Text("创建于: \(formatDate(timestamp: createdAt))")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
                         }
+                        
+                        Spacer()
                     }
-                    
-                    Spacer()
                 }
                 
                 Text(self.viewModel.story?.storyInfo.origin ?? "")
@@ -75,6 +77,7 @@ struct StoryView: View {
                         // Add new StoryBoard button at the top
                         Button(action: {
                             // Action to create new StoryBoard
+                            
                         }) {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 10)

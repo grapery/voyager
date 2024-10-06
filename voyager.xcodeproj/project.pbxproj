@@ -35,6 +35,8 @@
 		0F2916342CB124FC002366BE /* NewStoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2916332CB124F5002366BE /* NewStoryView.swift */; };
 		0F2916372CB1250D002366BE /* NewStoryBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2916362CB12504002366BE /* NewStoryBoardView.swift */; };
 		0F2916392CB20CAE002366BE /* tencent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2916382CB20CA6002366BE /* tencent.swift */; };
+		0F29163C2CB2732B002366BE /* StoryBoardGenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F29163B2CB27321002366BE /* StoryBoardGenView.swift */; };
+		0F29163F2CB277A9002366BE /* StoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F29163E2CB27780002366BE /* StoryDetailView.swift */; };
 		0F3568B22B2212CE00F6CA74 /* vstore.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0F3568B02B2212CE00F6CA74 /* vstore.xcdatamodeld */; };
 		0F3FF9E72BB0FEF000AAD4EE /* License.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F3FF9E62BB0FEF000AAD4EE /* License.swift */; };
 		0F54890A2B0CEA96009BD805 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 0F5489092B0CEA96009BD805 /* OpenAPIURLSession */; };
@@ -166,6 +168,8 @@
 		0F2916332CB124F5002366BE /* NewStoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewStoryView.swift; sourceTree = "<group>"; };
 		0F2916362CB12504002366BE /* NewStoryBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewStoryBoardView.swift; sourceTree = "<group>"; };
 		0F2916382CB20CA6002366BE /* tencent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tencent.swift; sourceTree = "<group>"; };
+		0F29163B2CB27321002366BE /* StoryBoardGenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryBoardGenView.swift; sourceTree = "<group>"; };
+		0F29163E2CB27780002366BE /* StoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryDetailView.swift; sourceTree = "<group>"; };
 		0F3568B12B2212CE00F6CA74 /* vstore.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = vstore.xcdatamodel; sourceTree = "<group>"; };
 		0F3FF9E62BB0FEF000AAD4EE /* License.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = License.swift; sourceTree = "<group>"; };
 		0F59E7272B064E2D007C2B74 /* voyager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = voyager.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -396,10 +400,12 @@
 		0F7602AE2BB98E1C00F8D900 /* VIews */ = {
 			isa = PBXGroup;
 			children = (
+				0F29163E2CB27780002366BE /* StoryDetailView.swift */,
 				0F2916362CB12504002366BE /* NewStoryBoardView.swift */,
 				0F2916332CB124F5002366BE /* NewStoryView.swift */,
 				0F980A292CAABEF300510E5A /* GroupProfile.swift */,
 				0FF7FF612CA23E0800F92343 /* StoryGenView.swift */,
+				0F29163B2CB27321002366BE /* StoryBoardGenView.swift */,
 				0FF7FF632CA23E2900F92343 /* StoryBoardView.swift */,
 				0FF7FF652CA23E3A00F92343 /* StoryRolesView.swift */,
 				0FF7FF5F2CA23DF300F92343 /* StoryView.swift */,
@@ -835,6 +841,7 @@
 				0F2363A32BC75E8300907E75 /* NewGroupView.swift in Sources */,
 				0FF7FF642CA23E3300F92343 /* StoryBoardView.swift in Sources */,
 				0FF7FF602CA23DF900F92343 /* StoryView.swift in Sources */,
+				0F29163C2CB2732B002366BE /* StoryBoardGenView.swift in Sources */,
 				0FFA508E2B0857DA00D3A4CF /* LeafFilterViewModel.swift in Sources */,
 				0FFA50962B0857DA00D3A4CF /* ContentView.swift in Sources */,
 				0F8855612B3B10BE002AD7E4 /* user.pb.swift in Sources */,
@@ -875,6 +882,7 @@
 				0F59E7B52B065409007C2B74 /* colors.swift in Sources */,
 				0FFA50942B0857DA00D3A4CF /* FeedView.swift in Sources */,
 				0F0C66442BC193C5008F1FBD /* AboutInfoView.swift in Sources */,
+				0F29163F2CB277A9002366BE /* StoryDetailView.swift in Sources */,
 				0F0C664C2BC227E3008F1FBD /* EditProjectProfile.swift in Sources */,
 				0F7602A92BB92ACD00F8D900 /* TextArea.swift in Sources */,
 				0F07092A2B1F65910023F8EC /* SearchService.swift in Sources */,

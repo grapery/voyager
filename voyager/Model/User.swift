@@ -10,6 +10,7 @@ import SwiftUI
 import SwiftData
 
 typealias User = Common_UserInfo
+
 typealias UserProfile = Common_UserProfileInfo
 
 
