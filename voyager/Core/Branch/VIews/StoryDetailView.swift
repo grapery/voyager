@@ -25,6 +25,7 @@ struct StoryDetailView: View {
             VStack(alignment: .leading, spacing: 20) {
                 storyHeader
                 storyStats
+                Spacer()
                 storyDetails
                 if viewModel.story?.storyInfo.isAiGen ?? false {
                     aiGenerationDetails
@@ -364,3 +365,4 @@ class StoryDetailViewModel: ObservableObject {
         // TODO: Implement API call to save story changes
     }
 }
+

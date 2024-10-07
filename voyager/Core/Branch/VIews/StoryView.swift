@@ -13,6 +13,7 @@ struct StoryView: View {
     @State var viewModel: StoryViewModel
     @State private var isEditing: Bool = false
     @State public var storyId: Int64
+    @State private var selectedTab = 0
     var userId: Int64
     
     init(storyId: Int64,userId:Int64) {
@@ -67,37 +68,34 @@ struct StoryView: View {
             }
             .padding()
             .background(Color.white)
-            
-            // Storyboards ScrollView
-            ScrollView {
-                if viewModel.isLoading {
-                    ProgressView()
-                } else if let boards = viewModel.storyboards {
-                    LazyVStack {
-                        // Add new StoryBoard button at the top
-                        Button(action: {
-                            // Action to create new StoryBoard
-                            
-                        }) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.secondary.opacity(0.1))
-                                    .frame(height: 60)
-                                
-                                Image(systemName: "plus")
-                                    .foregroundColor(.primary)
-                                    .font(.title2)
+            Spacer()
+            StoryTabView(selectedTab:$selectedTab)
+            Spacer()
+            if self.selectedTab == 0 {
+                // Storyboards ScrollView
+                ScrollView {
+                    if viewModel.isLoading {
+                        ProgressView()
+                    } else if let boards = viewModel.storyboards {
+                        LazyVStack {
+                            ForEach(boards, id: \.id) { board in
+                                StoryBoardCellView(board: board, userId: userId, groupId: self.viewModel.story?.storyInfo.groupID ?? 0, storyId: storyId)
                             }
                         }
-                        .padding(.bottom)
-                        
-                        ForEach(boards, id: \.id) { board in
+                        .padding()
+                    }
+                }
+            }else if self.selectedTab == 1 {
+                ScrollView {
+                    LazyVStack {
+                        ForEach(viewModel.storyboards!, id: \.id) { board in
                             StoryBoardCellView(board: board, userId: userId, groupId: self.viewModel.story?.storyInfo.groupID ?? 0, storyId: storyId)
                         }
                     }
                     .padding()
                 }
             }
+            
         }
         .navigationTitle("故事")
         .toolbar {
@@ -179,6 +177,29 @@ extension DateFormatter {
         return formatter
     }()
 }
+
+struct StoryTabView: View {
+    @Binding var selectedTab: Int
+    let tabs = ["故事线", "故事生成"]
+    
+    var body: some View {
+        HStack {
+            Spacer().padding(.horizontal, 2)
+            ForEach(0..<2) { index in
+                Button(action: {
+                    selectedTab = index
+                }) {
+                    Text(tabs[index])
+                        .foregroundColor(selectedTab == index ? .black : .gray)
+                        .padding(.vertical, 8)
+                }
+                Spacer().padding(.horizontal, 2)
+            }
+        }
+        .padding(.horizontal)
+    }
+}
+
 
 
 
