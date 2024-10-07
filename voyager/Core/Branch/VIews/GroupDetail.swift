@@ -74,7 +74,7 @@ struct GroupDetailView: View {
                 LazyVStack(spacing: 0) {
                     ForEach(viewModel.storys) { story in
                         NavigationLink(destination: StoryView(storyId: story.storyInfo.id, userId: self.user.userID)) {
-                            StoryCellView(story: story)
+                            StoryCellView(story: story, userId: self.user.userID)
                         }
                     }
                 }
@@ -134,7 +134,14 @@ struct CustomTabView: View {
 
 struct StoryCellView: View {
     let story: Story
-    
+    var board: StoryboardViewModel
+    var userId: Int64
+    init(story: Story,userId:Int64) {
+        self.story = story
+        self.userId = userId
+        self.board = StoryboardViewModel(storyId: story.storyInfo.id, storyboardId: story.storyInfo.rootBoardID, userId: userId)
+        
+    }
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {

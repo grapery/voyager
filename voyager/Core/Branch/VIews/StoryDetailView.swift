@@ -111,15 +111,12 @@ struct StoryDetailView: View {
                         .frame(height: 200) // 设置固定高度
                         .padding()
                         .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(2) // 圆角
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2)
-                                .stroke(Color.gray, lineWidth: 1) // 添加边框
-                        )
+                        .cornerRadius(1) // 圆角
+                        
                     }
                 }
                 
-                TextField("Reference Image URL", text: Binding(
+                TextField("参考原图", text: Binding(
                     get: { viewModel.story?.storyInfo.params.refImage ?? "" },
                     set: { viewModel.story?.storyInfo.params.refImage = $0 }
                 ))
@@ -129,17 +126,13 @@ struct StoryDetailView: View {
                         .foregroundColor(.secondary)
                     ScrollView {
                         TextEditor(text: Binding(
-                        get: { viewModel.story?.storyInfo.params.background ?? "" },
-                        set: { viewModel.story?.storyInfo.params.background = $0 }
-                    ))
-                    .frame(minHeight: 200) // 设置最小高度
-                    .padding()
-                    .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                    .cornerRadius(2) // 圆角
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 2)
-                            .stroke(Color.gray, lineWidth: 1) // 添加边框
-                        )
+                            get: { viewModel.story?.storyInfo.params.background ?? "" },
+                            set: { viewModel.story?.storyInfo.params.background = $0 }
+                        ))
+                        .frame(minHeight: 100) // 设置最小高度
+                        .padding()
+                        .background(Color(UIColor.systemGray6)) // 设置背景颜色
+                        .cornerRadius(1) // 圆角
                     }
                 }
                 
@@ -152,14 +145,10 @@ struct StoryDetailView: View {
                             get: { viewModel.story?.storyInfo.params.negativePrompt ?? "" },
                             set: { viewModel.story?.storyInfo.params.negativePrompt = $0 }
                         ))
-                        .frame(minHeight: 200) // 设置最小高度
+                        .frame(minHeight: 100) // 设置最小高度
                         .padding()
                         .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(2) // 圆角
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2)
-                                .stroke(Color.gray, lineWidth: 1) // 添加边框
-                        )
+                        .cornerRadius(1) // 圆角
                     }
                 }
                 VStack(alignment: .leading) {
@@ -171,14 +160,10 @@ struct StoryDetailView: View {
                             get: { viewModel.story?.storyInfo.params.negativePrompt ?? "" },
                             set: { viewModel.story?.storyInfo.params.negativePrompt = $0 }
                         ))
-                        .frame(minHeight: 200) // 设置最小高度
+                        .frame(minHeight: 100) // 设置最小高度
                         .padding()
                         .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(2) // 圆角
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2)
-                                .stroke(Color.gray, lineWidth: 1) // 添加边框
-                        )
+                        .cornerRadius(1) // 圆角
                     }
                 }
             } else {
@@ -213,15 +198,11 @@ struct StoryDetailView: View {
                         .frame(height: 200) // 设置固定高度
                         .padding()
                         .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(8) // 圆角
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2)
-                                .stroke(Color.gray, lineWidth: 1) // 添加边框
-                        )
+                        .cornerRadius(1) // 圆角
                     }
                 }
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("参考的图像")
+                    Text("参考原图")
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.horizontal)
                     ScrollView {
@@ -232,11 +213,7 @@ struct StoryDetailView: View {
                         .frame(height: 200) // 设置固定高度
                         .padding()
                         .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(8) // 圆角
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2)
-                                .stroke(Color.gray, lineWidth: 1) // 添加边框
-                        )
+                        .cornerRadius(1) // 圆角
                     }
                 }
                 VStack(alignment: .leading, spacing: 10) {
@@ -251,11 +228,7 @@ struct StoryDetailView: View {
                         .frame(height: 200) // 设置固定高度
                         .padding()
                         .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(8) // 圆角
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2)
-                                .stroke(Color.gray, lineWidth: 1) // 添加边框
-                        )
+                        .cornerRadius(1) // 圆角
                     }
                 }
                 VStack(alignment: .leading, spacing: 10) {
@@ -270,11 +243,7 @@ struct StoryDetailView: View {
                         .frame(height: 200) // 设置固定高度
                         .padding()
                         .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(8) // 圆角
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2)
-                                .stroke(Color.gray, lineWidth: 1) // 添加边框
-                        )
+                        .cornerRadius(1) // 圆角
                     }
                 }
                 VStack(alignment: .leading, spacing: 10) {
@@ -289,11 +258,7 @@ struct StoryDetailView: View {
                         .frame(height: 200) // 设置固定高度
                         .padding()
                         .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(8) // 圆角
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2)
-                                .stroke(Color.gray, lineWidth: 1) // 添加边框
-                        )
+                        .cornerRadius(1) // 圆角
                     }
                 }
             } else {

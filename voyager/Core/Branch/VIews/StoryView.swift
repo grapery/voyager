@@ -99,7 +99,7 @@ struct StoryView: View {
                 }
             }
         }
-        .navigationTitle("Story Details")
+        .navigationTitle("故事")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(isEditing ? "Save" : "Edit") {
@@ -158,6 +158,7 @@ struct StoryBoardCellView: View {
         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
         .onTapGesture {
             isShowingBoardDetail = true
+            print("Tapped on board: \(String(describing: board))")
         }
         .fullScreenCover(isPresented: $isShowingBoardDetail) {
             StoryBoardView(board: board, userId: userId, groupId: groupId, storyId: storyId)

@@ -38,7 +38,7 @@ struct GroupView: View {
             }
             .listRowInsets(EdgeInsets())
             .listStyle(PlainListStyle())
-            .navigationTitle("My Joined Groups")
+            .navigationTitle("加入的群组")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
@@ -68,7 +68,6 @@ struct GroupView: View {
 
 struct GroupCellView: View {
     public var group: BranchGroup
-    
     var body: some View {
         VStack(alignment: .leading) {
             // Header
