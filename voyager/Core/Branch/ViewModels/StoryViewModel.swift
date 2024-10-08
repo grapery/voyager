@@ -112,8 +112,26 @@ class StoryViewModel: ObservableObject {
         
     }
     
-    func genStory() async{
-        
+    func genStory(storyId:Int64,userId:Int64) async -> (Common_RenderStoryDetail,Error?) {
+        var resp: Common_RenderStoryDetail
+        var err: Error?
+        self.isGenerate = true
+        do {
+            (resp,err) = await apiClient.RenderStory(
+                boardId: 0,
+                storyId: storyId,
+                userId: userId,
+                is_regenerate: false,
+                render_type: Common_RenderType(rawValue: 0)!)
+            if err != nil {
+                print("genStory failed",err!)
+                return (Common_RenderStoryDetail(),err)
+            }
+        } catch {
+            self.isGenerate = false
+        }
+        self.isGenerate = false
+        return (resp,nil as Error?)
     }
     
     func CreateStory(groupId:Int64) async{

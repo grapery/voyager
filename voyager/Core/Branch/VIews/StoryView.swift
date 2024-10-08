@@ -14,19 +14,41 @@ struct StoryView: View {
     @State private var isEditing: Bool = false
     @State public var storyId: Int64
     @State private var selectedTab = 0
+    
     var userId: Int64
     
-    init(storyId: Int64,userId:Int64) {
+    // 新增的状态变量
+    @State private var generatedStory: Common_RenderStoryDetail?
+    @State private var isGenerating = false
+    @State private var errorMessage: String?
+    @State private var buttonMsg: String = "生成故事"
+    
+    private func setButtonMsg() {
+        if isGenerating {
+            buttonMsg = "正在生成..."
+        } else if generatedStory != nil {
+            buttonMsg = "重新生成"
+        } else if errorMessage != nil {
+            buttonMsg = "重试"
+        } else {
+            buttonMsg = "生成故事"
+        }
+    }
+    
+    init(storyId: Int64, userId: Int64) {
         self.storyId = storyId
         self.userId = userId
-        self.viewModel = StoryViewModel(storyId: storyId,userId:userId)
+        self.viewModel = StoryViewModel(storyId: storyId, userId: userId)
+        setButtonMsg()
     }
+    
+    
     
     var body: some View {
         VStack(spacing: 0) {
             // Story Info Header
             VStack(alignment: .leading, spacing: 8) {
-                NavigationLink(destination: StoryDetailView(storyId: self.storyId,story: self.viewModel.story!)) {
+                NavigationLink(destination: StoryDetailView(storyId: self.storyId, story: self.viewModel.story!)) {
                     HStack {
                         KFImage(URL(string: self.viewModel.story?.storyInfo.avatar ?? ""))
                             .resizable()
@@ -50,10 +72,23 @@ struct StoryView: View {
                     }
                 }
                 
-                Text(self.viewModel.story?.storyInfo.origin ?? "")
-                    .font(.subheadline)
-                    .lineLimit(3)
-                
+                HStack{
+                    Text(self.viewModel.story?.storyInfo.origin ?? "")
+                        .font(.subheadline)
+                        .lineLimit(5)
+                    Spacer()
+                    VStack(alignment: .leading, spacing: 8){
+                        Button(action: {
+                            generateStory()
+                        }) {
+                            Text(buttonMsg)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Color.green.opacity(0.2))
+                                .cornerRadius(16)
+                        }
+                    }
+                }
                 HStack {
                     Label("\(self.viewModel.story?.storyInfo.desc ?? "")", systemImage: "bubble.left")
                     Spacer()
@@ -68,34 +103,25 @@ struct StoryView: View {
             }
             .padding()
             .background(Color.white)
-            Spacer()
-            StoryTabView(selectedTab:$selectedTab)
-            Spacer()
-            if self.selectedTab == 0 {
-                // Storyboards ScrollView
-                ScrollView {
-                    if viewModel.isLoading {
-                        ProgressView()
-                    } else if let boards = viewModel.storyboards {
-                        LazyVStack {
-                            ForEach(boards, id: \.id) { board in
-                                StoryBoardCellView(board: board, userId: userId, groupId: self.viewModel.story?.storyInfo.groupID ?? 0, storyId: storyId)
-                            }
-                        }
-                        .padding()
-                    }
-                }
-            }else if self.selectedTab == 1 {
-                ScrollView {
-                    LazyVStack {
-                        ForEach(viewModel.storyboards!, id: \.id) { board in
-                            StoryBoardCellView(board: board, userId: userId, groupId: self.viewModel.story?.storyInfo.groupID ?? 0, storyId: storyId)
-                        }
-                    }
-                    .padding()
-                }
-            }
             
+            StoryTabView(selectedTab: $selectedTab)
+                .padding(.top, 4) // 减少顶部间距
+
+            GeometryReader { geometry in
+                    VStack(spacing: 0) {
+                        if selectedTab == 0 {
+                            // 故事线视图
+                            storyLineView
+                        } else {
+                            // 故事生成视图
+                            StoryGenView(generatedStory: $generatedStory,
+                                         isGenerating: $isGenerating,
+                                         errorMessage: $errorMessage)
+                        }
+                    }
+                    .frame(minHeight: geometry.size.height)
+            }
+            .padding(.top, 0) // 移除 GeometryReader 的顶部间距
         }
         .navigationTitle("故事")
         .toolbar {
@@ -113,6 +139,46 @@ struct StoryView: View {
         .onAppear {
             Task {
                 await viewModel.fetchStory(withBoards: true)
+            }
+        }
+    }
+    
+    private var storyLineView: some View {
+        VStack {
+            if viewModel.isLoading {
+                ProgressView()
+            } else if let boards = viewModel.storyboards {
+                ScrollView {
+                    LazyVStack {
+                        ForEach(boards, id: \.id) { board in
+                            StoryBoardCellView(board: board, userId: userId, groupId: self.viewModel.story?.storyInfo.groupID ?? 0, storyId: storyId)
+                        }
+                    }
+                    .padding()
+                }
+            }
+        }
+    }
+    
+    private func generateStory() {
+        isGenerating = true
+        errorMessage = nil
+        setButtonMsg()
+        // 模拟生成故事的过程
+        DispatchQueue.global().asyncAfter(deadline: .now() + 30) {
+            Task { @MainActor in
+                let result = await self.viewModel.genStory(storyId: self.storyId, userId: self.userId)
+                
+                if let error = result.1 {
+                    self.errorMessage = error.localizedDescription
+                    self.generatedStory = nil
+                } else {
+                    self.generatedStory = result.0
+                    self.errorMessage = nil
+                }
+                
+                self.isGenerating = false
+                self.setButtonMsg()
             }
         }
     }
@@ -199,7 +265,3 @@ struct StoryTabView: View {
         .padding(.horizontal)
     }
 }
-
-
-
-

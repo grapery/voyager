@@ -70,11 +70,33 @@ struct GroupDetailView: View {
             CustomTabView(selectedTab: $selectedTab)
             
             // Story List
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(viewModel.storys) { story in
-                        NavigationLink(destination: StoryView(storyId: story.storyInfo.id, userId: self.user.userID)) {
-                            StoryCellView(story: story, userId: self.user.userID)
+            if selectedTab == 0 {
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(viewModel.storys) { story in
+                            NavigationLink(destination: StoryView(storyId: story.storyInfo.id, userId: self.user.userID)) {
+                                StoryCellView(story: story, userId: self.user.userID)
+                            }
+                        }
+                    }
+                }
+            }else if selectedTab == 1 {
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(viewModel.storys) { story in
+                            NavigationLink(destination: StoryView(storyId: story.storyInfo.id, userId: self.user.userID)) {
+                                StoryCellView(story: story, userId: self.user.userID)
+                            }
+                        }
+                    }
+                }
+            }else if selectedTab == 2 {
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(viewModel.storys) { story in
+                            NavigationLink(destination: StoryView(storyId: story.storyInfo.id, userId: self.user.userID)) {
+                                StoryCellView(story: story, userId: self.user.userID)
+                            }
                         }
                     }
                 }
