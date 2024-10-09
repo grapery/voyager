@@ -505,4 +505,66 @@ extension APIClient {
             return (Common_RenderStoryboardDetail(), error)
         }
     }
+    
+    func GetRenderStory(storyId: Int64, userId: Int64, is_regenerate: Bool, render_type: Common_RenderType) async -> (Common_RenderStoryDetail?, Error?) {
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_GetStoryRenderRequest.with {
+                $0.storyID = storyId
+                $0.renderStatus = 1
+                $0.renderType = 0
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.getStoryRender(request: request, headers: header)
+            
+            if resp.message?.code != 0 {
+                let error = NSError(domain: "GetRenderStoryError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+                return (Common_RenderStoryDetail(), error)
+            }
+            
+            if let renderDatas = resp.message?.data {
+                if renderDatas.list.count <= 0 {
+                    return (Common_RenderStoryDetail(), NSError(domain: "GetRenderStoryError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
+                }
+                return (renderDatas.list.first, nil)
+            } else {
+                return (Common_RenderStoryDetail(), NSError(domain: "RenderStoryError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
+            }
+        } catch {
+            return (Common_RenderStoryDetail(), error)
+        }
+    }
+    
+    func GetRenderStoryboard(boardId: Int64, storyId: Int64, userId: Int64, is_regenerate: Bool, render_type: Common_RenderType) async -> (Common_RenderStoryboardDetail,Error?){
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_GetStoryBoardRenderRequest.with {
+                $0.boardID = boardId
+                $0.renderStatus = 1
+                $0.renderType = 0
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.getStoryBoardRender(request: request, headers: header)
+            
+            if resp.message?.code != 0 {
+                let error = NSError(domain: "GetRenderStoryboardError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+                return (Common_RenderStoryboardDetail(), error)
+            }
+            
+            if let renderDatas = resp.message?.data.list {
+                if renderDatas.count <= 0 {
+                    return (Common_RenderStoryboardDetail(), NSError(domain: "GetRenderStoryboardError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
+                }
+                return (renderDatas[0], nil)
+            } else {
+                return (Common_RenderStoryboardDetail(), NSError(domain: "GetRenderStoryboardError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
+            }
+        } catch {
+            return (Common_RenderStoryboardDetail(), error)
+        }
+    }
 }

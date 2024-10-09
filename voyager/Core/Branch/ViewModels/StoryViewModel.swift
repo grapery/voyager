@@ -166,6 +166,32 @@ class StoryViewModel: ObservableObject {
             self.isCreateOk = false
         }
     }
+    
+    func getGenStory(storyId:Int64,userId:Int64) async -> (Common_RenderStoryDetail?,Error?) {
+        var resp: Common_RenderStoryDetail?
+        var err: Error?
+        do {
+            (resp,err) = await apiClient.GetRenderStory(storyId: storyId, userId: userId, is_regenerate: false, render_type: Common_RenderType(rawValue: 0)!)
+            if err != nil {
+                print("get genStory failed",err!)
+                return (Common_RenderStoryDetail(),err)
+            }
+        }
+        return (resp,nil as Error?)
+    }
+    
+    func getGenStoryBoard(storyId:Int64,userId:Int64,boardId:Int64) async -> (Common_RenderStoryboardDetail?,Error?) {
+        var resp: Common_RenderStoryboardDetail?
+        var err: Error?
+        do {
+            (resp,err) = await apiClient.GetRenderStoryboard(boardId: boardId, storyId: storyId, userId: userId, is_regenerate: false, render_type: Common_RenderType(rawValue: 0)!)
+            if err != nil {
+                print("get genStoryboard failed",err!)
+                return (Common_RenderStoryboardDetail(),err)
+            }
+        }
+        return (resp,nil as Error?)
+    }
 }
 
 

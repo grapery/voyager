@@ -40,6 +40,7 @@ struct StoryView: View {
         self.userId = userId
         self.viewModel = StoryViewModel(storyId: storyId, userId: userId)
         setButtonMsg()
+        self.getGenerateStory()
     }
     
     
@@ -116,7 +117,7 @@ struct StoryView: View {
                             // 故事生成视图
                             StoryGenView(generatedStory: $generatedStory,
                                          isGenerating: $isGenerating,
-                                         errorMessage: $errorMessage)
+                                         errorMessage: $errorMessage, viewModel: $viewModel)
                         }
                     }
                     .frame(minHeight: geometry.size.height)
@@ -165,7 +166,7 @@ struct StoryView: View {
         errorMessage = nil
         setButtonMsg()
         // 模拟生成故事的过程
-        DispatchQueue.global().asyncAfter(deadline: .now() + 30) {
+        //DispatchQueue.global().asyncAfter(deadline: .now() + 30) {
             Task { @MainActor in
                 let result = await self.viewModel.genStory(storyId: self.storyId, userId: self.userId)
                 
@@ -180,7 +181,24 @@ struct StoryView: View {
                 self.isGenerating = false
                 self.setButtonMsg()
             }
-        }
+        //}
+    }
+    
+    private func getGenerateStory() {
+        errorMessage = nil
+        //DispatchQueue.global().asyncAfter(deadline: .now() + 30) {
+            Task { @MainActor in
+                let result = await self.viewModel.getGenStory(storyId: self.storyId, userId: self.userId)
+                
+                if let error = result.1 {
+                    self.errorMessage = error.localizedDescription
+                    self.generatedStory = nil
+                } else {
+                    self.generatedStory = result.0
+                    self.errorMessage = nil
+                }
+            }
+        //}
     }
     
     private func formatDate(timestamp: Int64) -> String {
@@ -196,6 +214,13 @@ struct StoryBoardCellView: View {
     var storyId: Int64
     @State private var isShowingBoardDetail = false
     
+    init(board: StoryBoard? = nil, userId: Int64, groupId: Int64, storyId: Int64, isShowingBoardDetail: Bool = false) {
+        self.board = board
+        self.userId = userId
+        self.groupId = groupId
+        self.storyId = storyId
+        self.isShowingBoardDetail = isShowingBoardDetail
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {

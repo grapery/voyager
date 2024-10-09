@@ -14,11 +14,8 @@ struct StoryGenView: View {
     @Binding var generatedStory: Common_RenderStoryDetail?
     @Binding var isGenerating: Bool
     @Binding var errorMessage: String?
-    init() {
-        Task{
-            
-        }
-    }
+    @Binding var viewModel: StoryViewModel
+
     
     var body: some View {
         VStack {
