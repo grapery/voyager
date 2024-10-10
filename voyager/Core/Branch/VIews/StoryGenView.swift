@@ -15,8 +15,8 @@ struct StoryGenView: View {
     @Binding var isGenerating: Bool
     @Binding var errorMessage: String?
     @Binding var viewModel: StoryViewModel
+    @Binding var selectedTab: Int64
 
-    
     var body: some View {
         VStack {
             if isGenerating {
@@ -30,6 +30,19 @@ struct StoryGenView: View {
                 Text("错误: \(error)")
                     .foregroundColor(.red)
                 Spacer()
+            }
+        }.onAppear(){
+            Task{ @MainActor in
+                let result = await self.viewModel.getGenStory(storyId: self.viewModel.storyId, userId: self.viewModel.userId)
+                    print("StoryGenView help getGenerateStory ")
+                    if let error = result.1 {
+                        self.errorMessage = error.localizedDescription
+                        self.generatedStory = nil
+                        isGenerating = false
+                    } else {
+                        self.generatedStory = result.0
+                        self.errorMessage = nil
+                    }
             }
         }
     }
@@ -64,6 +77,39 @@ struct StoryGenView: View {
                                 .font(.body)
                                 .foregroundColor(.primary)
                                 .padding(.top, 2)
+                            Spacer()
+                            
+                            HStack {
+                                Label("分叉", systemImage: "signpost.right.and.left")
+                                    .scaledToFit()
+                                    .frame(width: 72, height: 48)
+                                    .foregroundColor(.blue)
+                                    .onTapGesture {
+                                        // 分叉
+                                        self.selectedTab = 1
+                                    }
+                                Spacer().frame(width: 48, height: 48)
+                                Label("编辑", systemImage: "highlighter")
+                                    .scaledToFit()
+                                    .frame(width: 72, height: 48)
+                                    .foregroundColor(.blue)
+                                    .onTapGesture {
+                                        // 编辑
+                                        self.selectedTab = 1
+                                    }
+                                Spacer().frame(width: 48, height: 48)
+                                Label("故事板", systemImage: "tree.circle")
+                                    .scaledToFit()
+                                    .frame(width: 72, height: 48)
+                                    .foregroundColor(.blue)
+                                    .onTapGesture {
+                                        // 故事板
+                                        self.selectedTab = 0
+                                    }
+                                }
+                            }
+                            .foregroundColor(.secondary)
+                            .font(.caption)
                         }
                         .padding()
                         .background(Color(.systemGray6))
@@ -76,24 +122,4 @@ struct StoryGenView: View {
     }
 }
 
-struct StoryChapter: Codable {
-    let title: String
-    let content: String
-}
-
-struct StoryDetail: Codable {
-    let content: String
-    let characters: String
-    let imagePrompt: String
-}
-
-struct GeneratedStory: Codable {
-    let chapterSummary: StoryChapter
-    let chapterDetails: [String: StoryDetail]
-    
-    enum CodingKeys: String, CodingKey {
-        case chapterSummary = "章节情节简述"
-        case chapterDetails = "章节详细情节"
-    }
-}
 

@@ -40,7 +40,6 @@ struct StoryView: View {
         self.userId = userId
         self.viewModel = StoryViewModel(storyId: storyId, userId: userId)
         setButtonMsg()
-        self.getGenerateStory()
     }
     
     
@@ -117,7 +116,8 @@ struct StoryView: View {
                             // 故事生成视图
                             StoryGenView(generatedStory: $generatedStory,
                                          isGenerating: $isGenerating,
-                                         errorMessage: $errorMessage, viewModel: $viewModel)
+                                         errorMessage: $errorMessage,
+                                         viewModel: $viewModel)
                         }
                     }
                     .frame(minHeight: geometry.size.height)
@@ -189,7 +189,7 @@ struct StoryView: View {
         //DispatchQueue.global().asyncAfter(deadline: .now() + 30) {
             Task { @MainActor in
                 let result = await self.viewModel.getGenStory(storyId: self.storyId, userId: self.userId)
-                
+                print("StoryView help getGenerateStory ")
                 if let error = result.1 {
                     self.errorMessage = error.localizedDescription
                     self.generatedStory = nil

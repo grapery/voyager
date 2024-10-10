@@ -96,7 +96,6 @@ class StoryViewModel: ObservableObject {
         } catch {
             self.err = ("Error fetching storyboards: \(error.localizedDescription)" as! any Error)
             self.isLoading = false
-            self.isLoading = false
         }
     }
     
