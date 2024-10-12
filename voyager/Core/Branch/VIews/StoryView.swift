@@ -13,7 +13,7 @@ struct StoryView: View {
     @State var viewModel: StoryViewModel
     @State private var isEditing: Bool = false
     @State public var storyId: Int64
-    @State private var selectedTab = 0
+    @State private var selectedTab: Int64 = 0
     
     var userId: Int64
     
@@ -117,7 +117,8 @@ struct StoryView: View {
                             StoryGenView(generatedStory: $generatedStory,
                                          isGenerating: $isGenerating,
                                          errorMessage: $errorMessage,
-                                         viewModel: $viewModel)
+                                         viewModel: $viewModel,
+                                         selectedTab: $selectedTab)
                         }
                     }
                     .frame(minHeight: geometry.size.height)
@@ -224,10 +225,17 @@ struct StoryBoardCellView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(board?.boardInfo.title ?? "无标题故事章节")
-                .font(.headline)
-                .foregroundColor(.primary)
-            
+            HStack {
+                VStack(alignment: .leading){
+                    Text(board?.boardInfo.title ?? "无标题故事章节")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                }
+                VStack(alignment: .trailing){
+                    Text("\(formatDate(timestamp: (board?.boardInfo.ctime)!))")
+                        .scaledToFit()
+                }
+            }
             if let description = board?.boardInfo.content, !description.isEmpty {
                 Text(description)
                     .font(.subheadline)
@@ -235,11 +243,41 @@ struct StoryBoardCellView: View {
                     .lineLimit(2)
             }
             
-            if let createdAt = board?.boardInfo.ctime {
-                Text("创建于 : \(formatDate(timestamp: createdAt))")
-                    .font(.caption)
-                    .foregroundColor(.gray)
+            Spacer()
+            Spacer()
+            HStack {
+                Button(action: {
+                    // 处理分叉逻辑
+                }) {
+                    HStack {
+                        Image(systemName: "signpost.right.and.left")
+                        Text("分叉")
+                    }
+                    .scaledToFill()
+                }
+                Spacer()
+                .scaledToFit()
+                Button(action: {
+                    // 处理评论逻辑
+                }) {
+                    HStack {
+                        Image(systemName: "bubble.middle.bottom")
+                    }
+                    .scaledToFill()
+                }
+                Spacer()
+                    .scaledToFit()
+                Button(action: {
+                    // 处理点赞逻辑
+                }) {
+                    HStack {
+                        Image(systemName: "heart")
+                    }
+                    .scaledToFill()
+                }
             }
+            .foregroundColor(.secondary)
+            .font(.caption)
         }
         .padding()
         .background(Color(.systemBackground))
@@ -270,7 +308,7 @@ extension DateFormatter {
 }
 
 struct StoryTabView: View {
-    @Binding var selectedTab: Int
+    @Binding var selectedTab: Int64
     let tabs = ["故事线", "故事生成"]
     
     var body: some View {
@@ -278,7 +316,7 @@ struct StoryTabView: View {
             Spacer().padding(.horizontal, 2)
             ForEach(0..<2) { index in
                 Button(action: {
-                    selectedTab = index
+                    selectedTab = Int64(index)
                 }) {
                     Text(tabs[index])
                         .foregroundColor(selectedTab == index ? .black : .gray)

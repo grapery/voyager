@@ -65,47 +65,74 @@ struct StoryGenView: View {
                 ForEach(Array(story.result.keys.sorted().filter { $0 != "story" }), id: \.self) { key in
                     if let chapter = story.result[key] {
                         VStack(alignment: .leading) {
-                            Text("\(key)")
+                            Text("\(key): \(chapter.data["章节题目"]?.text ?? "无标题")")
                                 .font(.headline)
                                 .padding(.bottom, 4)
                             
-                            Text("章节题目: \(chapter.data["章节题目"]?.text ?? "无标题")")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                                .padding(.top, 4)
-                            Text("章节内容: \(chapter.data["章节内容"]?.text ?? "无内容")")
+                            Text("内容: \(chapter.data["章节内容"]?.text ?? "无内容")")
                                 .font(.body)
                                 .foregroundColor(.primary)
                                 .padding(.top, 2)
                             Spacer()
                             
                             HStack {
-                                Label("分叉", systemImage: "signpost.right.and.left")
-                                    .scaledToFit()
-                                    .frame(width: 72, height: 48)
-                                    .foregroundColor(.blue)
-                                    .onTapGesture {
-                                        // 分叉
-                                        self.selectedTab = 1
+                                // Label("分叉", systemImage: "signpost.right.and.left")
+                                //     .scaledToFit()
+                                //     .frame(width: 72, height: 48)
+                                //     .foregroundColor(.blue)
+                                //     .onTapGesture {
+                                //         // 分叉
+                                //         self.selectedTab = 1
+                                //     }
+                                Button(action: {
+                                    // 处理点赞逻辑
+                                    self.selectedTab = 1
+                                }) {
+                                    HStack {
+                                        Image(systemName: "signpost.right.and.left")
+                                        Text("分叉")
                                     }
-                                Spacer().frame(width: 48, height: 48)
-                                Label("编辑", systemImage: "highlighter")
-                                    .scaledToFit()
-                                    .frame(width: 72, height: 48)
-                                    .foregroundColor(.blue)
-                                    .onTapGesture {
-                                        // 编辑
-                                        self.selectedTab = 1
+
+                                    .scaledToFill()
+                                }
+                                //Spacer().frame(width: 48, height: 48)
+                                // Label("编辑", systemImage: "highlighter")
+                                //     .scaledToFit()
+                                //     .frame(width: 72, height: 48)
+                                //     .foregroundColor(.blue)
+                                //     .onTapGesture {
+                                //         // 编辑
+                                //         self.selectedTab = 1
+                                //     }
+                                Button(action: {
+                                    // 处理评论逻辑
+                                    self.selectedTab = 1
+                                }) {
+                                    HStack {
+                                        Image(systemName: "highlighter")
+                                        Text("编辑")
                                     }
-                                Spacer().frame(width: 48, height: 48)
-                                Label("故事板", systemImage: "tree.circle")
-                                    .scaledToFit()
-                                    .frame(width: 72, height: 48)
-                                    .foregroundColor(.blue)
-                                    .onTapGesture {
-                                        // 故事板
-                                        self.selectedTab = 0
+                                    .scaledToFill()
+                                }
+                                //Spacer().frame(width: 48, height: 48)
+                                // Label("故事板", systemImage: "tree.circle")
+                                //     .scaledToFit()
+                                //     .frame(width: 72, height: 48)
+                                //     .foregroundColor(.blue)
+                                //     .onTapGesture {
+                                //         // 故事板
+                                //         self.selectedTab = 0
+                                //     }
+                                // }
+                                Button(action: {
+                                    // 处理转发逻辑
+                                    self.selectedTab = 0
+                                }) {
+                                    HStack {
+                                        Image(systemName: "tree.circle")
+                                        Text("故事板")
                                     }
+                                    .scaledToFill()
                                 }
                             }
                             .foregroundColor(.secondary)
