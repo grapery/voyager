@@ -16,6 +16,7 @@ class StoryViewModel: ObservableObject {
     @Published var storyboards:[StoryBoard]?
     var isUpdateOk: Bool = false
     var isCreateOk: Bool = false
+    var isForkOk: Bool = false
     var isGenerate: Bool = false
     var err: Error? = nil
     var page: Int64 = 0
@@ -99,16 +100,48 @@ class StoryViewModel: ObservableObject {
         }
     }
     
-    func createStoryBoard() async{
+    func createStoryBoard(prevBoardId: Int64, nextBoardId: Int64, title: String, content: String, isAiGen: Bool, backgroud: String, params: Common_StoryBoardParams) async -> (StoryBoard?,Error?){
+        var newStoryboard: StoryBoard?
+        var err: Error?
         
+        (newStoryboard,err) = await apiClient.CreateStoryboard(storyId: self.storyId, prevBoardId: prevBoardId, nextBoardId: nextBoardId, creator: self.userId, title: title, content: content, isAiGen: isAiGen, backgroud: backgroud, params: params)
+        if err != nil {
+            self.isCreateOk = false
+            print("CreateStoryBoard failed",err!)
+            return (newStoryboard,nil)
+        }
+        if newStoryboard?.id == 0 {
+            self.isCreateOk = false
+            print("CreateStoryBoard failed",err!)
+            return (newStoryboard,nil)
+        }
+        self.isCreateOk = true
+        print("CreateStoryBoard ok",err!)
+        return (newStoryboard,nil)
     }
     
     func createStoryRole() async{
         
     }
     
-    func forkStory(preStoryBoardId: Int64,storyId: Int64,userId: Int64) async ->(newBoardId: Int64,Error?){
-        return (0,nil)
+    func forkStory(preStoryBoardId: Int64,storyId: Int64,userId: Int64) async ->(Int64,Error?){
+        var newStoryboardId: Int64
+        var err: Error?
+        var paramsStoryboard: Common_StoryBoard?
+        (newStoryboardId,err) = await apiClient.ForkStoryboard(prevboardId: preStoryBoardId, storyId: self.storyId, userId: self.userId, storyParam: paramsStoryboard!)
+        if err != nil {
+            self.isForkOk = false
+            print("ForkStoryBoard failed",err!)
+            return (newStoryboardId,nil)
+        }
+        if newStoryboardId == 0 {
+            self.isForkOk = false
+            print("ForkStoryBoard failed",err!)
+            return (newStoryboardId,nil)
+        }
+        self.isForkOk = true
+        print("ForkStoryBoard ok",err!)
+        return (newStoryboardId,nil)
     }
     
     func genStory(storyId:Int64,userId:Int64) async -> (Common_RenderStoryDetail,Error?) {

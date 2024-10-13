@@ -297,7 +297,7 @@ extension APIClient {
         }
     }
     
-    func ForkStoryboard(prevboardId: Int64, storyId: Int64, userId: Int64, storyParam: Common_StoryBoard) async -> (Int64, Int64, Error?) {
+    func ForkStoryboard(prevboardId: Int64, storyId: Int64, userId: Int64, storyParam: Common_StoryBoard) async -> (Int64,  Error?) {
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)
             let request = Common_ForkStoryboardRequest.with {
@@ -313,16 +313,16 @@ extension APIClient {
             
             if resp.message?.code != 0 {
                 let error = NSError(domain: "ForkStoryboardError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
-                return (0, 0, error)
+                return (0,  error)
             }
             
             if let forkData = resp.message?.data {
-                return (Int64(forkData.storyID), Int64(forkData.boardID), nil)
+                return (Int64(forkData.storyID), nil)
             } else {
-                return (0, 0, NSError(domain: "ForkStoryboardError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
+                return (0,  NSError(domain: "ForkStoryboardError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
             }
         } catch {
-            return (0, 0, error)
+            return (0, error)
         }
     }
     
