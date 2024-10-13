@@ -156,12 +156,10 @@ struct CustomTabView: View {
 
 struct StoryCellView: View {
     let story: Story
-    var board: StoryboardViewModel
     var userId: Int64
     init(story: Story,userId:Int64) {
         self.story = story
         self.userId = userId
-        self.board = StoryboardViewModel(storyId: story.storyInfo.id, storyboardId: story.storyInfo.rootBoardID, userId: userId)
         
     }
     var body: some View {

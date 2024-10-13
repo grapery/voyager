@@ -107,8 +107,8 @@ class StoryViewModel: ObservableObject {
         
     }
     
-    func forkStory() async{
-        
+    func forkStory(preStoryBoardId: Int64,storyId: Int64,userId: Int64) async ->(newBoardId: Int64,Error?){
+        return (0,nil)
     }
     
     func genStory(storyId:Int64,userId:Int64) async -> (Common_RenderStoryDetail,Error?) {

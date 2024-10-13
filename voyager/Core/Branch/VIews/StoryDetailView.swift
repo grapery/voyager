@@ -61,22 +61,56 @@ struct StoryDetailView: View {
     }
     
     private var storyHeader: some View {
-        HStack {
-            KFImage(URL(string: viewModel.story?.storyInfo.avatar ?? ""))
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 80, height: 80)
-                .clipShape(Circle())
-            
+        VStack{
+            HStack {
+                KFImage(URL(string: viewModel.story?.storyInfo.avatar ?? ""))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 80, height: 80)
+                    .clipShape(Circle())
+//                    .overlay(
+//                        Text("2")
+//                            .font(.caption)
+//                            .foregroundColor(.white)
+//                            .padding(5)
+//                            .background(Color.blue)
+//                            .clipShape(Circle())
+//                            .offset(x: 30, y: 30)
+//                    )
+                VStack(alignment: .leading) {
+                    Text("名称")
+                        .font(.headline)
+                    if isEditing {
+                        TextField("", text: Binding(
+                            get: { story.storyInfo.name },
+                            set: { story.storyInfo.name = $0 }
+                        ))
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    } else {
+                        Text(viewModel.story?.storyInfo.name ?? "")
+                            .font(.title)
+                            .fontWeight(.bold)
+                        if let createdAt = viewModel.story?.storyInfo.ctime {
+                            Text("创建于: \(formatDate(timestamp: createdAt))")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+            }
             VStack(alignment: .leading) {
-                Text(viewModel.story?.storyInfo.name ?? "")
-                    .font(.title)
+                Text("简介")
+                    .font(.headline)
                     .fontWeight(.bold)
-                
-                if let createdAt = viewModel.story?.storyInfo.ctime {
-                    Text("创建于: \(formatDate(timestamp: createdAt))")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                if isEditing {
+                    TextField("", text: Binding(
+                        get: { story.storyInfo.desc },
+                        set: { story.storyInfo.desc = $0 }
+                    ))
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                } else {
+                    Text(story.storyInfo.desc)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                 }
             }
         }
@@ -87,6 +121,33 @@ struct StoryDetailView: View {
             Stat(title: "Likes", value: viewModel.likes)
             Stat(title: "Followers", value: viewModel.followers)
             Stat(title: "Shares", value: viewModel.shares)
+        }
+    }
+
+    private var configurationSection: some View {
+        VStack(alignment: .leading) {
+            Text("配置信息")
+                .font(.headline)
+            if isEditing {
+                TextEditor(text: Binding(
+                    get: { story.storyInfo.params.background },
+                    set: { story.storyInfo.params.background = $0 }
+                ))
+                .frame(height: 150)
+                .border(Color.gray.opacity(0.2))
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+            } else {
+                Text(story.storyInfo.params.background)
+            }
+            HStack {
+                ForEach(["角色", "游戏", "画图", "工具"], id: \.self) { tag in
+                    Text(tag)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(Color.gray.opacity(0.1))
+                        .cornerRadius(15)
+                }
+            }
         }
     }
     
@@ -100,20 +161,19 @@ struct StoryDetailView: View {
                     get: { viewModel.story?.storyInfo.name ?? "" },
                     set: { viewModel.story?.storyInfo.name = $0 }
                 ))
+                .border(Color.gray.opacity(0.2))
+                .textFieldStyle(RoundedBorderTextFieldStyle())
                 VStack(alignment: .leading) {
                     Text("故事描述")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(.headline)
                     ScrollView {
                         TextEditor(text: Binding(
                             get: { viewModel.story?.storyInfo.params.storyDescription ?? "" },
                             set: { viewModel.story?.storyInfo.params.storyDescription = $0 }
                         ))
-                        .frame(height: 200) // 设置固定高度
-                        .padding()
-                        .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(1) // 圆角
-                        
+                        .frame(minHeight: 100) // 设置最小高度
+                        .border(Color.gray.opacity(0.2))
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
                 }
                 
@@ -121,55 +181,54 @@ struct StoryDetailView: View {
                     get: { viewModel.story?.storyInfo.params.refImage ?? "" },
                     set: { viewModel.story?.storyInfo.params.refImage = $0 }
                 ))
+                .border(Color.gray.opacity(0.2))
+                .textFieldStyle(RoundedBorderTextFieldStyle())
                 VStack(alignment: .leading) {
                     Text("故事背景")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(.headline)
                     ScrollView {
                         TextEditor(text: Binding(
                             get: { viewModel.story?.storyInfo.params.background ?? "" },
                             set: { viewModel.story?.storyInfo.params.background = $0 }
                         ))
-                        .frame(minHeight: 100) // 设置最小高度
-                        .padding()
-                        .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(1) // 圆角
+                        .border(Color.gray.opacity(0.2))
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
                 }
                 
                 VStack(alignment: .leading) {
                     Text("故事描述")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(.headline)
                     ScrollView {
                         TextEditor(text: Binding(
                             get: { viewModel.story?.storyInfo.params.negativePrompt ?? "" },
                             set: { viewModel.story?.storyInfo.params.negativePrompt = $0 }
                         ))
                         .frame(minHeight: 100) // 设置最小高度
-                        .padding()
-                        .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(1) // 圆角
+                        .border(Color.gray.opacity(0.2))
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
                 }
                 VStack(alignment: .leading) {
                     Text("故事描述")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(.headline)
                     ScrollView {
                         TextEditor(text: Binding(
                             get: { viewModel.story?.storyInfo.params.negativePrompt ?? "" },
                             set: { viewModel.story?.storyInfo.params.negativePrompt = $0 }
                         ))
                         .frame(minHeight: 100) // 设置最小高度
-                        .padding()
-                        .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(1) // 圆角
+                        .border(Color.gray.opacity(0.2))
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
                 }
             } else {
                 Text(viewModel.story?.storyInfo.name ?? "")
+                    .border(Color.gray.opacity(0.2))
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                 Text(viewModel.story?.storyInfo.origin ?? "")
+                    .border(Color.gray.opacity(0.2))
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
             }
             
             Toggle("是否AI生成描述", isOn: Binding(
@@ -188,114 +247,177 @@ struct StoryDetailView: View {
             if isEditing {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("故事描述")
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding(.horizontal)
+                        .font(.headline)
                     
                     ScrollView {
                         TextEditor(text: Binding(
                             get: { viewModel.story?.storyInfo.params.storyDescription ?? ""},
                             set: { viewModel.story?.storyInfo.params.storyDescription = $0 }
                         ))
-                        .frame(height: 200) // 设置固定高度
-                        .padding()
-                        .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(1) // 圆角
+                        .frame(minHeight: 100) // 设置最小高度
+                        .border(Color.gray.opacity(0.2))
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
                 }
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("参考原图")
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding(.horizontal)
+                    Text("参考���图")
+                        .font(.headline)
                     ScrollView {
                         TextEditor(text: Binding(
                             get: { viewModel.story?.storyInfo.params.refImage ?? ""},
                             set: { viewModel.story?.storyInfo.params.refImage = $0 }
                         ))
-                        .frame(height: 200) // 设置固定高度
-                        .padding()
-                        .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(1) // 圆角
+                        .frame(minHeight: 100) // 设置最小高度
+                        .border(Color.gray.opacity(0.2))
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
                 }
                 VStack(alignment: .leading, spacing: 10) {
                     Text("故事背景")
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding(.horizontal)
+                        .font(.headline)
                     ScrollView {
                         TextEditor(text: Binding(
                             get: { viewModel.story?.storyInfo.params.refImage ?? ""},
                             set: { viewModel.story?.storyInfo.params.refImage = $0 }
                         ))
-                        .frame(height: 200) // 设置固定高度
-                        .padding()
-                        .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(1) // 圆角
+                        .frame(minHeight: 100) // 设置最小高度
+                        .border(Color.gray.opacity(0.2))
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
                 }
                 VStack(alignment: .leading, spacing: 10) {
                     Text("负面提示词")
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding(.horizontal)
+                        .font(.headline)
+                        
                     ScrollView {
                         TextEditor(text: Binding(
                             get: { viewModel.story?.storyInfo.params.refImage ?? ""},
                             set: { viewModel.story?.storyInfo.params.refImage = $0 }
                         ))
-                        .frame(height: 200) // 设置固定高度
-                        .padding()
-                        .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(1) // 圆角
+                        .frame(minHeight: 100) // 设置最小高度
+                        .border(Color.gray.opacity(0.2))
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
                 }
                 VStack(alignment: .leading, spacing: 10) {
                     Text("正面提示词")
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding(.horizontal)
+                        .font(.headline)
                     ScrollView {
                         TextEditor(text: Binding(
                             get: { viewModel.story?.storyInfo.params.refImage ?? ""},
                             set: { viewModel.story?.storyInfo.params.refImage = $0 }
                         ))
-                        .frame(height: 200) // 设置固定高度
-                        .padding()
-                        .background(Color(UIColor.systemGray6)) // 设置背景颜色
-                        .cornerRadius(1) // 圆角
+                        .frame(minHeight: 100) // 设置最小高度
+                        .border(Color.gray.opacity(0.2))
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
                 }
             } else {
                 Section{
                     Text(viewModel.story?.storyInfo.params.storyDescription ?? "")
+                        .font(.body)
                     Spacer()
                     Text("参考的图像: \(viewModel.story?.storyInfo.params.refImage ?? "")")
+                        .font(.body)
                     Spacer()
                     Text("故事背景: \(viewModel.story?.storyInfo.params.background ?? "")")
+                        .font(.body)
                     Spacer()
                     Text("负面提示词: \(viewModel.story?.storyInfo.params.negativePrompt ?? "")")
+                        .font(.body)
                     Spacer()
                     Text("正面提示词: \(viewModel.story?.storyInfo.params.negativePrompt ?? "")")
+                        .font(.body)
                     Spacer()
                 }
             }
         }
     }
     
-    public var charactersList: some View {
+    private var charactersList: some View {
         VStack(alignment: .leading) {
-            Text("故事的角色列表")
-                .font(.headline)
+            HStack {
+                Text("故事角色")
+                    .font(.headline)
+                Spacer()
+                NavigationLink(destination: AllCharactersView()) {
+                    Text("查看\(viewModel.characters.count)名角色 >")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+            }
             
-            ForEach(viewModel.characters,id: \.userID) { character in
-                Text(character.name)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 15) {
+                    ForEach(viewModel.characters, id: \.userID) { character in
+                        VStack {
+                            KFImage(URL(string: character.avatar))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 50, height: 50)
+                                .clipShape(Circle())
+                            Text(character.name)
+                                .font(.caption)
+                                .lineLimit(1)
+                        }
+                    }
+                    Button(action: {
+                        // 添加新角色的操作
+                    }) {
+                        VStack {
+                            Image(systemName: "plus")
+                                .frame(width: 50, height: 50)
+                                .background(Color.gray.opacity(0.2))
+                                .clipShape(Circle())
+                            Text("邀请")
+                                .font(.caption)
+                        }
+                    }
+                }
             }
         }
     }
-    
+
     private var participantsList: some View {
         VStack(alignment: .leading) {
-            Text("故事的贡献者")
-                .font(.headline)
-            ForEach(viewModel.participants,id: \.userID) { participant in
-                Text(participant.name)
+            HStack {
+                Text("群聊成员")
+                    .font(.headline)
+                Spacer()
+                NavigationLink(destination: AllParticipantsView()) {
+                    Text("查看\(viewModel.participants.count)名群成员 >")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+            }
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 15) {
+                    ForEach(viewModel.participants, id: \.userID) { participant in
+                        VStack {
+                            KFImage(URL(string: participant.avatar))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 50, height: 50)
+                                .clipShape(Circle())
+                            Text(participant.name)
+                                .font(.caption)
+                                .lineLimit(1)
+                        }
+                    }
+                    Button(action: {
+                        // 邀请新成员
+                    }) {
+                        VStack {
+                            Image(systemName: "plus")
+                                .frame(width: 50, height: 50)
+                                .background(Color.gray.opacity(0.2))
+                                .clipShape(Circle())
+                            Text("邀请")
+                                .font(.caption)
+                        }
+                    }
+                }
             }
         }
     }
@@ -366,3 +488,16 @@ class StoryDetailViewModel: ObservableObject {
     }
 }
 
+// 假设的全部角色视图
+struct AllCharactersView: View {
+    var body: some View {
+        Text("全部角色列表")
+    }
+}
+
+// 假设的全部参与者视图
+struct AllParticipantsView: View {
+    var body: some View {
+        Text("全部群聊成员列表")
+    }
+}

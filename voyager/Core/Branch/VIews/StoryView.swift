@@ -153,7 +153,7 @@ struct StoryView: View {
                 ScrollView {
                     LazyVStack {
                         ForEach(boards, id: \.id) { board in
-                            StoryBoardCellView(board: board, userId: userId, groupId: self.viewModel.story?.storyInfo.groupID ?? 0, storyId: storyId)
+                            StoryBoardCellView(board: board, userId: userId, groupId: self.viewModel.story?.storyInfo.groupID ?? 0, storyId: storyId, viewModel: self.viewModel)
                         }
                     }
                     .padding()
@@ -213,14 +213,16 @@ struct StoryBoardCellView: View {
     var userId: Int64
     var groupId: Int64
     var storyId: Int64
+    @State var viewModel: StoryViewModel
     @State private var isShowingBoardDetail = false
     
-    init(board: StoryBoard? = nil, userId: Int64, groupId: Int64, storyId: Int64, isShowingBoardDetail: Bool = false) {
+    init(board: StoryBoard? = nil, userId: Int64, groupId: Int64, storyId: Int64, isShowingBoardDetail: Bool = false,viewModel: StoryViewModel) {
         self.board = board
         self.userId = userId
         self.groupId = groupId
         self.storyId = storyId
         self.isShowingBoardDetail = isShowingBoardDetail
+        self.viewModel = viewModel
     }
     
     var body: some View {
