@@ -29,12 +29,6 @@ struct GroupView: View {
                         GroupCellView(group: group)
                     }
                 }
-                .onDelete(){_ in 
-                    Task{
-                       // await viewModel.fetchGroupStory(groupdId: <#T##Int64#>)
-                        print("group info",group.self)
-                    }
-                }
             }
             .listRowInsets(EdgeInsets())
             .listStyle(PlainListStyle())

@@ -26,24 +26,3 @@ struct NewStoryBoardView: View {
     }
 }
 
-struct ContentView: View {
-    @State private var showNewStoryBoard = false
-    
-    var body: some View {
-        VStack {
-            Button("Create New StoryBoard") {
-                showNewStoryBoard = true
-            }
-            .padding()
-        }
-        .sheet(isPresented: $showNewStoryBoard) {
-            NewStoryBoardView()
-        }
-    }
-}
-
-struct NewStoryBoardView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
