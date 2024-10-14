@@ -9,29 +9,6 @@ import Foundation
 import PhotosUI
 import SwiftUI
 
-class ProjectProfileViewModel: ObservableObject {
-    @Published var projectProfile: ProjectProfile
-    
-    @Published var selectedImage: PhotosPickerItem? {
-        didSet { Task { await loadImage(fromItem: selectedImage)}}
-    }
-    @Published var projetImage: Image?
-    
-    private var uiImage: UIImage?
-    
-    init(profile: ProjectProfile) {
-        self.projectProfile = profile
-    }
-    
-    func loadImage(fromItem item: PhotosPickerItem?) async {
-        guard let item = item else { return }
-        
-        guard let data = try? await item.loadTransferable(type: Data.self) else { return }
-        guard let uiImage = UIImage(data: data) else { return }
-        self.uiImage = uiImage
-        self.projetImage = Image(uiImage: uiImage)
-    }
-}
 
 class GroupProfileViewModel: ObservableObject {
     @Published var groupId: Int64

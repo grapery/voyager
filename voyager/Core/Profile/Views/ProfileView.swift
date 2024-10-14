@@ -11,7 +11,7 @@ struct ProfileView: View {
     
     var user: User
     
-    @State private var selectedFilter: LeafFilterViewModel = .storyitems
+    @State private var selectedFilter: UserProfileFilterViewModel = .storyitems
     
     @Namespace var animation
     
@@ -60,7 +60,7 @@ struct ProfileView: View {
                     .stroke(Color.secondary, lineWidth: 1))
                 
                 HStack {
-                    ForEach(LeafFilterViewModel.allCases, id: \.rawValue) { item in
+                    ForEach(UserProfileFilterViewModel.allCases, id: \.rawValue) { item in
                         
                         VStack {
                             Text(item.title)

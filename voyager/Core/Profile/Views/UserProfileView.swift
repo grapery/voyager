@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct UserProfileView: View {
-    @State private var selectedFilter: LeafFilterViewModel = .storyitems
+    @State private var selectedFilter: UserProfileFilterViewModel = .storyitems
     @State private var showingEditProfile = false
     @Namespace var animation
     var user: User
@@ -52,7 +52,7 @@ struct UserProfileView: View {
                     .overlay(RoundedRectangle(cornerRadius: 6)
                         .stroke(Color.secondary, lineWidth: 1))
                     HStack {
-                        ForEach(LeafFilterViewModel.allCases, id: \.rawValue) { item in
+                        ForEach(UserProfileFilterViewModel.allCases, id: \.rawValue) { item in
                             VStack {
                                 Text(item.title)
                                     .font(.subheadline)

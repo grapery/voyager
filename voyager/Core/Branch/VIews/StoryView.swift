@@ -249,33 +249,50 @@ struct StoryBoardCellView: View {
             Spacer()
             HStack {
                 Button(action: {
-                    // 处理分叉逻辑
+                    // 处理创建逻辑
                 }) {
                     HStack {
-                        Image(systemName: "signpost.right.and.left")
-                        Text("分叉")
-                    }
-                    .scaledToFill()
-                }
-                Spacer()
-                .scaledToFit()
-                Button(action: {
-                    // 处理评论逻辑
-                }) {
-                    HStack {
-                        Image(systemName: "bubble.middle.bottom")
+                        Image(systemName: "highlighter")
+                            .font(.headline)
                     }
                     .scaledToFill()
                 }
                 Spacer()
                     .scaledToFit()
+                    .border(Color.green.opacity(0.3))
+                Button(action: {
+                    // 处理分叉逻辑
+                }) {
+                    HStack {
+                        Image(systemName: "signpost.right.and.left")
+                            .font(.headline)
+                    }
+                    .scaledToFill()
+                }
+                Spacer()
+                    .scaledToFit()
+                    .border(Color.green.opacity(0.3))
+                Button(action: {
+                    // 处理评论逻辑
+                }) {
+                    HStack {
+                        Image(systemName: "bubble.middle.bottom")
+                            .font(.headline)
+                    }
+                    .scaledToFill()
+                }
+                Spacer()
+                    .scaledToFit()
+                    .border(Color.green.opacity(0.3))
                 Button(action: {
                     // 处理点赞逻辑
                 }) {
                     HStack {
                         Image(systemName: "heart")
+                            .font(.headline)
                     }
                     .scaledToFill()
+                    
                 }
             }
             .foregroundColor(.secondary)
@@ -311,7 +328,7 @@ extension DateFormatter {
 
 struct StoryTabView: View {
     @Binding var selectedTab: Int64
-    let tabs = ["故事线", "故事生成"]
+    let tabs = ["故事板", "故事线"]
     
     var body: some View {
         HStack {

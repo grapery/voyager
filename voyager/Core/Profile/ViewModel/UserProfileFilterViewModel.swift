@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum LeafFilterViewModel: Int, CaseIterable {
+enum UserProfileFilterViewModel: Int, CaseIterable {
     case storyitems
     case groups
     case projects
