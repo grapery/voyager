@@ -567,4 +567,36 @@ extension APIClient {
             return (Common_RenderStoryboardDetail(), error)
         }
     }
+    
+    func ContinueRenderStory(prevBoardId: Int64, storyId: Int64, userId: Int64, is_regenerate: Bool,prompt:String,title: String,desc:String,backgroud: String) async -> (Common_RenderStoryStructure, Error?) {
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_ContinueRenderStoryRequest.with {
+                $0.prevBoardID = prevBoardId
+                $0.storyID = storyId
+                $0.userID = userId
+                $0.prompt = prompt
+                $0.title = title
+                $0.description_p = desc
+                $0.background = backgroud
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.continueRenderStory(request: request, headers: header)
+            
+            if resp.message?.code != 0 {
+                let error = NSError(domain: "ConintueRenderStoryError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+                return (Common_RenderStoryStructure(), error)
+            }
+            
+            if let renderData = resp.message?.structure {
+                return (renderData, nil)
+            } else {
+                return (Common_RenderStoryStructure(), NSError(domain: "ConintueRenderStoryError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
+            }
+        } catch {
+            return (Common_RenderStoryStructure(), error)
+        }
+    }
 }

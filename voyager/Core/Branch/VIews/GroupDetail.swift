@@ -95,7 +95,11 @@ struct GroupDetailView: View {
                     LazyVStack(spacing: 0) {
                         ForEach(viewModel.storys) { story in
                             NavigationLink(destination: StoryView(storyId: story.storyInfo.id, userId: self.user.userID)) {
-                                StoryCellView(story: story, userId: self.user.userID)
+                                VStack{
+                                    Spacer()
+                                    StoryCellView(story: story, userId: self.user.userID)
+                                    Spacer()
+                                }
                             }
                         }
                     }
@@ -194,24 +198,31 @@ struct StoryCellView: View {
                 .cornerRadius(8)
             
             HStack {
-                Button(action: {}) {
-                    Image(systemName: "bubble.left")
-                    Text("\(story.storyInfo.desc)")
-                }
-                
                 Spacer()
-                
                 Button(action: {}) {
-                    Image(systemName: "heart")
-                    Text("\(10)")
+                    HStack {
+                        Image(systemName: "bubble.circle")
+                            .font(.headline)
+                    }
+                    .scaledToFill()
                 }
-                
                 Spacer()
-                
                 Button(action: {}) {
-                    Image(systemName: "square.and.arrow.up")
-                    Text("分享")
+                    HStack {
+                        Image(systemName: "heart.circle")
+                            .font(.headline)
+                    }
+                    .scaledToFill()
                 }
+                Spacer()
+                Button(action: {}) {
+                    HStack {
+                        Image(systemName: "square.and.arrow.up.circle")
+                            .font(.headline)
+                    }
+                    .scaledToFill()
+                }
+                Spacer()
             }
             .foregroundColor(.secondary)
         }

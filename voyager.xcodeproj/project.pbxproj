@@ -91,6 +91,7 @@
 		0FF3C5902BC3797E00CA9827 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF3C58F2BC3797E00CA9827 /* ActivityViewModel.swift */; };
 		0FF3C5952BC37A2A00CA9827 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0FF3C5932BC37A2A00CA9827 /* Model.xcdatamodeld */; };
 		0FF591B12CB96D49002F60C0 /* CommentVew.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF591AF2CB96C38002F60C0 /* CommentVew.swift */; };
+		0FF591B72CBE3073002F60C0 /* UpdateStoryboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF591B52CBE3065002F60C0 /* UpdateStoryboardView.swift */; };
 		0FF7FF5C2CA23D8700F92343 /* StoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF7FF5B2CA23D7B00F92343 /* StoryViewModel.swift */; };
 		0FF7FF602CA23DF900F92343 /* StoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF7FF5F2CA23DF300F92343 /* StoryView.swift */; };
 		0FF7FF622CA23E2200F92343 /* StoryGenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF7FF612CA23E0800F92343 /* StoryGenView.swift */; };
@@ -212,6 +213,7 @@
 		0FF3C58F2BC3797E00CA9827 /* ActivityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
 		0FF3C5942BC37A2A00CA9827 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		0FF591AF2CB96C38002F60C0 /* CommentVew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentVew.swift; sourceTree = "<group>"; };
+		0FF591B52CBE3065002F60C0 /* UpdateStoryboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateStoryboardView.swift; sourceTree = "<group>"; };
 		0FF7FF5B2CA23D7B00F92343 /* StoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModel.swift; sourceTree = "<group>"; };
 		0FF7FF5F2CA23DF300F92343 /* StoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryView.swift; sourceTree = "<group>"; };
 		0FF7FF612CA23E0800F92343 /* StoryGenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryGenView.swift; sourceTree = "<group>"; };
@@ -397,6 +399,7 @@
 				0FF591AF2CB96C38002F60C0 /* CommentVew.swift */,
 				0F29163E2CB27780002366BE /* StoryDetailView.swift */,
 				0F2916362CB12504002366BE /* NewStoryBoardView.swift */,
+				0FF591B52CBE3065002F60C0 /* UpdateStoryboardView.swift */,
 				0F2916332CB124F5002366BE /* NewStoryView.swift */,
 				0F980A292CAABEF300510E5A /* GroupProfile.swift */,
 				0FF7FF612CA23E0800F92343 /* StoryGenView.swift */,
@@ -881,6 +884,7 @@
 				0FFA508F2B0857DA00D3A4CF /* ProfileViewModel.swift in Sources */,
 				0F980A332CACCAB000510E5A /* UserProfileView.swift in Sources */,
 				0FFA509F2B0857DA00D3A4CF /* ImageUploader.swift in Sources */,
+				0FF591B72CBE3073002F60C0 /* UpdateStoryboardView.swift in Sources */,
 				0FFA50902B0857DA00D3A4CF /* EditProfileView.swift in Sources */,
 				0F88555F2B3B10BE002AD7E4 /* item.pb.swift in Sources */,
 				0FF591B12CB96D49002F60C0 /* CommentVew.swift in Sources */,

@@ -248,6 +248,7 @@ struct StoryBoardCellView: View {
             Spacer()
             Spacer()
             HStack {
+                Spacer()
                 Button(action: {
                     // 处理创建逻辑
                 }) {
@@ -294,6 +295,7 @@ struct StoryBoardCellView: View {
                     .scaledToFill()
                     
                 }
+                Spacer()
             }
             .foregroundColor(.secondary)
             .font(.caption)

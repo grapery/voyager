@@ -97,14 +97,37 @@ struct GroupCellView: View {
             
             // Footer
             HStack(spacing: 4) {
-                Label("\(10)", systemImage: "heart.fill")
-                    .foregroundColor(.red)
-                
-                Label("\(6)", systemImage: "book.fill")
-                    .foregroundColor(.blue)
-                
-                Label("\(8)", systemImage: "person.2.fill")
-                    .foregroundColor(.green)
+                Spacer()
+                Button(action: {}) {
+                    HStack {
+                        Image(systemName: "bubble.circle")
+                            .font(.headline)
+                        Text("\(10)")
+                            .font(.headline)
+                    }
+                    .scaledToFill()
+                }
+                Spacer()
+                Button(action: {}) {
+                    HStack {
+                        Image(systemName: "heart.circle")
+                            .font(.headline)
+                        Text("\(20)")
+                            .font(.headline)
+                    }
+                    .scaledToFill()
+                }
+                Spacer()
+                Button(action: {}) {
+                    HStack {
+                        Image(systemName: "square.and.arrow.up.circle")
+                            .font(.headline)
+                        Text("\(30)")
+                            .font(.headline)
+                    }
+                    .scaledToFill()
+                }
+                Spacer()
             }
             .font(.subheadline)
         }
