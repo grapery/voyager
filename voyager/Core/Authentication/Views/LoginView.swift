@@ -19,7 +19,7 @@ struct LoginView: View {
                     Image("Pattern")
                         .resizable()
                         .scaledToFill()
-                        .frame(maxWidth: .infinity, maxHeight: 500)
+                        .frame(maxWidth: .infinity, maxHeight: 400)
                 }
                 VStack {
                     TextField("邮箱", text: $viewModel.email)
@@ -50,7 +50,6 @@ struct LoginView: View {
                         .background(Color.black)
                         .clipShape(RoundedRectangle(cornerRadius: 22))
                 }
-                
                 NavigationLink {
                     RegistrationView().navigationBarBackButtonHidden(true)
                 } label: {

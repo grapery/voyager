@@ -568,7 +568,7 @@ extension APIClient {
         }
     }
     
-    func ContinueRenderStory(prevBoardId: Int64, storyId: Int64, userId: Int64, is_regenerate: Bool,prompt:String,title: String,desc:String,backgroud: String) async -> (Common_RenderStoryStructure, Error?) {
+    func ContinueRenderStory(prevBoardId: Int64, storyId: Int64, userId: Int64, is_regenerate: Bool,prompt:String,title: String,desc:String,backgroud: String) async -> (Common_RenderStoryDetail, Error?) {
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)
             let request = Common_ContinueRenderStoryRequest.with {
@@ -587,16 +587,16 @@ extension APIClient {
             
             if resp.message?.code != 0 {
                 let error = NSError(domain: "ConintueRenderStoryError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
-                return (Common_RenderStoryStructure(), error)
+                return (Common_RenderStoryDetail(), error)
             }
             
-            if let renderData = resp.message?.structure {
+            if let renderData = resp.message?.data {
                 return (renderData, nil)
             } else {
-                return (Common_RenderStoryStructure(), NSError(domain: "ConintueRenderStoryError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
+                return (Common_RenderStoryDetail(), NSError(domain: "ConintueRenderStoryError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
             }
         } catch {
-            return (Common_RenderStoryStructure(), error)
+            return (Common_RenderStoryDetail(), error)
         }
     }
 }
