@@ -67,7 +67,7 @@ struct UpdateGroupView: View {
             Alert(title: Text("Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
         .sheet(isPresented: $isImagePickerPresented) {
-            ImagePicker(image: $avatarImage)
+            SingleImagePicker(image: $avatarImage)
         }
     }
     

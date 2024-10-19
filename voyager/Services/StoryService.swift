@@ -133,19 +133,27 @@ extension APIClient {
         }
     }
     
-    func CreateStoryboard(storyId: Int64, prevBoardId: Int64, nextBoardId: Int64, creator: Int64, title: String, content: String, isAiGen: Bool, backgroud: String, params: Common_StoryBoardParams) async -> (StoryBoard, Error?) {
+    func CreateStoryboard(storyId: Int64, prevBoardId: Int64, nextBoardId: Int64, creator: Int64, title: String, content: String, isAiGen: Bool, background: String, params: Common_StoryBoardParams) async -> (StoryBoard, Error?) {
         print("CreateStoryboard request parameters:")
         print("storyId: \(storyId), prevBoardId: \(prevBoardId), nextBoardId: \(nextBoardId), creator: \(creator)")
-        print("title: \(title), content: \(content), isAiGen: \(isAiGen), backgroud: \(backgroud)")
+        print("title: \(title), content: \(content), isAiGen: \(isAiGen), background: \(background)")
         print("params: \(params)")
 
-        var result = StoryBoard(id: -1, boardInfo: Common_StoryBoard())
+        let result = StoryBoard(id: -1, boardInfo: Common_StoryBoard())
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)
-            var  request = Common_CreateStoryboardRequest.with {
-                $0.board = Common_StoryBoard(
-                    
-                )
+            let request = Common_CreateStoryboardRequest.with {
+                $0.board = Common_StoryBoard.with {
+                    $0.storyID = storyId
+                    $0.prevBoardID = prevBoardId
+                    $0.nextBoardID = nextBoardId
+                    $0.creator = creator
+                    $0.title = title
+                    $0.content = content
+                    $0.isAiGen = isAiGen
+                    $0.backgroud = background
+                    $0.params = params
+                }
             }
             
             var header = Connect.Headers()
@@ -174,7 +182,7 @@ extension APIClient {
     }
     
     func GetStoryboard(boardId: Int64) async -> (StoryBoard, Error?) {
-        var result = StoryBoard(id: -1, boardInfo: Common_StoryBoard())
+        let result = StoryBoard(id: -1, boardInfo: Common_StoryBoard())
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)
             let request = Common_GetStoryboardRequest.with {

@@ -201,7 +201,19 @@ struct StoryCellView: View {
                 Spacer()
                 Button(action: {}) {
                     HStack {
+                        Image(systemName: "bell.circle")
+                            .font(.headline)
+                        Text("订阅")
+                            .font(.headline)
+                    }
+                    .scaledToFill()
+                }
+                Spacer()
+                Button(action: {}) {
+                    HStack {
                         Image(systemName: "bubble.circle")
+                            .font(.headline)
+                        Text("评论")
                             .font(.headline)
                     }
                     .scaledToFill()
@@ -211,6 +223,8 @@ struct StoryCellView: View {
                     HStack {
                         Image(systemName: "heart.circle")
                             .font(.headline)
+                        Text("点赞")
+                            .font(.headline)
                     }
                     .scaledToFill()
                 }
@@ -218,6 +232,8 @@ struct StoryCellView: View {
                 Button(action: {}) {
                     HStack {
                         Image(systemName: "square.and.arrow.up.circle")
+                            .font(.headline)
+                        Text("分享")
                             .font(.headline)
                     }
                     .scaledToFill()

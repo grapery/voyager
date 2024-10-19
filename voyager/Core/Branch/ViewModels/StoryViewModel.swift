@@ -23,6 +23,7 @@ class StoryViewModel: ObservableObject {
     var pageSize: Int64 = 10
     var branchId: Int64 = 0
     var userId: Int64
+    
     init(storyId: Int64,userId: Int64) {
         self.storyId = storyId
         self.userId = userId
@@ -104,7 +105,7 @@ class StoryViewModel: ObservableObject {
         var newStoryboard: StoryBoard?
         var err: Error?
         
-        (newStoryboard,err) = await apiClient.CreateStoryboard(storyId: self.storyId, prevBoardId: prevBoardId, nextBoardId: nextBoardId, creator: self.userId, title: title, content: content, isAiGen: isAiGen, backgroud: backgroud, params: params)
+        (newStoryboard,err) = await apiClient.CreateStoryboard(storyId: self.storyId, prevBoardId: prevBoardId, nextBoardId: nextBoardId, creator: self.userId, title: title, content: content, isAiGen: isAiGen, background: backgroud, params: params)
         if err != nil {
             self.isCreateOk = false
             print("CreateStoryBoard failed",err!)
@@ -222,6 +223,24 @@ class StoryViewModel: ObservableObject {
                 return (Common_RenderStoryboardDetail(),err)
             }
         }
+        return (resp,nil as Error?)
+    }
+    
+    func conintueGenStory(storyId:Int64,userId:Int64,prevBoardId: Int64,prompt: String, title: String, desc: String, backgroud: String) async -> (Common_RenderStoryDetail,Error?) {
+        var resp: Common_RenderStoryDetail
+        var err: Error?
+        self.isGenerate = true
+        print("conintueGenStory params:",storyId,userId,prevBoardId,prompt,title,desc,backgroud)
+        do {
+            (resp,err) = await apiClient.ContinueRenderStory(prevBoardId: prevBoardId, storyId: storyId, userId: userId, is_regenerate: true, prompt: prompt, title: title, desc: desc, backgroud: backgroud)
+            if err != nil {
+                print("conintueGenStory failed",err!)
+                return (Common_RenderStoryDetail(),err)
+            }
+        } catch {
+            self.isGenerate = false
+        }
+        self.isGenerate = false
         return (resp,nil as Error?)
     }
 }

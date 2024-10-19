@@ -23,6 +23,11 @@ struct StoryView: View {
     @State private var errorMessage: String?
     @State private var buttonMsg: String = "生成故事"
     
+    @State private var isShowingNewStoryBoard = false
+    @State private var isShowingCommentView = false
+    @State private var isForkingStory = false
+    @State private var isLiked = false
+    
     private func setButtonMsg() {
         if isGenerating {
             buttonMsg = "正在生成..."
@@ -216,6 +221,12 @@ struct StoryBoardCellView: View {
     @State var viewModel: StoryViewModel
     @State private var isShowingBoardDetail = false
     
+    @State var isPressed = false
+    @State var isShowingNewStoryBoard = false
+    @State var isShowingCommentView = false
+    @State var isForkingStory = false
+    @State var isLiked = false
+    
     init(board: StoryBoard? = nil, userId: Int64, groupId: Int64, storyId: Int64, isShowingBoardDetail: Bool = false,viewModel: StoryViewModel) {
         self.board = board
         self.userId = userId
@@ -223,6 +234,8 @@ struct StoryBoardCellView: View {
         self.storyId = storyId
         self.isShowingBoardDetail = isShowingBoardDetail
         self.viewModel = viewModel
+        self.isPressed = false
+        print("board info",board as Any)
     }
     
     var body: some View {
@@ -251,6 +264,8 @@ struct StoryBoardCellView: View {
                 Spacer()
                 Button(action: {
                     // 处理创建逻辑
+                    self.isShowingNewStoryBoard = true
+                    self.isPressed = true
                 }) {
                     HStack {
                         Image(systemName: "highlighter")
@@ -263,6 +278,8 @@ struct StoryBoardCellView: View {
                     .border(Color.green.opacity(0.3))
                 Button(action: {
                     // 处理分叉逻辑
+                    self.isForkingStory = true
+                    self.isPressed = true
                 }) {
                     HStack {
                         Image(systemName: "signpost.right.and.left")
@@ -275,6 +292,8 @@ struct StoryBoardCellView: View {
                     .border(Color.green.opacity(0.3))
                 Button(action: {
                     // 处理评论逻辑
+                    self.isShowingCommentView = true
+                    self.isPressed = true
                 }) {
                     HStack {
                         Image(systemName: "bubble.middle.bottom")
@@ -287,6 +306,8 @@ struct StoryBoardCellView: View {
                     .border(Color.green.opacity(0.3))
                 Button(action: {
                     // 处理点赞逻辑
+                    self.isLiked = true
+                    self.isPressed = true
                 }) {
                     HStack {
                         Image(systemName: "heart")
@@ -299,6 +320,39 @@ struct StoryBoardCellView: View {
             }
             .foregroundColor(.secondary)
             .font(.caption)
+            .sheet(isPresented: self.$isPressed) {
+                if self.$isShowingNewStoryBoard.wrappedValue {
+                    NewStoryBoardView(
+                        storyId: self.viewModel.storyId,
+                        boardId: (self.board?.boardInfo.storyBoardID)!,
+                        prevBoardId: (self.board?.boardInfo.prevBoardID)!,
+                        viewModel: self.$viewModel,
+                        isForkingStory: false)
+                }else if self.$isForkingStory.wrappedValue {
+                    NewStoryBoardView(
+                        storyId: self.viewModel.storyId,
+                        boardId: (self.board?.boardInfo.storyBoardID)!,
+                        prevBoardId: (self.board?.boardInfo.prevBoardID)!,
+                        viewModel: self.$viewModel,
+                        isForkingStory: true)
+                }else if self.$isShowingCommentView.wrappedValue{
+                    CommentView(
+                        storyId: self.viewModel.storyId,
+                        boardId: (self.board?.boardInfo.storyBoardID)!,
+                        userId: self.viewModel.userId,
+                        viewModel: self.$viewModel
+                    )
+                }else if self.$isLiked.wrappedValue{
+                    NewStoryBoardView(
+                        storyId: self.viewModel.storyId,
+                        boardId: (self.board?.boardInfo.storyBoardID)!,
+                        prevBoardId: (self.board?.boardInfo.prevBoardID)!,
+                        viewModel: self.$viewModel,
+                        isForkingStory: false)
+                }
+                
+            }
+            
         }
         .padding()
         .background(Color(.systemBackground))

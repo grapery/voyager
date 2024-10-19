@@ -20,7 +20,7 @@ struct NewStoryView: View {
     @State private var origin: String = ""
     @State private var isAIGen: Bool = false
     @State private var storyDescription: String = ""
-    @State private var refImage: UIImage?
+    @State private var refImages: [UIImage]?
     @State private var negativePrompt: String = ""
     @State private var background: String = ""
     
@@ -52,14 +52,39 @@ struct NewStoryView: View {
                     Button(action: {
                         showImagePicker = true
                     }) {
-                        Text(refImage == nil ? "Add Reference Image" : "Change Reference Image")
+                        Text(refImages?.count == 0 ? "Add Reference Image" : "Change Reference Image")
                     }
                     
-                    if let image = refImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 200)
+                    if let images = refImages, !images.isEmpty {
+                        LazyVGrid(columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible())
+                        ], spacing: 10) {
+                            ForEach(images.prefix(4).enumerated().map({$0}), id: \.element) { index, image in
+                                if index == 3 && images.count > 4 {
+                                    ZStack {
+                                        Image(uiImage: image)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(height: 100)
+                                            .clipped()
+                                            .cornerRadius(10)
+                                        Color.black.opacity(0.6)
+                                        Text("+\(images.count - 3)")
+                                            .foregroundColor(.white)
+                                            .font(.title2)
+                                    }
+                                } else {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(height: 100)
+                                        .clipped()
+                                        .cornerRadius(10)
+                                }
+                            }
+                        }
+                        .frame(height: 220)
                     }
                     
                     TextField("Negative Prompt", text: $negativePrompt)
@@ -79,7 +104,7 @@ struct NewStoryView: View {
             Alert(title: Text("Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
         .sheet(isPresented: $showImagePicker) {
-            ImagePicker(image: $refImage)
+            ImagePicker(image: $refImages)
         }
     }
     
@@ -137,7 +162,7 @@ struct NewStoryView: View {
 }
 
 struct ImagePicker: UIViewControllerRepresentable {
-    @Binding var image: UIImage?
+    @Binding var image: [UIImage]?
     @Environment(\.presentationMode) private var presentationMode
 
     func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
@@ -159,6 +184,38 @@ struct ImagePicker: UIViewControllerRepresentable {
             self.parent = parent
         }
 
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.image?.append(image)
+            }
+            parent.presentationMode.wrappedValue.dismiss()
+        }
+    }
+}
+
+struct SingleImagePicker: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+    @Environment(\.presentationMode) private var presentationMode
+    
+    func makeUIViewController(context: UIViewControllerRepresentableContext<SingleImagePicker>) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<SingleImagePicker>) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        let parent: SingleImagePicker
+        
+        init(_ parent: SingleImagePicker) {
+            self.parent = parent
+        }
+        
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
             if let image = info[.originalImage] as? UIImage {
                 parent.image = image

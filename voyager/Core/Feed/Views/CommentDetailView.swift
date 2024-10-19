@@ -1,8 +1,8 @@
 //
-//  CommentView.swift
+//  CommentDetailView.swift
 //  voyager
 //
-//  Created by grapestree on 2024/3/30.
+//  Created by grapestree on 2024/10/18.
 //
 
 import Foundation

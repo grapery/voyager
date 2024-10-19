@@ -100,9 +100,19 @@ struct GroupCellView: View {
                 Spacer()
                 Button(action: {}) {
                     HStack {
+                        Image(systemName: "bell.circle")
+                            .font(.headline)
+                        Text("订阅")
+                            .font(.headline)
+                    }
+                    .scaledToFill()
+                }
+                Spacer()
+                Button(action: {}) {
+                    HStack {
                         Image(systemName: "bubble.circle")
                             .font(.headline)
-                        Text("\(10)")
+                        Text("评论")
                             .font(.headline)
                     }
                     .scaledToFill()
@@ -112,7 +122,7 @@ struct GroupCellView: View {
                     HStack {
                         Image(systemName: "heart.circle")
                             .font(.headline)
-                        Text("\(20)")
+                        Text("点赞")
                             .font(.headline)
                     }
                     .scaledToFill()
@@ -122,7 +132,7 @@ struct GroupCellView: View {
                     HStack {
                         Image(systemName: "square.and.arrow.up.circle")
                             .font(.headline)
-                        Text("\(30)")
+                        Text("分享")
                             .font(.headline)
                     }
                     .scaledToFill()
