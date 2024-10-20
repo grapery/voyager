@@ -153,7 +153,11 @@ struct StoryView: View {
     private var storyLineView: some View {
         VStack {
             if viewModel.isLoading {
-                ProgressView()
+                VStack{
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                }
             } else if let boards = viewModel.storyboards {
                 ScrollView {
                     LazyVStack {

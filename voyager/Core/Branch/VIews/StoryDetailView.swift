@@ -9,7 +9,7 @@ import SwiftUI
 import Kingfisher
 
 struct StoryDetailView: View {
-    var storyId: Int64
+    @State var storyId: Int64
     @StateObject private var viewModel: StoryDetailViewModel
     @State private var isEditing: Bool = false
     @State public var story: Story
@@ -260,7 +260,7 @@ struct StoryDetailView: View {
                     }
                 }
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("参考���图")
+                    Text("参考原图")
                         .font(.headline)
                     ScrollView {
                         TextEditor(text: Binding(

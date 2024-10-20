@@ -23,7 +23,7 @@ enum FeedType{
     case Timeline
 }
     
-// 获取用户的关注以及用户参与的故事，以及用户关注的组织的故事动态。不可以用户关注用户，只可以关注组织或者故事
+// 获取用户的关注以及用户参与的故事，以及用户关注的小组的故事动态。不可以用户关注用户，只可以关注小组或者故事
 struct FeedView: View {
     public var user: User? {
         return viewModel.user

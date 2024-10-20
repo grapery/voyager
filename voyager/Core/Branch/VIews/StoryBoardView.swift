@@ -10,12 +10,12 @@ import Kingfisher
 import Combine
 
 struct StoryBoardView: View {
-    var board: StoryBoard?
-    var userId: Int64
-    var groupId: Int64
-    var storyId: Int64
+    @State var board: StoryBoard?
+    @State var userId: Int64
+    @State var groupId: Int64
+    @State var storyId: Int64
     @Environment(\.presentationMode) var presentationMode
-    var AiGenFinStage: Int = 0
+    @State var AiGenFinStage: Int = 0
     var body: some View {
         NavigationView {
             ScrollView {

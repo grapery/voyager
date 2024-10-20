@@ -26,7 +26,7 @@ struct GroupView: View {
             List {
                 ForEach(viewModel.groups) { group in
                     NavigationLink(destination: GroupDetailView(user: user!, group: Binding.constant(group))) {
-                        GroupCellView(group: group)
+                        GroupCellView(group: group, viewModel: self.viewModel)
                     }
                 }
             }
@@ -61,7 +61,15 @@ struct GroupView: View {
 }
 
 struct GroupCellView: View {
-    public var group: BranchGroup
+    @State public var group: BranchGroup
+    @State public var groupProfille = GroupProfile(profile: Common_GroupProfileInfo())
+    init(group: BranchGroup, groupProfille: GroupProfile? = nil,viewModel:GroupViewModel) {
+        self.group = group
+        Task{
+            await viewModel.fetchGroupProfile(groupdId: group.info.groupID)
+        }
+        self.groupProfille = viewModel.groupsProfile[group.info.groupID]!
+    }
     var body: some View {
         VStack(alignment: .leading) {
             // Header

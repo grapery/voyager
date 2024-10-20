@@ -96,7 +96,6 @@ struct GroupDetailView: View {
                         ForEach(viewModel.storys) { story in
                             NavigationLink(destination: StoryView(storyId: story.storyInfo.id, userId: self.user.userID)) {
                                 VStack{
-                                    Spacer()
                                     StoryCellView(story: story, userId: self.user.userID)
                                     Spacer()
                                 }
@@ -138,7 +137,7 @@ struct GroupDetailView: View {
 
 struct CustomTabView: View {
     @Binding var selectedTab: Int
-    let tabs = ["关注", "最近","参与"]
+    let tabs = ["关注","最近","参与"]
     
     var body: some View {
         HStack {
@@ -244,7 +243,5 @@ struct StoryCellView: View {
         }
         .padding()
         .background(Color.white)
-        .cornerRadius(12)
-        .shadow(radius: 2)
     }
 }

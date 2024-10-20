@@ -10,9 +10,9 @@ import SwiftUI
 struct NewStoryBoardView: View {
     @Environment(\.presentationMode) var presentationMode
     // params
-    public var storyId: Int64
-    public var boardId: Int64
-    public var prevBoardId: Int64
+    @State public var storyId: Int64
+    @State public var boardId: Int64
+    @State public var prevBoardId: Int64
     @Binding var viewModel: StoryViewModel
     
     // input

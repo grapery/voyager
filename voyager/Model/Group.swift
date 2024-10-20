@@ -7,7 +7,7 @@
 
 import Foundation
 
-// 组织，或者志趣相投的一群人
+// 小组，或者志趣相投的一群人
 
 class BranchGroup: Identifiable{
     var info: Common_GroupInfo

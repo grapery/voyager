@@ -13,6 +13,7 @@ class LoginViewModel: ObservableObject {
     @Published var password = ""
     @Published var token = ""
     @Published var currentUser: User?
+    @Published var isLogin = false
     
     @MainActor
     func signIn(){
@@ -24,6 +25,7 @@ class LoginViewModel: ObservableObject {
                 self.currentUser = service.currentUser
                 self.email = self.currentUser!.email
                 self.saveUserToken()
+                isLogin = true
             }
         }
     }

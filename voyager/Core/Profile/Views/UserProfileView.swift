@@ -29,7 +29,7 @@ struct UserProfileView: View {
                                 .font(.title)
                                 .bold()
                             
-                            Text(user.name)
+                            Text(user.desc)
                                 .font(.subheadline)
                         }
                         Spacer()
@@ -37,9 +37,11 @@ struct UserProfileView: View {
                         CircularProfileImageView(avatarUrl: user.avatar, size: .profile)
                     }
                     
-                    Text("\(10) Followers")
+                    Text("加入 \(viewModel.profile.inGroupNum) 个群组")
                         .foregroundColor(.secondary)
                         .padding(.vertical, 5)
+                    Spacer()
+                    
                     
                     Button("Edit Profile") {
                         showingEditProfile.toggle()

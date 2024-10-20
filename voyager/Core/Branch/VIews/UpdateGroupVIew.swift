@@ -99,7 +99,7 @@ struct UpdateGroupView: View {
     private func updateGroupInfo(avatarURL: String?) async {
         let updatedGroup = group
         updatedGroup.info.name = groupName
-        updatedGroup.info.desc = groupDescription.isEmpty ? "这是一个神秘的组织" : groupDescription
+        updatedGroup.info.desc = groupDescription.isEmpty ? "这是一个神秘的小组" : groupDescription
         updatedGroup.info.location = groupLocation
         
         // Convert groupStatusStr to Int64

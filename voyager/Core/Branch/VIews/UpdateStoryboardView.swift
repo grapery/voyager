@@ -11,9 +11,9 @@ struct EditStoryBoardView: View {
     @Environment(\.presentationMode) var presentationMode
     @Binding var storyId: Int64
     @Binding var boardId: Int64
-    var isRendering: Bool = false
-    var isGenImages: Bool = false
-    var isGenVideo: Bool = false
+    @State var isRendering: Bool = false
+    @State var isGenImages: Bool = false
+    @State var isGenVideo: Bool = false
     @Binding var viewModel: StoryViewModel
 
     

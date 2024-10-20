@@ -10,13 +10,11 @@ import Foundation
 enum UserProfileFilterViewModel: Int, CaseIterable {
     case storyitems
     case groups
-    case projects
     
     var title: String {
         switch self {
-        case .storyitems: return "故事线"
-        case .groups: return "加入的组织"
-        case .projects: return "参与的活动"
+        case .storyitems: return "参与的故事"
+        case .groups: return "加入的小组"
         }
     }
 }

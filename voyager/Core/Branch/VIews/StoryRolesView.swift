@@ -17,12 +17,12 @@ struct StoryRolesView: View{
 }
 
 struct StoryRoleView: View{
-    var storyId: Int64
-    var boardId: Int64
-    var creatorId: Int64
-    var charactor: String
-    var avator: String
-    var name: String
+    @State var storyId: Int64
+    @State var boardId: Int64
+    @State var creatorId: Int64
+    @State var charactor: String
+    @State var avator: String
+    @State var name: String
     var body: some View{
         return VStack{
             

@@ -142,13 +142,49 @@ extension APIClient {
         }
     }
     
-    func GetGroupProfile(groupId: Int64,userId:Int64) -> (Common_GroupProfileInfo,Error?){
-        
+    func GetGroupProfile(groupId: Int64,userId:Int64) async -> (Common_GroupProfileInfo,Error?){
+        do {
+            let request = Common_GetGroupProfileRequest.with {
+                $0.userID = userId
+                $0.groupID = groupId
+            }
+            
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let response =  await authClient.getGroupProfile(request: request, headers: header)
+            
+            if let data = response.message?.data {
+                return (data.info,nil)
+            } else {
+                return (Common_GroupProfileInfo(),NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Get Group Profile failed"]))
+            }
+        } catch {
+            print("Error GetGroupProfile : \(error.localizedDescription)")
+            return (Common_GroupProfileInfo(),error)
+        }
         return (Common_GroupProfileInfo(),nil)
     }
     
-    func UpdateGroupProfile(groupId: Int64,userId:Int64,profile:Common_GroupProfileInfo)->Error?{
-        return nil
+    func UpdateGroupProfile(groupId: Int64,userId:Int64,profile:Common_GroupProfileInfo) async->Error?{
+        do {
+            let request = Common_UpdateGroupProfileRequest.with {
+                $0.userID = userId
+                $0.groupID = groupId
+                $0.info = profile
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let response = await authClient.updateGroupProfile(request: request, headers: header)
+            if response.message?.code != 0{
+                return NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Update Group Profile failed"])
+            }
+            return nil
+        } catch {
+            return error
+        }
     }
     
     func UpdateGroup(groupId: Int64,userId:Int64,avator: String,desc:String,owner:Int64,location: String,status: Int64) async->Error?{

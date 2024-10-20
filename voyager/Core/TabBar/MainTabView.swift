@@ -24,7 +24,7 @@ struct MainTabView: View {
                     self.selectedItem = 1
                 }
                 .tabItem {
-                    Image(systemName: "ellipsis.bubble")
+                    Image(systemName: "ellipsis.viewfinder")
                 }
                 .tag(1)
             GroupView(user: self.user)
@@ -40,7 +40,7 @@ struct MainTabView: View {
                     self.selectedItem = 3
                 }
                 .tabItem {
-                    Image(systemName: "shared.with.you")
+                    Image(systemName: "person.circle")
                 }
                 .tag(3)
         }

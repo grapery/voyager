@@ -25,7 +25,7 @@ struct NewStoryView: View {
     @State private var background: String = ""
     
     @State private var showImagePicker: Bool = false
-    var groupId:Int64
+    @State var groupId:Int64
     init(groupId: Int64, userId: Int64) {
         self._viewModel = StateObject(wrappedValue: StoryViewModel(storyId: -1, userId: userId))
         self.groupId = groupId
