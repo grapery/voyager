@@ -62,14 +62,14 @@ struct GroupView: View {
 
 struct GroupCellView: View {
     @State public var group: BranchGroup
-    @State public var groupProfille = GroupProfile(profile: Common_GroupProfileInfo())
-    init(group: BranchGroup, groupProfille: GroupProfile? = nil,viewModel:GroupViewModel) {
+    @State private var groupProfile: GroupProfile?
+    @StateObject private var viewModel: GroupViewModel
+    
+    init(group: BranchGroup, viewModel: GroupViewModel) {
         self.group = group
-        Task{
-            await viewModel.fetchGroupProfile(groupdId: group.info.groupID)
-        }
-        self.groupProfille = viewModel.groupsProfile[group.info.groupID]!
+        self._viewModel = StateObject(wrappedValue: viewModel)
     }
+    
     var body: some View {
         VStack(alignment: .leading) {
             // Header
@@ -151,5 +151,13 @@ struct GroupCellView: View {
         }
         .padding()
         .background(Color.white)
+        .onAppear {
+            Task {
+                await viewModel.fetchGroupProfile(groupdId: group.info.groupID)
+                if let profile = viewModel.groupsProfile[group.info.groupID] {
+                    self.groupProfile = profile
+                }
+            }
+        }
     }
 }

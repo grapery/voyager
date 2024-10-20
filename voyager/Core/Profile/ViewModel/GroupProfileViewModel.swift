@@ -24,12 +24,6 @@ class GroupProfileViewModel: ObservableObject {
     init(groupId: Int64, userId: Int64) {
         self.groupId = groupId
         self.userId = userId
-        var err:Error?
-        var profile: Common_GroupProfileInfo
-        (profile,err) = APIClient.shared.GetGroupProfile(groupId: groupId, userId: userId)
-        if err == nil{
-            self.profile = GroupProfile(profile: profile)
-        }
     }
     
     func loadImage(fromItem item: PhotosPickerItem?) async {
@@ -41,8 +35,15 @@ class GroupProfileViewModel: ObservableObject {
         self.groupImage = Image(uiImage: uiImage)
     }
     
-    func fetchGroupProfile(){
-        
+    func fetchGroupProfile() async{
+        do{
+            var err:Error?
+            var profile: Common_GroupProfileInfo
+            (profile,err) = await APIClient.shared.GetGroupProfile(groupId: groupId, userId: userId)
+            if err == nil{
+                self.profile = GroupProfile(profile: profile)
+            }
+        }
     }
 }
 

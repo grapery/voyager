@@ -25,12 +25,15 @@ class GroupViewModel: ObservableObject {
         var groups: [BranchGroup]
         (groups,self.page,self.size) = await APIClient.shared.getUserCreateGroups(userId: user.userID, groupType: Common_GroupType(rawValue: 0)! , page: self.page, size: self.size)
         self.groups = groups
+        for group in groups {
+            await self.fetchGroupProfile(groupdId: group.info.groupID)
+        }
     }
     
     func fetchGroupProfile(groupdId: Int64) async {
         var err: Error?
         var profileInfo: Common_GroupProfileInfo?
-        (profileInfo,err) = APIClient.shared.GetGroupProfile(groupId: groupdId, userId: self.user.userID)
+        (profileInfo,err) = await APIClient.shared.GetGroupProfile(groupId: groupdId, userId: self.user.userID)
         if err != nil {
             print("fetchGroupProfile err",err!)
             return
@@ -63,7 +66,7 @@ class GroupDetailViewModel: ObservableObject {
     func fetchGroupProfile(groupdId: Int64) async {
         var err: Error?
         var profileInfo: Common_GroupProfileInfo?
-        (profileInfo,err) = APIClient.shared.GetGroupProfile(groupId: self.groupId, userId: self.user.userID)
+        (profileInfo,err) = await APIClient.shared.GetGroupProfile(groupId: self.groupId, userId: self.user.userID)
         if err != nil {
             print("fetchGroupProfile err",err!)
             return

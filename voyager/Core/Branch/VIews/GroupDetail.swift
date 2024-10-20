@@ -174,10 +174,11 @@ struct StoryCellView: View {
                     .frame(width: 40, height: 40)
                     .clipShape(Circle())
                 
-                VStack(alignment: .leading) {
+                HStack {
                     Text(story.storyInfo.name)
                         .font(.headline)
-                    Text(String(story.storyInfo.ctime))
+                    Spacer()
+                    Text(formatDate(timestamp: story.storyInfo.ctime))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -244,4 +245,12 @@ struct StoryCellView: View {
         .padding()
         .background(Color.white)
     }
+}
+
+func formatDate(timestamp: Int64) -> String {
+    let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+    let formatter = DateFormatter()
+    formatter.dateStyle = .medium
+    formatter.timeStyle = .short
+    return formatter.string(from: date)
 }

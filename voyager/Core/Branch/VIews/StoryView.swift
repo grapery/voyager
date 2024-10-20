@@ -245,14 +245,16 @@ struct StoryBoardCellView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack {
-                VStack(alignment: .leading){
+                VStack(alignment: .leading) {
                     Text(board?.boardInfo.title ?? "无标题故事章节")
                         .font(.headline)
                         .foregroundColor(.primary)
                 }
-                VStack(alignment: .trailing){
+                Spacer()
+                VStack(alignment: .trailing) {
                     Text("\(formatDate(timestamp: (board?.boardInfo.ctime)!))")
-                        .scaledToFit()
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
             }
             if let description = board?.boardInfo.content, !description.isEmpty {
@@ -268,8 +270,8 @@ struct StoryBoardCellView: View {
                 Spacer()
                 Button(action: {
                     // 处理创建逻辑
-                    self.isShowingNewStoryBoard = true
                     self.isPressed = true
+                    self.isShowingNewStoryBoard = true
                 }) {
                     HStack {
                         Image(systemName: "highlighter")
@@ -282,8 +284,8 @@ struct StoryBoardCellView: View {
                     .border(Color.green.opacity(0.3))
                 Button(action: {
                     // 处理分叉逻辑
-                    self.isForkingStory = true
                     self.isPressed = true
+                    self.isForkingStory = true
                 }) {
                     HStack {
                         Image(systemName: "signpost.right.and.left")
@@ -296,8 +298,9 @@ struct StoryBoardCellView: View {
                     .border(Color.green.opacity(0.3))
                 Button(action: {
                     // 处理评论逻辑
-                    self.isShowingCommentView = true
                     self.isPressed = true
+                    self.isShowingCommentView = true
+                    
                 }) {
                     HStack {
                         Image(systemName: "bubble.middle.bottom")
@@ -310,11 +313,27 @@ struct StoryBoardCellView: View {
                     .border(Color.green.opacity(0.3))
                 Button(action: {
                     // 处理点赞逻辑
-                    self.isLiked = true
                     self.isPressed = true
+                    self.isLiked = true
+                    
                 }) {
                     HStack {
                         Image(systemName: "heart")
+                            .font(.headline)
+                    }
+                    .scaledToFill()
+                    
+                }
+                Spacer()
+                Button(action: {
+                    Task{
+                        // 处理删除逻辑
+                        await self.viewModel.deleteStoryBoard(storyId: self.storyId, boardId: (self.board?.boardInfo.storyBoardID)!, userId: self.userId)
+                    }
+                    
+                }) {
+                    HStack {
+                        Image(systemName: "minus")
                             .font(.headline)
                     }
                     .scaledToFill()

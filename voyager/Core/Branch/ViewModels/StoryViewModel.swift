@@ -125,7 +125,29 @@ class StoryViewModel: ObservableObject {
         
     }
     
-    func forkStory(preStoryBoardId: Int64,storyId: Int64,userId: Int64) async ->(Int64,Error?){
+    func deleteStoryBoard(storyId: Int64, boardId: Int64, userId: Int64) async -> Error? {
+        do {
+            let result = await apiClient.DelStoryboard(boardId: boardId, storyId: storyId, userId: userId)
+            
+            if let error = result {
+                // 如果API返回错误，返回该错误
+                return error
+            }
+            
+            // 删除成功，更新本地数据
+            if let index = self.storyboards?.firstIndex(where: { $0.id == boardId }) {
+                self.storyboards?.remove(at: index)
+            }
+            // 可能需要重新获取故事板列表
+            // await self.fetchStoryBoards()
+            return nil
+        } catch {
+            // 捕获并返回任何其他错误
+            return error
+        }
+    }
+    
+    func forkStory(preStoryBoardId: Int64, storyId: Int64, userId: Int64) async ->(Int64,Error?){
         var newStoryboardId: Int64
         var err: Error?
         var paramsStoryboard: Common_StoryBoard?
@@ -244,5 +266,6 @@ class StoryViewModel: ObservableObject {
         return (resp,nil as Error?)
     }
 }
+
 
 
