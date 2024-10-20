@@ -340,7 +340,7 @@ struct StoryDetailView: View {
                 Text("故事角色")
                     .font(.headline)
                 Spacer()
-                NavigationLink(destination: AllCharactersView()) {
+                NavigationLink(destination: AllCharactersView(viewModel: viewModel)) {
                     Text("查看\(viewModel.characters.count)名角色 >")
                         .font(.subheadline)
                         .foregroundColor(.gray)
@@ -369,7 +369,7 @@ struct StoryDetailView: View {
                                 .frame(width: 50, height: 50)
                                 .background(Color.gray.opacity(0.2))
                                 .clipShape(Circle())
-                            Text("邀请")
+                            Text("创建新的角色")
                                 .font(.caption)
                         }
                     }
@@ -381,10 +381,10 @@ struct StoryDetailView: View {
     private var participantsList: some View {
         VStack(alignment: .leading) {
             HStack {
-                Text("群聊成员")
+                Text("参与故事创建")
                     .font(.headline)
                 Spacer()
-                NavigationLink(destination: AllParticipantsView()) {
+                NavigationLink(destination: AllParticipantsView(viewModel: viewModel)) {
                     Text("查看\(viewModel.participants.count)名群成员 >")
                         .font(.subheadline)
                         .foregroundColor(.gray)
@@ -413,7 +413,7 @@ struct StoryDetailView: View {
                                 .frame(width: 50, height: 50)
                                 .background(Color.gray.opacity(0.2))
                                 .clipShape(Circle())
-                            Text("邀请")
+                            Text("邀请人员参与")
                                 .font(.caption)
                         }
                     }
@@ -486,18 +486,73 @@ class StoryDetailViewModel: ObservableObject {
     func saveStory() {
         // TODO: Implement API call to save story changes
     }
+    
+    func createStoryRole(){
+        // TODO: Implement API call to create new roel for story
+    }
+    
+    func editStoryRole(){
+        // TODO: Implement API call to edit role in story
+    }
+    
+    func delStoryRole(){
+        // TODO: Implement API call to delete role instory
+    }
 }
 
 // 假设的全部角色视图
 struct AllCharactersView: View {
+    @ObservedObject var viewModel: StoryDetailViewModel
+    
     var body: some View {
-        Text("全部角色列表")
+        ScrollView {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 20) {
+                ForEach(viewModel.characters, id: \.userID) { character in
+                    VStack {
+                        KFImage(URL(string: character.avatar))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 80, height: 80)
+                            .clipShape(Circle())
+                        
+                        Text(character.name)
+                            .font(.caption)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.center)
+                    }
+                }
+            }
+            .padding()
+        }
+        .navigationTitle("所有角色")
     }
 }
 
 // 假设的全部参与者视图
 struct AllParticipantsView: View {
+    @ObservedObject var viewModel: StoryDetailViewModel
+    
     var body: some View {
-        Text("全部群聊成员列表")
+        ScrollView {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 20) {
+                ForEach(viewModel.participants, id: \.userID) { participant in
+                    VStack {
+                        KFImage(URL(string: participant.avatar))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 80, height: 80)
+                            .clipShape(Circle())
+                        
+                        Text(participant.name)
+                            .font(.caption)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.center)
+                    }
+                }
+            }
+            .padding()
+        }
+        .navigationTitle("所有参与者")
     }
 }
+

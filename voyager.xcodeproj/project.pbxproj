@@ -26,8 +26,8 @@
 		0F14420D2B0E4CED00581674 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 0F14420C2B0E4CED00581674 /* OpenAPIURLSession */; };
 		0F1CE90D2BB81B4A00C7A8AD /* comment.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1CE90C2BB81B4A00C7A8AD /* comment.pb.swift */; };
 		0F1D0CFA2CC4EC7800D12E0B /* NewStoryRole.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1D0CF92CC4EC6600D12E0B /* NewStoryRole.swift */; };
-		0F1D0CFD2CC4ECA200D12E0B /* StoryRoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1D0CFC2CC4EC9400D12E0B /* StoryRoleView.swift */; };
 		0F1D0CFF2CC4ECAF00D12E0B /* StoryRoleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1D0CFE2CC4ECA700D12E0B /* StoryRoleDetailView.swift */; };
+		0F1D0D022CC5CBF900D12E0B /* UpdateStoryRole.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1D0D012CC5CBEF00D12E0B /* UpdateStoryRole.swift */; };
 		0F2363A32BC75E8300907E75 /* NewGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2363A22BC75E8300907E75 /* NewGroupView.swift */; };
 		0F2363A62BC75E9700907E75 /* UpdateGroupVIew.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2363A52BC75E9700907E75 /* UpdateGroupVIew.swift */; };
 		0F2363A82BC75EA900907E75 /* DeleteGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2363A72BC75EA900907E75 /* DeleteGroupView.swift */; };
@@ -160,8 +160,8 @@
 		0F1117D32BB7AE0900B022AA /* CommentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewModel.swift; sourceTree = "<group>"; };
 		0F1CE90C2BB81B4A00C7A8AD /* comment.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = comment.pb.swift; sourceTree = "<group>"; };
 		0F1D0CF92CC4EC6600D12E0B /* NewStoryRole.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewStoryRole.swift; sourceTree = "<group>"; };
-		0F1D0CFC2CC4EC9400D12E0B /* StoryRoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryRoleView.swift; sourceTree = "<group>"; };
 		0F1D0CFE2CC4ECA700D12E0B /* StoryRoleDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryRoleDetailView.swift; sourceTree = "<group>"; };
+		0F1D0D012CC5CBEF00D12E0B /* UpdateStoryRole.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateStoryRole.swift; sourceTree = "<group>"; };
 		0F2363A22BC75E8300907E75 /* NewGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGroupView.swift; sourceTree = "<group>"; };
 		0F2363A52BC75E9700907E75 /* UpdateGroupVIew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateGroupVIew.swift; sourceTree = "<group>"; };
 		0F2363A72BC75EA900907E75 /* DeleteGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteGroupView.swift; sourceTree = "<group>"; };
@@ -403,7 +403,7 @@
 			isa = PBXGroup;
 			children = (
 				0F1D0CF92CC4EC6600D12E0B /* NewStoryRole.swift */,
-				0F1D0CFC2CC4EC9400D12E0B /* StoryRoleView.swift */,
+				0F1D0D012CC5CBEF00D12E0B /* UpdateStoryRole.swift */,
 				0F1D0CFE2CC4ECA700D12E0B /* StoryRoleDetailView.swift */,
 				0F27158C2CC22B8400B1A0FC /* CommentView.swift */,
 				0F29163E2CB27780002366BE /* StoryDetailView.swift */,
@@ -844,6 +844,7 @@
 				0F2363A32BC75E8300907E75 /* NewGroupView.swift in Sources */,
 				0FF7FF642CA23E3300F92343 /* StoryBoardView.swift in Sources */,
 				0FF7FF602CA23DF900F92343 /* StoryView.swift in Sources */,
+				0F1D0D022CC5CBF900D12E0B /* UpdateStoryRole.swift in Sources */,
 				0F2715912CC22E8600B1A0FC /* CommentDetailView.swift in Sources */,
 				0FFA508E2B0857DA00D3A4CF /* UserProfileFilterViewModel.swift in Sources */,
 				0FFA50962B0857DA00D3A4CF /* ContentView.swift in Sources */,
@@ -873,7 +874,6 @@
 				0FFA50882B0857DA00D3A4CF /* MainTabView.swift in Sources */,
 				0F2480292BB1C32C0012C1F5 /* Comment.swift in Sources */,
 				0FFA50952B0857DA00D3A4CF /* ContentViewModel.swift in Sources */,
-				0F1D0CFD2CC4ECA200D12E0B /* StoryRoleView.swift in Sources */,
 				0F7602B12BB98E6000F8D900 /* GroupView.swift in Sources */,
 				0F6F16CD2C8680B3004FAAD9 /* StoryService.swift in Sources */,
 				0FFA50892B0857DA00D3A4CF /* SearchViewModel.swift in Sources */,
