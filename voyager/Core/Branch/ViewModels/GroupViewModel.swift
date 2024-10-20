@@ -11,8 +11,8 @@ import SwiftUI
 
 class GroupViewModel: ObservableObject {
     @State public var user: User
-    @State public var groups: [BranchGroup]
-    @State public var groupsProfile: Dictionary<Int64,GroupProfile>
+    @Published public var groups: [BranchGroup]
+    @Published public var groupsProfile: Dictionary<Int64,GroupProfile>
     
     @State var groupPage: Int32 = 0
     @State var groupPageSize: Int32 = 10

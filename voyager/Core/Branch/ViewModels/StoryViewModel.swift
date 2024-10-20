@@ -113,11 +113,11 @@ class StoryViewModel: ObservableObject {
         }
         if newStoryboard?.id == 0 {
             self.isCreateOk = false
-            print("CreateStoryBoard failed",err!)
+            print("CreateStoryBoard failed")
             return (newStoryboard,nil)
         }
         self.isCreateOk = true
-        print("CreateStoryBoard ok",err!)
+        print("CreateStoryBoard ok")
         return (newStoryboard,nil)
     }
     

@@ -95,7 +95,7 @@ extension APIClient {
             
             let resp = await authClient.updateStory(request: request, headers: header)
             
-            if resp.message?.code != 1 {
+            if resp.message?.code != 0 {
                 // If the response code is not 1, it indicates an error
                 return (0, NSError(domain: "UpdateStoryError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
             }
@@ -120,7 +120,7 @@ extension APIClient {
             
             let resp = await authClient.watchStory(request: request, headers: header)
             
-            if resp.message?.code != 1 {
+            if resp.message?.code != 0 {
                 // If the response code is not 1, it indicates an error
                 return (0, NSError(domain: "WatchStoryError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
             }
@@ -161,7 +161,7 @@ extension APIClient {
             
             let resp = await authClient.createStoryboard(request: request, headers: header)
             
-            if resp.message?.code != 1 {
+            if resp.message?.code != 0 {
                 let error = NSError(domain: "CreateStoryboardError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
                 print("CreateStoryboard error: \(error)")
                 return (result, error)

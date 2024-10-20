@@ -18,7 +18,6 @@ struct GroupView: View {
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: GroupViewModel(user: user))
         self.user = user
-        print("GroupView user info",self.user!)
     }
     
     var body: some View {
@@ -110,17 +109,7 @@ struct GroupCellView: View {
                     HStack {
                         Image(systemName: "bell.circle")
                             .font(.headline)
-                        Text("订阅")
-                            .font(.headline)
-                    }
-                    .scaledToFill()
-                }
-                Spacer()
-                Button(action: {}) {
-                    HStack {
-                        Image(systemName: "bubble.circle")
-                            .font(.headline)
-                        Text("评论")
+                        Text("关注")
                             .font(.headline)
                     }
                     .scaledToFill()
