@@ -10,11 +10,14 @@ import SwiftUI
 
 
 class GroupViewModel: ObservableObject {
-    @Published public var user: User
-    @Published public var groups: [BranchGroup]
-    @Published public var groupsProfile: Dictionary<Int64,GroupProfile>
-    var page: Int32 = 0
-    var size: Int32 = 10
+    @State public var user: User
+    @State public var groups: [BranchGroup]
+    @State public var groupsProfile: Dictionary<Int64,GroupProfile>
+    
+    @State var groupPage: Int32 = 0
+    @State var groupPageSize: Int32 = 10
+    
+    
     init(user: User) {
         self.user = user
         self.groups = [BranchGroup]()
@@ -22,10 +25,11 @@ class GroupViewModel: ObservableObject {
     }
     
     func fetchGroups() async {
-        var groups: [BranchGroup]
-        (groups,self.page,self.size) = await APIClient.shared.getUserCreateGroups(userId: user.userID, groupType: Common_GroupType(rawValue: 0)! , page: self.page, size: self.size)
-        self.groups = groups
-        for group in groups {
+        var fetchedGroups: [BranchGroup]
+        (fetchedGroups, self.groupPage, self.groupPageSize) = await APIClient.shared.getUserCreateGroups(userId: user.userID, groupType: Common_GroupType(rawValue: 0)!, page: self.groupPage, size: self.groupPageSize)
+        self.groups = fetchedGroups
+    
+        for group in fetchedGroups {
             await self.fetchGroupProfile(groupdId: group.info.groupID)
         }
     }
@@ -38,7 +42,7 @@ class GroupViewModel: ObservableObject {
             print("fetchGroupProfile err",err!)
             return
         }
-        groupsProfile[groupdId]=GroupProfile(profile: profileInfo!)
+        groupsProfile[groupdId] = GroupProfile(profile: profileInfo!)
     }
 }
 
@@ -49,10 +53,12 @@ class GroupDetailViewModel: ObservableObject {
     @Published var members: [User]
     @Published var profile: GroupProfile?
     @Published var joinedGroup: Bool = true
-    var page: Int = 0
-    var size: Int = 10
-    var memberPage: Int64 = 0
-    var memberPagesize: Int64 = 10
+    
+    @State var storyPage: Int32 = 0
+    @State var storyPageSize: Int32 = 10
+    @State var memberPage: Int32 = 0
+    @State var memberPageSize: Int32 = 10
+    
     init(user: User,groupId:Int64) {
         self.user = user
         self.storys = [Story]()
@@ -79,13 +85,13 @@ class GroupDetailViewModel: ObservableObject {
         var users: [User]?
         var page: Int64
         var pageSize: Int64
-        (users,page,pageSize,err) = await APIClient.shared.getGroupMembers(groupId: self.groupId, page: self.memberPage,size: self.memberPagesize)
+        (users,page,pageSize,err) = await APIClient.shared.getGroupMembers(groupId: self.groupId, page: Int64(self.memberPage),size: Int64(self.memberPageSize))
         if err != nil {
             print("fetchGroup members err",err!)
             return
         }
-        self.memberPage = page
-        self.memberPagesize = pageSize
+        self.memberPage = Int32(page)
+        self.memberPageSize = Int32(pageSize)
         self.members = users!
     }
     
@@ -94,11 +100,13 @@ class GroupDetailViewModel: ObservableObject {
         var storys: [Story]?
         var page: Int64 = 0
         var pageSize: Int64 = 10
-        (storys,page,pageSize,err) = await APIClient.shared.GetGroupStorys(groupId: self.groupId, userId: self.user.userID, page: page, size: pageSize)
+        (storys,page,pageSize,err) = await APIClient.shared.GetGroupStorys(groupId: self.groupId, userId: self.user.userID, page: Int64(self.storyPage), size: Int64(self.storyPageSize))
         if err != nil {
             print("fetchGroupStorys err",err!)
             return
         }
+        self.storyPage = Int32(page)
+        self.storyPageSize = Int32(pageSize)
         self.storys = storys!
     }
     
