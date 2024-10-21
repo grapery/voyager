@@ -22,21 +22,11 @@ class CommentsViewModel: ObservableObject {
     }
     
     func uploadComment(commentText: String) async {
-        let newComment = Common_CommentInfo()
-        let comment = Comment(id: UUID().uuidString, realComment: newComment, commentUser: self.user!)
         
-        self.comments.insert(comment, at: 0)
-        await APIClient.shared.createCommentForItems(userId: self.user!.userID, itemId: self.itemId, info: newComment)
     }
     
     func fetchComments() async {
-        var pageSize = pageSize
-        let pageNum = pageNum
-        if pageSize == 0 {
-            pageSize = 10
-        }
-        (self.comments,self.pageSize,self.pageNum ) = await APIClient.shared.fetchItemsComment(userId: self.user!.userID,  itemId: self.itemId, filter: [String](), pageSize: pageSize, pageNum: pageNum)
-        await fetchCommentsUserInfo()
+        
     }
     
     func fetchCommentsUserInfo() async {

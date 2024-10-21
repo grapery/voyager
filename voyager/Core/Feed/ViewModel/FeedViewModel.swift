@@ -8,62 +8,86 @@
 import Foundation
 
 class FeedViewModel: ObservableObject {
-    @Published var projectId: Int64
-    @Published var groupId: Int64
+    @Published var groups: [BranchGroup]
     @Published var timeline: Int64
-    @Published var leaves: [StoryItem]
+    @Published var storys: [Story]
+    @Published var userId: Int64
+    @Published var roles: [StoryRole]
+    @Published var boards: [StoryBoard]
     @Published var filters = [String]()
+    
     @Published var page: Int64
     @Published var size: Int64
     @Published var timeStamp: Int64
-    @Published var user:User
     @Published var tags: [String]
     
-    init(user: User) {
-        self.projectId = 0
-        self.groupId = 0
+    init(userId: Int64) {
+        self.groups = [BranchGroup]()
         self.timeline = 0
-        self.leaves = [StoryItem]()
+        self.storys = [Story]()
         self.filters = [String]()
+        self.timeStamp = 0
+        self.userId = userId
+        self.tags = [String]()
+        self.roles = [StoryRole]()
+        self.boards = [StoryBoard]()
+        
         self.page = 0
         self.size = 0
-        self.timeStamp = 0
-        self.user = user
-        self.tags = [String]()
     }
     
     @MainActor
-    func fetchLeaves() async -> Void{
-        let result = await APIClient.shared.fetchUserLeaves(uid: self.user.userID, offset: self.page,size: self.size, filter: [])
-        if result?.1 == 0 {
+    func fetchGroups() async -> Void{
+        let result = await APIClient.shared.fetchUserWatchedGroup(userId: self.userId, offset: self.page, size: self.size, filter: self.filters)
+        if result.3 != nil {
+            print("fetchGroups failed: ",result.3!)
             return
         }
-        self.leaves = result?.0 ?? [StoryItem]()
+        self.groups = result.0
+        self.page = result.1
+        self.size = result.2
         return
     }
     
     @MainActor
-    func fetchTimelineLeaves() async -> Void {
-        
-    }
-    
-    @MainActor
-    func fetchProjectLeaves() async -> Void {
-        var (result,pageNum,pageSize) = await APIClient.shared.fetchProjectLeaves(groupId: self.groupId, projectId: self.projectId, offset: self.page, size: self.size, filter: self.filters)
-        self.leaves = result
-        self.page = pageNum
-        self.size = pageSize
+    func fetchStorys() async -> Void{
+        let result = await APIClient.shared.fetchUserTakepartinStorys(userId: self.userId, offset: self.page, size: self.size, filter: self.filters)
+        if result.3 != nil {
+            print("fetchStorys failed: ",result.3!)
+            return
+        }
+        self.storys = result.0
+        self.page = result.1
+        self.size = result.2
         return
     }
     
     @MainActor
-    func fetchGroupLeaves() async -> Void {
-        var (result,pageNum,pageSize) = await APIClient.shared.fetchGroupLeaves(groupId: self.groupId, offset: self.page, size: self.size, filter: self.filters)
-        self.leaves = result
-        self.page = pageNum
-        self.size = pageSize
+    func fetchStoryRoles() async -> Void{
+        let result = await APIClient.shared.fetchUserFriendStoryRoles(userId: self.userId, offset: self.page, size: self.size, filter: self.filters)
+        if result.3 != nil {
+            print("fetchStoryRoles failed: ",result.3!)
+            return
+        }
+        self.roles = result.0
+        self.page = result.1
+        self.size = result.2
         return
     }
+    
+    @MainActor
+    func fetchUserCreatedStoryBoards() async -> Void{
+        let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: self.userId, offset: self.page, size: self.size, filter: self.filters)
+        if result.3 != nil {
+            print("fetchUserCreatedStoryBoards failed: ",result.3!)
+            return
+        }
+        self.boards = result.0
+        self.page = result.1
+        self.size = result.2
+        return
+    }
+    
 }
 
 class TimeLineModel: ObservableObject{
@@ -73,7 +97,7 @@ class TimeLineModel: ObservableObject{
     @Published var forkId: [Int64]
     @Published var currentId: Int64
     
-    @Published var leaves = [StoryItem]()
+    @Published var boards = [StoryBoard]()
     @Published var filters = [String]()
     @Published var page: Int64
     @Published var size: Int64
@@ -86,15 +110,12 @@ class TimeLineModel: ObservableObject{
         self.totalCount = 0
         self.forkId = [Int64]()
         self.currentId = 0
-        self.leaves = [StoryItem]()
+        self.boards = [StoryBoard]()
         self.filters = [String]()
         self.page = 0
         self.size = 0
         self.timeStamp = 0
         self.user = user
     }
-    
-    func fetchTimelineLeaves() async -> Void {
-        
-    }
+
 }

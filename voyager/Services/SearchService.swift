@@ -24,14 +24,20 @@ extension APIClient {
     public func SearchUsers() async -> ([User],Int64,Int64){
         return ([User](),0,0)
     }
+    public func TrendingProjects() async -> ([Project],Int64,Int64){
+        return ([Project](),0,0)
+    }
+    public func TrendingGroups() async -> ([BranchGroup],Int64,Int64){
+        return ([BranchGroup](),0,0)
+    }
+    public func TrendingUsers() async -> ([User],Int64,Int64){
+        return ([User](),0,0)
+    }
     
-    public func TrendingProjects() async -> [Project]{
-        return [Project]()
+    public func TrendingStorys() async -> ([Story],Int64,Int64){
+        return ([Story](),0,0)
     }
-    public func TrendingGroups() async -> [BranchGroup]{
-        return [BranchGroup]()
-    }
-    public func TrendingUsers() async -> [User]{
-        return [User]()
+    public func TrendingStoryRole() async -> ([StoryRole],Int64,Int64){
+        return ([StoryRole](),0,0)
     }
 }

@@ -11,64 +11,65 @@ enum TrendingType: Int {
     case TrendingUsers
     case TrendingGroups
     case TrendingProjects
-    case AllTrandingType
+    case TrendingStorys
+    case TrendingStoryRoles
 }
 
 class SearchViewModel: ObservableObject {
+    @Published var query: String = ""
+    @Published var currentUser :User?
     
     @Published var users = [User]()
-    @Published var projects = [Project]()
+    @Published var storys = [Story]()
     @Published var groups = [BranchGroup]()
-    @Published var currentUser :User?
-    @Published var query: String = ""
+    @Published var storyRoles = [StoryRole]()
+    
     @Published var useAI: Bool = false
     @Published var useLocation: Bool = false
-    @Published var offset: Int = 0
-    @Published var limit: Int = 10
+    var page: Int64 = 0
+    var pageSize: Int64 = 10
     
     init(currentUser: User? = nil, query: String, useAI: Bool, useLocation: Bool, offset: Int, limit: Int) {
         self.users = [User]()
-        self.projects = [Project]()
+        self.storys = [Story]()
         self.groups = [BranchGroup]()
         self.currentUser = currentUser
         self.query = query
         self.useAI = useAI
         self.useLocation = useLocation
-        self.offset = offset
-        self.limit = limit
+        self.page = Int64(offset)
+        self.pageSize = Int64(limit)
     }
     
     @MainActor
     func FetchTrending(trendingType: TrendingType) async  {
         if trendingType == .TrendingUsers{
-            self.users =  await APIClient.shared.TrendingUsers()
-        }else if trendingType == .TrendingProjects{
-            self.projects = await APIClient.shared.TrendingProjects()
-        }else if trendingType == .TrendingGroups {
-            self.groups = await APIClient.shared.TrendingGroups()
-        }else if trendingType == .AllTrandingType {
-            self.users =  await APIClient.shared.TrendingUsers()
-            self.projects = await APIClient.shared.TrendingProjects()
-            self.groups = await APIClient.shared.TrendingGroups()
+            (self.users,self.page,self.pageSize) =  await APIClient.shared.TrendingUsers()
+        }else  if trendingType == .TrendingGroups {
+            (self.groups,self.page,self.pageSize) = await APIClient.shared.TrendingGroups()
+        }else if trendingType == .TrendingStorys {
+            (self.storys,self.page,self.pageSize) = await APIClient.shared.TrendingStorys()
+        }else if trendingType == .TrendingStoryRoles {
+            (self.storyRoles,self.page,self.pageSize) = await APIClient.shared.TrendingStoryRole()
         }
     }
     
     @MainActor
-    func SearchAllProject() async {
+    func SearchAllStory() async {
         
     }
     
     @MainActor
-    func SearchProjectInGroup() async {
+    func SearchStoryInGroup() async {
         
     }
     
     @MainActor
-    func SearchUserProjectCreated() async {
+    func SearchUserCreatedStory() async {
         
     }
     @MainActor
-    func SearchUserProjectJointed() async {
+    func SearchUserContributeStory() async {
         
     }
     @MainActor

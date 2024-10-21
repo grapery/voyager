@@ -8,34 +8,33 @@
 import Foundation
 
 extension APIClient {
+    
+    func fetchUserWatchedGroup(userId: Int64,offset: Int64,size: Int64,filter: [String]) async  -> ( [BranchGroup],Int64,Int64,Error?) {
+        let groups: [BranchGroup] = []
+        return (groups,0,0,nil)
+    }
+    
+    func fetchUserTakepartinStorys(userId: Int64,offset: Int64,size: Int64,filter: [String]) async  -> ([Story],Int64,Int64,Error?){
+        let storys: [Story] = []
+        return (storys,0,0,nil)
+    }
+    
+    func fetchUserFriendStoryRoles(userId: Int64,offset: Int64,size: Int64,filter: [String]) async -> ([StoryRole],Int64,Int64,Error?){
+        let roles: [StoryRole] = []
+        return (roles,0,0,nil)
+    }
+    
+    func fetchUserCreatedStoryBoards(userId: Int64,offset: Int64,size: Int64,filter: [String]) async -> ([StoryBoard],Int64,Int64,Error?){
+        let roles: [StoryBoard] = []
+        return (roles,0,0,nil)
+    }
 
-    func fetchFeedLeaves(offset: Int64,size: Int64,filter: [String]) async -> ([StoryItem],Int64,Int64) {
-        let items: [StoryItem] = []
-        return (items,0,0)
-    }
-    
-    func fetchUserLeaves(uid: Int64,offset: Int64,size: Int64,filter: [String]) async  -> ( [StoryItem],Int64,Int64)? {
-        let items: [StoryItem] = []
-        return (items,0,0)
-    }
-    
-    func fetchGroupLeaves(groupId: Int64,offset: Int64,size: Int64,filter: [String]) async  -> ([StoryItem],Int64,Int64){
-        let items: [StoryItem] = []
-        return (items,0,0)
-    }
-    
-    func fetchProjectLeaves(groupId: Int64,projectId: Int64,offset: Int64,size: Int64,filter: [String]) async -> ([StoryItem],Int64,Int64){
-        let items: [StoryItem] = []
-        return (items,0,0)
-    }
-    // userId check is user is in block list
-    // projectId check is project visable os is public
-    // filter used to do some option work
-    func fetchItemsComment(userId: Int64,itemId: Int64,filter: [String],pageSize: Int64,pageNum : Int64)async -> ([Comment],Int64,Int64) {
-        let comments: [Comment] = []
-        return(comments,0,0)
-    }
-    func createCommentForItems(userId: Int64,itemId: Int64,info: Common_CommentInfo) async ->Void {
+    func createCommentForBoards(userId: Int64,boardId: Int64,info: Comment) async ->Void {
         return
+    }
+    
+    func getBoardComments(userId: Int64,boardId: Int64) async ->([Comment],Error?) {
+        let comments: [Comment] = []
+        return (comments,nil)
     }
 }
