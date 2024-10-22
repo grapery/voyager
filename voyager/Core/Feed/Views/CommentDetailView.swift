@@ -40,9 +40,9 @@ struct CommentsView: View {
     @State public var commentText = ""
     @StateObject var viewModel : CommentsViewModel
     var user: User
-    init(user:User,item: StoryItem) {
+    init(user:User) {
         self.user = user
-        _viewModel = StateObject(wrappedValue: CommentsViewModel(user: user,itemId:item.itemId))
+        _viewModel = StateObject(wrappedValue: CommentsViewModel(user: user))
     }
     var body: some View {
         VStack {

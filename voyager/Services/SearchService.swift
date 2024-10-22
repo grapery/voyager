@@ -15,18 +15,14 @@ enum SearchType{
 }
 
 extension APIClient {
-    public func SearchProjects() async -> ([Project],Int64,Int64){
-        return ([Project](),0,0)
-    }
+
     public func SearchGroups() async -> ([BranchGroup],Int64,Int64){
         return ([BranchGroup](),0,0)
     }
     public func SearchUsers() async -> ([User],Int64,Int64){
         return ([User](),0,0)
     }
-    public func TrendingProjects() async -> ([Project],Int64,Int64){
-        return ([Project](),0,0)
-    }
+
     public func TrendingGroups() async -> ([BranchGroup],Int64,Int64){
         return ([BranchGroup](),0,0)
     }

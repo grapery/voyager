@@ -10,13 +10,11 @@ import Foundation
 @MainActor
 class CommentsViewModel: ObservableObject {
     var user: User?
-    var itemId: Int64
     var pageSize: Int64
     var pageNum: Int64
     @Published var comments = [Comment]()
-    init(user: User? = nil, itemId: Int64) {
+    init(user: User? = nil) {
         self.user = user
-        self.itemId = itemId
         self.pageSize = 10
         self.pageNum = 0
     }

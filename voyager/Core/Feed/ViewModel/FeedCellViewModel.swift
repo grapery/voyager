@@ -10,10 +10,8 @@ import Foundation
 
 class FeedCellViewModel: ObservableObject {
     @Published var user: User?
-    @Published var items: StoryItem?
-    init(user: User? = nil, items: StoryItem? = nil) {
+    init(user: User? = nil) {
         self.user = user
-        self.items = items
     }
     
     func like() async{

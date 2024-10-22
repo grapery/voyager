@@ -1,24 +1,11 @@
 //
-//  Project.swift
+//  Story.swift
 //  voyager
 //
-//  Created by grapestree on 2023/11/18.
+//  Created by grapestree on 2024/10/23.
 //
 
 import Foundation
-
-typealias Project = Common_ProjectInfo
-
-//class Project: Identifiable {
-//    var Id: String
-//    var projectInfo: Common_ProjectInfo
-//    init(Id: String, projectInfo: Common_ProjectInfo) {
-//        self.Id = Id
-//        self.projectInfo = projectInfo
-//    }
-//}
-
-typealias ProjectProfile = Common_ProjectProfileInfo
 
 let defaultStory = Story(Id: -1, storyInfo: Common_Story())
 
@@ -54,6 +41,21 @@ class StoryRole: Identifiable {
         self.role = role
     }
     static func == (lhs: StoryRole,rhs: StoryRole)-> Bool{
+        if lhs.id == rhs.id {
+            return true
+        }
+        return false
+    }
+}
+
+class StoryBoard: Identifiable {
+    var id: Int64
+    var boardInfo: Common_StoryBoard
+    init(id: Int64, boardInfo: Common_StoryBoard) {
+        self.id = id
+        self.boardInfo = boardInfo
+    }
+    static func == (lhs: StoryBoard,rhs: StoryBoard) -> Bool {
         if lhs.id == rhs.id {
             return true
         }
