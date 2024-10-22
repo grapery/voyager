@@ -15,17 +15,25 @@ class LoginViewModel: ObservableObject {
     @Published var currentUser: User?
     @Published var isLogin = false
     
+    @Published var LoginError = ""
+    
     @MainActor
     func signIn(){
         loadUserToken()
         if token.isEmpty {
             Task{
-                await service.login(withEmail: email, password: password)
-                self.token = service.token!
-                self.currentUser = service.currentUser
-                self.email = self.currentUser!.email
-                self.saveUserToken()
-                isLogin = true
+                let ret = await service.login(withEmail: email, password: password)
+                if ret.1 != nil {
+                    self.isLogin = false
+                    self.LoginError = ret.1!.localizedDescription
+                    return
+                }else{
+                    self.token = service.token!
+                    self.currentUser = service.currentUser
+                    self.email = self.currentUser!.email
+                    self.saveUserToken()
+                    isLogin = true
+                }
             }
         }
     }

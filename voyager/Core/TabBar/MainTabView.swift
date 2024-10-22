@@ -35,12 +35,12 @@ struct MainTabView: View {
                     Image(systemName: "rectangle.3.group")
                 }
                 .tag(2)
-            GroupView(user: self.user)
+            MessageView()
                 .onTapGesture {
                     self.selectedItem = 3
                 }
                 .tabItem {
-                    Image(systemName: "rectangle.3.group")
+                    Image(systemName: "bubble.left.and.bubble.right")
                 }
                 .tag(3)
             UserProfileView(user: user)

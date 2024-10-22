@@ -36,10 +36,6 @@ struct FeedView: View {
         NavigationStack {
             VStack {
                 
-                Text("探索")
-                    .font(.title)
-                    .fontWeight(.bold)
-                
                 // Tab selection
                 Picker("Feed Type", selection: $selectedTab) {
                     Text("小组").tag(FeedType.Groups)
@@ -49,6 +45,23 @@ struct FeedView: View {
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding()
+                Spacer()
+                VStack {
+                    SearchBar(text: Binding(
+                        get: { viewModel.searchText },
+                        set: { newValue in
+                            Task { @MainActor in
+                                viewModel.searchText = newValue
+                            }
+                        }
+                    ), onCommit: {
+                        Task { @MainActor in
+                            await viewModel.performSearch()
+                        }
+                    })
+                    .padding(.horizontal)
+                }
+                Spacer()
                 
                 // Content based on selected tab with swipe support
                 TabView(selection: $selectedTab) {
@@ -94,7 +107,18 @@ struct FeedView: View {
                     }
                 }
             }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        
+                    }) {
+                        Image(systemName: "plus.circle")
+                    }
+                    .foregroundColor(.primary)
+                }
+            }
         }
+        
     }
 }
 

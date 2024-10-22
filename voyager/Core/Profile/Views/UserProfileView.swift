@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct UserProfileView: View {
-    @State private var selectedFilter: UserProfileFilterViewModel = .storyitems
+    @State private var selectedFilter: UserProfileFilterViewModel = .storys
     @State private var showingEditProfile = false
     @Namespace var animation
     var user: User
@@ -33,26 +33,25 @@ struct UserProfileView: View {
                                 .font(.subheadline)
                         }
                         Spacer()
+                        CircularProfileImageView(avatarUrl: user.avatar.isEmpty ? defaultAvator : user.avatar, size: .profile)
                         
-                        CircularProfileImageView(avatarUrl: user.avatar, size: .profile)
                     }
                     
-                    Text("加入 \(viewModel.profile.inGroupNum) 个群组")
-                        .foregroundColor(.secondary)
-                        .padding(.vertical, 5)
-                    Spacer()
-                    
-                    
-                    Button("Edit Profile") {
-                        showingEditProfile.toggle()
+                    HStack{
+                        VStack{
+                            Text("加入 \(viewModel.profile.inGroupNum) 个群组")
+                                .foregroundColor(.secondary)
+                                .padding(.vertical, 5)
+                            Spacer()
+                        }
+                        VStack{
+                            Text("参与 \(viewModel.profile.contriProjectNum) 个故事")
+                                .foregroundColor(.secondary)
+                                .padding(.vertical, 5)
+                            Spacer()
+                        }
                     }
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .frame(height: 32)
-                    .frame(maxWidth: .infinity)
-                    .foregroundColor(.primary)
-                    .overlay(RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color.secondary, lineWidth: 1))
+                    Divider()
                     HStack {
                         ForEach(UserProfileFilterViewModel.allCases, id: \.rawValue) { item in
                             VStack {
@@ -84,15 +83,15 @@ struct UserProfileView: View {
                     Button {
                         
                     } label: {
-                        Image(systemName: "lock")
+                        Image(systemName: "gearshape.circle")
                     }
                     .foregroundColor(.primary)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        //AuthService.shared.signout()
+                        showingEditProfile.toggle()
                     } label : {
-                        Image(systemName: "line.3.horizontal.decrease")
+                        Image(systemName: "slider.vertical.3")
                     }
                     .foregroundColor(.primary)
                 }

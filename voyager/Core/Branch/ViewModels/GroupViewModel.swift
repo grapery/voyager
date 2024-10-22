@@ -23,7 +23,7 @@ class GroupViewModel: ObservableObject {
         self.groups = [BranchGroup]()
         self.groupsProfile = Dictionary<Int64,GroupProfile>()
     }
-    
+    @MainActor
     func fetchGroups() async {
         var fetchedGroups: [BranchGroup]
         (fetchedGroups, self.groupPage, self.groupPageSize) = await APIClient.shared.getUserCreateGroups(userId: user.userID, groupType: Common_GroupType(rawValue: 0)!, page: self.groupPage, size: self.groupPageSize)
@@ -33,7 +33,7 @@ class GroupViewModel: ObservableObject {
             await self.fetchGroupProfile(groupdId: group.info.groupID)
         }
     }
-    
+    @MainActor
     func fetchGroupProfile(groupdId: Int64) async {
         var err: Error?
         var profileInfo: Common_GroupProfileInfo?

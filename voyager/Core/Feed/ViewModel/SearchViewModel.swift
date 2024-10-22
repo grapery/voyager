@@ -23,6 +23,7 @@ class SearchViewModel: ObservableObject {
     @Published var storys = [Story]()
     @Published var groups = [BranchGroup]()
     @Published var storyRoles = [StoryRole]()
+    var selectTab = 0
     
     @Published var useAI: Bool = false
     @Published var useLocation: Bool = false

@@ -22,17 +22,19 @@ class AuthService {
     }
     
     @MainActor
-    func login(withEmail email: String, password: String) async{
-        do{
+    func login(withEmail email: String, password: String) async -> (Int64, Error?) {
+        do {
             let result = try await APIClient.shared.Login(account: email, password: password)
-            if result.token == "" {
-                return
+            if result.token.isEmpty {
+                return (-1, NSError(domain: "AuthService", code: -1, userInfo: [NSLocalizedDescriptionKey: "登录失败：令牌为空"]))
             }
             self.token = result.token
             self.currentUser = try await APIClient.shared.GetUserInfo(userId: result.userID)
             print("user \(String(describing: self.currentUser))")
-        }catch{
-            print("login error")
+            return (0, nil) // 成功登录
+        } catch  {
+            print("Unexpected login error: \(error)")
+            return (-1, error)
         }
     }
     
@@ -89,4 +91,3 @@ class AuthService {
         return -1
     }
 }
-

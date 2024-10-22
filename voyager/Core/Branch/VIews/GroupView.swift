@@ -37,8 +37,9 @@ struct GroupView: View {
                     Button(action: {
                         isShowingNewGroupView = true  // 修改这里
                     }) {
-                        Image(systemName: "plus")
+                        Image(systemName: "plus.circle")
                     }
+                    .foregroundColor(.primary)
                 }
             }
         }

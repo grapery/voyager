@@ -20,6 +20,12 @@ class FeedViewModel: ObservableObject {
     @Published var size: Int64
     @Published var timeStamp: Int64
     @Published var tags: [String]
+    @Published @MainActor var searchText: String = ""
+   
+    @MainActor
+    func performSearch() async {
+       // Implement search logic here based on the selected tab and searchText
+    }
     
     init(userId: Int64) {
         self.groups = [BranchGroup]()
