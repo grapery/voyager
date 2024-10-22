@@ -19,14 +19,6 @@ struct MainTabView: View {
     }
     var body: some View {
         TabView (selection: $selectedItem){
-            UserProfileView(user: user)
-                .onTapGesture {
-                    self.selectedItem = 3
-                }
-                .tabItem {
-                    Image(systemName: "person.circle")
-                }
-                .tag(1)
             FeedView(userId: user.userID)
                 .onTapGesture {
                     self.selectedItem = 1
@@ -34,23 +26,31 @@ struct MainTabView: View {
                 .tabItem {
                     Image(systemName: "ellipsis.viewfinder")
                 }
+                .tag(1)
+            GroupView(user: self.user)
+                .onTapGesture {
+                    self.selectedItem = 2
+                }
+                .tabItem {
+                    Image(systemName: "rectangle.3.group")
+                }
                 .tag(2)
             GroupView(user: self.user)
                 .onTapGesture {
-                    self.selectedItem = 2
+                    self.selectedItem = 3
                 }
                 .tabItem {
                     Image(systemName: "rectangle.3.group")
                 }
                 .tag(3)
-            GroupView(user: self.user)
+            UserProfileView(user: user)
                 .onTapGesture {
-                    self.selectedItem = 2
+                    self.selectedItem = 4
                 }
                 .tabItem {
-                    Image(systemName: "rectangle.3.group")
+                    Image(systemName: "person.circle")
                 }
-                .tag(3)
+                .tag(4)
         }
         .accentColor(.primary)
     }
