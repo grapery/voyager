@@ -10,7 +10,7 @@ import Kingfisher
 import Combine
 
 struct GroupView: View {
-    public var user: User?
+    @State var user: User?
     @StateObject var viewModel: GroupViewModel
     @State private var isShowingNewGroupView = false  // 添加这一行
     @State private var selectedGroup: BranchGroup?  // 添加这一行

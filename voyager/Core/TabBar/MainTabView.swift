@@ -35,7 +35,7 @@ struct MainTabView: View {
                     Image(systemName: "rectangle.3.group")
                 }
                 .tag(2)
-            MessageView()
+            MessageView(user: self.user)
                 .onTapGesture {
                     self.selectedItem = 3
                 }
