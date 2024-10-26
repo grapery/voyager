@@ -27,297 +27,257 @@ enum FeedType{
 struct FeedView: View {
     @StateObject var viewModel: FeedViewModel
     @State private var selectedTab: FeedType = .Groups
+    @State private var showNewItemView = false
+    
+    // 定义标签页数组
+    let tabs: [(type: FeedType, title: String)] = [
+        (.Groups, "小组"),
+        (.Story, "故事"),
+        (.StoryRole, "角色"),
+        (.StoryBoards, "故事板")
+    ]
     
     init(userId: Int64) {
         self._viewModel = StateObject(wrappedValue: FeedViewModel(userId: userId))
     }
     
     var body: some View {
-        NavigationStack {
-            VStack {
+        NavigationView {
+            VStack(spacing: 0) {
+                // Custom Tab View
+                FeedCustomTabView(selectedTab: $selectedTab, tabs: tabs)
                 
-                // Tab selection
-                Picker("Feed Type", selection: $selectedTab) {
-                    Text("小组").tag(FeedType.Groups)
-                    Text("故事").tag(FeedType.Story)
-                    Text("角色").tag(FeedType.StoryRole)
-                    Text("故事板").tag(FeedType.StoryBoards)
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding()
-                Spacer()
-                VStack {
-                    SearchBar(text: Binding(
-                        get: { viewModel.searchText },
-                        set: { newValue in
-                            Task { @MainActor in
-                                viewModel.searchText = newValue
+                // TabView for swipeable content
+                TabView(selection: $selectedTab) {
+                    ForEach(tabs, id: \.type) { tab in
+                        ScrollView {
+                            LazyVStack(spacing: 0) {
+                                switch tab.type {
+                                case .Groups:
+                                    GroupsList(groups: viewModel.groups)
+                                case .Story:
+                                    StoriesList(stories: viewModel.storys)
+                                case .StoryRole:
+                                    RolesList(roles: viewModel.roles)
+                                case .StoryBoards:
+                                    BoardsList(boards: viewModel.boards)
+                                }
                             }
                         }
-                    ), onCommit: {
-                        Task { @MainActor in
-                            await viewModel.performSearch()
-                        }
-                    })
-                    .padding(.horizontal)
+                        .tag(tab.type)
+                    }
                 }
-                Spacer()
-                
-                // Content based on selected tab with swipe support
-                TabView(selection: $selectedTab) {
-                    ScrollView {
-                        GroupsList(groups: viewModel.groups)
-                    }
-                    .tag(FeedType.Groups)
-                    
-                    ScrollView {
-                        StoriesList(stories: viewModel.storys)
-                    }
-                    .tag(FeedType.Story)
-                    
-                    ScrollView {
-                        RolesList(roles: viewModel.roles)
-                    }
-                    .tag(FeedType.StoryRole)
-                    
-                    ScrollView {
-                        BoardsList(boards: viewModel.boards)
-                    }
-                    .tag(FeedType.StoryBoards)
-                }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .animation(.easeInOut, value: selectedTab)
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             }
-            .onAppear {
-                if selectedTab == .Groups{
-                    Task{
-                        await viewModel.fetchGroups()
-                    }
-                }else if selectedTab == .Story {
-                    Task{
-                        await viewModel.fetchStorys()
-                    }
-                }else if selectedTab == .StoryBoards {
-                    Task{
-                        await viewModel.fetchUserCreatedStoryBoards()
-                    }
-                }else if selectedTab == .StoryRole {
-                    Task{
-                        await viewModel.fetchStoryRoles()
-                    }
+            .navigationTitle("最新动态")
+            .navigationBarItems(trailing:
+                Button(action: {
+                    showNewItemView = true
+                }) {
+                    Image(systemName: "plus.circle")
                 }
+            )
+        }
+        .onAppear {
+            fetchData()
+        }
+        .onChange(of: selectedTab) { _ in
+            fetchData()
+        }
+        .sheet(isPresented: $showNewItemView) {
+            // Implement the appropriate view for creating new items
+            Text("New Item View")
+        }
+    }
+    
+    private func fetchData() {
+        Task {
+            switch selectedTab {
+            case .Groups:
+                await viewModel.fetchGroups()
+            case .Story:
+                await viewModel.fetchStorys()
+            case .StoryBoards:
+                await viewModel.fetchUserCreatedStoryBoards()
+            case .StoryRole:
+                await viewModel.fetchStoryRoles()
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        
-                    }) {
-                        Image(systemName: "plus.circle")
-                    }
-                    .foregroundColor(.primary)
+        }
+    }
+}
+
+struct FeedCustomTabView: View {
+    @Binding var selectedTab: FeedType
+    let tabs: [(type: FeedType, title: String)]
+    
+    var body: some View {
+        HStack {
+            ForEach(tabs, id: \.type) { tab in
+                Button(action: {
+                    selectedTab = tab.type
+                }) {
+                    Text(tab.title)
+                        .foregroundColor(selectedTab == tab.type ? .black : .gray)
+                        .padding(.vertical, 8)
+                }
+                if tab.type != tabs.last?.type {
+                    Spacer()
                 }
             }
         }
-        
+        .padding(.horizontal)
     }
 }
 
 // Helper views for each feed type
 struct GroupsList: View {
-    @State var groups: [BranchGroup]
+    let groups: [BranchGroup]
+    
     var body: some View {
         ForEach(groups, id: \.id) { group in
-            FeedBoardCellView(group: group, feedType: .Groups)
+            FeedCellView(item: group)
+            .buttonStyle(PlainButtonStyle())
         }
     }
 }
 
 struct StoriesList: View {
-    @State var stories: [Story]
+    let stories: [Story]
+    
     var body: some View {
         ForEach(stories, id: \.id) { story in
-            FeedBoardCellView(story: story, feedType: .Story)
+            NavigationLink(destination: StoryView(storyId: story.storyInfo.id, userId: 0)) {
+                FeedCellView(item: story)
+            }
+            .buttonStyle(PlainButtonStyle())
         }
     }
 }
 
 struct RolesList: View {
-    @State var roles: [StoryRole]
+    let roles: [StoryRole]
+    
     var body: some View {
         ForEach(roles, id: \.id) { role in
-            FeedBoardCellView(role: role, feedType: .StoryRole)
+            FeedCellView(item: role)
         }
     }
 }
 
 struct BoardsList: View {
-    @State var boards: [StoryBoard]
+    let boards: [StoryBoard]
+    
     var body: some View {
         ForEach(boards, id: \.id) { board in
-            FeedBoardCellView(board: board, feedType: .StoryBoards)
+            FeedCellView(item: board)
         }
     }
 }
 
-struct FeedBoardCellView: View {
-    @State var board: StoryBoard?
-    @State var story: Story?
-    @State var role: StoryRole?
-    @State var group: BranchGroup?
-    @State var user: User?
-    @State var isLoading: Bool = false
-    @State var error: Error?
-    var feedType: FeedType
+struct FeedCellView: View {
+    let item: Any
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 avatarView
                 titleView
                 Spacer()
-                timeView
+                Image(systemName: "ellipsis")
             }
             
             descriptionView
             
-            contentView
+            // Add more content here as needed
             
-            actionView
+            actionButtons
         }
         .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(10)
-        .shadow(radius: 2)
+        .background(Color.white)
     }
     
     @ViewBuilder
     private var avatarView: some View {
-        switch feedType {
-        case .Groups:
-            KFImage(URL(string: group?.info.avatar ?? ""))
+        if let group = item as? BranchGroup {
+            KFImage(URL(string: group.info.avatar))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(width: 50, height: 50)
+                .frame(width: 40, height: 40)
                 .clipShape(Circle())
-        case .Story:
-            KFImage(URL(string: story?.storyInfo.avatar ?? ""))
+        } else if let story = item as? Story {
+            KFImage(URL(string: story.storyInfo.avatar))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(width: 50, height: 50)
-                .cornerRadius(8)
-        case .StoryRole:
-            KFImage(URL(string: role?.role.characterAvatar ?? ""))
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 50, height: 50)
+                .frame(width: 40, height: 40)
                 .clipShape(Circle())
-        case .StoryBoards:
-            KFImage(URL(string:  ""))
+        } else {
+            Image(systemName: "person.circle.fill")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(width: 50, height: 50)
-                .cornerRadius(8)
+                .frame(width: 40, height: 40)
+                .clipShape(Circle())
         }
     }
     
     @ViewBuilder
     private var titleView: some View {
-        VStack(alignment: .leading) {
-            switch feedType {
-            case .Groups:
-                Text(group?.info.name ?? "")
-                    .font(.headline)
-                Text("成员: \( 0)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            case .Story:
-                Text(story!.storyInfo.title)
-                    .font(.headline)
-                Text("作者: ")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            case .StoryRole:
-                Text(role?.role.characterName ?? "")
-                    .font(.headline)
-                Text(role?.role.characterDescription ?? "")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            case .StoryBoards:
-                Text(board?.boardInfo.title ?? "")
-                    .font(.headline)
-            }
+        if let group = item as? BranchGroup {
+            Text(group.info.name)
+                .font(.headline)
+        } else if let story = item as? Story {
+            Text(story.storyInfo.name)
+                .font(.headline)
+        } else if let role = item as? StoryRole {
+            Text(role.role.characterName)
+                .font(.headline)
+        } else if let board = item as? StoryBoard {
+            Text(board.boardInfo.title)
+                .font(.headline)
         }
-    }
-    
-    @ViewBuilder
-    private var timeView: some View {
-        Text(getLastUpdateTime().timeAgoDisplay())
-            .font(.caption)
-            .foregroundColor(.secondary)
     }
     
     @ViewBuilder
     private var descriptionView: some View {
-        switch feedType {
-        case .Groups:
-            Text(group?.info.desc ?? "")
-                .font(.body)
+        if let group = item as? BranchGroup {
+            Text(group.info.desc)
+                .font(.subheadline)
                 .lineLimit(2)
-        case .Story:
-            Text(story?.storyInfo.desc ?? "")
-                .font(.body)
-                .lineLimit(3)
-        case .StoryRole:
-            Text(role?.role.characterDescription ?? "")
-                .font(.body)
+        } else if let story = item as? Story {
+            Text(story.storyInfo.origin)
+                .font(.subheadline)
                 .lineLimit(2)
-        case .StoryBoards:
-            Text(board?.boardInfo.title ?? "")
-                .font(.body)
+        } else if let role = item as? StoryRole {
+            Text(role.role.characterDescription)
+                .font(.subheadline)
+                .lineLimit(2)
+        } else if let board = item as? StoryBoard {
+            Text(board.boardInfo.content)
+                .font(.subheadline)
                 .lineLimit(2)
         }
     }
     
-    @ViewBuilder
-    private var contentView: some View {
-        // 这里可以根据需要添加更多的内容
-        EmptyView()
-    }
-    
-    @ViewBuilder
-    private var actionView: some View {
+    private var actionButtons: some View {
         HStack {
-            switch feedType {
-            case .Groups:
-                Image(systemName: "book.fill")
-                Text("\( 0) 个故事")
-            case .Story:
-                Image(systemName: "person.2.fill")
-                Text("\(0) 参与者")
-            case .StoryRole:
-                Image(systemName: "person.fill")
-                Text("角色")
-            case .StoryBoards:
-                Image(systemName: "bubble.left.fill")
-                Text("\( 0) 评论")
+            Spacer()
+            Button(action: {}) {
+                Image(systemName: "bell.circle")
+            }
+            Spacer()
+            Button(action: {}) {
+                Image(systemName: "bubble.circle")
+            }
+            Spacer()
+            Button(action: {}) {
+                Image(systemName: "heart.circle")
+            }
+            Spacer()
+            Button(action: {}) {
+                Image(systemName: "square.and.arrow.up.circle")
             }
             Spacer()
         }
-        .font(.caption)
         .foregroundColor(.secondary)
-    }
-    
-    private func getLastUpdateTime() -> Date {
-        switch feedType {
-        case .Groups:
-            return Date()
-        case .Story:
-            return Date()
-        case .StoryBoards:
-            return Date()
-        case .StoryRole:
-            return Date()
-        }
     }
 }
 

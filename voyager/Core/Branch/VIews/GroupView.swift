@@ -25,6 +25,8 @@ struct GroupView: View {
                     NavigationLink(destination: GroupDetailView(user: self.viewModel.user, group: Binding.constant(group))) {
                         GroupCellView(group: group, viewModel: self.viewModel)
                     }
+                    .buttonStyle(PlainButtonStyle())
+                    .listRowSeparator(.hidden)
                 }
             }
             .listRowInsets(EdgeInsets())
@@ -100,7 +102,6 @@ struct GroupCellView: View {
                         .clipped()
                 }
             }
-            
             // Footer
             HStack(spacing: 4) {
                 Spacer()
