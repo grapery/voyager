@@ -10,21 +10,19 @@ import Kingfisher
 import Combine
 
 struct GroupView: View {
-    @State var user: User?
     @StateObject var viewModel: GroupViewModel
     @State private var isShowingNewGroupView = false  // 添加这一行
     @State private var selectedGroup: BranchGroup?  // 添加这一行
 
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: GroupViewModel(user: user))
-        self.user = user
     }
     
     var body: some View {
         NavigationView {
             List {
                 ForEach(viewModel.groups) { group in
-                    NavigationLink(destination: GroupDetailView(user: user!, group: Binding.constant(group))) {
+                    NavigationLink(destination: GroupDetailView(user: self.viewModel.user, group: Binding.constant(group))) {
                         GroupCellView(group: group, viewModel: self.viewModel)
                     }
                 }
@@ -49,7 +47,7 @@ struct GroupView: View {
             }
         }
         .sheet(isPresented: $isShowingNewGroupView) {  // 添加这个 sheet
-            NewGroupView(userId: self.user!.userID).onDisappear(){
+            NewGroupView(userId: self.viewModel.user.userID).onDisappear(){
                 Task{
                     isShowingNewGroupView = false
                     await viewModel.fetchGroups()
