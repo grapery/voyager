@@ -49,6 +49,9 @@ class MessageViewModel: ObservableObject{
         self.page = page
         self.pageSize = pageSize
     }
+    func fetchLatestMessages() async ->Void{
+        
+    }
 }
 
 class MessageContextViewModel: ObservableObject{
@@ -58,7 +61,7 @@ class MessageContextViewModel: ObservableObject{
     @Published var roles = [StoryRole]()
     @Published var avator = defaultAvator
     @Published var currentId = 0
-
+ 
     var page = 0
     var size = 10
     @Published var messages = [Message]()
@@ -80,13 +83,16 @@ class MessageContextViewModel: ObservableObject{
     }
 }
 
-struct Message: Identifiable {
+struct Message: Identifiable,Equatable {
     let id = UUID()
     var senderName: String
     var avatarName: String
     var content: String
     var timeAgo: String
     var isFromCurrentUser: Bool
+    static func == (lhs: Message, rhs: Message) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 func sampleMessages() -> [Message] {

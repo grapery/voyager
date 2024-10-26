@@ -1,4 +1,5 @@
 import SwiftUI
+import Kingfisher
 
 let defaultAvator = "https://grapery-1301865260.cos.ap-shanghai.myqcloud.com/avator/tmp3evp1xxl.png"
 
@@ -13,34 +14,9 @@ struct MessageView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // ... 其他代码保持不变 ...
-            
-            // 输入框
-            HStack(spacing: 10) {
-                Button(action: {
-                    // 表情选择
-                }) {
-                    Image(systemName: "face.smiling")
-                }
+            List{
                 
-                TextField("发送消息", text: $newMessageContent)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                
-                Button(action: {
-                    // 图片选择
-                }) {
-                    Image(systemName: "photo")
-                }
-                
-                Button(action: {
-                    newMessageContent = ""
-                }) {
-                    Text("发送")
-                }
-                .disabled(newMessageContent.isEmpty)
             }
-            .padding()
-            .background(Color.white)
         }
         .navigationBarHidden(true)
     }
@@ -49,24 +25,41 @@ struct MessageView: View {
 struct MessageContextCellView: View{
     var msgCtxId: Int64
     var roleId = 0
-    var lastMessageContent = ""
+    var lastMessageContent = "hello"
     var curUserId: Int64
+    var roleAvatar = ""
     init(msgCtxId: Int64, curUserId: Int64) {
         self.msgCtxId = msgCtxId
         self.curUserId = curUserId
     }
     var body: some View {
-        VStack(){
-            
+        VStack(spacing: 0) {
+            VStack(alignment: .leading){
+                HStack {
+                    KFImage(URL(string: defaultAvator))
+                        .resizable()
+                        .scaledToFill()
+                        .clipShape(Circle())
+                        .frame(width: 40, height: 40)
+                }
+            }
+            VStack(alignment: .trailing){
+                HStack {
+                    Text("\(self.lastMessageContent)")
+                        .font(.subheadline)
+                }
+            }
         }
+        .navigationBarHidden(true)
     }
 }
 
 
 struct MessageContextView: View {
-    var viewModel: MessageContextViewModel
-    @State var newMessage: Message
+    @ObservedObject var viewModel: MessageContextViewModel
+    @State private var newMessageContent: String = ""
     @State var role: StoryRole
+    @FocusState private var isInputFocused: Bool
     
     var body: some View {
         VStack(spacing: 0) {
@@ -96,25 +89,32 @@ struct MessageContextView: View {
             .shadow(color: Color.gray.opacity(0.2), radius: 2, x: 0, y: 2)
             
             // 消息列表
-            ScrollView {
-                LazyVStack(spacing: 10) {
-                    ForEach(viewModel.messages) { message in
-                        MessageCellView(message: message)
+            ScrollViewReader { scrollProxy in
+                ScrollView {
+                    LazyVStack(spacing: 10) {
+                        ForEach(viewModel.messages) { message in
+                            MessageCellView(message: message)
+                                .id(message.id)
+                        }
                     }
+                    .padding()
                 }
-                .padding()
+                .onChange(of: viewModel.messages) { _ in
+                    scrollToBottom(proxy: scrollProxy)
+                }
             }
             
             // 输入框
-            HStack(spacing: 10) {
+            HStack(alignment: .bottom) {
                 Button(action: {
                     // 表情选择
                 }) {
                     Image(systemName: "face.smiling")
                 }
                 
-                TextField("发送消息", text: $newMessage.content)
+                TextField("发送消息", text: $newMessageContent)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .focused($isInputFocused)
                 
                 Button(action: {
                     // 图片选择
@@ -123,17 +123,34 @@ struct MessageContextView: View {
                 }
                 
                 Button(action: {
-                    Task{
-                        await viewModel.sendMessage()
+                    Task {
+                        await sendMessage()
                     }
                 }) {
                     Text("发送")
                 }
+                .disabled(newMessageContent.isEmpty)
             }
             .padding()
             .background(Color.white)
         }
         .navigationBarHidden(true)
+        .onTapGesture {
+            isInputFocused = false
+        }
+    }
+    
+    private func sendMessage() async {
+        await viewModel.sendMessage()
+        newMessageContent = ""
+    }
+    
+    private func scrollToBottom(proxy: ScrollViewProxy) {
+        if let lastMessage = viewModel.messages.last {
+            withAnimation {
+                proxy.scrollTo(lastMessage.id, anchor: .bottom)
+            }
+        }
     }
 }
 
@@ -147,10 +164,19 @@ struct MessageCellView: View {
             }
             
             VStack(alignment: message.isFromCurrentUser ? .trailing : .leading) {
-                Text(message.content)
-                    .padding(10)
-                    .background(message.isFromCurrentUser ? Color.green : Color.gray.opacity(0.2))
-                    .cornerRadius(10)
+                KFImage(URL(string: defaultAvator))
+                    .resizable()
+                    .scaledToFill()
+                    .clipShape(Circle())
+                    .frame(width: 40, height: 40)
+                
+                if !message.content.isEmpty {
+                    Text(message.content)
+                        .padding(10)
+                        .background(message.isFromCurrentUser ? Color.blue : Color.gray.opacity(0.2))
+                        .foregroundColor(message.isFromCurrentUser ? .white : .black)
+                        .cornerRadius(10)
+                }
                 
                 Text(message.timeAgo)
                     .font(.caption2)
