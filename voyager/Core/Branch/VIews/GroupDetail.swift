@@ -11,6 +11,7 @@ import Combine
 
 struct GroupDetailView: View {
     var user: User
+    var currentUser: User
     @Binding var group: BranchGroup?
     @State var showNewStoryView: Bool = false
     @State var viewModel: GroupDetailViewModel
@@ -20,6 +21,7 @@ struct GroupDetailView: View {
 
     init(user: User, group: Binding<BranchGroup?>) {
         self.user = user
+        self.currentUser = user
         self._group = group
         self.viewModel = GroupDetailViewModel(user: user, groupId: (group.wrappedValue?.info.groupID)!)
     }
@@ -160,9 +162,11 @@ struct CustomTabView: View {
 struct StoryCellView: View {
     let story: Story
     var userId: Int64
+    var currentUserId: Int64
     init(story: Story,userId:Int64) {
         self.story = story
         self.userId = userId
+        self.currentUserId = userId
         
     }
     var body: some View {

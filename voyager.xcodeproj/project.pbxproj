@@ -34,6 +34,7 @@
 		0F2363A62BC75E9700907E75 /* UpdateGroupVIew.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2363A52BC75E9700907E75 /* UpdateGroupVIew.swift */; };
 		0F2363A82BC75EA900907E75 /* DeleteGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2363A72BC75EA900907E75 /* DeleteGroupView.swift */; };
 		0F2480292BB1C32C0012C1F5 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2480282BB1C32C0012C1F5 /* Comment.swift */; };
+		0F254DBC2CCD0F8B00367804 /* StoryRoleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F254DBB2CCD0F7C00367804 /* StoryRoleViewModel.swift */; };
 		0F27158D2CC22B8400B1A0FC /* CommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F27158C2CC22B8400B1A0FC /* CommentView.swift */; };
 		0F2715912CC22E8600B1A0FC /* CommentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2715902CC22E7C00B1A0FC /* CommentDetailView.swift */; };
 		0F2916312CB0DF62002366BE /* StoryboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2916302CB0DF56002366BE /* StoryboardViewModel.swift */; };
@@ -161,6 +162,7 @@
 		0F2363A52BC75E9700907E75 /* UpdateGroupVIew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateGroupVIew.swift; sourceTree = "<group>"; };
 		0F2363A72BC75EA900907E75 /* DeleteGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteGroupView.swift; sourceTree = "<group>"; };
 		0F2480282BB1C32C0012C1F5 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
+		0F254DBB2CCD0F7C00367804 /* StoryRoleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryRoleViewModel.swift; sourceTree = "<group>"; };
 		0F27158C2CC22B8400B1A0FC /* CommentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentView.swift; sourceTree = "<group>"; };
 		0F2715902CC22E7C00B1A0FC /* CommentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentDetailView.swift; sourceTree = "<group>"; };
 		0F2916302CB0DF56002366BE /* StoryboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryboardViewModel.swift; sourceTree = "<group>"; };
@@ -413,6 +415,7 @@
 		0F7602AF2BB98E2200F8D900 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				0F254DBB2CCD0F7C00367804 /* StoryRoleViewModel.swift */,
 				0F2916302CB0DF56002366BE /* StoryboardViewModel.swift */,
 				0FF7FF5B2CA23D7B00F92343 /* StoryViewModel.swift */,
 				0F7602B42BB992E400F8D900 /* GroupViewModel.swift */,
@@ -877,6 +880,7 @@
 				0F07092C2B1F65B80023F8EC /* HelperService.swift in Sources */,
 				0F8855642B3B10BE002AD7E4 /* service.connect.swift in Sources */,
 				0FFA509C2B0857DA00D3A4CF /* RegistrationView.swift in Sources */,
+				0F254DBC2CCD0F8B00367804 /* StoryRoleViewModel.swift in Sources */,
 				0FFA509B2B0857DA00D3A4CF /* AuthService.swift in Sources */,
 				0F59E72B2B064E2D007C2B74 /* voyagerApp.swift in Sources */,
 				0F8855622B3B10BE002AD7E4 /* base.pb.swift in Sources */,

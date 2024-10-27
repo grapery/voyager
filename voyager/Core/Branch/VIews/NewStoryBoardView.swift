@@ -186,14 +186,14 @@ struct NewStoryBoardView: View {
                             let ret = await self.viewModel.createStoryBoard(prevBoardId: self.boardId, nextBoardId: 0, title: self.generatedStoryTitle, content: self.generatedStoryContent, isAiGen: true, backgroud: self.background, params: Common_StoryBoardParams())
                             if ret.1 != nil {
                                 print("Err: ",ret.1?.localizedDescription as Any)
-                                Alert(
-                                    title: Text("完成故事板创建失败"),
-                                    message: Text("完成故事板创建失败: \(String(describing: ret.1?.localizedDescription))"),
-                                    primaryButton: .destructive(Text("Delete")) {
-                                        presentationMode.wrappedValue.dismiss()
-                                    },
-                                    secondaryButton: .cancel()
-                                )
+//                                Alert(
+//                                    title: Text("完成故事板创建失败"),
+//                                    message: Text("完成故事板创建失败: \(String(describing: ret.1?.localizedDescription))"),
+//                                    primaryButton: .destructive(Text("Delete")) {
+//                                        presentationMode.wrappedValue.dismiss()
+//                                    },
+//                                    secondaryButton: .cancel()
+//                                )
                             }else{
                                 print("value: ",ret.0?.id as Any)
                                 print("story board: ",ret.0?.boardInfo.title as Any)

@@ -16,7 +16,7 @@ enum UserProfileFilterViewModel: Int, CaseIterable {
         switch self {
         case .storys: return "参与的故事"
         case .groups: return "加入的小组"
-        case .roles: return  "联系的角色"
+        case .roles: return  "关注的角色"
         }
     }
 }

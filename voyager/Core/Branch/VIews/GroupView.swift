@@ -49,7 +49,7 @@ struct GroupView: View {
             }
         }
         .sheet(isPresented: $isShowingNewGroupView) {  // 添加这个 sheet
-            NewGroupView(userId: self.viewModel.user.userID).onDisappear(){
+            NewGroupView(userId: self.viewModel.user.userID,viewModel: self.viewModel).onDisappear(){
                 Task{
                     isShowingNewGroupView = false
                     await viewModel.fetchGroups()

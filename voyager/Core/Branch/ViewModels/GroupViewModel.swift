@@ -44,6 +44,21 @@ class GroupViewModel: ObservableObject {
         }
         groupsProfile[groupdId] = GroupProfile(profile: profileInfo!)
     }
+    
+    @MainActor
+    func createGroup(creatorId: Int64,name: String, description: String, avatar: UIImage)async -> (BranchGroup?,Error?){
+        var result: BranchGroup?
+        var err: Error?
+        // 在这里实现创建 Group 的逻辑
+        let userId = creatorId
+
+        (result,err) = await APIClient.shared.CreateGroup(userId: userId, name: name)
+        if err != nil {
+            print("创建群组失败")
+            return (nil,err)
+        }
+        return (result!,nil)
+    }
 }
 
 class GroupDetailViewModel: ObservableObject {
