@@ -43,61 +43,83 @@ struct NewStoryBoardView: View {
                     .padding()
                 
                 VStack(alignment: .leading){
-                    Spacer()
                     Text("故事标题")
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .background(Color.green.opacity(0.2))
+                        .font(.headline)
+                    
                     TextField("故事标题", text: $title)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .background(Color.green.opacity(0.2))
-                    Spacer()
+                        .font(.subheadline)
+                        .padding(14)
+                        .background(Color(.systemGray5))
+                        .cornerRadius(5)
+                    
                     Text("故事描述")
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .background(Color.green.opacity(0.2))
-                    TextField("故事描述", text: $description)
-                        .frame(height: 100)
+                        .font(.headline)
+                    
+                        TextEditor(text: Binding(
+                            get: { self.description },
+                            set: { self.description = $0 }
+                        ))
+                        .font(.body)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .background(Color.green.opacity(0.2))
-                    Spacer()
+                        .padding(14)
+                        .background(Color(.systemGray5))
+                    
                     Text("故事背景")
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .background(Color.green.opacity(0.2))
-                    TextField("故事背景", text: $background)
-                        .frame(height: 100)
+                        .font(.body)
+                    
+                        TextEditor(text: Binding(
+                            get: { self.background },
+                            set: { self.background = $0 }
+                        ))
+                        .font(.subheadline)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .background(Color.green.opacity(0.2))
-                    Spacer()
+                        .padding(14)
+                        .background(Color(.systemGray5))
+                    
+
                     Text("参与人物")
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .background(Color.green.opacity(0.2))
-                    TextField("参与人物", text: $roles)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .background(Color.green.opacity(0.2))
-                    Spacer()
+                        .font(.headline)
+                    ScrollView {
+                        Button(action: {
+                            // 添加新角色的操作
+                        }) {
+                            VStack {
+                                Image(systemName: "plus")
+                                    .frame(width: 50, height: 50)
+                                    .background(Color.gray.opacity(0.2))
+                                    .clipShape(Circle())
+                                Text("添加角色")
+                                    .font(.caption)
+                            }
+                        }
+                    }
                 }
-                
-//                VStack{
-//                    Spacer()
-//                    Button(action: {
-//                        showImagePicker = true
-//                    }) {
-//                        VStack {
-//                            Image(systemName: "plus")
-//                                .font(.system(size: 50))
-//                                .foregroundColor(.white)
-//                            Text("参考图片")
-//                                .font(.caption)
-//                                .foregroundColor(.white)
-//                        }
-//                        .frame(width: 120, height: 120)
-//                        .background(Color.green.opacity(0.2))
-//                        .cornerRadius(16)
-//                        Spacer()
-//                    }
-//                }
-//                .padding()
-//                .background(Color.gray.opacity(0.2))
-//                .cornerRadius(8)
+                VStack{
+                    Text("参考图片")
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .font(.headline)
+                    VStack{
+                        Button(action: {
+                            showImagePicker = true
+                        }) {
+                            VStack {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.white)
+                            }
+                            .frame(width: 40, height: 40)
+                            .background(Color.indigo.opacity(0.2))
+                            .cornerRadius(16)
+                        }
+                    }
+                    .padding()
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(8)
+                }
                 
                 if let images = images, !images.isEmpty {
                     LazyVGrid(columns: [
@@ -118,28 +140,35 @@ struct NewStoryBoardView: View {
                 
                 Divider()
                 Text("续写的故事章节")
+                    .font(.headline)
                 ZStack{
                     VStack(alignment: .leading){
                         Text("标题")
-                            .font(.title)
+                            .font(.subheadline)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
-                        Text(generatedStoryTitle)
-                            .padding()
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(8)
+                        TextField("标题", text: $generatedStoryTitle)
+                            .font(.subheadline)
+                            .padding(14)
+                            .background(Color(.systemGray5))
+                            .cornerRadius(5)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
-                        Spacer()
                         Text("内容")
                             .font(.body)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
-                        Text(generatedStoryContent)
-                            .padding()
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(8)
+                        ScrollView {
+                            TextEditor(text: Binding(
+                                get: { self.generatedStoryContent },
+                                set: { self.generatedStoryContent = $0 }
+                            ))
+                            .font(.subheadline)
+                            .frame(minHeight: 100, maxHeight: .infinity)
+                            .cornerRadius(5)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
+                        }
+
                     }
                 }
-                Spacer()
+
                 if let generatedImage = generatedImage {
                     Image(uiImage: generatedImage)
                         .resizable()
@@ -208,6 +237,7 @@ struct NewStoryBoardView: View {
                     }
                     Spacer()
                     Button(action: {
+                        
                     }) {
                         Text("绘画")
                             .padding(.horizontal, 32)

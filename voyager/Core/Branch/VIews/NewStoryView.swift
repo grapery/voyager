@@ -161,6 +161,26 @@ struct NewStoryView: View {
     
     private func createStory() {
         // 验证和创建故事的逻辑保持不变
+        self.viewModel.story?.storyInfo.name = self.name
+        self.viewModel.story?.storyInfo.title = self.title
+        self.viewModel.story?.storyInfo.desc = self.shortDesc
+        self.viewModel.story?.storyInfo.origin = self.origin
+        self.viewModel.story?.storyInfo.params.storyDescription = self.storyDescription
+        self.viewModel.story?.storyInfo.params.negativePrompt = self.negativePrompt
+        self.viewModel.story?.storyInfo.isAiGen = self.isAIGen
+        self.viewModel.story?.storyInfo.params.background = self.background
+        self.viewModel.story?.storyInfo.groupID = self.groupId
+        self.viewModel.story?.storyInfo.creatorID = self.viewModel.userId
+        //self.viewModel.story?.storyInfo.params.refImage = self.refImages?.map({$0.description}).joined(separator: ",")
+        Task{@MainActor in
+            await self.viewModel.CreateStory(groupId: self.groupId)
+        }
+        if self.viewModel.isCreateOk{
+            presentationMode.wrappedValue.dismiss()
+            print("create new story success \(self.viewModel.story?.storyInfo.name ?? self.name)")
+            return
+        }
+        showAlert(message: self.viewModel.err!.localizedDescription)
     }
     
     private func showAlert(message: String) {

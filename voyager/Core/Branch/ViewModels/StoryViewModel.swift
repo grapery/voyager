@@ -28,6 +28,7 @@ class StoryViewModel: ObservableObject {
         self.storyId = storyId
         self.userId = userId
         self.branchId = storyId
+        self.err = nil
         if storyId > 0 {
             Task{
                 await fetchStory(withBoards:true)
@@ -42,6 +43,7 @@ class StoryViewModel: ObservableObject {
     
     func fetchStory(withBoards:Bool) async {
         let currentStoryId: Int64 = getCurrentStoryId()
+        self.err = nil
         do {
             let fetchedStory = await apiClient.GetStory(storyId: currentStoryId)
             if fetchedStory.self.1 == nil {
@@ -70,7 +72,7 @@ class StoryViewModel: ObservableObject {
     func updateStory() async  {
         guard let story = story else { return }
         isLoading = true
-        
+        self.err = nil
         do {
             let updatedStory =  await apiClient.UpdateStory(storyId: self.storyId, short_desc: story.storyInfo.desc, status: Int64(story.storyInfo.status), isAiGen: story.storyInfo.isAiGen, origin: story.storyInfo.origin, params: story.storyInfo.params)
             if updatedStory.self.1 != nil {
@@ -88,6 +90,7 @@ class StoryViewModel: ObservableObject {
     
     func fetchStoryBoards() async{
         let currentStoryId: Int64 = getCurrentStoryId()
+        self.err = nil
         do {
             let result = await apiClient.GetStoryboards(storyId: currentStoryId, branchId: self.branchId, startTime: 0, endTime: 0, offset: self.page, size: self.pageSize)
             if result.self.3 == nil {
@@ -104,7 +107,7 @@ class StoryViewModel: ObservableObject {
     func createStoryBoard(prevBoardId: Int64, nextBoardId: Int64, title: String, content: String, isAiGen: Bool, backgroud: String, params: Common_StoryBoardParams) async -> (StoryBoard?,Error?){
         var newStoryboard: StoryBoard?
         var err: Error?
-        
+        self.err = nil
         (newStoryboard,err) = await apiClient.CreateStoryboard(storyId: self.storyId, prevBoardId: prevBoardId, nextBoardId: nextBoardId, creator: self.userId, title: title, content: content, isAiGen: isAiGen, background: backgroud, params: params)
         if err != nil {
             self.isCreateOk = false
@@ -126,6 +129,7 @@ class StoryViewModel: ObservableObject {
     }
     
     func deleteStoryBoard(storyId: Int64, boardId: Int64, userId: Int64) async -> Error? {
+        self.err = nil
         do {
             let result = await apiClient.DelStoryboard(boardId: boardId, storyId: storyId, userId: userId)
             
@@ -143,6 +147,7 @@ class StoryViewModel: ObservableObject {
             return nil
         } catch {
             // 捕获并返回任何其他错误
+            self.err = error
             return error
         }
     }
@@ -150,6 +155,7 @@ class StoryViewModel: ObservableObject {
     func forkStory(preStoryBoardId: Int64, storyId: Int64, userId: Int64) async ->(Int64,Error?){
         var newStoryboardId: Int64
         var err: Error?
+        self.err = nil
         var paramsStoryboard: Common_StoryBoard?
         (newStoryboardId,err) = await apiClient.ForkStoryboard(prevboardId: preStoryBoardId, storyId: self.storyId, userId: self.userId, storyParam: paramsStoryboard!)
         if err != nil {
@@ -171,6 +177,7 @@ class StoryViewModel: ObservableObject {
         var resp: Common_RenderStoryDetail
         var err: Error?
         self.isGenerate = true
+        self.err = nil
         do {
             (resp,err) = await apiClient.RenderStory(
                 boardId: 0,
@@ -193,6 +200,7 @@ class StoryViewModel: ObservableObject {
         var newStory: Story?
         var storyId: Int64
         var err: Error?
+        self.err = nil
         do {
             (newStory,storyId,_,err) = await apiClient.CreateStory(
                 name: (self.story?.storyInfo.name)!,
@@ -205,6 +213,7 @@ class StoryViewModel: ObservableObject {
                 params: (self.story?.storyInfo.params)!)
             if err != nil {
                 self.isCreateOk = false
+                self.err = err
                 print("CreateStory failed",err!)
                 return
             }
@@ -212,7 +221,7 @@ class StoryViewModel: ObservableObject {
                 self.isCreateOk = false
             }else {
                 self.isCreateOk = true
-                self.storyId = storyId
+                //self.storyId = storyId
                 self.story?.Id = newStory!.Id
                 self.story?.storyInfo.creatorID = self.userId
                 self.story?.storyInfo.ownerID = self.userId
@@ -225,6 +234,7 @@ class StoryViewModel: ObservableObject {
     func getGenStory(storyId:Int64,userId:Int64) async -> (Common_RenderStoryDetail?,Error?) {
         var resp: Common_RenderStoryDetail?
         var err: Error?
+        self.err = nil
         do {
             (resp,err) = await apiClient.GetRenderStory(storyId: storyId, userId: userId, is_regenerate: false, render_type: Common_RenderType(rawValue: 0)!)
             if err != nil {
@@ -238,6 +248,7 @@ class StoryViewModel: ObservableObject {
     func getGenStoryBoard(storyId:Int64,userId:Int64,boardId:Int64) async -> (Common_RenderStoryboardDetail?,Error?) {
         var resp: Common_RenderStoryboardDetail?
         var err: Error?
+        self.err = nil
         do {
             (resp,err) = await apiClient.GetRenderStoryboard(boardId: boardId, storyId: storyId, userId: userId, is_regenerate: false, render_type: Common_RenderType(rawValue: 0)!)
             if err != nil {
@@ -251,6 +262,7 @@ class StoryViewModel: ObservableObject {
     func conintueGenStory(storyId:Int64,userId:Int64,prevBoardId: Int64,prompt: String, title: String, desc: String, backgroud: String) async -> (Common_RenderStoryDetail,Error?) {
         var resp: Common_RenderStoryDetail
         var err: Error?
+        self.err = nil
         self.isGenerate = true
         print("conintueGenStory params:",storyId,userId,prevBoardId,prompt,title,desc,backgroud)
         do {

@@ -39,13 +39,19 @@ struct UserProfileView: View {
                     
                     HStack{
                         VStack{
-                            Text("加入 \(viewModel.profile.inGroupNum) 个群组")
+                            Text("加入 \(viewModel.profile.numGroup) 个群组")
                                 .foregroundColor(.secondary)
                                 .padding(.vertical, 5)
                             Spacer()
                         }
                         VStack{
-                            Text("参与 \(viewModel.profile.contriProjectNum) 个故事")
+                            Text("参与 \(viewModel.profile.contributStoryNum) 个故事")
+                                .foregroundColor(.secondary)
+                                .padding(.vertical, 5)
+                            Spacer()
+                        }
+                        VStack{
+                            Text("创建 \(viewModel.profile.createdStoryNum) 个故事")
                                 .foregroundColor(.secondary)
                                 .padding(.vertical, 5)
                             Spacer()

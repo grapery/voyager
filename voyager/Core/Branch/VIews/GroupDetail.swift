@@ -139,7 +139,7 @@ struct GroupDetailView: View {
 
 struct CustomTabView: View {
     @Binding var selectedTab: Int
-    let tabs = ["关注","最近","参与"]
+    let tabs = ["关注","最近","标星"]
     
     var body: some View {
         HStack {
