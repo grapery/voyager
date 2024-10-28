@@ -24,19 +24,12 @@ class StoryViewModel: ObservableObject {
     var branchId: Int64 = 0
     var userId: Int64
     
-    init(storyId: Int64,userId: Int64) {
-        self.storyId = storyId
+    init(story: Story,userId: Int64) {
+        self.story = story
+        self.storyId = story.storyInfo.id
         self.userId = userId
         self.branchId = storyId
         self.err = nil
-        if storyId > 0 {
-            Task{
-                await fetchStory(withBoards:true)
-            }
-        }else{
-            self.story = Story()
-            self.story?.storyInfo = Common_Story()
-        }
     }
     
     private let apiClient = APIClient.shared

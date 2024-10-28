@@ -27,7 +27,11 @@ struct NewStoryView: View {
     @State var groupId: Int64
     
     init(groupId: Int64, userId: Int64) {
-        self._viewModel = StateObject(wrappedValue: StoryViewModel(storyId: -1, userId: userId))
+        var story = Story(
+            Id: 0,
+            storyInfo: Common_Story()
+        )
+        self._viewModel = StateObject(wrappedValue: StoryViewModel(story: story, userId: userId))
         self.groupId = groupId
     }
     

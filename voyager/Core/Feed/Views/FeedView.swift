@@ -146,7 +146,7 @@ struct StoriesList: View {
     
     var body: some View {
         ForEach(stories, id: \.id) { story in
-            NavigationLink(destination: StoryView(storyId: story.storyInfo.id, userId: 0)) {
+            NavigationLink(destination: StoryView(story: story, userId: 0)) {
                 FeedCellView(item: story)
             }
             .buttonStyle(PlainButtonStyle())

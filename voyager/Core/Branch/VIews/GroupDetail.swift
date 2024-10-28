@@ -43,6 +43,7 @@ struct GroupDetailView: View {
                     .buttonStyle(PlainButtonStyle())
                     
                     Spacer()
+                    Text((self.group?.info.name)!)
                     Spacer()
                     
                     Button(action: {
@@ -57,10 +58,11 @@ struct GroupDetailView: View {
                             .cornerRadius(16)
                     }
                 }
-                
-                Text(group!.info.desc)
-                    .font(.subheadline)
-                    .lineLimit(3)
+                VStack{
+                    Text(group!.info.desc)
+                        .font(.subheadline)
+                        .lineLimit(3)
+                }
             }
             .padding()
             .background(Color.white)
@@ -76,7 +78,7 @@ struct GroupDetailView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(viewModel.storys) { story in
-                            NavigationLink(destination: StoryView(storyId: story.storyInfo.id, userId: self.user.userID)) {
+                            NavigationLink(destination: StoryView(story: story, userId: self.user.userID)) {
                                 StoryCellView(story: story, userId: self.user.userID)
                             }
                         }
@@ -86,7 +88,7 @@ struct GroupDetailView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(viewModel.storys) { story in
-                            NavigationLink(destination: StoryView(storyId: story.storyInfo.id, userId: self.user.userID)) {
+                            NavigationLink(destination: StoryView(story: story, userId: self.user.userID)) {
                                 StoryCellView(story: story, userId: self.user.userID)
                             }
                         }
@@ -96,7 +98,7 @@ struct GroupDetailView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(viewModel.storys) { story in
-                            NavigationLink(destination: StoryView(storyId: story.storyInfo.id, userId: self.user.userID)) {
+                            NavigationLink(destination: StoryView(story: story,userId: self.user.userID)) {
                                 VStack{
                                     StoryCellView(story: story, userId: self.user.userID)
                                     Spacer()

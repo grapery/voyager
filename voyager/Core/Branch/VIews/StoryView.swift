@@ -14,6 +14,7 @@ struct StoryView: View {
     @State private var isEditing: Bool = false
     @State public var storyId: Int64
     @State private var selectedTab: Int64 = 0
+    @State public var story: Story
     
     var userId: Int64
     
@@ -40,10 +41,11 @@ struct StoryView: View {
         }
     }
     
-    init(storyId: Int64, userId: Int64) {
-        self.storyId = storyId
+    init(story: Story, userId: Int64) {
+        self.story = story
         self.userId = userId
-        self.viewModel = StoryViewModel(storyId: storyId, userId: userId)
+        self.storyId = story.storyInfo.id
+        self.viewModel = StoryViewModel(story: story, userId: userId)
         setButtonMsg()
     }
     
