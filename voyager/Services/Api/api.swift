@@ -87,8 +87,8 @@ struct APIClient{
         return result
     }
     
-    public func RefreshToken(curToken: String) async throws -> String{
-        return ""
+    public func RefreshToken(curToken: String) async throws -> (String,Error?){
+        return ("",nil)
     }
     
     public func Logout() async throws ->Common_LogoutResponse{

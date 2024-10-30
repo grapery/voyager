@@ -352,14 +352,14 @@ struct StoryBoardCellView: View {
                         boardId: (self.board?.boardInfo.storyBoardID)!,
                         prevBoardId: (self.board?.boardInfo.prevBoardID)!,
                         viewModel: self.$viewModel,
-                        isForkingStory: false)
+                        roles: [StoryRole](), isForkingStory: false  )
                 }else if self.$isForkingStory.wrappedValue {
                     NewStoryBoardView(
                         storyId: self.viewModel.storyId,
                         boardId: (self.board?.boardInfo.storyBoardID)!,
                         prevBoardId: (self.board?.boardInfo.prevBoardID)!,
                         viewModel: self.$viewModel,
-                        isForkingStory: true)
+                        roles: [StoryRole](),isForkingStory: true)
                 }else if self.$isShowingCommentView.wrappedValue{
                     CommentView(
                         storyId: self.viewModel.storyId,
@@ -373,7 +373,7 @@ struct StoryBoardCellView: View {
                         boardId: (self.board?.boardInfo.storyBoardID)!,
                         prevBoardId: (self.board?.boardInfo.prevBoardID)!,
                         viewModel: self.$viewModel,
-                        isForkingStory: false)
+                        roles: [StoryRole](),isForkingStory: false)
                 }
                 
             }

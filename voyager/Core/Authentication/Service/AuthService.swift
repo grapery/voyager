@@ -63,20 +63,33 @@ class AuthService {
         }
     }
     
-    func refreshToken() {
+    @MainActor
+    func refreshUserData(token: String) -> Error?{
        // 程序自动和服务程序交互，刷新token
+        var err :Error?
         Task{
             do {
                 if self.token != "" {
-                    let result = try await APIClient.shared.RefreshToken(curToken:self.token!)
+                    let result = try await APIClient.shared.RefreshToken(curToken: token)
                     print("refresh new token: \(result)")
+                    if result.1 != nil {
+                        err = result.1
+                        return
+                    }
+                    self.token = result.0
+                    return
                 }
             }catch{
                 print("refresh token failed")
+                return
             }
         }
-        return
+        if err != nil{
+            return err
+        }
+        return nil
     }
+    
     @MainActor
     func register(account email: String,password: String,name: String,full_name: String) async  -> Int32{
         // 注册用户

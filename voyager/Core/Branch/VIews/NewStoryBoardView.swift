@@ -19,7 +19,7 @@ struct NewStoryBoardView: View {
     @State public var title: String = ""
     @State public var description: String = ""
     @State public var background: String = ""
-    @State public var roles: String = ""
+    @State public var roles: [StoryRole]
     @State public var images: [UIImage]?
     
     // tech detail
@@ -36,19 +36,37 @@ struct NewStoryBoardView: View {
     
     let isForkingStory: Bool
 
+    // Add states for tracking completion status
+    @State private var isInputCompleted: Bool = false
+    @State private var isStoryGenerated: Bool = false
+    @State private var isImageGenerated: Bool = false
+    @State private var isNarrationCompleted: Bool = false
+    
+    // Add states for story scene details
+    @State private var sceneDescription: String = ""
+    @State private var sceneCharacters: String = ""
+    @State private var imagePrompt: String = ""
+
+    // Add state for current step
+    @State private var currentStep: TimelineStep = .write
+
+    // Add states for notifications
+    @State private var isLoading: Bool = false
+    @State private var loadingMessage: String = ""
+    @State private var showNotification: Bool = false
+    @State private var notificationMessage: String = ""
+    @State private var notificationType: NotificationType = .success
+
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Main scrollable content
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    Text(isForkingStory ? "故事分支" : "新的故事板")
-                        .font(.largeTitle)
-                        .padding()
-                    
-                    // Content sections
-                    contentSections
-                }
-                .padding(.bottom, 100) // Add padding for bottom timeline
+            VStack(spacing: 0) {
+                Text(isForkingStory ? "故事分支" : "新的故事板")
+                    .font(.largeTitle)
+                    .padding()
+                
+                // Content sections with TabView
+                contentSections
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             
             // Bottom timeline buttons
@@ -59,104 +77,403 @@ struct NewStoryBoardView: View {
                         .edgesIgnoringSafeArea(.bottom)
                 )
         }
+        .overlay(loadingOverlay)
+        .overlay(notificationOverlay)
         .sheet(isPresented: $showImagePicker) {
             ImagePicker(image: $images)
         }
     }
     
+    // Enhanced loading overlay with pulse animation
+    private var loadingOverlay: some View {
+        Group {
+            if isLoading {
+                ZStack {
+                    Color.black.opacity(0.4)
+                        .edgesIgnoringSafeArea(.all)
+                        .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+                    
+                    VStack(spacing: 16) {
+                        ZStack {
+                            // Pulse effect
+                            ForEach(0..<3) { i in
+                                Circle()
+                                    .stroke(Color.white.opacity(0.5), lineWidth: 2)
+                                    .frame(width: 60, height: 60)
+                                    .scaleEffect(isLoading ? 2 : 1)
+                                    .opacity(isLoading ? 0 : 1)
+                                    .animation(
+                                        Animation.easeInOut(duration: 1.5)
+                                            .repeatForever(autoreverses: false)
+                                            .delay(Double(i) * 0.3),
+                                        value: isLoading
+                                    )
+                            }
+                            
+                            // Hourglass icon
+                            Image(systemName: "hourglass.circle.fill")
+                                .font(.system(size: 40))
+                                .foregroundColor(.white)
+                                .rotationEffect(.degrees(isLoading ? 360 : 0))
+                                .animation(
+                                    Animation.linear(duration: 1)
+                                        .repeatForever(autoreverses: false),
+                                    value: isLoading
+                                )
+                        }
+                        
+                        Text(loadingMessage)
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
+                    .padding(24)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.gray.opacity(0.8))
+                            .shadow(radius: 10)
+                    )
+                    .transition(.scale.combined(with: .opacity))
+                }
+            }
+        }
+    }
+    
+    // Notification overlay for success/error messages
+    private var notificationOverlay: some View {
+        Group {
+            if showNotification {
+                VStack {
+                    HStack(spacing: 12) {
+                        Image(systemName: notificationType.iconName)
+                            .font(.system(size: 24))
+                            .foregroundColor(notificationType.color)
+                        
+                        Text(notificationMessage)
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                        
+                        Spacer()
+                        
+                        Button(action: { hideNotification() }) {
+                            Image(systemName: "xmark")
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(notificationType.backgroundColor)
+                            .shadow(radius: 5)
+                    )
+                    .padding()
+                    
+                    Spacer()
+                }
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .animation(.spring(), value: showNotification)
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        hideNotification()
+                    }
+                }
+            }
+        }
+    }
+    
+    // Helper functions for notifications
+    private func showNotification(message: String, type: NotificationType) {
+        withAnimation {
+            notificationMessage = message
+            notificationType = type
+            showNotification = true
+        }
+    }
+    
+    private func hideNotification() {
+        withAnimation {
+            showNotification = false
+        }
+    }
     
     // MARK: - Helper Functions
-    private func generateStory() async {
-        let ret = await self.viewModel.conintueGenStory(
-            storyId: self.viewModel.storyId,
-            userId: self.viewModel.userId,
-            prevBoardId: self.boardId,
-            prompt: self.prompt,
-            title: self.title,
-            desc: self.description,
-            backgroud: self.background
-        )
-        print("value count: ",ret.0.result.values.count as Any)
-        print("value: ",ret.0.result.values)
-        if let firstResult = ret.0.result.values.first,
-           let chapterTitle = firstResult.data["章节题目"]?.text {
-            print("firstResult： ",firstResult)
-            self.generatedStoryTitle = chapterTitle
-            print("chapterTitle： ",chapterTitle)
-        }
-        
-        if let firstResult = ret.0.result.values.first,
-           let chapterContent = firstResult.data["章节内容"]?.text {
-            print("firstResult： ",firstResult)
-            self.generatedStoryContent = chapterContent
-            print("chapterContent： ",chapterContent)
-        }
-    
-    }
-    
-    private func saveStoryBoard() async {
-        let ret = await self.viewModel.createStoryBoard(
-            prevBoardId: self.boardId,
-            nextBoardId: 0,
-            title: self.generatedStoryTitle,
-            content: self.generatedStoryContent,
-            isAiGen: true,
-            backgroud: self.background,
-            params: Common_StoryBoardParams()
-        )
-        print("gen content: \(ret)")
-        if let error = ret.1 {
-            print("Error: ", error.localizedDescription)
-        } else {
-            print("Story board created: ", ret.0?.boardInfo.title ?? "")
-        }
-    }
+//    private func generateStory() async {
+//        do {
+//            showLoading(message: "正在生成故事内容...")
+//            let ret = await self.viewModel.conintueGenStory(
+//                storyId: self.viewModel.storyId,
+//                userId: self.viewModel.userId,
+//                prevBoardId: self.boardId,
+//                prompt: self.prompt,
+//                title: self.title,
+//                desc: self.description,
+//                backgroud: self.background
+//            )
+//            
+//            if let firstResult = ret.0.result.values.first {
+//                self.generatedStoryTitle = firstResult.data["章节题目"]?.text ?? ""
+//                self.generatedStoryContent = firstResult.data["章节内容"]?.text ?? ""
+//                hideLoading()
+//                showNotification(message: "故事生成成功", type: .success)
+//            } else {
+//                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "生成故事失败"])
+//            }
+//        } catch {
+//            handleError(error)
+//        }
+//    }
+//    
+//    private func saveStoryBoard() async {
+//        do {
+//            showLoading(message: "正在保存故事板...")
+//            let ret = await self.viewModel.createStoryBoard(
+//                prevBoardId: self.boardId,
+//                nextBoardId: 0,
+//                title: self.generatedStoryTitle,
+//                content: self.generatedStoryContent,
+//                isAiGen: true,
+//                backgroud: self.background,
+//                params: Common_StoryBoardParams()
+//            )
+//            
+//            if let error = ret.1 {
+//                throw error
+//            } else {
+//                hideLoading()
+//                showNotification(message: "故事板保存成功", type: .success)
+//            }
+//        } catch {
+//            handleError(error)
+//        }
+//    }
+//    
+//    private func generateImage() async {
+//        do {
+//            showLoading(message: "正在生成场景图片...")
+//            // Add your image generation logic here
+//            // await imageGenerationService.generateImage(...)
+//            
+//            hideLoading()
+//            showNotification(message: "图片生成成功", type: .success)
+//        } catch {
+//            handleError(error)
+//        }
+//    }
+//    
+//    private func updateStoryBoardWithScene() async {
+//        do {
+//            showLoading(message: "正在更新故事场景...")
+//            // Add your scene update logic here
+//            // await viewModel.updateStoryBoardScene(...)
+//            
+//            hideLoading()
+//            showNotification(message: "场景更新成功", type: .success)
+//        } catch {
+//            handleError(error)
+//        }
+//    }
     
     // MARK: - View Components
     private var contentSections: some View {
-        VStack(alignment: .leading, spacing: 25) {
-            storyBasicInfoSection
-
-            imagesSection
-            charactersSection
-            if !generatedStoryTitle.isEmpty || !generatedStoryContent.isEmpty{
-                generatedContentSection
+        TabView(selection: $currentStep) {
+            // Write step - Basic info and characters
+            VStack(alignment: .leading, spacing: 25) {
+                storyBasicInfoSection
+                charactersSection
+                Text("TimelineStep.write")
             }
+            .padding(.horizontal)
+            .tag(TimelineStep.write)
+            
+            // Complete step - Generated story content
+            VStack(alignment: .leading, spacing: 25) {
+                if !generatedStoryTitle.isEmpty || !generatedStoryContent.isEmpty {
+                    generatedContentSection
+                }
+                Text("TimelineStep.complete")
+            }
+            .padding(.horizontal)
+            .tag(TimelineStep.complete)
+            
+            // Draw step - Image generation and prompts
+            VStack(alignment: .leading, spacing: 25) {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("场景描述")
+                        .font(.headline)
+                    TextEditor(text: $sceneDescription)
+                        .frame(minHeight: 100)
+                        .padding(8)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                    
+                    Text("参与人物")
+                        .font(.headline)
+                    TextEditor(text: $sceneCharacters)
+                        .frame(minHeight: 100)
+                        .padding(8)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                    
+                    Text("图片生成提示词")
+                        .font(.headline)
+                    TextEditor(text: $imagePrompt)
+                        .frame(minHeight: 100)
+                        .padding(8)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                }
+            }
+            .padding(.horizontal)
+            .tag(TimelineStep.draw)
+            
+            // Narrate step - Final display
+            VStack(alignment: .leading, spacing: 25) {
+                if let generatedImage = generatedImage {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("生成的场景")
+                            .font(.headline)
+                        
+                        Image(uiImage: generatedImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 300)
+                            .cornerRadius(12)
+                        
+                        Text("场景描述")
+                            .font(.headline)
+                        Text(sceneDescription)
+                            .padding(8)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(8)
+                        
+                        Text("参与人物")
+                            .font(.headline)
+                        Text(sceneCharacters)
+                            .padding(8)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(8)
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .tag(TimelineStep.narrate)
         }
-        .padding(.horizontal)
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .animation(.easeInOut, value: currentStep)
     }
     
     private var timelineButtons: some View {
-        VStack {
+        VStack(spacing: 0) {
+            // Progress bar
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    // Background bar
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: 4)
+                    
+                    // Progress bar
+                    Rectangle()
+                        .fill(Color.green.opacity(0.6))
+                        .frame(width: calculateProgress(totalWidth: geometry.size.width), height: 4)
+                        .animation(.easeInOut, value: calculateProgressValue())
+                }
+            }
+            .frame(height: 4)
+            .padding(.top, 8)
+            .padding(.horizontal)
+            
             Divider()
+                .padding(.vertical, 8)
+            
+            // Timeline buttons
             HStack(spacing: 20) {
-                ForEach([
-                    ("续写", "pencil.circle"),
-                    ("完成", "checkmark.circle"),
-                    ("绘画", "paintbrush.fill")
-                ], id: \.0) { (title, icon) in
+                ForEach(TimelineStep.allCases, id: \.self) { step in
                     TimelineButton(
-                        title: title,
-                        icon: icon,
+                        title: step.title,
+                        icon: step.icon,
+                        isCompleted: step.isCompleted(
+                            isInputCompleted: isInputCompleted,
+                            isStoryGenerated: isStoryGenerated,
+                            isImageGenerated: isImageGenerated,
+                            isNarrationCompleted: isNarrationCompleted
+                        ),
                         action: {
-                            switch title {
-                            case "续写":
-                                Task { await generateStory() }
-                            case "完成":
-                                Task { await saveStoryBoard() }
-                            case "绘画":
-                                // Handle drawing action
-                                break
-                            default:
-                                break
-                            }
+                            handleTimelineAction(step)
                         }
                     )
                 }
             }
-            .padding(.vertical, 10)
             .padding(.horizontal)
+            .padding(.bottom, 10)
         }
+    }
+    
+    // Helper function to calculate progress bar width
+    private func calculateProgress(totalWidth: CGFloat) -> CGFloat {
+        let progressValue = calculateProgressValue()
+        return totalWidth * progressValue
+    }
+    
+    // Helper function to calculate progress value (0.0 to 1.0)
+    private func calculateProgressValue() -> CGFloat {
+        var completedSteps = 0
+        
+        if isInputCompleted { completedSteps += 1 }
+        if isStoryGenerated { completedSteps += 1 }
+        if isImageGenerated { completedSteps += 1 }
+        if isNarrationCompleted { completedSteps += 1 }
+        
+        return CGFloat(completedSteps) / CGFloat(TimelineStep.allCases.count)
+    }
+    
+    private func handleTimelineAction(_ step: TimelineStep) {
+        withAnimation {
+            currentStep = step
+        }
+        
+        switch step {
+        case .write:
+            Task {
+//                guard validateInput() else {
+//                    showNotification(message: "请填写所有必要信息", type: .error)
+//                    return
+//                }
+                showLoading(message: "正在生成故事内容...")
+                do {
+                    isInputCompleted = true
+                    await generateStory()
+                    isStoryGenerated = true
+                    hideLoading()
+                    showNotification(message: "故事生成成功", type: .success)
+                } catch {
+                    handleError(error)
+                }
+            }
+        case .complete:
+            Task {
+                guard isStoryGenerated else { return }
+                //await saveStoryBoard()
+                isStoryGenerated = true
+            }
+        case .draw:
+            Task {
+                guard isStoryGenerated else { return }
+                //await generateImage()
+                isImageGenerated = true
+            }
+        case .narrate:
+            Task {
+                guard isImageGenerated else { return }
+                //await updateStoryBoardWithScene()
+                isNarrationCompleted = true
+            }
+        }
+    }
+    
+    private func validateInput() -> Bool {
+        !title.isEmpty && !description.isEmpty && !background.isEmpty && !roles.isEmpty
     }
     
     private var storyBasicInfoSection: some View {
@@ -314,6 +631,7 @@ struct NewStoryBoardView: View {
 struct TimelineButton: View {
     let title: String
     let icon: String
+    var isCompleted: Bool
     let action: () -> Void
     
     var body: some View {
@@ -325,11 +643,201 @@ struct TimelineButton: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
-                .background(Color.green.opacity(0.2))
+                .background(isCompleted ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
+                .foregroundColor(isCompleted ? .green : .red)
                 .cornerRadius(16)
-            }.clipShape(.circle)
+            }
             Text(title)
                 .font(.caption)
+        }
+    }
+}
+
+// Timeline Step Enum
+enum TimelineStep: CaseIterable {
+    case write
+    case complete
+    case draw
+    case narrate
+    
+    var title: String {
+        switch self {
+        case .write: return "续写"
+        case .complete: return "完成"
+        case .draw: return "绘画"
+        case .narrate: return "讲述"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .write: return "pencil.circle"
+        case .complete: return "checkmark.circle"
+        case .draw: return "paintbrush.fill"
+        case .narrate: return "text.bubble"
+        }
+    }
+    
+    func isCompleted(
+        isInputCompleted: Bool,
+        isStoryGenerated: Bool,
+        isImageGenerated: Bool,
+        isNarrationCompleted: Bool
+    ) -> Bool {
+        switch self {
+        case .write: return isInputCompleted
+        case .complete: return isStoryGenerated
+        case .draw: return isImageGenerated
+        case .narrate: return isNarrationCompleted
+        }
+    }
+    
+    func color(
+        isInputCompleted: Bool,
+        isStoryGenerated: Bool,
+        isImageGenerated: Bool,
+        isNarrationCompleted: Bool
+    ) -> Color {
+        let completed = isCompleted(
+            isInputCompleted: isInputCompleted,
+            isStoryGenerated: isStoryGenerated,
+            isImageGenerated: isImageGenerated,
+            isNarrationCompleted: isNarrationCompleted
+        )
+        return completed ? Color.green.opacity(0.6) : Color.red.opacity(0.6)
+    }
+}
+
+// Notification type enum
+enum NotificationType {
+    case success
+    case error
+    case warning
+    
+    var iconName: String {
+        switch self {
+        case .success: return "checkmark.circle.fill"
+        case .error: return "xmark.circle.fill"
+        case .warning: return "exclamationmark.triangle.fill"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .success: return .green
+        case .error: return .red
+        case .warning: return .yellow
+        }
+    }
+    
+    var backgroundColor: Color {
+        switch self {
+        case .success: return Color.green.opacity(0.3)
+        case .error: return Color.red.opacity(0.3)
+        case .warning: return Color.yellow.opacity(0.3)
+        }
+    }
+}
+
+// Error handling extension
+extension NewStoryBoardView {
+    private func handleError(_ error: Error) {
+        hideLoading()
+        showNotification(
+            message: "操作失败: \(error.localizedDescription)",
+            type: .error
+        )
+    }
+    
+    // Helper functions for loading state
+    private func showLoading(message: String) {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            self.loadingMessage = message
+            self.isLoading = true
+        }
+    }
+    
+    private func hideLoading() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            self.isLoading = false
+            self.loadingMessage = ""
+        }
+    }
+    
+    // Example usage in async operations
+    private func generateStory() async {
+        do {
+            showLoading(message: "正在生成故事内容...")
+            let ret = await self.viewModel.conintueGenStory(
+                storyId: self.viewModel.storyId,
+                userId: self.viewModel.userId,
+                prevBoardId: self.boardId,
+                prompt: self.prompt,
+                title: self.title,
+                desc: self.description,
+                backgroud: self.background
+            )
+            
+            if let firstResult = ret.0.result.values.first {
+                self.generatedStoryTitle = firstResult.data["章节题目"]?.text ?? ""
+                self.generatedStoryContent = firstResult.data["章节内容"]?.text ?? ""
+                hideLoading()
+                showNotification(message: "故事生成成功", type: .success)
+            } else {
+                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "生成故事失败"])
+            }
+        } catch {
+            handleError(error)
+        }
+    }
+    
+    private func saveStoryBoard() async {
+        do {
+            showLoading(message: "正在保存故事板...")
+            let ret = await self.viewModel.createStoryBoard(
+                prevBoardId: self.boardId,
+                nextBoardId: 0,
+                title: self.generatedStoryTitle,
+                content: self.generatedStoryContent,
+                isAiGen: true,
+                backgroud: self.background,
+                params: Common_StoryBoardParams()
+            )
+            
+            if let error = ret.1 {
+                throw error
+            } else {
+                hideLoading()
+                showNotification(message: "故事板保存成功", type: .success)
+            }
+        } catch {
+            handleError(error)
+        }
+    }
+    
+    private func generateImage() async {
+        do {
+            showLoading(message: "正在生成场景图片...")
+            // Add your image generation logic here
+            // await imageGenerationService.generateImage(...)
+            
+            hideLoading()
+            showNotification(message: "图片生成成功", type: .success)
+        } catch {
+            handleError(error)
+        }
+    }
+    
+    private func updateStoryBoardWithScene() async {
+        do {
+            showLoading(message: "正在更新故事场景...")
+            // Add your scene update logic here
+            // await viewModel.updateStoryBoardScene(...)
+            
+            hideLoading()
+            showNotification(message: "场景更新成功", type: .success)
+        } catch {
+            handleError(error)
         }
     }
 }
