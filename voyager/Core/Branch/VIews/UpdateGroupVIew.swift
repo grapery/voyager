@@ -86,7 +86,7 @@ struct UpdateGroupView: View {
         // Upload avatar image if selected
         if let avatarImage = avatarImage {
             Task{
-                self.avatar = try await APIClient.shared.uploadImage(image: avatarImage, filename: "data.jpg")
+                self.avatar = try await APIClient.shared.uploadImage(image: avatarImage, filename: defaultAvator)
             }
         }
         // Update group without changing avatar

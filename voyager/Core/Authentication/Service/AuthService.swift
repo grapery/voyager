@@ -76,7 +76,7 @@ class AuthService {
                         err = result.1
                         return
                     }
-                    self.token = result.0
+                    //self.token = result.0
                     return
                 }
             }catch{

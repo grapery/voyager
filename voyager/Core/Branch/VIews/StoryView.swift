@@ -80,9 +80,14 @@ struct StoryView: View {
                 }
                 
                 HStack{
-                    Text(self.viewModel.story?.storyInfo.origin ?? "")
-                        .font(.subheadline)
-                        .lineLimit(5)
+                    VStack{
+                        Text("故事简介")
+                            .font(.title)
+                            .lineLimit(5)
+                        Text(self.viewModel.story?.storyInfo.origin ?? "")
+                            .font(.subheadline)
+                            .lineLimit(5)
+                    }
                     Spacer()
                     VStack(alignment: .leading, spacing: 8){
                         Button(action: {
@@ -97,13 +102,11 @@ struct StoryView: View {
                     }
                 }
                 HStack {
-                    Label("\(self.viewModel.story?.storyInfo.desc ?? "")", systemImage: "bubble.left")
+                    Label("10", systemImage: "heart.circle")
                     Spacer()
-                    Label("10", systemImage: "heart")
+                    Label("1", systemImage: "bell.circle")
                     Spacer()
-                    Label("1", systemImage: "bell")
-                    Spacer()
-                    Label("分享", systemImage: "square.and.arrow.up")
+                    Label("分享", systemImage: "arrow.up.circle")
                 }
                 .foregroundColor(.secondary)
                 .font(.caption)

@@ -182,7 +182,7 @@ struct StoryDetailView: View {
                 .padding(.top)
             Group {
                 if isEditing {
-                    DisclosureGroup("故事��述") {
+                    DisclosureGroup("故事简介") {
                         ScrollView {
                             TextEditor(text: Binding(
                                 get: { viewModel.story?.storyInfo.desc ?? "" },
