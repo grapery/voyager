@@ -102,11 +102,13 @@ struct StoryView: View {
                     }
                 }
                 HStack {
+                    Spacer().scaledToFit()
                     Label("10", systemImage: "heart.circle")
-                    Spacer()
+                    Spacer().scaledToFit()
                     Label("1", systemImage: "bell.circle")
-                    Spacer()
+                    Spacer().scaledToFit()
                     Label("分享", systemImage: "arrow.up.circle")
+                    Spacer().scaledToFit()
                 }
                 .foregroundColor(.secondary)
                 .font(.caption)
@@ -136,18 +138,6 @@ struct StoryView: View {
             .padding(.top, 0) // 移除 GeometryReader 的顶部间距
         }
         .navigationTitle("故事")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(isEditing ? "Save" : "Edit") {
-                    if isEditing {
-                        Task {
-                            await viewModel.updateStory()
-                        }
-                    }
-                    isEditing.toggle()
-                }
-            }
-        }
         .onAppear {
             Task {
                 await viewModel.fetchStory(withBoards: true)
@@ -168,6 +158,7 @@ struct StoryView: View {
                     LazyVStack {
                         ForEach(boards, id: \.id) { board in
                             StoryBoardCellView(board: board, userId: userId, groupId: self.viewModel.story?.storyInfo.groupID ?? 0, storyId: storyId, viewModel: self.viewModel)
+                            Divider()
                         }
                     }
                     .padding()
@@ -248,7 +239,7 @@ struct StoryBoardCellView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading) {
             HStack {
                 VStack(alignment: .leading) {
                     Text(board?.boardInfo.title ?? "无标题故事章节")
@@ -330,6 +321,8 @@ struct StoryBoardCellView: View {
                     
                 }
                 Spacer()
+                    .scaledToFit()
+                    .border(Color.green.opacity(0.3))
                 Button(action: {
                     Task{
                         // 处理删除逻辑
@@ -384,8 +377,6 @@ struct StoryBoardCellView: View {
         }
         .padding()
         .background(Color(.systemBackground))
-        .cornerRadius(10)
-        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
         .onTapGesture {
             isShowingBoardDetail = true
             print("Tapped on board: \(String(describing: board))")
