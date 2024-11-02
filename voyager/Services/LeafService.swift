@@ -37,4 +37,21 @@ extension APIClient {
         let comments: [Comment] = []
         return (comments,nil)
     }
+    
+    func fetchTrendingGroup(userId: Int64,offset: Int64,size: Int64,filter: [String]) async  -> ( [BranchGroup],Int64,Int64,Error?) {
+        let groups: [BranchGroup] = []
+        return (groups,0,0,nil)
+    }
+    
+    func fetchTrendingStorys(userId: Int64,offset: Int64,size: Int64,filter: [String]) async  -> ([Story],Int64,Int64,Error?){
+        let storys: [Story] = []
+        return (storys,0,0,nil)
+    }
+    
+    func fetchTrendingStoryRoles(userId: Int64,offset: Int64,size: Int64,filter: [String]) async -> ([StoryRole],Int64,Int64,Error?){
+        let roles: [StoryRole] = []
+        return (roles,0,0,nil)
+    }
 }
+
+

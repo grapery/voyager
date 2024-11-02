@@ -20,7 +20,6 @@ enum FeedType{
     case Groups
     case Story
     case StoryRole
-    case StoryBoards
 }
     
 // 获取用户的关注以及用户参与的故事，以及用户关注或者参与的小组的故事动态。不可以用户关注用户，只可以关注小组或者故事,以及故事的角色
@@ -28,14 +27,16 @@ struct FeedView: View {
     @StateObject var viewModel: FeedViewModel
     @State private var selectedTab: FeedType = .Groups
     @State private var showNewItemView = false
+    @State private var isShowingFollowing = true
     
     // 定义标签页数组
     let tabs: [(type: FeedType, title: String)] = [
         (.Groups, "小组"),
         (.Story, "故事"),
-        (.StoryRole, "角色"),
-        (.StoryBoards, "故事板")
+        (.StoryRole, "角色")
     ]
+    
+    @Namespace private var namespace
     
     init(userId: Int64) {
         self._viewModel = StateObject(wrappedValue: FeedViewModel(userId: userId))
@@ -44,32 +45,19 @@ struct FeedView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // Custom Tab View
-                FeedCustomTabView(selectedTab: $selectedTab, tabs: tabs)
+                // Top tab selector
+                topTabSelector
                 
-                // TabView for swipeable content
-                TabView(selection: $selectedTab) {
-                    ForEach(tabs, id: \.type) { tab in
-                        ScrollView {
-                            LazyVStack(spacing: 0) {
-                                switch tab.type {
-                                case .Groups:
-                                    GroupsList(groups: viewModel.groups)
-                                case .Story:
-                                    StoriesList(stories: viewModel.storys)
-                                case .StoryRole:
-                                    RolesList(roles: viewModel.roles)
-                                case .StoryBoards:
-                                    BoardsList(boards: viewModel.boards)
-                                }
-                            }
-                        }
-                        .tag(tab.type)
-                    }
+                // Main content
+                TabView(selection: $isShowingFollowing) {
+                    followingFeedContent
+                        .tag(true)
+                    
+                    discoverFeedContent
+                        .tag(false)
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             }
-            .navigationTitle("最新动态")
             .navigationBarItems(trailing:
                 Button(action: {
                     showNewItemView = true
@@ -84,24 +72,151 @@ struct FeedView: View {
         .onChange(of: selectedTab) { _ in
             fetchData()
         }
-        .sheet(isPresented: $showNewItemView) {
-            // Implement the appropriate view for creating new items
-            Text("New Item View")
+        .onChange(of: isShowingFollowing) { _ in
+            fetchData()
+        }
+    }
+    
+    // 顶部标签选择器
+    private var topTabSelector: some View {
+        HStack(spacing: 24) {
+            Button(action: { 
+                withAnimation {
+                    isShowingFollowing = true
+                }
+            }) {
+                VStack(spacing: 8) {
+                    Text("最新动态")
+                        .foregroundColor(isShowingFollowing ? .black : .gray)
+                        .font(.system(size: 16, weight: .medium))
+                    
+                    // 下划线指示器
+                    Rectangle()
+                        .fill(isShowingFollowing ? .black : .clear)
+                        .frame(height: 2)
+                        .matchedGeometryEffect(id: "underline", in: namespace, isSource: isShowingFollowing)
+                }
+            }
+            
+            Button(action: {
+                withAnimation {
+                    isShowingFollowing = false
+                }
+            }) {
+                VStack(spacing: 8) {
+                    Text("发现")
+                        .foregroundColor(!isShowingFollowing ? .black : .gray)
+                        .font(.system(size: 16, weight: .medium))
+                    
+                    // 下划线指示器
+                    Rectangle()
+                        .fill(!isShowingFollowing ? .black : .clear)
+                        .frame(height: 2)
+                        .matchedGeometryEffect(id: "underline", in: namespace, isSource: !isShowingFollowing)
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color.white)
+    }
+    
+    // Following feed content
+    private var followingFeedContent: some View {
+        VStack(spacing: 0) {
+            // Custom tab header
+            FeedCustomTabView(selectedTab: $selectedTab, tabs: tabs)
+            
+            // Content with TabView
+            TabView(selection: $selectedTab) {
+                // Groups Tab
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        GroupsList(groups: viewModel.groups)
+                    }
+                }
+                .tag(FeedType.Groups)
+                
+                // Story Tab
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        StoriesList(stories: viewModel.storys)
+                    }
+                }
+                .tag(FeedType.Story)
+                
+                // StoryRole Tab
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        RolesList(roles: viewModel.roles)
+                    }
+                }
+                .tag(FeedType.StoryRole)
+            }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+        }
+    }
+    
+    // Discover/trending content
+    private var discoverFeedContent: some View {
+        VStack(spacing: 0) {
+            // Custom tab header
+            FeedCustomTabView(selectedTab: $selectedTab, tabs: tabs)
+            
+            // Content with TabView
+            TabView(selection: $selectedTab) {
+                // Groups Tab
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        GroupsList(groups: viewModel.trendingGroups)
+                    }
+                }
+                .tag(FeedType.Groups)
+                
+                // Story Tab
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        StoriesList(stories: viewModel.trendingStories)
+                    }
+                }
+                .tag(FeedType.Story)
+                
+                // StoryRole Tab
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        RolesList(roles: viewModel.trendingRoles)
+                    }
+                }
+                .tag(FeedType.StoryRole)
+            }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
         }
     }
     
     private func fetchData() {
         Task {
-            switch selectedTab {
-            case .Groups:
-                await viewModel.fetchGroups()
-            case .Story:
-                await viewModel.fetchStorys()
-            case .StoryBoards:
-                await viewModel.fetchUserCreatedStoryBoards()
-            case .StoryRole:
-                await viewModel.fetchStoryRoles()
+            if isShowingFollowing == true{
+                switch selectedTab {
+                case .Groups:
+                    await viewModel.fetchGroups()
+                case .Story:
+                    await viewModel.fetchStorys()
+                case .StoryRole:
+                    await viewModel.fetchStoryRoles()
+                }
+            }else{
+                switch selectedTab {
+                case .Groups:
+                    await viewModel.fetchTrendingGroups()
+                case .Story:
+                    await viewModel.fetchTrendingStorys()
+                case .StoryRole:
+                    await viewModel.fetchTrendingStoryRoles()
+                }
             }
+            
         }
     }
 }
@@ -111,23 +226,32 @@ struct FeedCustomTabView: View {
     let tabs: [(type: FeedType, title: String)]
     
     var body: some View {
-        Spacer()
-        HStack {
-            ForEach(tabs, id: \.type) { tab in
-                Button(action: {
-                    selectedTab = tab.type
-                }) {
-                    Text(tab.title)
-                        .foregroundColor(selectedTab == tab.type ? .black : .gray)
-                        .padding(.vertical, 8)
-                }
-                if tab.type != tabs.last?.type {
-                    Spacer()
+        VStack(spacing: 0) {
+            HStack {
+                ForEach(tabs, id: \.type) { tab in
+                    Button(action: {
+                        withAnimation {
+                            selectedTab = tab.type
+                        }
+                    }) {
+                        VStack(spacing: 4) {
+                            Text(tab.title)
+                                .foregroundColor(selectedTab == tab.type ? .black : .gray)
+                                .padding(.vertical, 8)
+                            
+                            // 添加下划线指示器
+                            Rectangle()
+                                .fill(selectedTab == tab.type ? Color.black : Color.clear)
+                                .frame(height: 2)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
                 }
             }
+            .padding(.horizontal)
+            
+            Divider()
         }
-        .padding(.horizontal)
-        Spacer()
     }
 }
 

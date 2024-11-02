@@ -15,7 +15,6 @@ struct MainTabView: View {
         self.user = user
         self.selectedItem = 1
         self.oldSelectedItem = 1
-        print("MainTabView init user",self.user )
     }
     var body: some View {
         TabView (selection: $selectedItem){

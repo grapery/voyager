@@ -16,6 +16,12 @@ class FeedViewModel: ObservableObject {
     @Published var boards: [StoryBoard]
     @Published var filters = [String]()
     
+    @Published var trendingStories: [Story]
+    @Published var trendingRoles: [StoryRole]
+    @Published var trendingBoards: [StoryBoard]
+    @Published var trendingFilters = [String]()
+    @Published var trendingGroups: [BranchGroup]
+    
     @Published var page: Int64
     @Published var size: Int64
     @Published var timeStamp: Int64
@@ -37,6 +43,12 @@ class FeedViewModel: ObservableObject {
         self.tags = [String]()
         self.roles = [StoryRole]()
         self.boards = [StoryBoard]()
+        
+        self.trendingFilters = [String]()
+        self.trendingStories = [Story]()
+        self.trendingGroups = [BranchGroup]()
+        self.trendingRoles = [StoryRole]()
+        self.trendingBoards = [StoryBoard]()
         
         self.page = 0
         self.size = 0
@@ -73,6 +85,45 @@ class FeedViewModel: ObservableObject {
         let result = await APIClient.shared.fetchUserFriendStoryRoles(userId: self.userId, offset: self.page, size: self.size, filter: self.filters)
         if result.3 != nil {
             print("fetchStoryRoles failed: ",result.3!)
+            return
+        }
+        self.roles = result.0
+        self.page = result.1
+        self.size = result.2
+        return
+    }
+    
+    @MainActor
+    func fetchTrendingGroups() async -> Void{
+        let result = await APIClient.shared.fetchTrendingGroup(userId: self.userId, offset: self.page, size: self.size, filter: self.filters)
+        if result.3 != nil {
+            print("fetchTrendingGroups failed: ",result.3!)
+            return
+        }
+        self.groups = result.0
+        self.page = result.1
+        self.size = result.2
+        return
+    }
+    
+    @MainActor
+    func fetchTrendingStorys() async -> Void{
+        let result = await APIClient.shared.fetchTrendingStorys(userId: self.userId, offset: self.page, size: self.size, filter: self.filters)
+        if result.3 != nil {
+            print("fetchTrendingStorys failed: ",result.3!)
+            return
+        }
+        self.storys = result.0
+        self.page = result.1
+        self.size = result.2
+        return
+    }
+    
+    @MainActor
+    func fetchTrendingStoryRoles() async -> Void{
+        let result = await APIClient.shared.fetchTrendingStoryRoles(userId: self.userId, offset: self.page, size: self.size, filter: self.filters)
+        if result.3 != nil {
+            print("fetchTrendingStoryRoles failed: ",result.3!)
             return
         }
         self.roles = result.0
