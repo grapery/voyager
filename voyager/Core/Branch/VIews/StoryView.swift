@@ -29,6 +29,7 @@ struct StoryView: View {
     @State private var isForkingStory = false
     @State private var isLiked = false
     
+    
     private func setButtonMsg() {
         if isGenerating {
             buttonMsg = "正在生成..."
@@ -227,6 +228,10 @@ struct StoryBoardCellView: View {
     @State var isForkingStory = false
     @State var isLiked = false
     
+    // 添加评论相关状态
+    @State private var commentText: String = ""
+    @State var commentViewModel = CommentsViewModel()
+    
     init(board: StoryBoard? = nil, userId: Int64, groupId: Int64, storyId: Int64, isShowingBoardDetail: Bool = false,viewModel: StoryViewModel) {
         self.board = board
         self.userId = userId
@@ -303,6 +308,14 @@ struct StoryBoardCellView: View {
                             .font(.headline)
                     }
                     .scaledToFill()
+                }
+                .sheet(isPresented: $isShowingCommentView) {
+                    CommentSheet(isPresented: $isShowingCommentView, commentText: $commentText) {
+                        // 处理发布评论的回调
+                        Task {
+                            await submitComment()
+                        }
+                    }
                 }
                 Spacer()
                     .scaledToFit()
@@ -390,6 +403,32 @@ struct StoryBoardCellView: View {
         let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
         return DateFormatter.shortDate.string(from: date)
     }
+    
+    // 添加提交评论的方法
+    private func submitComment() async {
+        guard !commentText.isEmpty else { return }
+        
+        do {
+            // 调用评论 API
+            let err = await self.commentViewModel.submitCommentForStoryboard(
+                commentText: commentText,
+                storyId: storyId,
+                boardId: board?.boardInfo.storyBoardID ?? 0,
+                userId:  self.userId
+            )
+            
+            if err != nil{
+                // 处理错误
+                print("Error submitting comment: \(String(describing: err))")
+            } else {
+                // 清空评论文本
+                commentText = ""
+                // 可能需要刷新评论列表
+                await self.commentViewModel.fetchStoryboardComments()
+            }
+        }
+    }
+
 }
 
 extension DateFormatter {
@@ -422,3 +461,78 @@ struct StoryTabView: View {
         .padding(.horizontal)
     }
 }
+
+// 添加 CommentSheet 视图
+struct CommentSheet: View {
+    @Binding var isPresented: Bool
+    @Binding var commentText: String
+    var onSubmit: () -> Void
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                // 顶部导航栏
+                HStack {
+                    Button(action: {
+                        isPresented = false
+                    }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.black)
+                    }
+                    
+                    Spacer()
+                    
+                    Text("发讨论")
+                        .font(.headline)
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        onSubmit()
+                        isPresented = false
+                    }) {
+                        Text("发布")
+                            .foregroundColor(commentText.isEmpty ? .gray : .blue)
+                    }
+                    .disabled(commentText.isEmpty)
+                }
+                .padding()
+                
+                Divider()
+                
+                // 评论输入区域
+                TextEditor(text: $commentText)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding()
+                
+                // 底部工具栏
+                HStack(spacing: 20) {
+                    Button(action: {}) {
+                        Image(systemName: "photo")
+                            .foregroundColor(.gray)
+                    }
+                    
+                    Button(action: {}) {
+                        Image(systemName: "at")
+                            .foregroundColor(.gray)
+                    }
+                    
+                    Button(action: {}) {
+                        Text("$")
+                            .foregroundColor(.gray)
+                    }
+                    
+                    Button(action: {}) {
+                        Image(systemName: "face.smiling")
+                            .foregroundColor(.gray)
+                    }
+                    
+                    Spacer()
+                }
+                .padding()
+                .background(Color(.systemGray6))
+            }
+        }
+    }
+}
+

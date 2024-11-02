@@ -36,13 +36,15 @@ struct CommentsCell: View {
     }
 }
 
-struct CommentsView: View {
+struct StoryCommentsView: View {
     @State public var commentText = ""
     @StateObject var viewModel : CommentsViewModel
+    var storyId: Int64
     var user: User
-    init(user:User) {
+    init(storyId:Int64,user:User) {
         self.user = user
-        _viewModel = StateObject(wrappedValue: CommentsViewModel(user: user))
+        self.storyId = storyId
+        _viewModel = StateObject(wrappedValue: CommentsViewModel())
     }
     var body: some View {
         VStack {
@@ -63,7 +65,7 @@ struct CommentsView: View {
             .padding(.top)
             Divider()
             HStack(spacing: 12) {
-                CircularProfileImageView(avatarUrl: viewModel.user!.avatar, size: .profile)
+                CircularProfileImageView(avatarUrl: self.user.avatar, size: .profile)
                 ZStack(alignment: .trailing) {
                     TextField("Add a comment...", text: $commentText, axis: .vertical)
                         .font(.footnote)
@@ -75,7 +77,12 @@ struct CommentsView: View {
                         }
                     Button {
                         Task {
-                            await viewModel.uploadComment(commentText: commentText)
+                            if commentText.isEmpty {
+                                print("empty comment")
+                                commentText = ""
+                            }else{
+                                await viewModel.submitCommentForStory(commentText: commentText, storyId: self.storyId, userId: self.user.userID)
+                            }
                             commentText = ""
                         }
                     } label: {

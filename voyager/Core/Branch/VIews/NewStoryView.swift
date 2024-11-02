@@ -184,7 +184,7 @@ struct NewStoryView: View {
             print("create new story success \(self.viewModel.story?.storyInfo.name ?? self.name)")
             return
         }
-        showAlert(message: self.viewModel.err!.localizedDescription)
+        //showAlert(message: self.viewModel.err!.localizedDescription)
     }
     
     private func showAlert(message: String) {

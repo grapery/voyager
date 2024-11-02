@@ -111,6 +111,7 @@ struct FeedCustomTabView: View {
     let tabs: [(type: FeedType, title: String)]
     
     var body: some View {
+        Spacer()
         HStack {
             ForEach(tabs, id: \.type) { tab in
                 Button(action: {
@@ -126,6 +127,7 @@ struct FeedCustomTabView: View {
             }
         }
         .padding(.horizontal)
+        Spacer()
     }
 }
 
