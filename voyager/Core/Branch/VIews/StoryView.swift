@@ -485,7 +485,7 @@ struct CommentSheet: View {
                 
                 Spacer()
                 
-                Text("发讨论")
+                Text("讨论")
                     .font(.headline)
                 
                 Spacer()
@@ -516,26 +516,21 @@ struct CommentSheet: View {
             
             // 底部工具栏
             HStack(spacing: 20) {
+                Spacer()
                 Button(action: {}) {
                     Image(systemName: "photo")
                         .foregroundColor(.gray)
                 }
-                
+                Spacer()
                 Button(action: {}) {
                     Image(systemName: "at")
                         .foregroundColor(.gray)
                 }
-                
-                Button(action: {}) {
-                    Text("$")
-                        .foregroundColor(.gray)
-                }
-                
+                Spacer()
                 Button(action: {}) {
                     Image(systemName: "face.smiling")
                         .foregroundColor(.gray)
                 }
-                
                 Spacer()
             }
             .padding()
