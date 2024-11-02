@@ -15,7 +15,11 @@ class GroupProfileViewModel: ObservableObject {
     @Published var userId: Int64
     @Published var profile = GroupProfile(profile: Common_GroupProfileInfo())
     @Published var selectedImage: PhotosPickerItem? {
-        didSet { Task { await loadImage(fromItem: selectedImage)}}
+        didSet {
+            Task {
+                await loadImage(fromItem: selectedImage)
+            }
+        }
     }
     
     @Published var groupImage: Image?

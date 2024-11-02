@@ -57,6 +57,9 @@ struct NewStoryBoardView: View {
     @State private var notificationMessage: String = ""
     @State private var notificationType: NotificationType = .success
 
+    // 添加一个变量来记录最后执行的操作
+    @State private var lastOperation: (() async -> Void)?
+
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 0) {
@@ -144,50 +147,91 @@ struct NewStoryBoardView: View {
     private var notificationOverlay: some View {
         Group {
             if showNotification {
-                VStack {
-                    HStack(spacing: 12) {
-                        Image(systemName: notificationType.iconName)
-                            .font(.system(size: 24))
-                            .foregroundColor(notificationType.color)
-                        
-                        Text(notificationMessage)
-                            .font(.subheadline)
-                            .foregroundColor(.white)
-                        
-                        Spacer()
-                        
+                VStack(spacing: 20) {
+                    // Icon
+                    if isLoading {
+                        Image(systemName: "hourglass.circle.fill")
+                            .font(.system(size: 40))
+                            .foregroundColor(.indigo)
+                            .rotationEffect(.degrees(isLoading ? 360 : 0))
+                            .animation(
+                                Animation.linear(duration: 1)
+                                    .repeatForever(autoreverses: false),
+                                value: isLoading
+                            )
+                    }
+                    
+                    // Title
+                    Text(notificationType == .success ? "成功" : "提示")
+                        .font(.headline)
+                        .foregroundColor(.black)
+                    
+                    // Message
+                    Text(notificationMessage)
+                        .font(.subheadline)
+                        .foregroundColor(.black.opacity(0.7))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                    
+                    // Buttons
+                    if notificationType == .error {
+                        HStack(spacing: 16) {
+                            // Cancel button
+                            Button(action: { hideNotification() }) {
+                                Text("取消")
+                                    .foregroundColor(.gray)
+                                    .frame(width: 90, height: 44)
+                                    .background(Color.gray.opacity(0.1))
+                                    .cornerRadius(22)
+                            }
+                            
+                            // Retry button
+                            Button(action: {
+                                hideNotification()
+                                // 重试上一次失败的操作
+                                retryLastOperation()
+                            }) {
+                                Text("重试")
+                                    .foregroundColor(.white)
+                                    .frame(width: 90, height: 44)
+                                    .background(Color.indigo)
+                                    .cornerRadius(22)
+                            }
+                        }
+                    } else {
+                        // Single confirm button for success
                         Button(action: { hideNotification() }) {
-                            Image(systemName: "xmark")
-                                .foregroundColor(.white.opacity(0.7))
+                            Text("确定")
+                                .foregroundColor(.white)
+                                .frame(width: 200, height: 44)
+                                .background(Color.indigo)
+                                .cornerRadius(22)
                         }
                     }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(notificationType.backgroundColor)
-                            .shadow(radius: 5)
-                    )
-                    .padding()
-                    
-                    Spacer()
                 }
-                .transition(.move(edge: .top).combined(with: .opacity))
+                .padding(.vertical, 30)
+                .padding(.horizontal, 20)
+                .frame(width: 300)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.white)
+                        .shadow(color: .black.opacity(0.1), radius: 10)
+                )
+                .transition(.opacity.combined(with: .scale))
                 .animation(.spring(), value: showNotification)
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                        hideNotification()
-                    }
-                }
             }
         }
     }
     
     // Helper functions for notifications
-    private func showNotification(message: String, type: NotificationType) {
+    private func showNotification(message: String, type: NotificationType, operation: (() async -> Void)? = nil) {
         withAnimation {
             notificationMessage = message
             notificationType = type
             showNotification = true
+            if type == .error {
+                lastOperation = operation
+            }
         }
     }
     
@@ -278,7 +322,7 @@ struct NewStoryBoardView: View {
     private var contentSections: some View {
         TabView(selection: $currentStep) {
             // Write step - Basic info and characters
-            VStack(alignment: .leading, spacing: 25) {
+            VStack(alignment: .leading, spacing: 10) {
                 storyBasicInfoSection
                 charactersSection
                 Text("TimelineStep.write")
@@ -454,20 +498,42 @@ struct NewStoryBoardView: View {
         case .complete:
             Task {
                 guard isStoryGenerated else { return }
-                //await saveStoryBoard()
-                isStoryGenerated = true
+                showLoading(message: "正在创建故事板...")
+                do {
+                    await saveStoryBoard()
+                    hideLoading()
+                    showNotification(message: "故事板创建成功", type: .success)
+                } catch {
+                    handleError(error)
+                }
             }
         case .draw:
             Task {
                 guard isStoryGenerated else { return }
-                //await generateImage()
-                isImageGenerated = true
+                showLoading(message: "正在生成场景图片...")
+                do {
+                    await generateImage()
+                    isImageGenerated = true
+                    hideLoading()
+                    showNotification(message: "场景图片生成成功", type: .success)
+                } catch {
+                    handleError(error)
+                }
             }
         case .narrate:
             Task {
                 guard isImageGenerated else { return }
-                //await updateStoryBoardWithScene()
-                isNarrationCompleted = true
+                showLoading(message: "正在发布故事...")
+                do {
+                    try? await publishStoryBoard()
+                    isNarrationCompleted = true
+                    hideLoading()
+                    showNotification(message: "故事发布成功", type: .success)
+                    // 可能需要在发布成功后关闭当前视图
+                    presentationMode.wrappedValue.dismiss()
+                } catch {
+                    handleError(error)
+                }
             }
         }
     }
@@ -663,9 +729,9 @@ enum TimelineStep: CaseIterable {
     var title: String {
         switch self {
         case .write: return "续写"
-        case .complete: return "完成"
+        case .complete: return "创建"
         case .draw: return "绘画"
-        case .narrate: return "讲述"
+        case .narrate: return "发布"
         }
     }
     
@@ -787,7 +853,15 @@ extension NewStoryBoardView {
                 throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "生成故事失败"])
             }
         } catch {
-            handleError(error)
+            hideLoading()
+            // 传入重试操作
+            showNotification(
+                message: "操作失败: \(error.localizedDescription)", 
+                type: .error,
+                operation: { [self] in 
+                    await generateStory()
+                }
+            )
         }
     }
     
@@ -838,6 +912,75 @@ extension NewStoryBoardView {
             showNotification(message: "场景更新成功", type: .success)
         } catch {
             handleError(error)
+        }
+    }
+
+    // 重试功能
+    private func retryLastOperation() {
+        if let operation = lastOperation {
+            Task {
+                await operation()
+            }
+        }
+    }
+
+    // 添加发布相关的方法
+    private func publishStoryBoard() async throws {
+        // 这里实现发布故事的具体逻辑
+        // 例如: 上传图片、更新状态等
+        do {
+            // 1. 上传生成的图片
+            if generatedImage != nil {
+                // await uploadImage(image)
+            }
+            
+            // 2. 更新故事板状态为已发布
+            let ret: () = await viewModel.publishStoryboard(
+                storyId: self.storyId,
+                boardId: self.boardId,
+                userId: self.viewModel.userId,
+                status: 5  // 假设有这样的状态枚举
+            )
+            
+            if ret != nil {
+                self.err = ret as? any Error
+            }
+        } catch {
+            throw error
+        }
+    }
+
+    // 修改加载消息
+    private var loadingMessages: [TimelineStep: String] {
+        [
+            .write: "正在生成故事内容...",
+            .complete: "正在创建故事板...",
+            .draw: "正在生成场景图片...",
+            .narrate: "正在发布故事..."
+        ]
+    }
+
+    // 修改成功消息
+    private var successMessages: [TimelineStep: String] {
+        [
+            .write: "故事生成成功",
+            .complete: "故事板创建成功",
+            .draw: "场景图片生成成功",
+            .narrate: "故事发布成功"
+        ]
+    }
+
+    // 修改验证逻辑
+    private func validateStep(_ step: TimelineStep) -> Bool {
+        switch step {
+        case .write:
+            return !title.isEmpty && !description.isEmpty && !background.isEmpty
+        case .complete:
+            return isStoryGenerated
+        case .draw:
+            return isStoryGenerated && !sceneDescription.isEmpty
+        case .narrate:
+            return isImageGenerated && generatedImage != nil
         }
     }
 }

@@ -81,6 +81,21 @@ class StoryViewModel: ObservableObject {
         }
     }
     
+    func publishStoryboard(storyId: Int64, boardId: Int64,userId: Int64,status:Int64) async  {
+        guard let story = story else { return }
+        self.err = nil
+        do {
+            let updateResult =  await apiClient.UpdateStoryBoard(storyId: storyId, boardId: boardId,userId: userId,status:status)
+            if updateResult != nil {
+                return
+            }
+        } catch {
+            self.err = error
+            self.isLoading = false
+            
+        }
+    }
+    
     func fetchStoryBoards() async{
         let currentStoryId: Int64 = getCurrentStoryId()
         self.err = nil
@@ -136,7 +151,7 @@ class StoryViewModel: ObservableObject {
                 self.storyboards?.remove(at: index)
             }
             // 可能需要重新获取故事板列表
-            // await self.fetchStoryBoards()
+            await self.fetchStoryBoards()
             return nil
         } catch {
             // 捕获并返回任何其他错误

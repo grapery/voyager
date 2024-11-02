@@ -270,7 +270,7 @@ struct StoryBoardCellView: View {
                     self.isShowingNewStoryBoard = true
                 }) {
                     HStack {
-                        Image(systemName: "highlighter")
+                        Image(systemName: "pencil.circle")
                             .font(.headline)
                     }
                     .scaledToFill()
@@ -284,7 +284,7 @@ struct StoryBoardCellView: View {
                     self.isForkingStory = true
                 }) {
                     HStack {
-                        Image(systemName: "signpost.right.and.left")
+                        Image(systemName: "signpost.right.and.left.circle")
                             .font(.headline)
                     }
                     .scaledToFill()
@@ -299,7 +299,7 @@ struct StoryBoardCellView: View {
                     
                 }) {
                     HStack {
-                        Image(systemName: "bubble.middle.bottom")
+                        Image(systemName: "bubble.circle")
                             .font(.headline)
                     }
                     .scaledToFill()
@@ -314,7 +314,7 @@ struct StoryBoardCellView: View {
                     
                 }) {
                     HStack {
-                        Image(systemName: "heart")
+                        Image(systemName: "heart.circle")
                             .font(.headline)
                     }
                     .scaledToFill()
@@ -331,7 +331,7 @@ struct StoryBoardCellView: View {
                     
                 }) {
                     HStack {
-                        Image(systemName: "minus")
+                        Image(systemName: "trash.circle")
                             .font(.headline)
                     }
                     .scaledToFill()

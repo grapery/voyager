@@ -607,4 +607,8 @@ extension APIClient {
             return (Common_RenderStoryDetail(), error)
         }
     }
+    
+    func UpdateStoryBoard(storyId: Int64,boardId: Int64,userId: Int64,status: Int64) async -> Error?{
+        return nil
+    }
 }
