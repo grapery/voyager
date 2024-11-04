@@ -72,11 +72,13 @@ class AuthService {
                 if self.token != "" {
                     let result = try await APIClient.shared.RefreshToken(curToken: token)
                     print("refresh new token: \(result)")
-                    if result.1 != nil {
-                        err = result.1
+                    if result.2 != nil {
+                        err = result.2
                         return
                     }
-                    //self.token = result.0
+                    self.token = result.1
+                    self.currentUser = try await APIClient.shared.GetUserInfo(userId: result.0)
+                    print("user \(String(describing: self.currentUser))")
                     return
                 }
             }catch{

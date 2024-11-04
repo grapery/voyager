@@ -87,8 +87,27 @@ struct APIClient{
         return result
     }
     
-    public func RefreshToken(curToken: String) async throws -> (String,Error?){
-        return ("",nil)
+    public func RefreshToken(curToken: String) async throws -> (Int64,String,Error?){
+        var resp: ResponseMessage<Common_RefreshTokenResponse>
+        var result = Common_RefreshTokenResponse()
+        do{
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            // Performed within an async context.
+            let request = Common_RefreshTokenRequest.with {
+                $0.token = curToken
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(curToken)"]
+            resp = await authClient.refreshToken(request: request, headers: header)
+            guard let message = resp.message, !message.token.isEmpty else {
+                throw NSError(domain: "RefreshTokenError", code: 0, userInfo: [NSLocalizedDescriptionKey: "RefreshToken failed: Empty token"])
+            }
+            
+            token = message.token
+            result.token = message.token
+            result.userID = message.userID
+        }
+        return (result.userID,result.token,nil)
     }
     
     public func Logout() async throws ->Common_LogoutResponse{

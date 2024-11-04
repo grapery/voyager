@@ -81,7 +81,7 @@ struct StoryView: View {
                 }
                 
                 HStack{
-                    VStack{
+                    VStack(alignment: .leading, spacing: 2){
                         Text("故事简介")
                             .font(.title)
                             .lineLimit(5)
@@ -90,7 +90,7 @@ struct StoryView: View {
                             .lineLimit(5)
                     }
                     Spacer()
-                    VStack(alignment: .leading, spacing: 8){
+                    VStack(alignment: .trailing, spacing: 2){
                         Button(action: {
                             generateStory()
                         }) {

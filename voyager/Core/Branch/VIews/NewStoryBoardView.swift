@@ -241,83 +241,6 @@ struct NewStoryBoardView: View {
         }
     }
     
-    // MARK: - Helper Functions
-//    private func generateStory() async {
-//        do {
-//            showLoading(message: "正在生成故事内容...")
-//            let ret = await self.viewModel.conintueGenStory(
-//                storyId: self.viewModel.storyId,
-//                userId: self.viewModel.userId,
-//                prevBoardId: self.boardId,
-//                prompt: self.prompt,
-//                title: self.title,
-//                desc: self.description,
-//                backgroud: self.background
-//            )
-//            
-//            if let firstResult = ret.0.result.values.first {
-//                self.generatedStoryTitle = firstResult.data["章节题目"]?.text ?? ""
-//                self.generatedStoryContent = firstResult.data["章节内容"]?.text ?? ""
-//                hideLoading()
-//                showNotification(message: "故事生成成功", type: .success)
-//            } else {
-//                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "生成故事失败"])
-//            }
-//        } catch {
-//            handleError(error)
-//        }
-//    }
-//    
-//    private func saveStoryBoard() async {
-//        do {
-//            showLoading(message: "正在保存故事板...")
-//            let ret = await self.viewModel.createStoryBoard(
-//                prevBoardId: self.boardId,
-//                nextBoardId: 0,
-//                title: self.generatedStoryTitle,
-//                content: self.generatedStoryContent,
-//                isAiGen: true,
-//                backgroud: self.background,
-//                params: Common_StoryBoardParams()
-//            )
-//            
-//            if let error = ret.1 {
-//                throw error
-//            } else {
-//                hideLoading()
-//                showNotification(message: "故事板保存成功", type: .success)
-//            }
-//        } catch {
-//            handleError(error)
-//        }
-//    }
-//    
-//    private func generateImage() async {
-//        do {
-//            showLoading(message: "正在生成场景图片...")
-//            // Add your image generation logic here
-//            // await imageGenerationService.generateImage(...)
-//            
-//            hideLoading()
-//            showNotification(message: "图片生成成功", type: .success)
-//        } catch {
-//            handleError(error)
-//        }
-//    }
-//    
-//    private func updateStoryBoardWithScene() async {
-//        do {
-//            showLoading(message: "正在更新故事场景...")
-//            // Add your scene update logic here
-//            // await viewModel.updateStoryBoardScene(...)
-//            
-//            hideLoading()
-//            showNotification(message: "场景更新成功", type: .success)
-//        } catch {
-//            handleError(error)
-//        }
-//    }
-    
     // MARK: - View Components
     private var contentSections: some View {
         TabView(selection: $currentStep) {
@@ -346,7 +269,7 @@ struct NewStoryBoardView: View {
                     Text("场景描述")
                         .font(.headline)
                     TextEditor(text: $sceneDescription)
-                        .frame(minHeight: 100)
+                        .frame(minHeight: 50)
                         .padding(8)
                         .background(Color(.systemGray6))
                         .cornerRadius(8)
@@ -354,7 +277,7 @@ struct NewStoryBoardView: View {
                     Text("参与人物")
                         .font(.headline)
                     TextEditor(text: $sceneCharacters)
-                        .frame(minHeight: 100)
+                        .frame(minHeight: 50)
                         .padding(8)
                         .background(Color(.systemGray6))
                         .cornerRadius(8)
@@ -362,7 +285,7 @@ struct NewStoryBoardView: View {
                     Text("图片生成提示词")
                         .font(.headline)
                     TextEditor(text: $imagePrompt)
-                        .frame(minHeight: 100)
+                        .frame(minHeight: 50)
                         .padding(8)
                         .background(Color(.systemGray6))
                         .cornerRadius(8)
@@ -512,7 +435,7 @@ struct NewStoryBoardView: View {
                 guard isStoryGenerated else { return }
                 showLoading(message: "正在生成场景图片...")
                 do {
-                    await generateImage()
+                    await generateStoryboardPrompt()
                     isImageGenerated = true
                     hideLoading()
                     showNotification(message: "场景图片生成成功", type: .success)
@@ -707,11 +630,11 @@ struct TimelineButton: View {
                     Image(systemName: icon)
                         .font(.system(size: 24))
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+                //.frame(maxWidth: .infinity)
+                //.padding(.vertical, 8)
                 .background(isCompleted ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
                 .foregroundColor(isCompleted ? .green : .red)
-                .cornerRadius(16)
+                //.cornerRadius(16)
             }
             Text(title)
                 .font(.caption)
@@ -867,7 +790,7 @@ extension NewStoryBoardView {
     
     private func saveStoryBoard() async {
         do {
-            showLoading(message: "正在保存故事板...")
+            showLoading(message: "正在创建故事板...")
             let ret = await self.viewModel.createStoryBoard(
                 prevBoardId: self.boardId,
                 nextBoardId: 0,
@@ -882,21 +805,41 @@ extension NewStoryBoardView {
                 throw error
             } else {
                 hideLoading()
-                showNotification(message: "故事板保存成功", type: .success)
+                showNotification(message: "故事板创建成功", type: .success)
             }
         } catch {
             handleError(error)
         }
     }
     
-    private func generateImage() async {
+    private func generateStoryboardPrompt() async {
         do {
-            showLoading(message: "正在生成场景图片...")
+            showLoading(message: "正在生成故事提示词...")
             // Add your image generation logic here
-            // await imageGenerationService.generateImage(...)
-            
-            hideLoading()
-            showNotification(message: "图片生成成功", type: .success)
+            let ret = await self.viewModel.genStoryBoardPrompt(storyId: self.storyId, boardId: self.boardId, userId: self.viewModel.userId, renderType: Common_RenderType(rawValue: 1)!)
+            if let err = ret{
+                throw err
+            }else{
+                hideLoading()
+                showNotification(message: "故事图片提示词生成成功", type: .success)
+            }
+            print("generateStoryboardPrompt ")
+        } catch {
+            handleError(error)
+        }
+    }
+    
+    private func generateStoryboardImage() async {
+        do {
+            showLoading(message: "正在生成故事图片...")
+            // Add your image generation logic here
+            let ret = await self.viewModel.genStoryBoardImages(storyId: self.storyId, boardId: self.boardId, userId: self.viewModel.userId, renderType: Common_RenderType(rawValue: 1)!)
+            if let err = ret{
+                throw err
+            }else{
+                hideLoading()
+                showNotification(message: "故事图片生成成功", type: .success)
+            }
         } catch {
             handleError(error)
         }

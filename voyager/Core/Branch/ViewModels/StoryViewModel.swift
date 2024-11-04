@@ -82,17 +82,16 @@ class StoryViewModel: ObservableObject {
     }
     
     func publishStoryboard(storyId: Int64, boardId: Int64,userId: Int64,status:Int64) async  {
-        guard let story = story else { return }
+        guard story != nil else { return }
         self.err = nil
         do {
             let updateResult =  await apiClient.UpdateStoryBoard(storyId: storyId, boardId: boardId,userId: userId,status:status)
             if updateResult != nil {
-                return
+                throw NSError()
             }
         } catch {
             self.err = error
             self.isLoading = false
-            
         }
     }
     
@@ -272,18 +271,79 @@ class StoryViewModel: ObservableObject {
         var err: Error?
         self.err = nil
         self.isGenerate = true
-        print("conintueGenStory params:",storyId,userId,prevBoardId,prompt,title,desc,backgroud)
         do {
             (resp,err) = await apiClient.ContinueRenderStory(prevBoardId: prevBoardId, storyId: storyId, userId: userId, is_regenerate: true, prompt: prompt, title: title, desc: desc, backgroud: backgroud)
             if err != nil {
-                print("conintueGenStory failed",err!)
                 return (Common_RenderStoryDetail(),err)
             }
-        } catch {
-            self.isGenerate = false
         }
         self.isGenerate = false
         return (resp,nil as Error?)
+    }
+    
+    func applyStorySummry(storyId:Int64,theme: String, summry: String,userId:Int64) async -> Error?{
+        do {
+            let (resp,err) = await apiClient.UpdateStory(storyId: storyId, short_desc: theme, status: 1, isAiGen: true, origin: (self.story?.storyInfo.origin)!, params: (self.story?.storyInfo.params)!)
+            if err != nil {
+                self.isGenerate = false
+                self.err = err
+            }
+            print("applyStorySummry resp :",resp)
+        }
+        self.isGenerate = false
+        return nil
+    }
+    
+    func applyStoryBoard(storyId: Int64,title: String, content: String,userId:Int64) async -> Error?{
+        do {
+            self.isGenerate = true
+            let (resp,err) = await apiClient.CreateStoryboard(storyId: storyId, prevBoardId: 0, nextBoardId: -1, creator: userId, title: title, content: content, isAiGen: true, background: (self.story?.storyInfo.origin)!, params: Common_StoryBoardParams())
+            if err != nil {
+                self.isGenerate = false
+                self.err = err
+            }
+            print("applyStoryBoard resp :",resp)
+        }
+        self.isGenerate = false
+        return nil
+    }
+    
+    func genStoryBoardPrompt(storyId:Int64,boardId:Int64,userId:Int64,renderType: Common_RenderType) async -> Error?{
+        do {
+            self.isGenerate = true
+            let (resp,err) = await apiClient.RenderStoryboard(boardId: boardId, storyId: storyId, userId: userId, is_regenerate: true, render_type: renderType)
+            if err != nil {
+                self.isGenerate = false
+                self.err = err
+            }
+            print("genStoryBoardPrompt resp: ",resp)
+        }
+        self.isGenerate = false
+        return nil
+    }
+    
+    func genStoryBoardImages(storyId:Int64,boardId:Int64,userId:Int64,renderType: Common_RenderType) async -> Error?{
+        do {
+            self.isGenerate = true
+//            let (resp,err) = await apiClient.GenStoryboardImages(boardId: boardId, storyId: storyId, userId: userId, is_regenerate: true, render_type: Common_RenderType(rawValue: 1)!, title: <#T##String#>, prompt: <#T##String#>, image_url: <#T##String#>, description: <#T##String#>, refImage: <#T##String#>)
+//            if err != nil {
+//                self.isGenerate = false
+//                self.err = err
+//            }
+//            print("genStoryBoardPrompt resp: ",resp)
+        }
+        self.isGenerate = false
+        return nil
+    }
+    
+    func genStoryBoardVideo(storyId:Int64,boardId:Int64,userId:Int64,renderType: Common_RenderType) async -> Error?{
+        do {
+            self.isGenerate = true
+            
+            print("genStoryBoardVideo resp not impl")
+        }
+        self.isGenerate = false
+        return nil
     }
 }
 

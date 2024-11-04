@@ -56,6 +56,31 @@ struct StoryGenView: View {
                         .font(.headline)
                     Text("故事简介: \(story.result["story"]!.data["故事简介"]?.text ?? "简介不详")")
                         .font(.body)
+                    Spacer()
+                    HStack {
+                        Button(action: {
+                            Task{@MainActor in
+                                await self.viewModel.applyStorySummry(storyId: (self.viewModel.story?.storyInfo.id)!, theme: story.result["story"]!.data["故事名称"]!.text, summry: story.result["story"]!.data["故事简介"]!.text, userId: self.viewModel.userId)
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "signpost.right.and.left")
+                                Text("使用简介")
+                            }
+                            .scaledToFill()
+                        }
+                        Button(action: {
+                            // 编辑故事简介
+                        }) {
+                            HStack {
+                                Image(systemName: "highlighter")
+                                Text("编辑")
+                            }
+                            .scaledToFill()
+                        }
+                    }
+                    .foregroundColor(.secondary)
+                    .font(.caption)
                 }
                 .padding()
                 .background(Color(.systemGray6))
@@ -76,64 +101,58 @@ struct StoryGenView: View {
                             Spacer()
                             
                             HStack {
-                                // Label("分叉", systemImage: "signpost.right.and.left")
-                                //     .scaledToFit()
-                                //     .frame(width: 72, height: 48)
-                                //     .foregroundColor(.blue)
-                                //     .onTapGesture {
-                                //         // 分叉
-                                //         self.selectedTab = 1
-                                //     }
-                                Button(action: {
-                                    // 处理点赞逻辑
-                                    self.selectedTab = 1
-                                }) {
+                                Spacer()
+                                // 使用按钮
+                                Button {
+                                    Task {
+                                        await viewModel.applyStoryBoard(
+                                            storyId: (viewModel.story?.storyInfo.id)!,
+                                            title: chapter.data["章节题目"]?.text ?? "",
+                                            content: chapter.data["章节内容"]?.text ?? "",
+                                            userId: viewModel.userId
+                                        )
+                                    }
+                                } label: {
                                     HStack {
                                         Image(systemName: "signpost.right.and.left")
+                                        Text("使用")
+                                    }
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                }
+                                .buttonStyle(.bordered)
+                                
+                                Spacer()
+                                // 分叉按钮
+                                Button {
+                                    // 在这里添加分叉逻辑
+                                    print("分叉按钮被点击")
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "arrow.triangle.branch")
                                         Text("分叉")
                                     }
-
-                                    .scaledToFill()
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
                                 }
-                                //Spacer().frame(width: 48, height: 48)
-                                // Label("编辑", systemImage: "highlighter")
-                                //     .scaledToFit()
-                                //     .frame(width: 72, height: 48)
-                                //     .foregroundColor(.blue)
-                                //     .onTapGesture {
-                                //         // 编辑
-                                //         self.selectedTab = 1
-                                //     }
-                                Button(action: {
-                                    // 处理评论逻辑
-                                    self.selectedTab = 1
-                                }) {
+                                .buttonStyle(.bordered)
+                                
+                                Spacer()
+                                // 编辑按钮
+                                Button {
+                                    // 在这里添加编辑逻辑
+                                    print("编辑按钮被点击")
+                                } label: {
                                     HStack {
                                         Image(systemName: "highlighter")
                                         Text("编辑")
                                     }
-                                    .scaledToFill()
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
                                 }
-                                //Spacer().frame(width: 48, height: 48)
-                                // Label("故事板", systemImage: "tree.circle")
-                                //     .scaledToFit()
-                                //     .frame(width: 72, height: 48)
-                                //     .foregroundColor(.blue)
-                                //     .onTapGesture {
-                                //         // 故事板
-                                //         self.selectedTab = 0
-                                //     }
-                                // }
-                                Button(action: {
-                                    // 处理转发逻辑
-                                    self.selectedTab = 0
-                                }) {
-                                    HStack {
-                                        Image(systemName: "tree.circle")
-                                        Text("故事板")
-                                    }
-                                    .scaledToFill()
-                                }
+                                .buttonStyle(.bordered)
+                                
+                                Spacer()
                             }
                             .foregroundColor(.secondary)
                             .font(.caption)
