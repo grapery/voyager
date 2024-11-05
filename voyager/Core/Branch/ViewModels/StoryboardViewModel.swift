@@ -37,25 +37,32 @@ class StoryboardViewModel: ObservableObject {
         self.isForkBoard = isForkBoard
         Task{
             if !isCreateBoard && !isForkBoard{
-                await fetchStoryboard()
+                self.err = await fetchStoryboard()
             }
         }
     }
     
     private let apiClient = APIClient.shared
     
-    func fetchStoryboard() async{
+    func fetchStoryboard() async -> Error?{
         let (board,err) = await apiClient.GetStoryboard(boardId: self.storyboardId)
         if err != nil {
             print("fetchStoryboard failed: ",err as Any)
-            return
+            return err
         }
         self.storyboard = board
-        return
+        return nil
     }
     
-    func genStoryboadDetail() async{
-        
+    func genStoryboadDetail() async -> Error?{
+        do {
+            let (resp,err) = await apiClient.RenderStoryboard(boardId: self.storyboardId, storyId: storyId, userId: userId, is_regenerate: true, render_type: Common_RenderType(rawValue: 1)!)
+            if err != nil {
+                self.err = err
+            }
+            print("genStoryBoardPrompt resp: ",resp)
+        }
+        return nil
     }
     
     func genStoryboadImages() async{
@@ -66,11 +73,15 @@ class StoryboardViewModel: ObservableObject {
         
     }
     
-    func fetchstoryboardGen() async{
+    func fetchStoryboardGen() async{
         
     }
     
     func updateStoryboad() async{
+        
+    }
+    
+    func EditStoryboadImages() async{
         
     }
 }

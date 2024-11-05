@@ -771,7 +771,13 @@ extension NewStoryBoardView {
                 self.generatedStoryTitle = firstResult.data["章节题目"]?.text ?? ""
                 self.generatedStoryContent = firstResult.data["章节内容"]?.text ?? ""
                 hideLoading()
-                showNotification(message: "故事生成成功", type: .success)
+                print("self.generatedStoryTitle ",self.generatedStoryTitle)
+                print("self.generatedStoryContent ",self.generatedStoryContent)
+                if self.generatedStoryTitle.isEmpty || self.generatedStoryContent.isEmpty {
+                    throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "生成故事失败"])
+                }else{
+                    showNotification(message: "故事生成成功", type: .success)
+                }
             } else {
                 throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "生成故事失败"])
             }

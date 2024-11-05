@@ -23,10 +23,14 @@ struct GraperyApp: View {
         .task {
             print("View appeared, isLogin: \(viewModel.isLogin), currentUser: \(viewModel.currentUser?.name ?? "nil")")
             print("Token: \(viewModel.token.isEmpty ? "empty" : "exists")")
-            await viewModel.loadUserToken()
+            viewModel.loadUserToken()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 print("After loadUserToken - isLogin: \(viewModel.isLogin), currentUser: \(viewModel.currentUser?.name ?? "nil")")
                 print("Token status: \(viewModel.token.isEmpty ? "empty" : "exists")")
+            }
+            if viewModel.token.isEmpty{
+                viewModel.isLogin = false
+                viewModel.currentUser = nil
             }
         }
     }

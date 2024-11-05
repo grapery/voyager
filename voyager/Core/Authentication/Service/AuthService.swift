@@ -67,7 +67,7 @@ class AuthService {
     func refreshUserData(token: String) -> Error?{
        // 程序自动和服务程序交互，刷新token
         var err :Error?
-        Task{
+        Task{@MainActor in
             do {
                 if self.token != "" {
                     let result = try await APIClient.shared.RefreshToken(curToken: token)
