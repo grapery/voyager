@@ -87,58 +87,44 @@ struct NewStoryBoardView: View {
         }
     }
     
-    // Enhanced loading overlay with pulse animation
+    // Enhanced loading overlay with consistent style
     private var loadingOverlay: some View {
         Group {
             if isLoading {
-                ZStack {
-                    Color.black.opacity(0.4)
-                        .edgesIgnoringSafeArea(.all)
-                        .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+                VStack(spacing: 20) {
+                    // Loading icon with rotation animation
+                    Image(systemName: "hourglass.circle.fill")
+                        .font(.system(size: 40))
+                        .foregroundColor(.indigo)
+                        .rotationEffect(.degrees(isLoading ? 360 : 0))
+                        .animation(
+                            Animation.linear(duration: 1)
+                                .repeatForever(autoreverses: false),
+                            value: isLoading
+                        )
                     
-                    VStack(spacing: 16) {
-                        ZStack {
-                            // Pulse effect
-                            ForEach(0..<3) { i in
-                                Circle()
-                                    .stroke(Color.white.opacity(0.5), lineWidth: 2)
-                                    .frame(width: 60, height: 60)
-                                    .scaleEffect(isLoading ? 2 : 1)
-                                    .opacity(isLoading ? 0 : 1)
-                                    .animation(
-                                        Animation.easeInOut(duration: 1.5)
-                                            .repeatForever(autoreverses: false)
-                                            .delay(Double(i) * 0.3),
-                                        value: isLoading
-                                    )
-                            }
-                            
-                            // Hourglass icon
-                            Image(systemName: "hourglass.circle.fill")
-                                .font(.system(size: 40))
-                                .foregroundColor(.white)
-                                .rotationEffect(.degrees(isLoading ? 360 : 0))
-                                .animation(
-                                    Animation.linear(duration: 1)
-                                        .repeatForever(autoreverses: false),
-                                    value: isLoading
-                                )
-                        }
-                        
-                        Text(loadingMessage)
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                    }
-                    .padding(24)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.gray.opacity(0.8))
-                            .shadow(radius: 10)
-                    )
-                    .transition(.scale.combined(with: .opacity))
+                    // Title
+                    Text("加载中")
+                        .font(.headline)
+                        .foregroundColor(.black)
+                    
+                    // Loading message
+                    Text(loadingMessage)
+                        .font(.subheadline)
+                        .foregroundColor(.black.opacity(0.7))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
                 }
+                .padding(.vertical, 30)
+                .padding(.horizontal, 20)
+                .frame(width: 300)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.white)
+                        .shadow(color: .black.opacity(0.1), radius: 10)
+                )
+                .transition(.opacity.combined(with: .scale))
+                .animation(.spring(), value: isLoading)
             }
         }
     }
@@ -248,7 +234,6 @@ struct NewStoryBoardView: View {
             VStack(alignment: .leading, spacing: 10) {
                 storyBasicInfoSection
                 charactersSection
-                Text("TimelineStep.write")
             }
             .padding(.horizontal)
             .tag(TimelineStep.write)
@@ -258,7 +243,6 @@ struct NewStoryBoardView: View {
                 if !generatedStoryTitle.isEmpty || !generatedStoryContent.isEmpty {
                     generatedContentSection
                 }
-                Text("TimelineStep.complete")
             }
             .padding(.horizontal)
             .tag(TimelineStep.complete)
@@ -624,20 +608,16 @@ struct TimelineButton: View {
     let action: () -> Void
     
     var body: some View {
-        VStack{
+        VStack(spacing: 5) {
             Button(action: action) {
-                VStack(spacing: 5) {
-                    Image(systemName: icon)
-                        .font(.system(size: 24))
-                }
-                //.frame(maxWidth: .infinity)
-                //.padding(.vertical, 8)
-                .background(isCompleted ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
-                .foregroundColor(isCompleted ? .green : .red)
-                //.cornerRadius(16)
+                Image(systemName: icon)
+                    .font(.system(size: 24))
+                    .foregroundColor(isCompleted ? .green : .gray)
             }
+            
             Text(title)
                 .font(.caption)
+                .foregroundColor(.gray)
         }
     }
 }
@@ -904,7 +884,7 @@ extension NewStoryBoardView {
         [
             .write: "正在生成故事内容...",
             .complete: "正在创建故事板...",
-            .draw: "正在生成场景图片...",
+            .draw: "正在生成场景图...",
             .narrate: "正在发布故事..."
         ]
     }

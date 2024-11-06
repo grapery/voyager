@@ -147,24 +147,99 @@ struct StoryView: View {
     }
     
     private var storyLineView: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Image(systemName: "clock.fill")
+                    .foregroundColor(.gray)
+                Text("TIMELINE")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                Spacer()
+                Text("AI GENERATED")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(8)
+            }
+            .padding()
+            
             if viewModel.isLoading {
-                VStack{
+                VStack {
                     Spacer()
                     ProgressView()
                     Spacer()
                 }
             } else if let boards = viewModel.storyboards {
                 ScrollView {
-                    LazyVStack {
+                    LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(boards, id: \.id) { board in
-                            StoryBoardCellView(board: board, userId: userId, groupId: self.viewModel.story?.storyInfo.groupID ?? 0, storyId: storyId, viewModel: self.viewModel)
-                            Divider()
+                            TimelineItemView(board: board) {
+                                StoryBoardCellView(
+                                    board: board,
+                                    userId: userId,
+                                    groupId: self.viewModel.story?.storyInfo.groupID ?? 0,
+                                    storyId: storyId,
+                                    viewModel: self.viewModel
+                                )
+                            }
                         }
                     }
-                    .padding()
+                    .padding(.horizontal)
                 }
             }
+        }
+        .background(Color(.systemBackground))
+    }
+    
+    // 时间线项组件
+    struct TimelineItemView<Content: View>: View {
+        let board: StoryBoard
+        let content: Content
+        
+        init(board: StoryBoard, @ViewBuilder content: () -> Content) {
+            self.board = board
+            self.content = content()
+        }
+        
+        var body: some View {
+            HStack(alignment: .top, spacing: 16) {
+                // 时间线指示器
+                VStack(spacing: 0) {
+                    // 时间点
+                    Circle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 12, height: 12)
+                    
+                    // 连接线
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 2)
+                        .frame(maxHeight: .infinity)
+                }
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    // 时间戳
+                    Text(formatDate(board.boardInfo.ctime))
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.gray)
+                    
+                    // 内容卡片
+                    content
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(12)
+                }
+            }
+            .padding(.vertical, 12)
+        }
+        
+        private func formatDate(_ timestamp: Int64) -> String {
+            let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+            let formatter = DateFormatter()
+            formatter.dateFormat = "dd MMMM yyyy"
+            return formatter.string(from: date).uppercased()
         }
     }
     
@@ -560,4 +635,5 @@ struct CommentSheet: View {
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
+
 
