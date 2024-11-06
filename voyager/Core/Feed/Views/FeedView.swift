@@ -162,36 +162,123 @@ struct FeedView: View {
     // Discover/trending content
     private var discoverFeedContent: some View {
         VStack(spacing: 0) {
-            // Custom tab header
-            FeedCustomTabView(selectedTab: $selectedTab, tabs: tabs)
             
-            // Content with TabView
-            TabView(selection: $selectedTab) {
-                // Groups Tab
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        GroupsList(groups: viewModel.trendingGroups)
+            // Tab Selector
+            HStack(spacing: 0) {
+                ForEach(["热点问题", "时间线", "咨询"], id: \.self) { tab in
+                    Button(action: {
+                        discoverSelectedTab = tab
+                    }) {
+                        HStack {
+                            Image(systemName: getTabIcon(tab))
+                            Text(tab)
+                        }
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                        .background(discoverSelectedTab == tab ? Color(.systemGray5) : Color(.systemGray6))
+                        .cornerRadius(20)
                     }
+                    .foregroundColor(.primary)
                 }
-                .tag(FeedType.Groups)
-                
-                // Story Tab
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        StoriesList(stories: viewModel.trendingStories)
-                    }
-                }
-                .tag(FeedType.Story)
-                
-                // StoryRole Tab
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        RolesList(roles: viewModel.trendingRoles)
-                    }
-                }
-                .tag(FeedType.StoryRole)
+                Spacer()
             }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            .padding(.horizontal)
+            .background(Color(.systemGray6))
+            
+            // Chat Content
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    // AI Assistant Intro Message
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "infinity.circle") // 替换为实际的 AI 头像
+                            .resizable()
+                            .frame(width: 32, height: 32)
+                            .clipShape(Circle())
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("metric order")
+                                .font(.headline)
+                            
+                            Text("你好，我是矩阵，为您推荐故事或者故事角色")
+                                .font(.body)
+                        }
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
+                    
+                    // Chat Messages would go here
+                    // ... 
+                }
+                .padding()
+            }
+            
+            // Bottom Input Bar
+            HStack(spacing: 12) {
+                TextField("Ask for knowledge", text: $chatInput)
+                    .padding(8)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(16)
+                
+                Button(action: { /* Send message */ }) {
+                    Image(systemName: "arrow.up.circle.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(.orange)
+                }
+            }
+            .padding()
+            .background(Color.white)
+            .shadow(color: .black.opacity(0.05), radius: 5, y: -2)
+        }
+    }
+    
+    // Helper properties and methods
+    @State private var discoverSelectedTab = "咨询"
+    @State private var chatInput = ""
+    
+    private func getTabIcon(_ tab: String) -> String {
+        switch tab {
+        case "热点问题":
+            return "star"
+        case "时间线":
+            return "clock"
+        case "咨询":
+            return "bubble.left"
+        default:
+            return ""
+        }
+    }
+    
+    // Chat Message View
+    struct ChatMessageView: View {
+        let isAI: Bool
+        let message: String
+        let avatar: String
+        
+        var body: some View {
+            HStack(alignment: .top, spacing: 12) {
+                if isAI {
+                    Image(avatar)
+                        .resizable()
+                        .frame(width: 32, height: 32)
+                        .clipShape(Circle())
+                }
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(message)
+                        .padding()
+                        .background(isAI ? Color(.systemGray6) : Color.blue.opacity(0.1))
+                        .cornerRadius(12)
+                }
+                .frame(maxWidth: .infinity, alignment: isAI ? .leading : .trailing)
+                
+                if !isAI {
+                    Image(avatar)
+                        .resizable()
+                        .frame(width: 32, height: 32)
+                        .clipShape(Circle())
+                }
+            }
         }
     }
     
@@ -205,15 +292,6 @@ struct FeedView: View {
                     await viewModel.fetchStorys()
                 case .StoryRole:
                     await viewModel.fetchStoryRoles()
-                }
-            }else{
-                switch selectedTab {
-                case .Groups:
-                    await viewModel.fetchTrendingGroups()
-                case .Story:
-                    await viewModel.fetchTrendingStorys()
-                case .StoryRole:
-                    await viewModel.fetchTrendingStoryRoles()
                 }
             }
             
