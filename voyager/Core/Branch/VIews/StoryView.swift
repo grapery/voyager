@@ -56,7 +56,7 @@ struct StoryView: View {
         VStack(spacing: 0) {
             // Story Info Header
             VStack(alignment: .leading, spacing: 8) {
-                NavigationLink(destination: StoryDetailView(storyId: self.storyId, story: self.viewModel.story!)) {
+                NavigationLink(destination: StoryDetailView(storyId: self.storyId, story: self.viewModel.story!,userId: self.userId)) {
                     HStack {
                         KFImage(URL(string: self.viewModel.story?.storyInfo.avatar ?? ""))
                             .resizable()
@@ -148,22 +148,6 @@ struct StoryView: View {
     
     private var storyLineView: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Image(systemName: "clock.fill")
-                    .foregroundColor(.gray)
-                Text("TIMELINE")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                Spacer()
-                Text("AI GENERATED")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(8)
-            }
-            .padding()
             
             if viewModel.isLoading {
                 VStack {
@@ -467,7 +451,6 @@ struct StoryBoardCellView: View {
         .background(Color(.systemBackground))
         .onTapGesture {
             isShowingBoardDetail = true
-            print("Tapped on board: \(String(describing: board))")
         }
         .fullScreenCover(isPresented: $isShowingBoardDetail) {
             StoryBoardView(board: board, userId: userId, groupId: groupId, storyId: storyId)

@@ -8,6 +8,35 @@
 import SwiftUI
 import Combine
 
+class StoryBoardSence{
+    var sceneIndex: Int
+    var content: String
+    var characters: String
+    var imagePrompt: String
+    
+    init(index: Int, content: String, characters: String, imagePrompt: String) {
+        self.sceneIndex = index
+        self.content = content
+        self.characters = characters
+        self.imagePrompt = imagePrompt
+    }
+    
+    // 从API响应数据创建场景
+    static func fromResponse(_ data: Common_RenderStoryStructure, index: Int) -> StoryBoardSence? {
+        print(data)
+        let content = data.data["情节内容"]!.text
+        let characters = data.data["参与人物"]!.text
+        let imagePrompt = data.data["图片提示词"]!.text
+        
+        return StoryBoardSence(
+            index: index,
+            content: content,
+            characters: characters,
+            imagePrompt: imagePrompt
+        )
+    }
+}
+
 class StoryboardViewModel: ObservableObject {
     @Published var storyboard: StoryBoard?
     @Published var storyId: Int64

@@ -425,6 +425,7 @@ extension APIClient {
                 $0.isRegenerate = is_regenerate
                 $0.renderType = render_type
             }
+            print("RenderStoryboard request: ",request)
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(token!)"]
             

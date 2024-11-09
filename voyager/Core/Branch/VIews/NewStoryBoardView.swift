@@ -60,6 +60,16 @@ struct NewStoryBoardView: View {
     // 添加一个变量来记录最后执行的操作
     @State private var lastOperation: (() async -> Void)?
 
+    // 添加状态变量
+    @State private var editingSceneIndex: Int?
+    @State private var editedContent: String = ""
+    @State private var editedCharacters: String = ""
+    @State private var editedImagePrompt: String = ""
+    @State private var isEditing: Bool = false
+    @State private var isRegenerating: Bool = false
+    @State private var showError: Bool = false
+    @State private var errorMessage: String = ""
+
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 0) {
@@ -249,30 +259,99 @@ struct NewStoryBoardView: View {
             
             // Draw step - Image generation and prompts
             VStack(alignment: .leading, spacing: 25) {
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("场景描述")
-                        .font(.headline)
-                    TextEditor(text: $sceneDescription)
-                        .frame(minHeight: 50)
-                        .padding(8)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(8)
-                    
-                    Text("参与人物")
-                        .font(.headline)
-                    TextEditor(text: $sceneCharacters)
-                        .frame(minHeight: 50)
-                        .padding(8)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(8)
-                    
-                    Text("图片生成提示词")
-                        .font(.headline)
-                    TextEditor(text: $imagePrompt)
-                        .frame(minHeight: 50)
-                        .padding(8)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(8)
+                if viewModel.storyScenes.isEmpty {
+                    // 空状态提示
+                    VStack(spacing: 20) {
+                        Image(systemName: "doc.text.image")
+                            .font(.system(size: 40))
+                            .foregroundColor(.gray)
+                        
+                        Text("暂无场景数据")
+                            .font(.headline)
+                            .foregroundColor(.gray)
+                        
+                        Text("请先生成故事场景")
+                            .font(.subheadline)
+                            .foregroundColor(.gray.opacity(0.7))
+                            .multilineTextAlignment(.center)
+                        
+                        Button(action: {
+                            Task {
+                                await generateStoryboardPrompt()
+                            }
+                        }) {
+                            Text("生成场景")
+                                .foregroundColor(.white)
+                                .frame(width: 200, height: 44)
+                                .background(Color.blue)
+                                .cornerRadius(22)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
+                } else {
+                    // 场景列表
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 20) {
+                            ForEach(viewModel.storyScenes, id: \.sceneIndex) { scene in
+                                VStack(alignment: .leading, spacing: 16) {
+                                    // 场景编号
+                                    HStack {
+                                        Text("场景 \(scene.sceneIndex)")
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
+                                        Spacer()
+                                    }
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 12)
+                                    .background(Color.blue.opacity(0.1))
+                                    .cornerRadius(8)
+                                    
+                                    // 场景故事
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("场景故事")
+                                            .font(.headline)
+                                        TextEditor(text: .constant(scene.content))
+                                            .frame(minHeight: 50)
+                                            .padding(8)
+                                            .background(Color(.systemGray6))
+                                            .cornerRadius(8)
+                                            .disabled(true)
+                                    }
+                                    
+                                    // 参与人物
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("参与人物")
+                                            .font(.headline)
+                                        TextEditor(text: .constant(scene.characters))
+                                            .frame(minHeight: 50)
+                                            .padding(8)
+                                            .background(Color(.systemGray6))
+                                            .cornerRadius(8)
+                                            .disabled(true)
+                                    }
+                                    
+                                    // 图片提示词
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("图片生成提示词")
+                                            .font(.headline)
+                                        TextEditor(text: .constant(scene.imagePrompt))
+                                            .frame(minHeight: 50)
+                                            .padding(8)
+                                            .background(Color(.systemGray6))
+                                            .cornerRadius(8)
+                                            .disabled(true)
+                                    }
+                                }
+                                .padding()
+                                .background(Color.white)
+                                .cornerRadius(12)
+                                .shadow(color: .black.opacity(0.05), radius: 5)
+                            }
+                        }
+                    }
                 }
             }
             .padding(.horizontal)
@@ -751,9 +830,10 @@ extension NewStoryBoardView {
                 self.generatedStoryTitle = firstResult.data["章节题目"]?.text ?? ""
                 self.generatedStoryContent = firstResult.data["章节内容"]?.text ?? ""
                 hideLoading()
+                print(" value.first : ",ret.0.result.values.first!)
                 print("self.generatedStoryTitle ",self.generatedStoryTitle)
                 print("self.generatedStoryContent ",self.generatedStoryContent)
-                if self.generatedStoryTitle.isEmpty || self.generatedStoryContent.isEmpty {
+                if self.generatedStoryTitle.count == 0 || self.generatedStoryContent.count == 0 {
                     throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "生成故事失败"])
                 }else{
                     showNotification(message: "故事生成成功", type: .success)
@@ -802,7 +882,11 @@ extension NewStoryBoardView {
         do {
             showLoading(message: "正在生成故事提示词...")
             // Add your image generation logic here
-            let ret = await self.viewModel.genStoryBoardPrompt(storyId: self.storyId, boardId: self.boardId, userId: self.viewModel.userId, renderType: Common_RenderType(rawValue: 1)!)
+            let ret = await self.viewModel.genStoryBoardPrompt(
+                storyId: self.storyId, 
+                boardId: self.boardId, 
+                userId: self.viewModel.userId, 
+                renderType: Common_RenderType(rawValue: 1)!)
             if let err = ret{
                 throw err
             }else{

@@ -23,6 +23,7 @@ class StoryViewModel: ObservableObject {
     var pageSize: Int64 = 10
     var branchId: Int64 = 0
     var userId: Int64
+    @Published var storyScenes: [StoryBoardSence] = []
     
     init(story: Story,userId: Int64) {
         self.story = story
@@ -308,15 +309,41 @@ class StoryViewModel: ObservableObject {
         return nil
     }
     
-    func genStoryBoardPrompt(storyId:Int64,boardId:Int64,userId:Int64,renderType: Common_RenderType) async -> Error?{
+    func genStoryBoardPrompt(storyId: Int64, boardId: Int64, userId: Int64, renderType: Common_RenderType) async -> Error? {
         do {
             self.isGenerate = true
-            let (resp,err) = await apiClient.RenderStoryboard(boardId: boardId, storyId: storyId, userId: userId, is_regenerate: true, render_type: renderType)
+            let (resp, err) = await apiClient.RenderStoryboard(
+                boardId: boardId,
+                storyId: storyId,
+                userId: userId,
+                is_regenerate: true,
+                render_type: renderType
+            )
+            
             if err != nil {
                 self.isGenerate = false
                 self.err = err
+                return err
             }
-            print("genStoryBoardPrompt resp: ",resp)
+            
+            // 解析响应数据
+            DispatchQueue.main.async {
+                if resp.result.count > 1 {
+                var scenes: [StoryBoardSence] = []
+                
+                // 遍历所有详细情节
+                    for i in 1...(resp.result.count-1) {
+                    let key = "详细情节-\(i)"
+                    if let sceneData = resp.result[key]{
+                        let scene = StoryBoardSence.fromResponse(sceneData, index: i)
+                        scenes.append(scene!)
+                    }
+                }
+                self.storyScenes = scenes
+                }
+            }
+            
+            print("genStoryBoardPrompt resp: ", resp)
         }
         self.isGenerate = false
         return nil

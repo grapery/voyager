@@ -13,10 +13,13 @@ struct StoryDetailView: View {
     @StateObject private var viewModel: StoryDetailViewModel
     @State private var isEditing: Bool = false
     @State public var story: Story
+    @State private var showNewStoryRole = false
+    @State var userId: Int64
     
-    init(storyId: Int64, story: Story) {
+    init(storyId: Int64, story: Story,userId: Int64) {
         self.storyId = storyId
         self.story = story
+        self.userId = userId
         self._viewModel = StateObject(wrappedValue: StoryDetailViewModel(storyId: storyId, story: story))
     }
     
@@ -298,7 +301,7 @@ struct StoryDetailView: View {
                         }
                     }
                     Button(action: {
-                        // 添加新角色的操作
+                        showNewStoryRole = true
                     }) {
                         VStack {
                             Image(systemName: "plus")
