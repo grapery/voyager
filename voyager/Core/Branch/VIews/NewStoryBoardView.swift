@@ -73,6 +73,54 @@ struct NewStoryBoardView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 0) {
+                // Progress bar moved to top
+                VStack(spacing: 0) {
+                    GeometryReader { geometry in
+                        ZStack(alignment: .leading) {
+                            // Background bar
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.2))
+                                .frame(height: 4)
+                            
+                            // Progress bar
+                            Rectangle()
+                                .fill(Color.green.opacity(0.6))
+                                .frame(width: calculateProgress(totalWidth: geometry.size.width), height: 4)
+                                .animation(.easeInOut, value: calculateProgressValue())
+                        }
+                    }
+                    .frame(height: 4)
+                    .padding(.horizontal)
+                    
+                    Divider()
+                        .padding(.vertical, 8)
+                    
+                    // Timeline buttons
+                    HStack(spacing: 20) {
+                        ForEach(TimelineStep.allCases, id: \.self) { step in
+                            TimelineButton(
+                                title: step.title,
+                                icon: step.icon,
+                                isCompleted: step.isCompleted(
+                                    isInputCompleted: isInputCompleted,
+                                    isStoryGenerated: isStoryGenerated,
+                                    isImageGenerated: isImageGenerated,
+                                    isNarrationCompleted: isNarrationCompleted
+                                ),
+                                action: {
+                                    handleTimelineAction(step)
+                                }
+                            )
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 10)
+                }
+                .background(
+                    Rectangle()
+                        .fill(.ultraThinMaterial)
+                )
+                
                 Text(isForkingStory ? "故事分支" : "新的故事板")
                     .font(.largeTitle)
                     .padding()
@@ -81,14 +129,6 @@ struct NewStoryBoardView: View {
                 contentSections
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            
-            // Bottom timeline buttons
-            timelineButtons
-                .background(
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                        .edgesIgnoringSafeArea(.bottom)
-                )
         }
         .overlay(loadingOverlay)
         .overlay(notificationOverlay)
@@ -260,7 +300,7 @@ struct NewStoryBoardView: View {
             // Draw step - Image generation and prompts
             VStack(alignment: .leading, spacing: 25) {
                 if viewModel.storyScenes.isEmpty {
-                    // 空状态提示
+                    // Empty state prompt
                     VStack(spacing: 20) {
                         Image(systemName: "doc.text.image")
                             .font(.system(size: 40))
@@ -292,12 +332,12 @@ struct NewStoryBoardView: View {
                     .background(Color(.systemGray6))
                     .cornerRadius(12)
                 } else {
-                    // 场景列表
+                    // Scene list
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 20) {
                             ForEach(viewModel.storyScenes, id: \.sceneIndex) { scene in
                                 VStack(alignment: .leading, spacing: 16) {
-                                    // 场景编号
+                                    // Scene number
                                     HStack {
                                         Text("场景 \(scene.sceneIndex)")
                                             .font(.headline)
@@ -309,7 +349,7 @@ struct NewStoryBoardView: View {
                                     .background(Color.blue.opacity(0.1))
                                     .cornerRadius(8)
                                     
-                                    // 场景故事
+                                    // Scene story
                                     VStack(alignment: .leading, spacing: 8) {
                                         Text("场景故事")
                                             .font(.headline)
@@ -321,7 +361,7 @@ struct NewStoryBoardView: View {
                                             .disabled(true)
                                     }
                                     
-                                    // 参与人物
+                                    // Characters
                                     VStack(alignment: .leading, spacing: 8) {
                                         Text("参与人物")
                                             .font(.headline)
@@ -333,7 +373,7 @@ struct NewStoryBoardView: View {
                                             .disabled(true)
                                     }
                                     
-                                    // 图片提示词
+                                    // Image prompt
                                     VStack(alignment: .leading, spacing: 8) {
                                         Text("图片生成提示词")
                                             .font(.headline)

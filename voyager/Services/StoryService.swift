@@ -612,4 +612,227 @@ extension APIClient {
     func UpdateStoryBoard(storyId: Int64,boardId: Int64,userId: Int64,status: Int64) async -> Error?{
         return nil
     }
+    
+    
+    func GetStoryBoardSences(boardId: Int64,userId: Int64) async ->([Common_StoryBoardSence],Error?){
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_GetStoryBoardSencesRequest.with {
+                $0.userID = userId
+                $0.boardID = boardId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.getStoryBoardSences(request: request, headers: header)
+            
+            if resp.message?.code != 0 {
+                let error = NSError(domain: "GetStoryBoardSences", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+                return ([Common_StoryBoardSence](), error)
+            }
+            
+            let retCode = resp.message?.code
+            if retCode! < 0 || retCode! > 1 {
+                return ([Common_StoryBoardSence](), NSError(domain: "GetStoryBoardSences", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
+            }
+            if let renderData = resp.message?.data.list {
+                return (renderData, nil)
+            }
+        } catch {
+            return ([Common_StoryBoardSence](), error)
+        }
+        return ([Common_StoryBoardSence](),nil)
+    }
+    
+    func CreateStoryBoardSence(storyId:Int64,boardId: Int64,userId:Int64,originContent: String,characterIds:[String],imagePrompts: String,videoPrompts:String) async -> (Int64,Error?){
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            var newSenceItem = Common_StoryBoardSence()
+            newSenceItem.senceID=0
+            newSenceItem.storyID = storyId
+            newSenceItem.boardID=boardId
+            newSenceItem.characterIds=characterIds
+            newSenceItem.content=originContent
+            newSenceItem.characterIds=characterIds
+            newSenceItem.imagePrompts=imagePrompts
+            newSenceItem.videoPrompts=videoPrompts
+            newSenceItem.status=1
+            let request = Common_CreateStoryBoardSenceRequest.with{
+                $0.userID = userId
+                $0.sence = newSenceItem
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.createStoryBoardSence(request: request, headers: header)
+            
+            if resp.message?.code != 0 {
+                let error = NSError(domain: "CreateStoryBoardSence", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+                return (-1, error)
+            }
+            
+            if let renderData = resp.message?.data {
+                return (renderData.senceID, nil)
+            } else {
+                return (-1, NSError(domain: "CreateStoryBoardSence", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
+            }
+        } catch {
+            return (-1, error)
+        }
+    }
+    
+    func UpdateStoryBoardSence(storyId:Int64,boardId: Int64,userId:Int64,originContent: String,characterIds:[String],imagePrompts: String,videoPrompts:String,status:Int64) async -> Error? {
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            var newSenceItem = Common_StoryBoardSence()
+            newSenceItem.senceID=0
+            newSenceItem.characterIds=characterIds
+            newSenceItem.content=originContent
+            newSenceItem.characterIds=characterIds
+            newSenceItem.imagePrompts=imagePrompts
+            newSenceItem.videoPrompts=videoPrompts
+            newSenceItem.status=Int32(status)
+            let request = Common_UpdateStoryBoardSenceRequest.with {
+                $0.userID = userId
+                $0.sence = newSenceItem
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.updateStoryBoardSence(request: request, headers: header)
+            
+            if resp.message?.code != 0 || resp.message?.code != 1{
+                let error = NSError(domain: "UpdateStoryBoardSence", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+                return error
+            }
+            return nil
+        }
+    }
+    
+    func DeleteStoryBoardSence(storyId:Int64,boardId: Int64,userId:Int64,senceId:Int64) async -> Error?{
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_DeleteStoryBoardSenceRequest.with {
+                $0.userID = userId
+                $0.senceID = senceId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.deleteStoryBoardSence(request: request, headers: header)
+            
+            if resp.message?.code != 0 || resp.message?.code != 1{
+                let error = NSError(domain: "DeleteStoryBoardSenceError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+                return error
+            }
+            return nil
+        }
+    }
+    
+    func GenStoryBoardSences(storyId: Int64,boardId: Int64,userId: Int64,render_type: Common_RenderType) async -> Error?{
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_RenderStoryBoardSencesRequest.with {
+                $0.boardID = Int32(boardId)
+                $0.userID = userId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.renderStoryBoardSences(request: request, headers: header)
+            
+            if resp.message?.code != 0 {
+                let error = NSError(domain: "GenStoryBoardSences", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+                return error
+            }
+            let renderCode = resp.message?.code
+            if renderCode==0 || renderCode==1{
+                return nil
+            } else {
+                return NSError(domain: "GenStoryBoardSences", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"])
+            }
+        }
+    }
+    
+    func GetStoryBoardSpecSence(storyId: Int64,boardId: Int64,userId: Int64,sceneId: Int64,render_type: Common_RenderType) async -> (Common_StoryBoardSence,Error?){
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_GetStoryBoardSenceGenerateRequest.with {
+                $0.userID = userId
+                $0.senceID = sceneId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.getStoryBoardSenceGenerate(request: request, headers: header)
+            
+            if resp.message?.code != 0 {
+                let error = NSError(domain: "GetStoryBoardSpecSence", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+                return (Common_StoryBoardSence(), error)
+            }
+            
+            if let renderData = resp.message?.data {
+                return (renderData, nil)
+            } else {
+                return (Common_StoryBoardSence(), NSError(domain: "GetStoryBoardSpecSence", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
+            }
+        } catch {
+            return (Common_StoryBoardSence(), error)
+        }
+    }
+    
+    func GetStoryBoardSenceRenderStatus(storyId: Int64,boardId: Int64,userId: Int64,sceneId: Int64,render_type: Common_RenderType) async -> ([Common_StoryBoardSence],Error?){
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_GetStoryBoardGenerateRequest.with {
+                $0.boardID = boardId
+                $0.userID = userId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.getStoryBoardGenerate(request: request, headers: header)
+            
+            if resp.message?.code != 0 {
+                let error = NSError(domain: "GetStoryBoardSenceRenderStatus", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+                return ([Common_StoryBoardSence](), error)
+            }
+            
+            if let renderData = resp.message?.list {
+                return (renderData, nil)
+            } else {
+                return ([Common_StoryBoardSence](), NSError(domain: "GetStoryBoardSenceRenderStatus", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
+            }
+        } catch {
+            return ([Common_StoryBoardSence](), error)
+        }
+    }
+    func GetStoryBoardSencesRenderStatus(storyId: Int64,boardId: Int64,userId: Int64,sceneId: Int64,render_type: Common_RenderType) async -> (Common_StoryBoardSence,Error?){
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_GetStoryBoardSenceGenerateRequest.with {
+                $0.userID = userId
+                $0.senceID = sceneId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.getStoryBoardSenceGenerate(request: request, headers: header)
+            
+            if resp.message?.code != 0 {
+                let error = NSError(domain: "GetStoryBoardSencesRenderStatus", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+                return (Common_StoryBoardSence(), error)
+            }
+            
+            if let renderData = resp.message?.data {
+                return (renderData, nil)
+            } else {
+                return (Common_StoryBoardSence(), NSError(domain: "GetStoryBoardSencesRenderStatus", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
+            }
+        } catch {
+            return (Common_StoryBoardSence(), error)
+        }
+    }
+    
+    
 }
