@@ -70,33 +70,45 @@ struct NewStoryBoardView: View {
     @State private var showError: Bool = false
     @State private var errorMessage: String = ""
 
+    // Add new property for segment count
+    private let progressSegments = TimelineStep.allCases.count
+    private let progressBarHeight: CGFloat = 8 // Increased height
+    private let segmentSpacing: CGFloat = 4 // Spacing between segments
+    
+    // Helper function to calculate segment progress
+    private func isSegmentCompleted(_ index: Int) -> Bool {
+        let steps = [isInputCompleted, isStoryGenerated, isImageGenerated, isNarrationCompleted]
+        return index < steps.count && steps[index]
+    }
+    
+    // Modified progress bar view
+    private func progressBar(in geometry: GeometryProxy) -> some View {
+        let segmentWidth = (geometry.size.width - (segmentSpacing * CGFloat(progressSegments - 1))) / CGFloat(progressSegments)
+        
+        return HStack(spacing: segmentSpacing) {
+            ForEach(0..<progressSegments, id: \.self) { index in
+                Rectangle()
+                    .fill(isSegmentCompleted(index) ? Color.green : Color.gray.opacity(0.2))
+                    .frame(width: segmentWidth, height: progressBarHeight)
+                    .cornerRadius(progressBarHeight / 2)
+            }
+        }
+        .frame(height: progressBarHeight)
+    }
+
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 0) {
-                // Progress bar moved to top
+                // Progress bar and timeline buttons container
                 VStack(spacing: 0) {
                     GeometryReader { geometry in
-                        ZStack(alignment: .leading) {
-                            // Background bar
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.2))
-                                .frame(height: 4)
-                            
-                            // Progress bar
-                            Rectangle()
-                                .fill(Color.green.opacity(0.6))
-                                .frame(width: calculateProgress(totalWidth: geometry.size.width), height: 4)
-                                .animation(.easeInOut, value: calculateProgressValue())
-                        }
+                        progressBar(in: geometry)
                     }
-                    .frame(height: 4)
+                    .frame(height: progressBarHeight)
                     .padding(.horizontal)
                     
-                    Divider()
-                        .padding(.vertical, 8)
-                    
-                    // Timeline buttons
-                    HStack(spacing: 20) {
+                    // Timeline buttons aligned with progress segments
+                    HStack(spacing: segmentSpacing) {
                         ForEach(TimelineStep.allCases, id: \.self) { step in
                             TimelineButton(
                                 title: step.title,
@@ -111,16 +123,20 @@ struct NewStoryBoardView: View {
                                     handleTimelineAction(step)
                                 }
                             )
+                            .frame(maxWidth: .infinity)
                         }
                     }
                     .padding(.horizontal)
-                    .padding(.bottom, 10)
+                    .padding(.top, 8) // Add space between progress bar and buttons
                 }
                 .background(
                     Rectangle()
                         .fill(.ultraThinMaterial)
                 )
                 
+                Divider()
+                    .padding(.vertical, 16)
+
                 Text(isForkingStory ? "故事分支" : "新的故事板")
                     .font(.largeTitle)
                     .padding()
@@ -277,157 +293,224 @@ struct NewStoryBoardView: View {
         }
     }
     
+    private var OriginStoryInfoView: some View{
+        VStack(alignment: .leading, spacing: 10) {
+            storyBasicInfoSection
+            charactersSection
+        }
+        .padding(.horizontal)
+        .tag(TimelineStep.write)
+    }
+    
+    private var StoryRenderDetailView: some View{
+        VStack(alignment: .leading, spacing: 25) {
+            if !generatedStoryTitle.isEmpty || !generatedStoryContent.isEmpty {
+                generatedContentSection
+            }
+        }
+        .padding(.horizontal)
+        .tag(TimelineStep.complete)
+    }
+    
+    private var SenceGenEmptyView: some View{
+        VStack(spacing: 20) {
+            Image(systemName: "doc.text.image")
+                .font(.system(size: 40))
+                .foregroundColor(.gray)
+            
+            Text("暂无场景数据")
+                .font(.headline)
+                .foregroundColor(.gray)
+            
+            Text("请先生成故事场景")
+                .font(.subheadline)
+                .foregroundColor(.gray.opacity(0.7))
+                .multilineTextAlignment(.center)
+            
+            Button(action: {
+                Task {
+                    await generateStoryboardPrompt()
+                }
+            }) {
+                Text("生成场景")
+                    .foregroundColor(.white)
+                    .frame(width: 200, height: 44)
+                    .background(Color.blue)
+                    .cornerRadius(22)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
+    }
+    
+    // 1. 首先创建一个场景卡片视图
+    private struct SceneCardView: View {
+        let scene: StoryBoardSence
+        let index: Int
+        var body: some View {
+            VStack(alignment: .leading, spacing: 16) {
+                // Scene number
+                HStack {
+                    Text("场景 \(scene.senceIndex)")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(Color.blue.opacity(0.1))
+                .cornerRadius(8)
+                
+                // Scene content sections
+                SceneContentSection(title: "场景故事", content: scene.content)
+                SceneContentSection(title: "参与人物", content: scene.characters)
+                SceneContentSection(title: "图片生成提示词", content: scene.imagePrompt)
+            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(12)
+            .shadow(color: .black.opacity(0.05), radius: 5)
+            Spacer()
+        }
+    }
+
+    // 2. 创建内容部分视图
+    
+
+    // 3. 修改 SenceGenListView
+    private var SenceGenListView: some View {
+        ScrollView(.vertical) {
+            VStack(spacing: 16) {
+                ForEach(Array(viewModel.storyScenes.enumerated()), id: \.element.senceIndex) { index, scene in
+                    SceneCardView(scene: scene,index:index)
+                    SenceGenControlView(idx: index, senceId: scene.senceId)
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+
+    public func SenceGenControlView(idx: Int,senceId: Int64) -> some View{
+            return  VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 16) {
+                    Button(action: {
+                        Task {
+                            showLoading(message: "正在创建场景信息...")
+                            do {
+                                let (senceId,err) = await self.viewModel.createStoryboardSence(idx: idx, boardId: self.boardId)
+                                hideLoading()
+                                if let err2 = err{
+                                    throw err2
+                                }
+                                self.viewModel.storyScenes[idx].senceId = senceId
+                                print("new senceid: ",self.viewModel.storyScenes[idx].senceId)
+                                showNotification(message: "场景信息创建成功", type: .success)
+                                return
+                            } catch {
+                                handleError(error)
+                            }
+                        }
+                    }) {
+                        Text("应用")
+                            .foregroundColor(.white)
+                            .frame(width: 100, height: 36)
+                            .background(Color.blue)
+                            .cornerRadius(18)
+                    }
+                    
+                    Button(action: {
+                        Task {
+                            showLoading(message: "正在生成场景图片...")
+                            do {
+                                let err = await self.viewModel.genStoryBoardSpecSence(storyId: self.storyId, boardId: self.boardId, userId: self.viewModel.userId, senceId: self.viewModel.storyScenes[idx].senceId, renderType: Common_RenderType(rawValue: 1)!)
+                                hideLoading()
+                                if let err2 = err{
+                                    throw err2
+                                }
+                                showNotification(message: "场景图片生成成功", type: .success)
+                            } catch {
+                                handleError(error)
+                            }
+                        }
+                    }) {
+                        Text("生成图片")
+                            .foregroundColor(.white)
+                            .frame(width: 100, height: 36)
+                            .background(Color.green)
+                            .cornerRadius(18)
+                    }
+                    
+                    Spacer()
+                }
+            }
+        }
+    
+    
+    
+    
+    private var SenceGenView: some View{
+        VStack(alignment: .leading, spacing: 25) {
+            if viewModel.storyScenes.isEmpty {
+                // Empty state prompt
+                SenceGenEmptyView
+            }
+            else {
+                // Scene list
+                SenceGenListView
+            }
+        }
+        .padding(.horizontal)
+        .tag(TimelineStep.draw)
+    }
+    
+    private var ImageGenView: some View{
+        VStack(alignment: .leading, spacing: 25) {
+            if let generatedImage = generatedImage {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("生成的场景")
+                        .font(.headline)
+                    
+                    Image(uiImage: generatedImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 300)
+                        .cornerRadius(12)
+                    
+                    Text("场景描述")
+                        .font(.headline)
+                    Text(sceneDescription)
+                        .padding(8)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                    
+                    Text("参与人物")
+                        .font(.headline)
+                    Text(sceneCharacters)
+                        .padding(8)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                }
+            }
+        }
+        .padding(.horizontal)
+        .tag(TimelineStep.narrate)
+    }
+    
     // MARK: - View Components
     private var contentSections: some View {
         TabView(selection: $currentStep) {
             // Write step - Basic info and characters
-            VStack(alignment: .leading, spacing: 10) {
-                storyBasicInfoSection
-                charactersSection
-            }
-            .padding(.horizontal)
-            .tag(TimelineStep.write)
+            OriginStoryInfoView
             
             // Complete step - Generated story content
-            VStack(alignment: .leading, spacing: 25) {
-                if !generatedStoryTitle.isEmpty || !generatedStoryContent.isEmpty {
-                    generatedContentSection
-                }
-            }
-            .padding(.horizontal)
-            .tag(TimelineStep.complete)
+            StoryRenderDetailView
             
             // Draw step - Image generation and prompts
-            VStack(alignment: .leading, spacing: 25) {
-                if viewModel.storyScenes.isEmpty {
-                    // Empty state prompt
-                    VStack(spacing: 20) {
-                        Image(systemName: "doc.text.image")
-                            .font(.system(size: 40))
-                            .foregroundColor(.gray)
-                        
-                        Text("暂无场景数据")
-                            .font(.headline)
-                            .foregroundColor(.gray)
-                        
-                        Text("请先生成故事场景")
-                            .font(.subheadline)
-                            .foregroundColor(.gray.opacity(0.7))
-                            .multilineTextAlignment(.center)
-                        
-                        Button(action: {
-                            Task {
-                                await generateStoryboardPrompt()
-                            }
-                        }) {
-                            Text("生成场景")
-                                .foregroundColor(.white)
-                                .frame(width: 200, height: 44)
-                                .background(Color.blue)
-                                .cornerRadius(22)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                } else {
-                    // Scene list
-                    ScrollView {
-                        LazyVStack(alignment: .leading, spacing: 20) {
-                            ForEach(viewModel.storyScenes, id: \.sceneIndex) { scene in
-                                VStack(alignment: .leading, spacing: 16) {
-                                    // Scene number
-                                    HStack {
-                                        Text("场景 \(scene.sceneIndex)")
-                                            .font(.headline)
-                                            .foregroundColor(.primary)
-                                        Spacer()
-                                    }
-                                    .padding(.vertical, 8)
-                                    .padding(.horizontal, 12)
-                                    .background(Color.blue.opacity(0.1))
-                                    .cornerRadius(8)
-                                    
-                                    // Scene story
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        Text("场景故事")
-                                            .font(.headline)
-                                        TextEditor(text: .constant(scene.content))
-                                            .frame(minHeight: 50)
-                                            .padding(8)
-                                            .background(Color(.systemGray6))
-                                            .cornerRadius(8)
-                                            .disabled(true)
-                                    }
-                                    
-                                    // Characters
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        Text("参与人物")
-                                            .font(.headline)
-                                        TextEditor(text: .constant(scene.characters))
-                                            .frame(minHeight: 50)
-                                            .padding(8)
-                                            .background(Color(.systemGray6))
-                                            .cornerRadius(8)
-                                            .disabled(true)
-                                    }
-                                    
-                                    // Image prompt
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        Text("图片生成提示词")
-                                            .font(.headline)
-                                        TextEditor(text: .constant(scene.imagePrompt))
-                                            .frame(minHeight: 50)
-                                            .padding(8)
-                                            .background(Color(.systemGray6))
-                                            .cornerRadius(8)
-                                            .disabled(true)
-                                    }
-                                }
-                                .padding()
-                                .background(Color.white)
-                                .cornerRadius(12)
-                                .shadow(color: .black.opacity(0.05), radius: 5)
-                            }
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal)
-            .tag(TimelineStep.draw)
+            SenceGenView
             
             // Narrate step - Final display
-            VStack(alignment: .leading, spacing: 25) {
-                if let generatedImage = generatedImage {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("生成的场景")
-                            .font(.headline)
-                        
-                        Image(uiImage: generatedImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 300)
-                            .cornerRadius(12)
-                        
-                        Text("场景描述")
-                            .font(.headline)
-                        Text(sceneDescription)
-                            .padding(8)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(8)
-                        
-                        Text("参与人物")
-                            .font(.headline)
-                        Text(sceneCharacters)
-                            .padding(8)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(8)
-                    }
-                }
-            }
-            .padding(.horizontal)
-            .tag(TimelineStep.narrate)
+            ImageGenView
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
         .animation(.easeInOut, value: currentStep)
@@ -717,6 +800,39 @@ struct NewStoryBoardView: View {
         .cornerRadius(12)
         .shadow(radius: 1)
     }
+
+    private func calculateTextHeight(_ text: String) -> CGFloat {
+        let textView = UITextView()
+        textView.text = text
+        
+        // 设置与 TextEditor 相同的字体和文本属性
+        textView.font = .preferredFont(forTextStyle: .body)
+        
+        // 设置宽度约束（减去padding）
+        let screenWidth = UIScreen.main.bounds.width - 40 // 40是左右padding的总和
+        let size = textView.sizeThatFits(CGSize(width: screenWidth, height: .infinity))
+        
+        // 返回计算出的高度，添加一些额外空间以确保显示完整
+        return min(size.height + 16, 300) // 限制最大高度为300
+    }
+}
+
+
+struct SceneContentSection: View {
+    let title: String
+    let content: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+            Text(content)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(8)
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+        }
+    }
 }
 
 // MARK: - Supporting Views
@@ -727,16 +843,17 @@ struct TimelineButton: View {
     let action: () -> Void
     
     var body: some View {
-        VStack(spacing: 5) {
-            Button(action: action) {
+        Button(action: action) {
+            VStack(spacing: 4) {
                 Image(systemName: icon)
-                    .font(.system(size: 24))
+                    .font(.system(size: 20))
                     .foregroundColor(isCompleted ? .green : .gray)
+                
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(.gray)
             }
-            
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.gray)
+            .frame(maxWidth: .infinity)
         }
     }
 }
@@ -962,7 +1079,7 @@ extension NewStoryBoardView {
             // await viewModel.updateStoryBoardScene(...)
             
             hideLoading()
-            showNotification(message: "场景更新成功", type: .success)
+            showNotification(message: "景更新成功", type: .success)
         } catch {
             handleError(error)
         }

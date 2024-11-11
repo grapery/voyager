@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct NewStoryView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -27,7 +28,7 @@ struct NewStoryView: View {
     @State var groupId: Int64
     
     init(groupId: Int64, userId: Int64) {
-        var story = Story(
+        let story = Story(
             Id: 0,
             storyInfo: Common_Story()
         )
@@ -257,8 +258,55 @@ struct SingleImagePicker: UIViewControllerRepresentable {
     }
 }
 
-struct NewStoryView_Previews: PreviewProvider {
-    static var previews: some View {
-        NewStoryView(groupId: 1, userId: 1)
+struct MultiImagePicker: UIViewControllerRepresentable {
+    @Binding var images: [UIImage]?
+    @Environment(\.presentationMode) private var presentationMode
+    
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration()
+        config.selectionLimit = 9 // 最多选择9张图片
+        config.filter = .images
+        
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        let parent: MultiImagePicker
+        
+        init(_ parent: MultiImagePicker) {
+            self.parent = parent
+        }
+        
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            parent.presentationMode.wrappedValue.dismiss()
+            
+            guard !results.isEmpty else { return }
+            
+            var images: [UIImage] = []
+            let group = DispatchGroup()
+            
+            for result in results {
+                group.enter()
+                result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
+                    if let image = object as? UIImage {
+                        images.append(image)
+                    }
+                    group.leave()
+                }
+            }
+            
+            group.notify(queue: .main) {
+                self.parent.images = images
+            }
+        }
     }
 }
+

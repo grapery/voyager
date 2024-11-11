@@ -352,12 +352,12 @@ class StoryViewModel: ObservableObject {
     func genStoryBoardImages(storyId:Int64,boardId:Int64,userId:Int64,renderType: Common_RenderType) async -> Error?{
         do {
             self.isGenerate = true
-            let (resp,err) = await apiClient.GenStoryboardImages(boardId: boardId, storyId: storyId, userId: userId, is_regenerate: true, render_type: Common_RenderType(rawValue: 1)!, title: <#T##String#>, prompt: <#T##String#>, image_url: <#T##String#>, description: <#T##String#>, refImage: <#T##String#>)
-            if err != nil {
-                self.isGenerate = false
-                self.err = err
-            }
-            print("genStoryBoardPrompt resp: ",resp)
+//            let (resp,err) = await apiClient.GenStoryboardImages(boardId: boardId, storyId: storyId, userId: userId, is_regenerate: true, render_type: Common_RenderType(rawValue: 1)!, title: <#T##String#>, prompt: <#T##String#>, image_url: <#T##String#>, description: <#T##String#>, refImage: <#T##String#>)
+//            if err != nil {
+//                self.isGenerate = false
+//                self.err = err
+//            }
+//            print("genStoryBoardPrompt resp: ",resp)
         }
         self.isGenerate = false
         return nil
@@ -373,20 +373,102 @@ class StoryViewModel: ObservableObject {
         return nil
     }
     
+    func createStoryboardSence(idx:Int,boardId:Int64) async -> (Int64,Error?){
+        if self.storyScenes.isEmpty {
+            return (-1,nil)
+        }
+        var senceId: Int64 = 0
+        do{
+            self.isGenerate = true
+            let (resp,err) = await apiClient.CreateStoryBoardSence(storyId: self.storyId, boardId: boardId, userId: self.userId, originContent: self.storyScenes[idx].content, characterIds: ["\(self.storyScenes[idx].characters)"], imagePrompts: self.storyScenes[idx].imagePrompt, videoPrompts: "")
+            print("createStoryboardSence resp: ",resp)
+            self.isGenerate = false
+            if err != nil{
+                print("createStoryboardSence: \(String(describing: err))")
+                return (-1,err)
+            }
+            senceId = resp
+        }
+        return (senceId,nil)
+    }
+    
+    func delStoryboardSence(boardId:Int64,senceId:Int64) async -> Error?{
+        do{
+            self.isGenerate = true
+            let err = await apiClient.DeleteStoryBoardSence(storyId: self.storyId, boardId: boardId, userId: self.userId, senceId: senceId)
+            self.isGenerate = false
+            if err != nil{
+                print("delStoryboardSence: \(String(describing: err))")
+                return err
+            }
+        }
+        print("delStoryboardSence: \(senceId)")
+        return nil
+    }
+    
+    func updateStoryboardSence(idx:Int,boardId:Int64,status:Int64) async -> Error?{
+        do{
+            self.isGenerate = true
+            let err = await apiClient.UpdateStoryBoardSence(storyId: self.storyId, boardId: boardId, userId: self.userId, originContent: self.storyScenes[idx].content, characterIds: ["\(self.storyScenes[idx].characters)"], imagePrompts: self.storyScenes[idx].imagePrompt, videoPrompts: "",status: status)
+            self.isGenerate = false
+            if err != nil{
+                print("updateStoryboardSence: \(String(describing: err))")
+                return err
+            }
+        }
+        print("updateStoryboardSence: \(idx)")
+        return nil
+    }
     
     func genStoryBoardSences(storyId: Int64,boardId: Int64,userId: Int64,renderType: Common_RenderType) async ->Error?{
+        do{
+            self.isGenerate = true
+            let err = await apiClient.GenStoryBoardSences(storyId: self.storyId, boardId: boardId, userId: self.userId, render_type: Common_RenderType(rawValue: 1)!)
+            self.isGenerate = false
+            if err != nil{
+                print("genStoryBoardSences: \(String(describing: err))")
+                return err
+            }
+        }
+        print("genStoryBoardSences: \(boardId)")
         return nil
     }
     
     func genStoryBoardSpecSence(storyId: Int64,boardId: Int64,userId: Int64,senceId:Int64,renderType: Common_RenderType) async ->Error?{
+        do{
+            self.isGenerate = true
+            let err = await apiClient.GenStoryBoardSpecSence(storyId: self.storyId, boardId: boardId, userId: self.userId,senceId:senceId, render_type: Common_RenderType(rawValue: 1)!)
+            self.isGenerate = false
+            if err != nil{
+                print("genStoryBoardSpecSence: \(String(describing: err))")
+                return err
+            }
+        }
+        print("genStoryBoardSpecSence: \(senceId)")
         return nil
     }
     
     func getStoryBoardSencesGenStatus(storyId: Int64,boardId: Int64,userId: Int64) async -> Error?{
+        do{
+            let (resp,err) = await apiClient.GetStoryBoardSences(boardId: boardId, userId: self.userId)
+            if err != nil{
+                print("getStoryBoardSencesGenStatus: \(String(describing: err))")
+                return err
+            }
+        }
+        print("getStoryBoardSencesGenStatus: \(boardId)")
         return nil
     }
     
     func getStoryBoardSpecSenceGenStatus(storyId: Int64,boardId: Int64,userId: Int64,senceId:Int64,renderType: Common_RenderType)async -> Error?{
+        do{
+            let (resp,err) = await apiClient.GetStoryBoardSencesRenderStatus(storyId:storyId, boardId: boardId, userId: self.userId,sceneId:senceId)
+            if err != nil{
+                print("getStoryBoardSpecSenceGenStatus: \(String(describing: err))")
+                return err
+            }
+        }
+        print("getStoryBoardSpecSenceGenStatus: \(senceId)")
         return nil
     }
     

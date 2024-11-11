@@ -9,16 +9,18 @@ import SwiftUI
 import Combine
 
 class StoryBoardSence{
-    var sceneIndex: Int
+    var senceIndex: Int
     var content: String
     var characters: String
     var imagePrompt: String
+    var senceId: Int64
     
     init(index: Int, content: String, characters: String, imagePrompt: String) {
-        self.sceneIndex = index
+        self.senceIndex = index
         self.content = content
         self.characters = characters
         self.imagePrompt = imagePrompt
+        self.senceId = 0
     }
     
     // 从API响应数据创建场景

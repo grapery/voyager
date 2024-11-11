@@ -670,7 +670,7 @@ extension APIClient {
                 let error = NSError(domain: "CreateStoryBoardSence", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
                 return (-1, error)
             }
-            
+            print("CreateStoryBoardSence resp: ", resp)
             if let renderData = resp.message?.data {
                 return (renderData.senceID, nil)
             } else {
@@ -754,6 +754,32 @@ extension APIClient {
         }
     }
     
+    func GenStoryBoardSpecSence(storyId: Int64,boardId: Int64,userId: Int64,senceId:Int64,render_type: Common_RenderType) async -> Error?{
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_RenderStoryBoardSenceRequest.with {
+                $0.boardID = Int32(boardId)
+                $0.userID = userId
+                $0.senceID = senceId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.renderStoryBoardSence(request: request, headers: header)
+            
+            if resp.message?.code != 0 {
+                let error = NSError(domain: "GenStoryBoardSpecSence", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+                return error
+            }
+            let renderCode = resp.message?.code
+            if renderCode==0 || renderCode==1{
+                return nil
+            } else {
+                return NSError(domain: "GenStoryBoardSpecSence", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"])
+            }
+        }
+    }
+    
     func GetStoryBoardSpecSence(storyId: Int64,boardId: Int64,userId: Int64,sceneId: Int64,render_type: Common_RenderType) async -> (Common_StoryBoardSence,Error?){
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)
@@ -807,7 +833,7 @@ extension APIClient {
             return ([Common_StoryBoardSence](), error)
         }
     }
-    func GetStoryBoardSencesRenderStatus(storyId: Int64,boardId: Int64,userId: Int64,sceneId: Int64,render_type: Common_RenderType) async -> (Common_StoryBoardSence,Error?){
+    func GetStoryBoardSencesRenderStatus(storyId: Int64,boardId: Int64,userId: Int64,sceneId: Int64) async -> (Common_StoryBoardSence,Error?){
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)
             let request = Common_GetStoryBoardSenceGenerateRequest.with {
