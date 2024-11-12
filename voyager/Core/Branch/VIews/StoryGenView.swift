@@ -14,7 +14,7 @@ struct StoryGenView: View {
     @Binding var generatedStory: Common_RenderStoryDetail?
     @Binding var isGenerating: Bool
     @Binding var errorMessage: String?
-    @Binding var viewModel: StoryViewModel
+    @ObservedObject var viewModel: StoryViewModel
     @Binding var selectedTab: Int64
 
     var body: some View {

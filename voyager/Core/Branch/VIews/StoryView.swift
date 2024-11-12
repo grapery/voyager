@@ -10,7 +10,7 @@ import Kingfisher
 import Combine
 
 struct StoryView: View {
-    @State var viewModel: StoryViewModel
+    @StateObject var viewModel: StoryViewModel
     @State private var isEditing: Bool = false
     @State public var storyId: Int64
     @State private var selectedTab: Int64 = 0
@@ -46,7 +46,7 @@ struct StoryView: View {
         self.story = story
         self.userId = userId
         self.storyId = story.storyInfo.id
-        self.viewModel = StoryViewModel(story: story, userId: userId)
+        _viewModel = StateObject(wrappedValue: StoryViewModel(story: story, userId: userId))
         setButtonMsg()
     }
     
@@ -130,7 +130,7 @@ struct StoryView: View {
                             StoryGenView(generatedStory: $generatedStory,
                                          isGenerating: $isGenerating,
                                          errorMessage: $errorMessage,
-                                         viewModel: $viewModel,
+                                         viewModel: viewModel,
                                          selectedTab: $selectedTab)
                         }
                     }
@@ -140,7 +140,14 @@ struct StoryView: View {
         }
         .navigationTitle("故事")
         .onAppear {
-            Task {
+            if viewModel.story == nil {
+                Task {
+                    await viewModel.fetchStory(withBoards: true)
+                }
+            }
+        }
+        .task {
+            if viewModel.storyboards == nil {
                 await viewModel.fetchStory(withBoards: true)
             }
         }

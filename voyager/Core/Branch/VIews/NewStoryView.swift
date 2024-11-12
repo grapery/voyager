@@ -14,7 +14,6 @@ struct NewStoryView: View {
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
     
-    @State private var name: String = ""
     @State private var title: String = ""
     @State private var shortDesc: String = ""
     @State private var origin: String = ""
@@ -48,7 +47,7 @@ struct NewStoryView: View {
                         .padding(.top, 50)
                     
                     VStack(spacing: 15) {
-                        customTextField(title: "名称", text: $name)
+                        // customTextField(title: "名称", text: $name)
                         customTextField(title: "标题", text: $title)
                         customTextField(title: "简短描述", text: $shortDesc)
                         customTextEditor(title: "故事内容", text: $origin)
@@ -166,7 +165,7 @@ struct NewStoryView: View {
     
     private func createStory() {
         // 验证和创建故事的逻辑保持不变
-        self.viewModel.story?.storyInfo.name = self.name
+        // self.viewModel.story?.storyInfo.name = self.name
         self.viewModel.story?.storyInfo.title = self.title
         self.viewModel.story?.storyInfo.desc = self.shortDesc
         self.viewModel.story?.storyInfo.origin = self.origin
@@ -182,7 +181,7 @@ struct NewStoryView: View {
         }
         if self.viewModel.isCreateOk{
             presentationMode.wrappedValue.dismiss()
-            print("create new story success \(self.viewModel.story?.storyInfo.name ?? self.name)")
+            print("create new story success \(self.viewModel.story?.storyInfo.title ?? self.title)")
             return
         }
         //showAlert(message: self.viewModel.err!.localizedDescription)

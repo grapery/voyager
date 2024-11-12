@@ -36,23 +36,33 @@ class StoryViewModel: ObservableObject {
     private let apiClient = APIClient.shared
     
     func fetchStory(withBoards:Bool) async {
+        guard !isLoading else { return }
+        DispatchQueue.main.async {
+            self.isLoading = true
+            self.err = nil
+        }
         let currentStoryId: Int64 = getCurrentStoryId()
-        self.err = nil
+        
         do {
             let fetchedStory = await apiClient.GetStory(storyId: currentStoryId)
-            if fetchedStory.self.1 == nil {
-                self.story = fetchedStory.self.0
-                self.isLoading = false
-                self.err = nil
+            if withBoards {
+                await self.fetchStoryBoards()
+            }
+            DispatchQueue.main.async {
+                if fetchedStory.self.1 == nil {
+                    self.story = fetchedStory.self.0
+                    self.isLoading = false
+                    self.err = nil
+                }
             }
         } catch {
-            self.err = ("Error fetching story: \(error.localizedDescription)" as! any Error)
-            self.isLoading = false
+            DispatchQueue.main.async {
+                self.err = ("Error fetching story: \(error.localizedDescription)" as! any Error)
+                self.isLoading = false
+            }
         }
         
-        if withBoards {
-            await self.fetchStoryBoards()
-        }
+        
     }
     
     // 添加一个方法来获取当前的 storyId
@@ -65,34 +75,55 @@ class StoryViewModel: ObservableObject {
     
     func updateStory() async  {
         guard let story = story else { return }
-        isLoading = true
-        self.err = nil
+        
+        DispatchQueue.main.async {
+            self.isLoading = true
+            self.err = nil
+        }
+        
         do {
             let updatedStory =  await apiClient.UpdateStory(storyId: self.storyId, short_desc: story.storyInfo.desc, status: Int64(story.storyInfo.status), isAiGen: story.storyInfo.isAiGen, origin: story.storyInfo.origin, params: story.storyInfo.params)
-            if updatedStory.self.1 != nil {
-                self.isUpdateOk = false
-            }else {
-                self.isUpdateOk = true
-                self.storyId = updatedStory.self.0
+            DispatchQueue.main.async {
+                if updatedStory.self.1 != nil {
+                    self.isUpdateOk = false
+                } else {
+                    self.isUpdateOk = true
+                    self.storyId = updatedStory.self.0
+                }
+                self.isLoading = false
             }
         } catch {
-            self.err = error
-            self.isLoading = false
-            
+            DispatchQueue.main.async {
+                self.err = error
+                self.isLoading = false
+            }
         }
     }
     
-    func publishStoryboard(storyId: Int64, boardId: Int64,userId: Int64,status:Int64) async  {
+    func publishStoryboard(storyId: Int64, boardId: Int64, userId: Int64, status: Int64) async {
         guard story != nil else { return }
-        self.err = nil
+        
+        // 在主线程上重置状态
+        DispatchQueue.main.async {
+            self.err = nil
+            self.isLoading = true  // 添加加载状态
+        }
+        
         do {
-            let updateResult =  await apiClient.UpdateStoryBoard(storyId: storyId, boardId: boardId,userId: userId,status:status)
-            if updateResult != nil {
-                throw NSError()
+            let updateResult = await apiClient.UpdateStoryBoard(storyId: storyId, boardId: boardId, userId: userId, status: status)
+            // 在主线程上处理结果
+            DispatchQueue.main.async {
+                if updateResult != nil {
+                    self.err = NSError(domain: "StoryViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to update storyboard"])
+                }
+                self.isLoading = false
             }
         } catch {
-            self.err = error
-            self.isLoading = false
+            // 在主线程上处理错误
+            DispatchQueue.main.async {
+                self.err = error
+                self.isLoading = false
+            }
         }
     }
     
@@ -102,33 +133,43 @@ class StoryViewModel: ObservableObject {
         do {
             let result = await apiClient.GetStoryboards(storyId: currentStoryId, branchId: self.branchId, startTime: 0, endTime: 0, offset: self.page, size: self.pageSize)
             if result.self.3 == nil {
-                self.storyboards = result.self.0
-                self.isLoading = false
-                self.err = nil
+                DispatchQueue.main.async {
+                    self.storyboards = result.self.0
+                    self.isLoading = false
+                    self.err = nil
+                }
             }
         } catch {
-            self.err = ("Error fetching storyboards: \(error.localizedDescription)" as! any Error)
-            self.isLoading = false
+            DispatchQueue.main.async {
+                self.err = ("Error fetching storyboards: \(error.localizedDescription)" as! any Error)
+                self.isLoading = false
+            }
         }
     }
     
     func createStoryBoard(prevBoardId: Int64, nextBoardId: Int64, title: String, content: String, isAiGen: Bool, backgroud: String, params: Common_StoryBoardParams) async -> (StoryBoard?,Error?){
         var newStoryboard: StoryBoard?
         var err: Error?
-        self.err = nil
+        
+        DispatchQueue.main.async {
+            self.err = nil
+        }
+        
         (newStoryboard,err) = await apiClient.CreateStoryboard(storyId: self.storyId, prevBoardId: prevBoardId, nextBoardId: nextBoardId, creator: self.userId, title: title, content: content, isAiGen: isAiGen, background: backgroud, params: params)
-        if err != nil {
-            self.isCreateOk = false
-            print("CreateStoryBoard failed",err!)
-            return (newStoryboard,nil)
+        
+        DispatchQueue.main.async {
+            if err != nil {
+                self.isCreateOk = false
+                print("CreateStoryBoard failed",err!)
+            } else if newStoryboard?.id == 0 {
+                self.isCreateOk = false
+                print("CreateStoryBoard failed")
+            } else {
+                self.isCreateOk = true
+                print("CreateStoryBoard ok")
+            }
         }
-        if newStoryboard?.id == 0 {
-            self.isCreateOk = false
-            print("CreateStoryBoard failed")
-            return (newStoryboard,nil)
-        }
-        self.isCreateOk = true
-        print("CreateStoryBoard ok")
+        
         return (newStoryboard,nil)
     }
     
