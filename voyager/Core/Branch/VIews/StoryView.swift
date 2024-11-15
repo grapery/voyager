@@ -8,6 +8,7 @@
 import SwiftUI
 import Kingfisher
 import Combine
+import AVKit
 
 struct StoryView: View {
     @StateObject var viewModel: StoryViewModel
@@ -29,6 +30,8 @@ struct StoryView: View {
     @State private var isForkingStory = false
     @State private var isLiked = false
     
+    @State private var selectedBoard: StoryBoard?
+    @State private var isShowingBoardDetail = false
     
     private func setButtonMsg() {
         if isGenerating {
@@ -118,7 +121,7 @@ struct StoryView: View {
             .background(Color.white)
             
             StoryTabView(selectedTab: $selectedTab)
-                .padding(.top, 4) // 减少顶部间距
+                .padding(.top, 2) // 减少顶部间距
 
             GeometryReader { geometry in
                     VStack(spacing: 0) {
@@ -139,19 +142,14 @@ struct StoryView: View {
             .padding(.top, 0) // 移除 GeometryReader 的顶部间距
         }
         .navigationTitle("故事")
-        .onAppear {
-            if viewModel.story == nil {
-                Task {
-                    await viewModel.fetchStory(withBoards: true)
-                }
-            }
-        }
         .task {
             if viewModel.storyboards == nil {
                 await viewModel.fetchStory(withBoards: true)
+                print("task fetchStory :",viewModel.storyboards as Any)
             }
         }
     }
+
     
     private var storyLineView: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -166,15 +164,14 @@ struct StoryView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(boards, id: \.id) { board in
-                            TimelineItemView(board: board) {
-                                StoryBoardCellView(
-                                    board: board,
-                                    userId: userId,
-                                    groupId: self.viewModel.story?.storyInfo.groupID ?? 0,
-                                    storyId: storyId,
-                                    viewModel: self.viewModel
-                                )
-                            }
+                            StoryBoardCellView(
+                                board: board,
+                                userId: userId,
+                                groupId: self.viewModel.story?.storyInfo.groupID ?? 0,
+                                storyId: storyId,
+                                viewModel: self.viewModel,
+                                selectedBoard: $selectedBoard
+                            )
                         }
                     }
                     .padding(.horizontal)
@@ -280,6 +277,13 @@ struct StoryView: View {
     }
 }
 
+// 添加场景媒体项目结构
+struct SceneMediaContent: Identifiable {
+    let id: String
+    let sceneTitle: String
+    let mediaItems: [MediaItem]
+}
+
 struct StoryBoardCellView: View {
     var board: StoryBoard?
     var userId: Int64
@@ -298,15 +302,64 @@ struct StoryBoardCellView: View {
     @State private var commentText: String = ""
     @State var commentViewModel = CommentsViewModel()
     
-    init(board: StoryBoard? = nil, userId: Int64, groupId: Int64, storyId: Int64, isShowingBoardDetail: Bool = false,viewModel: StoryViewModel) {
+    let columns = [
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8)
+    ]
+    
+    // 将 sceneMediaContents 改为普通属性而不是 @State
+    let sceneMediaContents: [SceneMediaContent]
+    
+    @Binding var selectedBoard: StoryBoard?
+    
+    init(board: StoryBoard? = nil, userId: Int64, groupId: Int64, storyId: Int64, isShowingBoardDetail: Bool = false, viewModel: StoryViewModel, selectedBoard: Binding<StoryBoard?>) {
         self.board = board
         self.userId = userId
         self.groupId = groupId
         self.storyId = storyId
-        self.isShowingBoardDetail = isShowingBoardDetail
         self.viewModel = viewModel
-        self.isPressed = false
-        print("board info",board as Any)
+        self.isShowingBoardDetail = isShowingBoardDetail
+        
+        // 初始化 sceneMediaContents
+        var tempSceneContents: [SceneMediaContent] = []
+        
+        if let scenes = board?.boardInfo.sences.list {
+            print("Processing \(scenes.count) scenes")
+            
+            for scene in scenes {
+                let genResult = scene.genResult
+                if let data = genResult.data(using: .utf8),
+                   let urls = try? JSONDecoder().decode([String].self, from: data) {
+                    
+                    var mediaItems: [MediaItem] = []
+                    for urlString in urls {
+                        if let url = URL(string: urlString) {
+                            let item = MediaItem(
+                                id: UUID().uuidString,
+                                type: urlString.hasSuffix(".mp4") ? .video : .image,
+                                url: url,
+                                thumbnail: urlString.hasSuffix(".mp4") ? URL(string: urlString) : nil
+                            )
+                            mediaItems.append(item)
+                        }
+                    }
+                    
+                    let sceneContent = SceneMediaContent(
+                        id: UUID().uuidString,
+                        sceneTitle: scene.content,
+                        mediaItems: mediaItems
+                    )
+                    tempSceneContents.append(sceneContent)
+                    
+                    print("Added scene with \(mediaItems.count) media items")
+                }
+            }
+        }
+        
+        self.sceneMediaContents = tempSceneContents
+        print("Initialized with \(self.sceneMediaContents.count) scenes")
+        
+        self._selectedBoard = selectedBoard
     }
     
     var body: some View {
@@ -324,14 +377,71 @@ struct StoryBoardCellView: View {
                         .foregroundColor(.secondary)
                 }
             }
-            if let description = board?.boardInfo.content, !description.isEmpty {
-                Text(description)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
+            if sceneMediaContents.count <= 0 {
+                ZStack(alignment: .trailing) {
+                    Text((board?.boardInfo.content)!)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .lineLimit(3)
+                }
+            }else{
+                // 显示场景内容
+                ForEach(sceneMediaContents) { sceneContent in
+                    VStack(alignment: .leading) {
+                        Text(sceneContent.sceneTitle)
+                            .font(.headline)
+                            .padding(.vertical, 4)
+                        
+                        if sceneContent.mediaItems.isEmpty {
+                            Text((self.board?.boardInfo.content)!)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .lineLimit(2)
+                                .padding(.vertical, 4)
+                        } else {
+                            // 如果场景只有一张图片
+                            if sceneMediaContents.count == 4 {
+                                KFImage(sceneContent.mediaItems[0].url)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(height: 200)
+                                    .frame(maxWidth: .infinity)
+                                    .clipped()
+                                    .cornerRadius(8)
+                            }
+                            // 如果场景有多张图片
+                            else {
+                                LazyVGrid(columns: columns, spacing: 4) {
+                                    ForEach(Array(sceneContent.mediaItems.prefix(4).enumerated()), id: \.element.id) { index, item in
+                                        KFImage(item.url)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(height: UIScreen.main.bounds.width / 2 - 16)
+                                            .frame(maxWidth: .infinity)
+                                            .clipped()
+                                            .cornerRadius(8)
+                                            .overlay(
+                                                // 如果有更多图片，在最后一张上显示剩余数量
+                                                index == 3 && sceneContent.mediaItems.count > 4 ?
+                                                ZStack {
+                                                    Color.black.opacity(0.4)
+                                                    Text("+\(sceneContent.mediaItems.count - 4)")
+                                                        .foregroundColor(.white)
+                                                        .font(.title2)
+                                                }
+                                                    .cornerRadius(8)
+                                                : nil
+                                            )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(.vertical, 8)
+                }
             }
             
-            Spacer()
+            
             Spacer()
             HStack {
                 Spacer()
@@ -364,29 +474,6 @@ struct StoryBoardCellView: View {
                     .scaledToFit()
                     .border(Color.green.opacity(0.3))
                 Button(action: {
-                    // 处理评论逻辑
-                    self.isPressed = true
-                    self.isShowingCommentView = true
-                    
-                }) {
-                    HStack {
-                        Image(systemName: "bubble.circle")
-                            .font(.headline)
-                    }
-                    .scaledToFill()
-                }
-                .sheet(isPresented: $isShowingCommentView) {
-                    CommentSheet(isPresented: $isShowingCommentView, commentText: $commentText) {
-                        // 处理发布评论的回调
-                        Task {
-                            await submitComment()
-                        }
-                    }
-                }
-                Spacer()
-                    .scaledToFit()
-                    .border(Color.green.opacity(0.3))
-                Button(action: {
                     // 处理点赞逻辑
                     self.isPressed = true
                     self.isLiked = true
@@ -399,24 +486,29 @@ struct StoryBoardCellView: View {
                     .scaledToFill()
                     
                 }
+                if self.board?.boardInfo.creator == self.userId {
+                    Spacer()
+                        .scaledToFit()
+                        .border(Color.green.opacity(0.3))
+                    Button(action: {
+                        Task{
+                            // 处理删除逻辑
+                            await self.viewModel.deleteStoryBoard(storyId: self.storyId, boardId: (self.board?.boardInfo.storyBoardID)!, userId: self.userId)
+                        }
+                        
+                    }) {
+                        HStack {
+                            Image(systemName: "trash.circle")
+                                .font(.headline)
+                        }
+                        .scaledToFill()
+                        
+                    }
+                }
+                
                 Spacer()
                     .scaledToFit()
                     .border(Color.green.opacity(0.3))
-                Button(action: {
-                    Task{
-                        // 处理删除逻辑
-                        await self.viewModel.deleteStoryBoard(storyId: self.storyId, boardId: (self.board?.boardInfo.storyBoardID)!, userId: self.userId)
-                    }
-                    
-                }) {
-                    HStack {
-                        Image(systemName: "trash.circle")
-                            .font(.headline)
-                    }
-                    .scaledToFill()
-                    
-                }
-                Spacer()
             }
             .foregroundColor(.secondary)
             .font(.caption)
@@ -435,13 +527,6 @@ struct StoryBoardCellView: View {
                         prevBoardId: (self.board?.boardInfo.prevBoardID)!,
                         viewModel: self.$viewModel,
                         roles: [StoryRole](),isForkingStory: true)
-                }else if self.$isShowingCommentView.wrappedValue{
-                    CommentView(
-                        storyId: self.viewModel.storyId,
-                        boardId: (self.board?.boardInfo.storyBoardID)!,
-                        userId: self.viewModel.userId,
-                        viewModel: self.$viewModel
-                    )
                 }else if self.$isLiked.wrappedValue{
                     NewStoryBoardView(
                         storyId: self.viewModel.storyId,
@@ -456,11 +541,12 @@ struct StoryBoardCellView: View {
         }
         .padding()
         .background(Color(.systemBackground))
+        .contentShape(Rectangle())
         .onTapGesture {
-            isShowingBoardDetail = true
-        }
-        .fullScreenCover(isPresented: $isShowingBoardDetail) {
-            StoryBoardView(board: board, userId: userId, groupId: groupId, storyId: storyId)
+            if let board = self.board {
+                selectedBoard = board
+                isShowingBoardDetail = true
+            }
         }
     }
     
@@ -624,6 +710,93 @@ struct CommentSheet: View {
         .animation(.easeOut(duration: 0.16), value: keyboardHeight)
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
+}
+
+// 媒体项目类型
+struct MediaItem: Identifiable {
+    let id: String
+    let type: MediaType
+    let url: URL
+    let thumbnail: URL?
+}
+
+enum MediaType {
+    case image
+    case video
+}
+
+// 媒体项目视图
+struct MediaItemView: View {
+    let item: MediaItem
+    @State private var isPresented = false
+    
+    var body: some View {
+        Button(action: {
+            isPresented = true
+        }) {
+            Group {
+                switch item.type {
+                case .image:
+                    KFImage(item.url)
+                        .resizable()
+                        .scaledToFill()
+                case .video:
+                    ZStack {
+                        if let thumbnail = item.thumbnail {
+                            KFImage(thumbnail)
+                                .resizable()
+                                .scaledToFill()
+                        }
+                        Image(systemName: "play.circle.fill")
+                            .font(.largeTitle)
+                            .foregroundColor(.white)
+                            .shadow(radius: 2)
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $isPresented) {
+            MediaDetailView(item: item)
+        }
+    }
+}
+
+// 媒体详情视图
+struct MediaDetailView: View {
+    let item: MediaItem
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        NavigationView {
+            Group {
+                switch item.type {
+                case .image:
+                    KFImage(item.url)
+                        .resizable()
+                        .scaledToFit()
+                case .video:
+                    VideoPlayer(url: item.url)
+                }
+            }
+            .navigationBarItems(trailing: Button("关闭") {
+                presentationMode.wrappedValue.dismiss()
+            })
+        }
+    }
+}
+
+// 视频播放器视图
+struct VideoPlayer: UIViewControllerRepresentable {
+    let url: URL
+    
+    func makeUIViewController(context: Context) -> AVPlayerViewController {
+        let player = AVPlayer(url: url)
+        let controller = AVPlayerViewController()
+        controller.player = player
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {}
 }
 
 
