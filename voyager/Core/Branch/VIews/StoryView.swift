@@ -64,13 +64,13 @@ struct StoryView: View {
                         KFImage(URL(string: self.viewModel.story?.storyInfo.avatar ?? ""))
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 60, height: 60)
+                            .frame(width: 40, height: 40)
                             .clipShape(Circle())
                         
                         VStack(alignment: .leading) {
                             Text(self.viewModel.story?.storyInfo.name ?? "")
-                                .font(.title2)
-                                .fontWeight(.bold)
+                                .font(.headline)
+                                .lineLimit(1)
                             
                             if let createdAt = self.viewModel.story?.storyInfo.ctime {
                                 Text("创建于: \(formatDate(timestamp: createdAt))")
@@ -86,11 +86,11 @@ struct StoryView: View {
                 HStack{
                     VStack(alignment: .leading, spacing: 2){
                         Text("故事简介")
-                            .font(.title)
-                            .lineLimit(5)
-                        Text(self.viewModel.story?.storyInfo.origin ?? "")
                             .font(.subheadline)
-                            .lineLimit(5)
+                            .lineLimit(3)
+                        Text(self.viewModel.story?.storyInfo.origin ?? "")
+                            .font(.body)
+                            .lineLimit(3)
                     }
                     Spacer()
                     VStack(alignment: .trailing, spacing: 2){
@@ -119,7 +119,7 @@ struct StoryView: View {
             }
             .padding()
             .background(Color.white)
-            
+            Divider()
             StoryTabView(selectedTab: $selectedTab)
                 .padding(.top, 2) // 减少顶部间距
 
@@ -546,6 +546,16 @@ struct StoryBoardCellView: View {
             if let board = self.board {
                 selectedBoard = board
                 isShowingBoardDetail = true
+            }
+        }
+        .sheet(isPresented: $isShowingBoardDetail) {
+            if let selectedBoard = selectedBoard {
+                StoryBoardView(
+                    board: selectedBoard,
+                    userId: userId,
+                    groupId: groupId,
+                    storyId: storyId
+                )
             }
         }
     }
