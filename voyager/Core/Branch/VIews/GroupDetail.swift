@@ -29,38 +29,41 @@ struct GroupDetailView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Group Info Header
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    NavigationLink(destination: UpdateGroupView(group: self.group!, userId: self.user.userID)) {
+            VStack(alignment: .leading,spacing: 8) {
+                NavigationLink(destination: UpdateGroupView(group: self.group!, userId: self.user.userID)) {
+                    HStack{
                         VStack(alignment: .leading) {
                             KFImage(URL(string: group!.info.avatar))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 60, height: 60)
-                            .clipShape(Circle())
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 50, height: 50)
+                                .clipShape(Circle())
                         }
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    Spacer()
-                    Text((self.group?.info.name)!)
-                    Spacer()
-                    
-                    Button(action: {
-                        Task{
-                            await self.viewModel.JoinGroup(groupdId: self.viewModel.groupId)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text((self.group?.info.name)!)
+                                .font(.headline)
+                                .lineLimit(1)
                         }
-                    }) {
-                        Text("已加入")
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.gray.opacity(0.2))
-                            .cornerRadius(16)
+                        Spacer().scaledToFit()
+                        VStack(alignment: .trailing, spacing: 2){
+                            Button(action: {
+                                Task{
+                                    await self.viewModel.JoinGroup(groupdId: self.viewModel.groupId)
+                                }
+                            }) {
+                                Text("已加入")
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(Color.gray.opacity(0.2))
+                                    .cornerRadius(16)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
                     }
                 }
-                VStack{
+                VStack(alignment: .leading){
                     Text(group!.info.desc)
-                        .font(.subheadline)
+                        .font(.body)
                         .lineLimit(3)
                 }
             }
@@ -72,6 +75,7 @@ struct GroupDetailView: View {
             
             // Tab View
             CustomTabView(selectedTab: $selectedTab)
+            Divider()
             
             // Story List
             if selectedTab == 0 {
@@ -145,7 +149,7 @@ struct CustomTabView: View {
     
     var body: some View {
         HStack {
-            Spacer().padding(.horizontal, 2)
+            Spacer().scaledToFit()
             ForEach(0..<tabs.count) { index in
                 Button(action: {
                     selectedTab = index
@@ -154,7 +158,7 @@ struct CustomTabView: View {
                         .foregroundColor(selectedTab == index ? .black : .gray)
                         .padding(.vertical, 8)
                 }
-                Spacer().padding(.horizontal, 2)
+                Spacer().scaledToFit()
             }
         }
         .padding(.horizontal)
