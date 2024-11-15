@@ -37,6 +37,7 @@ extension APIClient {
                 return ""
             }
             let imageUrl = (response.message?.data.url)!
+            print("upload image : ",response.message?.data as Any)
             return imageUrl
         } catch {
             throw ImageUploadError.rpcError(error)

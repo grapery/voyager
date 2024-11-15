@@ -30,6 +30,7 @@ struct UpdateGroupView: View {
         _groupDescription = State(initialValue: group.info.desc)
         _groupLocation = State(initialValue: group.info.location)
         _groupStatus = State(initialValue: group.info.status)
+        _avatarImage = State(initialValue: UIImage(systemName: "infinity.circle"))
     }
     
     var body: some View {
@@ -48,15 +49,15 @@ struct UpdateGroupView: View {
                         }
                     }
                     
-                    TextField("Group Name", text: $groupName)
-                    TextField("Description", text: $groupDescription)
-                    TextField("Location (Optional)", text: $groupLocation)
-                    TextField("Status (Optional)", text: $groupStatusStr)
+                    TextField("小组名称", text: $groupName)
+                    TextField("小组简介", text: $groupDescription)
+                    TextField("地址（可以虚拟、可以真实）", text: $groupLocation)
+                    TextField("小组状态", text: $groupStatusStr)
                 }
                 
                 Section {
                     Button(action: updateGroup) {
-                        Text("Update Group")
+                        Text("更新小组信息")
                     }
                 }
             }
@@ -84,16 +85,15 @@ struct UpdateGroupView: View {
             return
         }
         // Upload avatar image if selected
-        if let avatarImage = avatarImage {
-            Task{
-                self.avatar = try await APIClient.shared.uploadImage(image: avatarImage, filename: defaultAvator)
-            }
-        }
-        // Update group without changing avatar
         Task{
-            await self.updateGroupInfo(avatarURL: self.avatar)
+            self.avatar = try await APIClient.shared.uploadImage(image: self.avatarImage!, filename: defaultAvator)
+            if (self.avatarImage?.size.width)! > 10{
+                await self.updateGroupInfo(avatarURL: self.avatar)
+            }else{
+                await self.updateGroupInfo(avatarURL: defaultAvator)
+            }
+            
         }
-        
     }
     
     private func updateGroupInfo(avatarURL: String?) async {
@@ -108,7 +108,7 @@ struct UpdateGroupView: View {
             self.groupStatus = Int32(status)
         } else {
             // Handle invalid input
-            alertMessage = "Invalid status value. Please enter a valid number."
+            alertMessage = "小组状态设置错误"
             showAlert = true
             return
         }
@@ -127,7 +127,7 @@ struct UpdateGroupView: View {
             location: self.groupLocation,
             status: Int64(self.groupStatus))
         if result.self != nil {
-            alertMessage = "Failed to update group"
+            alertMessage = "更新小组信息失败"
             showAlert = true
         }else{
             presentationMode.wrappedValue.dismiss()
