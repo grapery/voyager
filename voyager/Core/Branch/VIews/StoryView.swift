@@ -169,8 +169,7 @@ struct StoryView: View {
                                 userId: userId,
                                 groupId: self.viewModel.story?.storyInfo.groupID ?? 0,
                                 storyId: storyId,
-                                viewModel: self.viewModel,
-                                selectedBoard: $selectedBoard
+                                viewModel: self.viewModel
                             )
                         }
                     }
@@ -310,9 +309,8 @@ struct StoryBoardCellView: View {
     // 将 sceneMediaContents 改为普通属性而不是 @State
     let sceneMediaContents: [SceneMediaContent]
     
-    @Binding var selectedBoard: StoryBoard?
     
-    init(board: StoryBoard? = nil, userId: Int64, groupId: Int64, storyId: Int64, isShowingBoardDetail: Bool = false, viewModel: StoryViewModel, selectedBoard: Binding<StoryBoard?>) {
+    init(board: StoryBoard? = nil, userId: Int64, groupId: Int64, storyId: Int64, isShowingBoardDetail: Bool = false, viewModel: StoryViewModel) {
         self.board = board
         self.userId = userId
         self.groupId = groupId
@@ -358,8 +356,6 @@ struct StoryBoardCellView: View {
         
         self.sceneMediaContents = tempSceneContents
         print("Initialized with \(self.sceneMediaContents.count) scenes")
-        
-        self._selectedBoard = selectedBoard
     }
     
     var body: some View {
@@ -377,69 +373,83 @@ struct StoryBoardCellView: View {
                         .foregroundColor(.secondary)
                 }
             }
-            if sceneMediaContents.count <= 0 {
-                ZStack(alignment: .trailing) {
-                    Text((board?.boardInfo.content)!)
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                        .lineLimit(3)
-                }
-            }else{
-                // 显示场景内容
-                ForEach(sceneMediaContents) { sceneContent in
-                    VStack(alignment: .leading) {
-                        Text(sceneContent.sceneTitle)
-                            .font(.headline)
-                            .padding(.vertical, 4)
-                        
-                        if sceneContent.mediaItems.isEmpty {
-                            Text((self.board?.boardInfo.content)!)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                                .lineLimit(2)
+            VStack{
+                if sceneMediaContents.count <= 0 {
+                    ZStack(alignment: .trailing) {
+                        Text((board?.boardInfo.content)!)
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                            .lineLimit(3)
+                    }
+                }else{
+                    // 显示场景内容
+                    ForEach(sceneMediaContents) { sceneContent in
+                        VStack(alignment: .leading) {
+                            Text(sceneContent.sceneTitle)
+                                .font(.headline)
                                 .padding(.vertical, 4)
-                        } else {
-                            // 如果场景只有一张图片
-                            if sceneMediaContents.count == 4 {
-                                KFImage(sceneContent.mediaItems[0].url)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(height: 200)
-                                    .frame(maxWidth: .infinity)
-                                    .clipped()
-                                    .cornerRadius(8)
-                            }
-                            // 如果场景有多张图片
-                            else {
-                                LazyVGrid(columns: columns, spacing: 4) {
-                                    ForEach(Array(sceneContent.mediaItems.prefix(4).enumerated()), id: \.element.id) { index, item in
-                                        KFImage(item.url)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(height: UIScreen.main.bounds.width / 2 - 16)
-                                            .frame(maxWidth: .infinity)
-                                            .clipped()
-                                            .cornerRadius(8)
-                                            .overlay(
-                                                // 如果有更多图片，在最后一张上显示剩余数量
-                                                index == 3 && sceneContent.mediaItems.count > 4 ?
-                                                ZStack {
-                                                    Color.black.opacity(0.4)
-                                                    Text("+\(sceneContent.mediaItems.count - 4)")
-                                                        .foregroundColor(.white)
-                                                        .font(.title2)
-                                                }
-                                                    .cornerRadius(8)
-                                                : nil
-                                            )
+                            
+                            if sceneContent.mediaItems.isEmpty {
+                                Text((self.board?.boardInfo.content)!)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(2)
+                                    .padding(.vertical, 4)
+                            } else {
+                                // 如果场景只有一张图片
+                                if sceneMediaContents.count == 4 {
+                                    KFImage(sceneContent.mediaItems[0].url)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(height: 200)
+                                        .frame(maxWidth: .infinity)
+                                        .clipped()
+                                        .cornerRadius(8)
+                                }
+                                // 如果场景有多张图片
+                                else {
+                                    LazyVGrid(columns: columns, spacing: 4) {
+                                        ForEach(Array(sceneContent.mediaItems.prefix(4).enumerated()), id: \.element.id) { index, item in
+                                            KFImage(item.url)
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(height: UIScreen.main.bounds.width / 2 - 16)
+                                                .frame(maxWidth: .infinity)
+                                                .clipped()
+                                                .cornerRadius(8)
+                                                .overlay(
+                                                    // 如果有更多图片，在最后一张上显示剩余数量
+                                                    index == 3 && sceneContent.mediaItems.count > 4 ?
+                                                    ZStack {
+                                                        Color.black.opacity(0.4)
+                                                        Text("+\(sceneContent.mediaItems.count - 4)")
+                                                            .foregroundColor(.white)
+                                                            .font(.title2)
+                                                    }
+                                                        .cornerRadius(8)
+                                                    : nil
+                                                )
+                                        }
                                     }
                                 }
                             }
                         }
+                        .padding(.vertical, 8)
                     }
-                    .padding(.vertical, 8)
                 }
             }
+            .onTapGesture {
+                isShowingBoardDetail = true
+            }
+            .fullScreenCover(isPresented: $isShowingBoardDetail){
+                StoryBoardView(
+                    board: self.board,
+                    userId: userId,
+                    groupId: groupId,
+                    storyId: storyId
+                )
+            }
+            
             
             
             Spacer()
@@ -542,22 +552,7 @@ struct StoryBoardCellView: View {
         .padding()
         .background(Color(.systemBackground))
         .contentShape(Rectangle())
-        .onTapGesture {
-            if let board = self.board {
-                selectedBoard = board
-                isShowingBoardDetail = true
-            }
-        }
-        .sheet(isPresented: $isShowingBoardDetail) {
-            if let selectedBoard = selectedBoard {
-                StoryBoardView(
-                    board: selectedBoard,
-                    userId: userId,
-                    groupId: groupId,
-                    storyId: storyId
-                )
-            }
-        }
+        
     }
     
     private func formatDate(timestamp: Int64) -> String {
