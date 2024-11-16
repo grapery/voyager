@@ -134,6 +134,7 @@ struct GroupGridItemView: View {
 struct GroupDiscussionCell: View {
     let group: BranchGroup
     @ObservedObject var viewModel: GroupViewModel
+    @State private var showGroupDetail = false
     
     init(group: BranchGroup, viewModel: GroupViewModel) {
         self.group = group
@@ -141,28 +142,39 @@ struct GroupDiscussionCell: View {
     }
     
     var body: some View {
-        NavigationLink(destination: GroupDetailView(user: viewModel.user, group: self.group)) {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text(group.info.name)
-                    Text("・")
-                    Text("小组")
-                    Spacer()
-                    Text("更新时间")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
-                
-                Text(group.info.desc)
-                    .lineLimit(2)
-                
-                KFImage(URL(string: group.info.avatar))
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 200)
-                    .clipped()
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(group.info.name)
+                Text("・")
+                Text("小组")
+                Spacer()
+                Text("更新时间")
+                    .font(.caption)
+                    .foregroundColor(.gray)
             }
-            .padding(.vertical, 8)
+            
+            Text(group.info.desc)
+                .lineLimit(2)
+            
+            KFImage(URL(string: group.info.avatar))
+                .resizable()
+                .scaledToFill()
+                .frame(height: 200)
+                .clipped()
+        }
+        .onTapGesture {
+            showGroupDetail = true
+        }
+        .fullScreenCover(isPresented: $showGroupDetail) {
+            NavigationView {
+                GroupDetailView(user: self.viewModel.user, group: group)
+                    .navigationBarItems(leading: Button(action: {
+                        showGroupDetail = false
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.primary)
+                    })
+            }
         }
     }
 }
