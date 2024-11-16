@@ -11,142 +11,163 @@ import Combine
 
 struct GroupView: View {
     @StateObject var viewModel: GroupViewModel
-    @State private var isShowingNewGroupView = false  // 添加这一行
-    @State private var selectedGroup: BranchGroup?  // 添加这一行
-
+    @State private var isShowingNewGroupView = false
+    @State private var searchText = ""
+    @State private var selectedTab = "全部"
+    
+    let tabs = ["全部", "都市", "传说", "鬼神", "冒险", "历史架空", "模拟live", "ACG"]
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: GroupViewModel(user: user))
     }
-    
     var body: some View {
-        NavigationView {
-            List {
-                ForEach(viewModel.groups) { group in
-                    NavigationLink(destination: GroupDetailView(user: self.viewModel.user, group: Binding.constant(group))) {
-                        GroupCellView(group: group, viewModel: self.viewModel)
+        NavigationStack {
+            VStack(spacing: 0) {
+                // 搜索栏
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.gray)
+                    TextField("搜索小组", text: $searchText)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                }
+                .padding()
+                
+                // 我的小组标题
+                HStack {
+                    Text("我的小组")
+                        .font(.title2)
+                        .bold()
+                    Spacer()
+                    NavigationLink {
+                        AllGroupsView(viewModel: viewModel)
+                    } label: {
+                        Text("全部 >")
+                            .foregroundColor(.gray)
                     }
-                    .buttonStyle(PlainButtonStyle())
-                    .listRowSeparator(.hidden)
                 }
-            }
-            .listRowInsets(EdgeInsets())
-            .listStyle(PlainListStyle())
-            .navigationTitle("加入的群组")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        isShowingNewGroupView = true  // 修改这里
-                    }) {
-                        Image(systemName: "plus.circle")
+                .padding(.horizontal)
+                .onAppear {
+                    Task{
+                        await viewModel.fetchGroups()
                     }
-                    .foregroundColor(.primary)
                 }
-            }
-        }
-        .onAppear {
-            Task{
-                await viewModel.fetchGroups()
-            }
-        }
-        .sheet(isPresented: $isShowingNewGroupView) {  // 添加这个 sheet
-            NewGroupView(userId: self.viewModel.user.userID,viewModel: self.viewModel).onDisappear(){
-                Task{
-                    isShowingNewGroupView = false
-                    await viewModel.fetchGroups()
+                
+                // 小组网格
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHGrid(rows: [GridItem(.fixed(120))], spacing: 15) {
+                        ForEach(viewModel.groups) { group in
+                            GroupGridItemView(group: group, viewModel: self.viewModel)
+                        }
+                    }
+                    .padding(.horizontal)
                 }
+                
+                // 分类标签
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 20) {
+                        ForEach(tabs, id: \.self) { tab in
+                            Text(tab)
+                                .foregroundColor(selectedTab == tab ? .green : .gray)
+                                .onTapGesture {
+                                    selectedTab = tab
+                                }
+                        }
+                    }
+                    .padding()
+                }
+                
+                // 讨论列表
+                List {
+                    ForEach(viewModel.groups) { group in
+                        GroupDiscussionCell(group: group, viewModel: viewModel)
+                    }
+                }
+                .listStyle(PlainListStyle())
             }
-            
+            .navigationBarItems(trailing: Button(action: {
+                isShowingNewGroupView = true
+            }) {
+                Image(systemName: "plus.circle")
+            })
+            .sheet(isPresented: $isShowingNewGroupView) {
+                NewGroupView(userId: viewModel.user.userID, viewModel: viewModel)
+            }
         }
     }
 }
 
-struct GroupCellView: View {
+// 网格项视图
+struct GroupGridItemView: View {
     @State public var group: BranchGroup
     @State private var groupProfile: GroupProfile?
-    @StateObject private var viewModel: GroupViewModel
+    @ObservedObject private var viewModel: GroupViewModel
     
     init(group: BranchGroup, viewModel: GroupViewModel) {
         self.group = group
-        self._viewModel = StateObject(wrappedValue: viewModel)
+        self.viewModel = viewModel
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
-            // Header
-            HStack {
-                KFImage(URL(string: self.group.info.avatar))
+        NavigationLink(destination: GroupDetailView(user: self.viewModel.user, group: Binding(
+            get: { self.group },
+            set: { self.group = $0 ?? self.group }
+        ))) {
+            VStack(alignment: .center) {
+                KFImage(URL(string: group.info.avatar))
                     .resizable()
                     .scaledToFill()
+                    .frame(width: 60, height: 60)
                     .clipShape(Circle())
-                    .frame(width: 40, height: 40)
                 
                 Text(group.info.name)
-                    .font(.headline)
+                    .font(.caption)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
                 
-                Spacer()
-                
-                Button(action: {
-                    // 更多操作
-                }) {
-                    Image(systemName: "ellipsis")
-                }
+                Text("999+")
+                    .font(.caption2)
+                    .foregroundColor(.gray)
             }
-            
-            // Content - Avatar Grid
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 4) {
-                ForEach(0..<min(1, 9), id: \.self) { index in
-                    KFImage(URL(string: group.info.avatar))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: 100)
-                        .clipped()
-                }
-            }
-            // Footer
-            HStack(spacing: 4) {
-                Spacer()
-                Button(action: {}) {
-                    HStack {
-                        Image(systemName: "bell.circle")
-                            .font(.headline)
-                        Text("关注")
-                            .font(.headline)
-                    }
-                    .scaledToFill()
-                }
-                Spacer()
-                Button(action: {}) {
-                    HStack {
-                        Image(systemName: "heart.circle")
-                            .font(.headline)
-                        Text("点赞")
-                            .font(.headline)
-                    }
-                    .scaledToFill()
-                }
-                Spacer()
-                Button(action: {}) {
-                    HStack {
-                        Image(systemName: "square.and.arrow.up.circle")
-                            .font(.headline)
-                        Text("分享")
-                            .font(.headline)
-                    }
-                    .scaledToFill()
-                }
-                Spacer()
-            }
-            .font(.subheadline)
+            .frame(width: 80)
         }
-        .padding()
-        .background(Color.white)
-        .onAppear {
-            Task {
-                await viewModel.fetchGroupProfile(groupdId: group.info.groupID)
-                if let profile = viewModel.groupsProfile[group.info.groupID] {
-                    self.groupProfile = profile
+    }
+}
+
+// 讨论单元格
+struct GroupDiscussionCell: View {
+    let group: BranchGroup
+    @ObservedObject var viewModel: GroupViewModel
+    
+    init(group: BranchGroup, viewModel: GroupViewModel) {
+        self.group = group
+        self.viewModel = viewModel
+    }
+    
+    var body: some View {
+        NavigationLink(destination: GroupDetailView(user: viewModel.user, group: Binding(
+            get: { group },
+            set: { _ in }
+        ))) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text(group.info.name)
+                    Text("・")
+                    Text("小组")
+                    Spacer()
+                    Text("更新时间")
+                        .font(.caption)
+                        .foregroundColor(.gray)
                 }
+                
+                Text(group.info.desc)
+                    .lineLimit(2)
+                
+                KFImage(URL(string: group.info.avatar))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 200)
+                    .clipped()
             }
+            .padding(.vertical, 8)
         }
     }
 }

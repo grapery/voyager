@@ -79,7 +79,7 @@ struct FeedView: View {
     
     // 顶部标签选择器
     private var topTabSelector: some View {
-        HStack(spacing: 24) {
+        HStack(spacing: 16) {
             Button(action: { 
                 withAnimation {
                     isShowingFollowing = true
