@@ -88,7 +88,7 @@ struct FeedView: View {
                 VStack(spacing: 8) {
                     Text("最新动态")
                         .foregroundColor(isShowingFollowing ? .black : .gray)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.system(size: 12, weight: .medium))
                     
                     // 下划线指示器
                     Rectangle()
@@ -106,7 +106,7 @@ struct FeedView: View {
                 VStack(spacing: 8) {
                     Text("发现")
                         .foregroundColor(!isShowingFollowing ? .black : .gray)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.system(size: 12, weight: .medium))
                     
                     // 下划线指示器
                     Rectangle()
@@ -118,7 +118,7 @@ struct FeedView: View {
             
             Spacer()
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 8)
         .padding(.vertical, 8)
         .background(Color.white)
     }
@@ -315,7 +315,7 @@ struct FeedCustomTabView: View {
                         VStack(spacing: 4) {
                             Text(tab.title)
                                 .foregroundColor(selectedTab == tab.type ? .black : .gray)
-                                .padding(.vertical, 8)
+                                .padding(.vertical, 2)
                             
                             // 添加下划线指示器
                             Rectangle()
