@@ -107,10 +107,7 @@ struct GroupGridItemView: View {
     }
     
     var body: some View {
-        NavigationLink(destination: GroupDetailView(user: self.viewModel.user, group: Binding(
-            get: { self.group },
-            set: { self.group = $0 ?? self.group }
-        ))) {
+        NavigationLink(destination: GroupDetailView(user: self.viewModel.user, group: self.group)) {
             VStack(alignment: .center) {
                 KFImage(URL(string: group.info.avatar))
                     .resizable()
@@ -129,6 +126,7 @@ struct GroupGridItemView: View {
             }
             .frame(width: 80)
         }
+        .buttonStyle(PlainButtonStyle()) 
     }
 }
 
@@ -143,10 +141,7 @@ struct GroupDiscussionCell: View {
     }
     
     var body: some View {
-        NavigationLink(destination: GroupDetailView(user: viewModel.user, group: Binding(
-            get: { group },
-            set: { _ in }
-        ))) {
+        NavigationLink(destination: GroupDetailView(user: viewModel.user, group: self.group)) {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text(group.info.name)

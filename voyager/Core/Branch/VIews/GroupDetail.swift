@@ -12,18 +12,19 @@ import Combine
 struct GroupDetailView: View {
     var user: User
     var currentUser: User
-    @Binding var group: BranchGroup?
+    @State var group: BranchGroup?
     @State var showNewStoryView: Bool = false
     @State var viewModel: GroupDetailViewModel
     @State private var selectedTab = 0
     @State private var showUpdateGroupView = false
     @State private var needsRefresh = false
 
-    init(user: User, group: Binding<BranchGroup?>) {
+    init(user: User, group: BranchGroup) {
         self.user = user
         self.currentUser = user
-        self._group = group
-        self.viewModel = GroupDetailViewModel(user: user, groupId: (group.wrappedValue?.info.groupID)!)
+        self.group = group
+        self.viewModel = GroupDetailViewModel(user: user, groupId: (group.info.groupID))
+        print("group: ",group)
     }
     
     var body: some View {
@@ -105,7 +106,6 @@ struct GroupDetailView: View {
                             NavigationLink(destination: StoryView(story: story,userId: self.user.userID)) {
                                 VStack{
                                     StoryCellView(story: story, userId: self.user.userID)
-                                    Spacer()
                                 }
                             }
                         }

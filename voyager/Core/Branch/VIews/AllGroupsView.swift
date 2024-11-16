@@ -104,12 +104,12 @@ struct TabBarView: View {
 struct GroupListItemView: View {
     let group: BranchGroup
     let viewModel: GroupViewModel
+    @State private var showGroupDetail = false
     
     var body: some View {
-        NavigationLink(destination: GroupDetailView(user: viewModel.user, group: Binding(
-            get: { group },
-            set: { _ in }
-        ))) {
+        Button(action: {
+            showGroupDetail = true
+        }) {
             HStack(spacing: 1) {
                 // 小组头像
                 KFImage(URL(string: group.info.avatar))
@@ -148,5 +148,16 @@ struct GroupListItemView: View {
             }
             .padding(.vertical, 8)
         }
+        .fullScreenCover(isPresented: $showGroupDetail) {
+            NavigationView {
+                GroupDetailView(user: self.viewModel.user, group: group)
+                    .navigationBarItems(leading: Button(action: {
+                        showGroupDetail = false
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.primary)
+                    })
+            }
+        }
     }
-} 
+}
