@@ -54,7 +54,6 @@ class GroupViewModel: ObservableObject {
 
         (result,err) = await APIClient.shared.CreateGroup(userId: userId, name: name)
         if err != nil {
-            print("创建群组失败")
             return (nil,err)
         }
         return (result!,nil)
