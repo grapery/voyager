@@ -146,33 +146,3 @@ class FeedViewModel: ObservableObject {
     }
     
 }
-
-class TimeLineModel: ObservableObject{
-    @Published var timelineId: Int64
-    @Published var rootId: Int64
-    @Published var totalCount: Int64
-    @Published var forkId: [Int64]
-    @Published var currentId: Int64
-    
-    @Published var boards = [StoryBoard]()
-    @Published var filters = [String]()
-    @Published var page: Int64
-    @Published var size: Int64
-    @Published var timeStamp: Int64
-    @Published var user:User
-    
-    init(timelineId: Int64, user: User) {
-        self.timelineId = timelineId
-        self.rootId = 0
-        self.totalCount = 0
-        self.forkId = [Int64]()
-        self.currentId = 0
-        self.boards = [StoryBoard]()
-        self.filters = [String]()
-        self.page = 0
-        self.size = 0
-        self.timeStamp = 0
-        self.user = user
-    }
-
-}

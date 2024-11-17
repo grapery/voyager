@@ -15,6 +15,8 @@ struct StoryBoardView: View {
     @State var groupId: Int64
     @State var storyId: Int64
     @State private var currentSceneIndex = 0
+    @State private var showEditView = false
+    @State var viewModel: StoryViewModel
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
@@ -36,6 +38,14 @@ struct StoryBoardView: View {
                         .foregroundColor(.white)
                         .font(.headline)
                     Spacer()
+                    
+                    Button(action: {
+                        showEditView = true
+                    }) {
+                        Image(systemName: "pencil")
+                            .foregroundColor(.white)
+                            .imageScale(.large)
+                    }
                     
                     Button(action: { /* 更多操作 */ }) {
                         Image(systemName: "ellipsis")
@@ -120,6 +130,13 @@ struct StoryBoardView: View {
             }
         }
         .navigationBarHidden(true)
+        .fullScreenCover(isPresented: $showEditView) {
+            EditStoryBoardView(
+                storyId: storyId,
+                boardId: (board?.boardInfo.storyBoardID)!,
+                viewModel: self.viewModel
+            )
+        }
     }
 }
 

@@ -334,31 +334,7 @@ extension APIClient {
         }
     }
     
-    func LikeStoryboard(boardId: Int64, storyId: Int64, userId: Int64) async -> (Error?) {
-        do {
-            let authClient = Common_TeamsApiClient(client: self.client!)
-            let request = Common_LikeStoryboardRequest.with {
-                $0.boardID = boardId
-                $0.storyID = storyId
-                $0.userID = userId
-            }
-            var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
-            
-            let resp = await authClient.likeStoryboard(request: request, headers: header)
-            
-            if resp.message?.code != 0 {
-                // If the response code is not 1, it indicates an error
-                return NSError(domain: "LikeStoryboardError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
-            }
-            
-            // If successful, return nil (no error)
-            return nil
-        } catch {
-            // If an exception occurs during the API call, return it as the error
-            return error
-        }
-    }
+    
     
     func ShareStoryboard(boardId: Int64, storyId: Int64, userId: Int64) async -> (Error?) {
         do {
@@ -833,6 +809,7 @@ extension APIClient {
             return ([Common_StoryBoardSence](), error)
         }
     }
+    
     func GetStoryBoardSencesRenderStatus(storyId: Int64,boardId: Int64,userId: Int64,sceneId: Int64) async -> (Common_StoryBoardSence,Error?){
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)
@@ -860,5 +837,128 @@ extension APIClient {
         }
     }
     
+    func LikeStoryRole(roleId: Int64, storyId: Int64, userId: Int64) async -> (Error?) {
+        do {
+           
+            
+            // If successful, return nil (no error)
+            return nil
+        } catch {
+            // If an exception occurs during the API call, return it as the error
+            return error
+        }
+    }
+    
+    func UnLikeStoryRole(boardId: Int64, storyId: Int64, userId: Int64) async -> (Error?) {
+        do {
+            // If successful, return nil (no error)
+            return nil
+        } catch {
+            // If an exception occurs during the API call, return it as the error
+            return error
+        }
+    }
+    
+    func LikeStoryboard(boardId: Int64, storyId: Int64, userId: Int64) async -> (Error?) {
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_LikeStoryboardRequest.with {
+                $0.boardID = boardId
+                $0.storyID = storyId
+                $0.userID = userId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.likeStoryboard(request: request, headers: header)
+            
+            if resp.message?.code != 0 {
+                // If the response code is not 1, it indicates an error
+                return NSError(domain: "LikeStoryboard", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+            }
+            
+            // If successful, return nil (no error)
+            return nil
+        } catch {
+            // If an exception occurs during the API call, return it as the error
+            return error
+        }
+    }
+    
+    func UnLikeStoryboard(boardId: Int64, storyId: Int64, userId: Int64) async -> (Error?) {
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_UnLikeStoryboardRequest.with {
+                $0.boardID = boardId
+                $0.storyID = storyId
+                $0.userID = userId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.unLikeStoryboard(request: request, headers: header)
+            
+            if resp.message?.code != 0 {
+                // If the response code is not 1, it indicates an error
+                return NSError(domain: "UnLikeStoryBoard", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+            }
+            
+            // If successful, return nil (no error)
+            return nil
+        } catch {
+            // If an exception occurs during the API call, return it as the error
+            return error
+        }
+    }
+    
+    func LikeStory(storyId: Int64, userId: Int64) async -> (Error?) {
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_LikeStoryRequest.with {
+                $0.storyID = storyId
+                $0.userID = userId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.likeStory(request: request, headers: header)
+            
+            if resp.message?.code != 0 {
+                // If the response code is not 1, it indicates an error
+                return NSError(domain: "LikeStory", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+            }
+            
+            // If successful, return nil (no error)
+            return nil
+        } catch {
+            // If an exception occurs during the API call, return it as the error
+            return error
+        }
+    }
+    
+    func UnLikeStory(storyId: Int64, userId: Int64) async -> (Error?) {
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_UnLikeStoryRequest.with {
+                $0.storyID = storyId
+                $0.userID = userId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            
+            let resp = await authClient.unLikeStory(request: request, headers: header)
+            
+            if resp.message?.code != 0 {
+                // If the response code is not 1, it indicates an error
+                return NSError(domain: "UnLikeStory", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+            }
+            
+            // If successful, return nil (no error)
+            return nil
+        } catch {
+            // If an exception occurs during the API call, return it as the error
+            return error
+        }
+    }
     
 }

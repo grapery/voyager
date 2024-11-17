@@ -10,31 +10,85 @@ import Foundation
 
 class FeedCellViewModel: ObservableObject {
     @Published var user: User?
+    let storyId: Int64
+    let storyboardId: Int64
+    let roleId: Int64
+    
     init(user: User? = nil) {
         self.user = user
+        self.storyId = 0
+        self.storyboardId = 0
+        self.roleId = 0
+    }
+    init(user: User? = nil,storyId:Int64) {
+        self.user = user
+        self.storyId = storyId
+        self.storyboardId = 0
+        self.roleId = 0
     }
     
-    func like() async{
-        //await APIClient.shared.
-        print("like buttom is pressed")
+    init(user: User? = nil,storyId:Int64,storyboardId:Int64) {
+        self.user = user
+        self.storyId = storyId
+        self.storyboardId = storyboardId
+        self.roleId = 0
     }
     
-    func unlike() async{
-        //await APIClient.shared.
-        print("unlike buttom is pressed")
+    init(user: User? = nil,storyId:Int64,roleId:Int64) {
+        self.user = user
+        self.storyId = storyId
+        self.storyboardId = 0
+        self.roleId = roleId
     }
     
-    func fetchItemComments() async -> [Comment] {
+    func likeStory() async{
+        let err = await APIClient.shared.LikeStory(storyId: self.storyId, userId: self.user!.userID)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+    }
+    
+    func unlikeStory() async{
+        let err = await APIClient.shared.UnLikeStory(storyId: self.storyId, userId: self.user!.userID)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+    }
+    
+    func likeStoryboard() async{
+        let err = await APIClient.shared.LikeStoryboard(boardId: self.storyboardId, storyId: self.storyId, userId: self.user!.userID)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+    }
+    
+    func unlikeStoryboard() async{
+        let err = await APIClient.shared.UnLikeStoryboard(boardId: self.storyboardId, storyId: self.storyId, userId: self.user!.userID)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+    }
+    
+    func likeStoryRole() async{
+        let err = await APIClient.shared.LikeStoryboard(boardId: self.storyboardId, storyId: self.storyId, userId: self.user!.userID)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+    }
+    
+    func unlikeStoryRole() async{
+        let err = await APIClient.shared.LikeStoryboard(boardId: self.storyboardId, storyId: self.storyId, userId: self.user!.userID)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+    }
+    
+    func fetchStoryboardComments() async -> [Comment] {
         return [Comment]()
     }
     
-    func addCommentForItem(comment:Comment) async -> Void{
+    func addCommentForStoryboard(comment:Comment) async -> Void{
         return
-    }
-    
-    func share() async{
-        //await APIClient.shared.
-        print("share buttom is pressed")
     }
 }
 
@@ -93,13 +147,4 @@ struct Message: Identifiable,Equatable {
     static func == (lhs: Message, rhs: Message) -> Bool {
         return lhs.id == rhs.id
     }
-}
-
-func sampleMessages() -> [Message] {
-    [
-        Message(senderName: "豆瓣小组", avatarName: defaultAvator, content: "这个秋天，遇到了心软的神", timeAgo: "3天前", isFromCurrentUser: false),
-        Message(senderName: "豆瓣豆品", avatarName: defaultAvator, content: "海獭鹦鹉小熊猫在线卖萌：快来带我回家！", timeAgo: "5个月前", isFromCurrentUser: false),
-        Message(senderName: "豆瓣阅读", avatarName: defaultAvator, content: "如果男主迟迟没出现，就先学会当好自己...", timeAgo: "7个月前", isFromCurrentUser: true),
-        Message(senderName: "豆瓣", avatarName: defaultAvator, content: "豆瓣2023年度报告发布", timeAgo: "9个月前", isFromCurrentUser: true),
-    ]
 }

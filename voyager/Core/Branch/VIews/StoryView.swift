@@ -358,21 +358,83 @@ struct StoryBoardCellView: View {
         print("Initialized with \(self.sceneMediaContents.count) scenes")
     }
     
+    private var storyboardCellHeader: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(board?.boardInfo.title ?? "无标题故事章节")
+                    .font(.headline)
+                    .foregroundColor(.primary)
+            }
+            Spacer()
+            VStack(alignment: .trailing) {
+                Text("\(formatDate(timestamp: (board?.boardInfo.ctime)!))")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+    
+    private var senceDetails: some View{
+        VStack{
+            ForEach(sceneMediaContents) { sceneContent in
+                VStack(alignment: .leading) {
+                    Text(sceneContent.sceneTitle)
+                        .font(.headline)
+                        .padding(.vertical, 4)
+                    
+                    if sceneContent.mediaItems.isEmpty {
+                        Text((self.board?.boardInfo.content)!)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .lineLimit(2)
+                            .padding(.vertical, 4)
+                    } else {
+                        // 如果场景只有一张图片
+                        if sceneMediaContents.count == 4 {
+                            KFImage(sceneContent.mediaItems[0].url)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(height: 200)
+                                .frame(maxWidth: .infinity)
+                                .clipped()
+                                .cornerRadius(8)
+                        }
+                        // 如果场景有多张图片
+                        else {
+                            LazyVGrid(columns: columns, spacing: 4) {
+                                ForEach(Array(sceneContent.mediaItems.prefix(4).enumerated()), id: \.element.id) { index, item in
+                                    KFImage(item.url)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(height: UIScreen.main.bounds.width / 2 - 16)
+                                        .frame(maxWidth: .infinity)
+                                        .clipped()
+                                        .cornerRadius(8)
+                                        .overlay(
+                                            // 如果有更多图片，在最后一张上显示剩余数量
+                                            index == 3 && sceneContent.mediaItems.count > 4 ?
+                                            ZStack {
+                                                Color.black.opacity(0.4)
+                                                Text("+\(sceneContent.mediaItems.count - 4)")
+                                                    .foregroundColor(.white)
+                                                    .font(.title2)
+                                            }
+                                                .cornerRadius(8)
+                                            : nil
+                                        )
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(.vertical, 8)
+            }
+        }
+    }
+    
     var body: some View {
         VStack(alignment: .leading) {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(board?.boardInfo.title ?? "无标题故事章节")
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                }
-                Spacer()
-                VStack(alignment: .trailing) {
-                    Text("\(formatDate(timestamp: (board?.boardInfo.ctime)!))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
+            storyboardCellHeader
             VStack{
                 if sceneMediaContents.count <= 0 {
                     ZStack(alignment: .trailing) {
@@ -383,59 +445,7 @@ struct StoryBoardCellView: View {
                     }
                 }else{
                     // 显示场景内容
-                    ForEach(sceneMediaContents) { sceneContent in
-                        VStack(alignment: .leading) {
-                            Text(sceneContent.sceneTitle)
-                                .font(.headline)
-                                .padding(.vertical, 4)
-                            
-                            if sceneContent.mediaItems.isEmpty {
-                                Text((self.board?.boardInfo.content)!)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                    .lineLimit(2)
-                                    .padding(.vertical, 4)
-                            } else {
-                                // 如果场景只有一张图片
-                                if sceneMediaContents.count == 4 {
-                                    KFImage(sceneContent.mediaItems[0].url)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(height: 200)
-                                        .frame(maxWidth: .infinity)
-                                        .clipped()
-                                        .cornerRadius(8)
-                                }
-                                // 如果场景有多张图片
-                                else {
-                                    LazyVGrid(columns: columns, spacing: 4) {
-                                        ForEach(Array(sceneContent.mediaItems.prefix(4).enumerated()), id: \.element.id) { index, item in
-                                            KFImage(item.url)
-                                                .resizable()
-                                                .scaledToFill()
-                                                .frame(height: UIScreen.main.bounds.width / 2 - 16)
-                                                .frame(maxWidth: .infinity)
-                                                .clipped()
-                                                .cornerRadius(8)
-                                                .overlay(
-                                                    // 如果有更多图片，在最后一张上显示剩余数量
-                                                    index == 3 && sceneContent.mediaItems.count > 4 ?
-                                                    ZStack {
-                                                        Color.black.opacity(0.4)
-                                                        Text("+\(sceneContent.mediaItems.count - 4)")
-                                                            .foregroundColor(.white)
-                                                            .font(.title2)
-                                                    }
-                                                        .cornerRadius(8)
-                                                    : nil
-                                                )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.vertical, 8)
-                    }
+                    senceDetails
                 }
             }
             .onTapGesture {
@@ -446,7 +456,8 @@ struct StoryBoardCellView: View {
                     board: self.board,
                     userId: userId,
                     groupId: groupId,
-                    storyId: storyId
+                    storyId: storyId,
+                    viewModel: self.viewModel
                 )
             }
             
@@ -638,14 +649,10 @@ struct CommentSheet: View {
                     Image(systemName: "xmark")
                         .foregroundColor(.black)
                 }
-                
                 Spacer()
-                
                 Text("讨论")
                     .font(.headline)
-                
                 Spacer()
-                
                 Button(action: {
                     onSubmit()
                     isPresented = false

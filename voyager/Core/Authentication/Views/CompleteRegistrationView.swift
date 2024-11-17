@@ -35,7 +35,9 @@ struct CompleteRegistrationView: View {
                 .padding()
             
             Button {
-                Task {  await viewModel.createUser() }
+                Task {
+                    await viewModel.createUser()
+                }
             } label: {
                 Text("注册完成")
                     .font(.headline)
