@@ -693,17 +693,6 @@ struct CommentSheet: View {
             .background(Color(.systemGray6))
         }
         .background(Color(.systemBackground))
-        // 监听键盘事件
-        .onAppear {
-            NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
-                if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                    keyboardHeight = keyboardFrame.height
-                }
-            }
-            NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
-                keyboardHeight = 0
-            }
-        }
         // 添加手势关闭键盘
         .gesture(
             TapGesture()
