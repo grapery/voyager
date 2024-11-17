@@ -9,6 +9,22 @@ import Foundation
 import PhotosUI
 import SwiftUI
 
+
+enum UserProfileFilterViewModel: Int, CaseIterable {
+    case storys
+    case groups
+    case roles
+    
+    var title: String {
+        switch self {
+        case .storys: return "参与的故事"
+        case .groups: return "加入的小组"
+        case .roles: return  "关注的角色"
+        }
+    }
+}
+
+
 class ProfileViewModel: ObservableObject {
     @Published var user: User?
     @Published var profile: UserProfile
@@ -19,15 +35,21 @@ class ProfileViewModel: ObservableObject {
     @Published var userImage: Image?
     @Published var fullname = ""
     @Published var bio = ""
+    @State var isLoad = false
     
     private var uiImage: UIImage?
     
     init(user: User) {
         self.user = user
         self.profile = UserProfile()
-        Task{
-            await fetchUserProfile()
+        if isLoad == true {
+            print("user profile is load")
+        }else{
+            Task{
+                await fetchUserProfile()
+            }
         }
+        
     }
     func fetchUserProfile() async -> UserProfile{
         let profile = await APIClient.shared.fetchUserProfile(userId: self.user?.userID ?? -1)
