@@ -13,7 +13,10 @@ struct GroupDetailView: View {
     var user: User
     var currentUser: User
     @State var group: BranchGroup?
+    @State var naviItemPressed: Bool = false
     @State var showNewStoryView: Bool = false
+    @State var showDelStoryView: Bool = false
+    
     @State var viewModel: GroupDetailViewModel
     @State private var selectedTab = 0
     @State private var showUpdateGroupView = false
@@ -116,19 +119,40 @@ struct GroupDetailView: View {
         .navigationBarItems(trailing: 
             VStack{
                 Button(action: {
+                    naviItemPressed = true
                     showNewStoryView = true
                 }) {
                     Image(systemName: "plus")
                 }
             }
         )
-        .sheet(isPresented: $showNewStoryView) {
-            NewStoryView(groupId:(self.group?.info.groupID)!,userId: self.user.userID).onDisappear(){
-                Task{
-                    showNewStoryView = false
-                    await viewModel.fetchGroupStorys(groupdId:(self.group?.info.groupID)! )
+        .navigationBarItems(trailing:
+            VStack{
+                Button(action: {
+                    naviItemPressed = true
+                    showDelStoryView = true
+                }) {
+                    Image(systemName: "trash")
                 }
             }
+        )
+        .sheet(isPresented: $naviItemPressed) {
+            if showNewStoryView{
+                NewStoryView(groupId:(self.group?.info.groupID)!,userId: self.user.userID).onDisappear(){
+                    Task{
+                        showNewStoryView = false
+                        await viewModel.fetchGroupStorys(groupdId:(self.group?.info.groupID)! )
+                    }
+                }
+            }else if showDelStoryView{
+                DeleteGroupView(group:self.group!).onDisappear(){
+                    Task{
+                        showDelStoryView = false
+                        await viewModel.fetchGroupStorys(groupdId:(self.group?.info.groupID)! )
+                    }
+                }
+            }
+            
         }
         .onChange(of: needsRefresh) { _ in
             if needsRefresh {
