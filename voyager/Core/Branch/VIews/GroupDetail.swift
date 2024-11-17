@@ -121,6 +121,7 @@ struct GroupDetailView: View {
                 Button(action: {
                     naviItemPressed = true
                     showNewStoryView = true
+                    needsRefresh = true
                 }) {
                     Image(systemName: "plus")
                 }
@@ -131,6 +132,7 @@ struct GroupDetailView: View {
                 Button(action: {
                     naviItemPressed = true
                     showDelStoryView = true
+                    needsRefresh = true
                 }) {
                     Image(systemName: "trash")
                 }
