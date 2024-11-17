@@ -9,8 +9,8 @@ import SwiftUI
 
 struct EditStoryBoardView: View {
     @Environment(\.presentationMode) var presentationMode
-    @Binding var storyId: Int64
-    @Binding var boardId: Int64
+    public var storyId: Int64
+    public var boardId: Int64
     @StateObject var viewModel: StoryViewModel
     
     // 步骤状态控制
