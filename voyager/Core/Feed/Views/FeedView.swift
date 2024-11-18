@@ -36,6 +36,9 @@ struct FeedView: View {
         (.StoryRole, "角色")
     ]
     
+    let discoverTabs :[String] = ["热点故事","故事时间线","角色","世界观"]
+  
+    
     @Namespace private var namespace
     
     init(userId: Int64) {
@@ -162,53 +165,52 @@ struct FeedView: View {
     // Discover/trending content
     private var discoverFeedContent: some View {
         VStack(spacing: 0) {
-            
             // Tab Selector
             HStack(spacing: 0) {
-                ForEach(["热点问题", "时间线", "咨询"], id: \.self) { tab in
+                ForEach(discoverTabs, id: \.self) { tab in
+                    Spacer().scaledToFit()
                     Button(action: {
                         discoverSelectedTab = tab
                     }) {
-                        HStack {
-                            Image(systemName: getTabIcon(tab))
-                            Text(tab)
+                        VStack{
+                            HStack {
+                                Image(systemName: getTabIcon(tab))
+                            }
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                            .background(discoverSelectedTab == tab ? Color(.systemGray5) : Color(.systemGray6))
+                            .cornerRadius(20)
                         }
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 16)
-                        .background(discoverSelectedTab == tab ? Color(.systemGray5) : Color(.systemGray6))
-                        .cornerRadius(20)
                     }
                     .foregroundColor(.primary)
+                    Spacer().scaledToFit()
                 }
-                Spacer()
             }
             .padding(.horizontal)
             .background(Color(.systemGray6))
             
             // Chat Content
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 4) {
                     // AI Assistant Intro Message
                     HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: "infinity.circle") // 替换为实际的 AI 头像
-                            .resizable()
-                            .frame(width: 32, height: 32)
-                            .clipShape(Circle())
-                        
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("metric order")
-                                .font(.headline)
-                            
-                            Text("你好，我是矩阵，为您推荐故事或者故事角色")
-                                .font(.body)
+                        VStack{
+                            Image(systemName: "infinity.circle") // 替换为实际的 AI 头像
+                                .resizable()
+                                .frame(width: 32, height: 32)
+                                .clipShape(Circle())
+                        }
+                        HStack(alignment: .top, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("你好，我是矩阵，为您推荐故事或者故事角色")
+                                    .font(.body)
+                            }
                         }
                     }
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(12)
                     
-                    // Chat Messages would go here
-                    // ... 
                 }
                 .padding()
             }
@@ -233,19 +235,21 @@ struct FeedView: View {
     }
     
     // Helper properties and methods
-    @State private var discoverSelectedTab = "咨询"
+    @State private var discoverSelectedTab = "世界观"
     @State private var chatInput = ""
     
     private func getTabIcon(_ tab: String) -> String {
         switch tab {
-        case "热点问题":
-            return "star"
-        case "时间线":
-            return "clock"
-        case "咨询":
-            return "bubble.left"
+        case "热点故事":
+            return "livephoto"
+        case "故事时间线":
+            return "signpost.right.and.left"
+        case "角色":
+            return "person.crop.rectangle.stack"
+        case "世界观":
+            return "building.columns"
         default:
-            return ""
+            return "signpost.right.and.left"
         }
     }
     

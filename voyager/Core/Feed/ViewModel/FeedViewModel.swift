@@ -82,7 +82,7 @@ class FeedViewModel: ObservableObject {
     
     @MainActor
     func fetchStoryRoles() async -> Void{
-        let result = await APIClient.shared.fetchUserFriendStoryRoles(userId: self.userId, offset: self.page, size: self.size, filter: self.filters)
+        let result = await APIClient.shared.fetchStoryRoles(userId: self.userId, offset: self.page, size: self.size, filter: self.filters)
         if result.3 != nil {
             print("fetchStoryRoles failed: ",result.3!)
             return

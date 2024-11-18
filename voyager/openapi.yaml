@@ -85,7 +85,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/CreateGroupReqeust'
+                            $ref: '#/components/schemas/CreateGroupRequest'
                 required: true
             responses:
                 "200":
@@ -454,7 +454,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/FetchGroupProjectsReqeust'
+                            $ref: '#/components/schemas/FetchGroupProjectsRequest'
                 required: true
             responses:
                 "200":
@@ -479,7 +479,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/FetchGroupStorysReqeust'
+                            $ref: '#/components/schemas/FetchGroupStorysRequest'
                 required: true
             responses:
                 "200":
@@ -513,6 +513,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/FetchUserActivesResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /common.TeamsAPI/FollowStoryRole:
+        post:
+            tags:
+                - TeamsAPI
+            description: 关注故事角色
+            operationId: TeamsAPI_FollowStoryRole
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/FollowStoryRoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/FollowStoryRoleResponse'
                 default:
                     description: Default error response
                     content:
@@ -604,7 +629,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/GetGroupReqeust'
+                            $ref: '#/components/schemas/GetGroupRequest'
                 required: true
             responses:
                 "200":
@@ -879,7 +904,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/GetProjectWatcherReqeust'
+                            $ref: '#/components/schemas/GetProjectWatcherRequest'
                 required: true
             responses:
                 "200":
@@ -1294,6 +1319,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /common.TeamsAPI/LikeStoryRole:
+        post:
+            tags:
+                - TeamsAPI
+            description: 点赞故事角色
+            operationId: TeamsAPI_LikeStoryRole
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LikeStoryRoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LikeStoryRoleResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /common.TeamsAPI/LikeStoryboard:
         post:
             tags:
@@ -1619,6 +1669,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /common.TeamsAPI/RestoreStoryboard:
+        post:
+            tags:
+                - TeamsAPI
+            description: 恢复故事板的状态
+            operationId: TeamsAPI_RestoreStoryboard
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RestoreStoryboardRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RestoreStoryboardResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /common.TeamsAPI/SearchGroup:
         post:
             tags:
@@ -1629,7 +1704,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/SearchGroupReqeust'
+                            $ref: '#/components/schemas/SearchGroupRequest'
                 required: true
             responses:
                 "200":
@@ -1688,6 +1763,56 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SearchAllProjectResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /common.TeamsAPI/SearchRoles:
+        post:
+            tags:
+                - TeamsAPI
+            description: 搜索角色
+            operationId: TeamsAPI_SearchRoles
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SearchRolesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SearchRolesResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /common.TeamsAPI/SearchStories:
+        post:
+            tags:
+                - TeamsAPI
+            description: 根据关键字查询故事
+            operationId: TeamsAPI_SearchStories
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SearchStoriesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SearchStoriesResponse'
                 default:
                     description: Default error response
                     content:
@@ -1826,6 +1951,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /common.TeamsAPI/UnFollowStoryRole:
+        post:
+            tags:
+                - TeamsAPI
+            description: 取消关注故事角色
+            operationId: TeamsAPI_UnFollowStoryRole
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UnFollowStoryRoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnFollowStoryRoleResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /common.TeamsAPI/UnLikeStory:
         post:
             tags:
@@ -1845,6 +1995,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/UnLikeStoryResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /common.TeamsAPI/UnLikeStoryRole:
+        post:
+            tags:
+                - TeamsAPI
+            description: 取消点赞故事角色
+            operationId: TeamsAPI_UnLikeStoryRole
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UnLikeStoryRoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UnLikeStoryRoleResponse'
                 default:
                     description: Default error response
                     content:
@@ -1886,7 +2061,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/UnWatchProjectReqeust'
+                            $ref: '#/components/schemas/UnWatchProjectRequest'
                 required: true
             responses:
                 "200":
@@ -2380,7 +2555,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/WatchProjectReqeust'
+                            $ref: '#/components/schemas/WatchProjectRequest'
                 required: true
             responses:
                 "200":
@@ -2539,7 +2714,7 @@ components:
                     type: string
                 timestamp:
                     type: string
-        CreateGroupReqeust:
+        CreateGroupRequest:
             type: object
             properties:
                 userId:
@@ -2684,8 +2859,8 @@ components:
             properties:
                 userId:
                     type: string
-                info:
-                    $ref: '#/components/schemas/StoryRoleInfo'
+                role:
+                    $ref: '#/components/schemas/StoryRole'
         CreateStoryRoleResponse:
             type: object
             properties:
@@ -2879,7 +3054,7 @@ components:
                     type: string
                 total:
                     type: string
-        FetchGroupProjectsReqeust:
+        FetchGroupProjectsRequest:
             type: object
             properties:
                 groupId:
@@ -2909,7 +3084,7 @@ components:
                     type: string
                 pageSize:
                     type: string
-        FetchGroupStorysReqeust:
+        FetchGroupStorysRequest:
             type: object
             properties:
                 groupId:
@@ -2959,6 +3134,23 @@ components:
                 offset:
                     type: string
                 pageSize:
+                    type: string
+        FollowStoryRoleRequest:
+            type: object
+            properties:
+                roleId:
+                    type: string
+                userId:
+                    type: string
+                storyId:
+                    type: string
+        FollowStoryRoleResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
                     type: string
         ForkStoryboardRequest:
             type: object
@@ -3135,7 +3327,7 @@ components:
             properties:
                 info:
                     $ref: '#/components/schemas/GroupProfileInfo'
-        GetGroupReqeust:
+        GetGroupRequest:
             type: object
             properties:
                 groupId:
@@ -3351,7 +3543,7 @@ components:
             properties:
                 info:
                     $ref: '#/components/schemas/ProjectInfo'
-        GetProjectWatcherReqeust:
+        GetProjectWatcherRequest:
             type: object
             properties:
                 projectId:
@@ -3585,7 +3777,7 @@ components:
                 message:
                     type: string
                 info:
-                    $ref: '#/components/schemas/StoryRoleInfo'
+                    $ref: '#/components/schemas/StoryRole'
         GetStoryRolesRequest:
             type: object
             properties:
@@ -3892,6 +4084,23 @@ components:
                 userId:
                     type: string
         LikeStoryResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+        LikeStoryRoleRequest:
+            type: object
+            properties:
+                roleId:
+                    type: string
+                userId:
+                    type: string
+                storyId:
+                    type: string
+        LikeStoryRoleResponse:
             type: object
             properties:
                 code:
@@ -4382,6 +4591,23 @@ components:
                     type: string
                 timestamp:
                     type: string
+        RestoreStoryboardRequest:
+            type: object
+            properties:
+                storyboardId:
+                    type: string
+                userId:
+                    type: string
+                storyId:
+                    type: string
+        RestoreStoryboardResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
         SearchAllProjectRequest:
             type: object
             properties:
@@ -4406,10 +4632,16 @@ components:
                     type: string
                 pageSize:
                     type: string
-        SearchGroupReqeust:
+        SearchGroupRequest:
             type: object
             properties:
                 name:
+                    type: string
+                userId:
+                    type: string
+                offset:
+                    type: string
+                pageSize:
                     type: string
         SearchGroupResponse:
             type: object
@@ -4455,6 +4687,56 @@ components:
                 offset:
                     type: string
                 pageSize:
+                    type: string
+        SearchRolesRequest:
+            type: object
+            properties:
+                userId:
+                    type: string
+                keyword:
+                    type: string
+                offset:
+                    type: string
+                pageSize:
+                    type: string
+        SearchRolesResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+                roles:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/StoryRole'
+                total:
+                    type: string
+        SearchStoriesRequest:
+            type: object
+            properties:
+                userId:
+                    type: string
+                keyword:
+                    type: string
+                offset:
+                    type: string
+                pageSize:
+                    type: string
+        SearchStoriesResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+                stories:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Story'
+                total:
                     type: string
         SearchUserRequest:
             type: object
@@ -4761,34 +5043,18 @@ components:
                     type: array
                     items:
                         type: string
-                Ctime:
-                    type: string
-                Mtime:
-                    type: string
-        StoryRoleInfo:
-            type: object
-            properties:
-                roleId:
-                    type: string
-                characterDescription:
-                    type: string
-                characterName:
-                    type: string
-                characterAvatar:
-                    type: string
-                characterId:
-                    type: string
-                storyId:
-                    type: string
-                characterType:
-                    type: string
-                characterPrompt:
-                    type: string
-                characterRefImages:
-                    type: array
-                    items:
-                        type: string
                 creatorId:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                likeCount:
+                    type: string
+                followCount:
+                    type: string
+                storyboardNum:
+                    type: string
+                version:
                     type: string
                 Ctime:
                     type: string
@@ -4837,6 +5103,23 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/ProjectInfo'
+        UnFollowStoryRoleRequest:
+            type: object
+            properties:
+                roleId:
+                    type: string
+                userId:
+                    type: string
+                storyId:
+                    type: string
+        UnFollowStoryRoleResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
         UnLikeStoryRequest:
             type: object
             properties:
@@ -4845,6 +5128,23 @@ components:
                 userId:
                     type: string
         UnLikeStoryResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+        UnLikeStoryRoleRequest:
+            type: object
+            properties:
+                roleId:
+                    type: string
+                userId:
+                    type: string
+                storyId:
+                    type: string
+        UnLikeStoryRoleResponse:
             type: object
             properties:
                 code:
@@ -4869,7 +5169,7 @@ components:
                     format: int32
                 message:
                     type: string
-        UnWatchProjectReqeust:
+        UnWatchProjectRequest:
             type: object
             properties:
                 groupId:
@@ -5412,7 +5712,7 @@ components:
                     type: string
                 Mtime:
                     type: string
-        WatchProjectReqeust:
+        WatchProjectRequest:
             type: object
             properties:
                 groupId:
