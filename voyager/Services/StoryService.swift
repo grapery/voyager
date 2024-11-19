@@ -960,5 +960,135 @@ extension APIClient {
             return error
         }
     }
+
+    func SearchStoryRoles(keyword: String,userId: Int64,page: Int64,size: Int64) async -> ([StoryRole]?,Int64,Int64,Error?){
+        do {
+            let request = Common_SearchRolesRequest.with {
+                $0.keyword = keyword
+                $0.userID = userId
+                $0.offset = page
+                $0.pageSize = size
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let response = await apiClient.searchRoles(request: request, headers: header)
+            if response.message?.code != 0{
+                let roles = response.message?.roles.map { StoryRole(Id:$0.characterID,role: $0) }
+                return (roles, page, size,nil)
+            } else {
+                return ([], 0,  0,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Search story roles failed"]))
+            }
+        } catch {
+            print("Error searching story roles: \(error.localizedDescription)")
+            return ([], 0,  0,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Search story roles failed"]))
+        }
+    }
+
+    func FollowStoryRole(userId: Int64,roleId: Int64,storyId: Int64) async -> (Bool,Error?){
+        do {
+            let request = Common_FollowStoryRoleRequest.with {
+                $0.userID = userId
+                $0.roleID = roleId
+                $0.storyID = storyId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let response = await apiClient.followStoryRole(request: request, headers: header)
+            if response.message?.code != 0{
+                return (true,nil)
+            } else {
+                return (false,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Follow story role failed"]))
+            }
+        } catch {
+            return (false,error)
+        }
+    }
+
+    func LikeStoryRole(userId: Int64,roleId: Int64,storyId: Int64) async -> (Bool,Error?){
+        do {
+            let request = Common_LikeStoryRoleRequest.with {
+                $0.userID = userId
+                $0.roleID = roleId
+                $0.storyID = storyId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let response = await apiClient.likeStoryRole(request: request, headers: header)
+            if response.message?.code != 0{
+                return (true,nil)
+            } else {
+                return (false,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Like story role failed"]))
+            }
+        } catch {
+            return (false,error)
+        }
+    }
+    func UnLikeStoryRole(userId: Int64,roleId: Int64,storyId: Int64) async -> (Bool,Error?){
+        do {
+            let request = Common_UnLikeStoryRoleRequest.with {
+                $0.userID = userId
+                $0.roleID = roleId
+                $0.storyID = storyId
+            }   
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let response = await apiClient.unLikeStoryRole(request: request, headers: header)
+            if response.message?.code != 0{
+                return (true,nil)
+            } else {
+                return (false,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Unlike story role failed"]))
+            }
+        } catch {
+            return (false,error)
+        }
+    }
+
+    func UnFollowStoryRole(userId: Int64,roleId: Int64,storyId: Int64) async -> (Bool,Error?){
+        do {
+            let request = Common_UnFollowStoryRoleRequest.with {
+                $0.userID = userId
+                $0.roleID = roleId
+                $0.storyID = storyId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let response = await apiClient.unFollowStoryRole(request: request, headers: header)
+            if response.message?.code != 0{ 
+                return (true,nil)
+            } else {
+                return (false,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Unfollow story role failed"]))
+            }
+        } catch {
+            return (false,error)
+        }
+    }
+    func SearchStories(keyword: String,userId: Int64,page: Int64,size: Int64) async -> ([Story]?,Int64,Int64,Error?){
+        do {
+            let request = Common_SearchStoriesRequest.with {
+                $0.keyword = keyword
+                $0.userID = userId
+                $0.offset = page
+                $0.pageSize = size
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let response = await apiClient.searchStories(request: request, headers: header)
+            if response.message?.code != 0{ 
+                let stories = response.message?.stories.map { Story(Id: $0.id, storyInfo: $0) }
+                return (stories, page, size,nil)
+            } else {
+                return ([], 0,  0,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Search stories failed"]))
+            }
+        } catch {
+            print("Error searching stories: \(error.localizedDescription)")
+            return ([], 0,  0,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Search stories failed"]))
+        }
+    }
     
 }

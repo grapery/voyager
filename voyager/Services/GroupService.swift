@@ -124,7 +124,7 @@ extension APIClient {
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)
             // Performed within an async context.
-            let request = Common_CreateGroupReqeust.with {
+            let request = Common_CreateGroupRequest.with {
                 $0.userID = Int64(userId);
                 $0.name = name
             }
@@ -246,7 +246,7 @@ extension APIClient {
     
     func GetGroupStorys(groupId: Int64,userId: Int64,page: Int64,size: Int64) async -> ([Story]?,Int64,Int64,Error?){
         do {
-            let request = Common_FetchGroupStorysReqeust.with {
+            let request = Common_FetchGroupStorysRequest.with {
                 $0.groupID = groupId
                 $0.page = Int32(page)
                 $0.pageSize = Int32(size)
@@ -269,5 +269,29 @@ extension APIClient {
             return ([], 0,  0,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Group story list failed"]))
         }
         
+    }
+    // 搜索群组
+    func SearchGroups(keyword: String,userId: Int64,page: Int64,size: Int64) async -> ([BranchGroup]?,Int64,Int64,Error?){
+        do {
+            let request = Common_SearchGroupRequest.with {
+                $0.name = keyword
+                $0.offset = page
+                $0.pageSize = size
+                $0.userID = userId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let response = await apiClient.searchGroup(request: request, headers: header)
+            if response.message?.code != 0{
+                let groups = response.message?.data.list.map { BranchGroup(info: $0) }
+                return (groups, page, size,nil)
+            } else {
+                return ([], 0,  0,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Search groups failed"]))
+            }
+        } catch {
+            print("Error searching groups: \(error.localizedDescription)")
+            return ([], 0,  0,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Search groups failed"]))
+        }
     }
 }
