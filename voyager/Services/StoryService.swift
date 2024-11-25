@@ -1105,10 +1105,11 @@ extension APIClient {
             header[GrpcGatewayCookie] = ["\(token!)"]
             let response = await apiClient.getUserCreatedStoryboards(request: request, headers: header)
             if response.message?.code != 0{
-                print("fetchUserCreatedStoryBoards response: ",response.message)
+                print("fetchUserCreatedStoryBoards response: ",response.message as Any)
                 return ([StoryBoard](),0,0,nil)
             }
             let boards = response.message?.storyboards.map { StoryBoard(id: $0.storyBoardID, boardInfo: $0) }
+            print(boards as Any)
             return (boards,response.message!.offset,response.message!.pageSize,nil)
         } catch {
             return (nil,0,0,error)
@@ -1129,7 +1130,7 @@ extension APIClient {
             header[GrpcGatewayCookie] = ["\(token!)"]
             let response = await apiClient.getUserCreatedRoles(request: request, headers: header)
             if response.message?.code != 0{
-                print("fetchUserCreatedStoryRoles response: ",response.message)
+                print("fetchUserCreatedStoryRoles response: ",response.message as Any)
                 return ([StoryRole](),0,0,nil)
             }
             let roles = response.message?.roles.map { StoryRole(Id: $0.characterID, role: $0) }
