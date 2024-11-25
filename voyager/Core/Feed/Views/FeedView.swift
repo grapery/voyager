@@ -60,6 +60,7 @@ struct FeedView: View {
                         .tag(false)
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                .animation(.easeInOut(duration: 0.3), value: isShowingFollowing)
             }
             .navigationBarItems(trailing:
                 Button(action: {
@@ -84,14 +85,14 @@ struct FeedView: View {
     private var topTabSelector: some View {
         HStack(spacing: 16) {
             Button(action: { 
-                withAnimation {
+                withAnimation(.easeInOut(duration: 0.3)) {
                     isShowingFollowing = true
                 }
             }) {
                 VStack(spacing: 12) {
                     Text("最新动态")
                         .foregroundColor(isShowingFollowing ? .black : .gray)
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: 16, weight: .medium))
                     
                     // 下划线指示器
                     Rectangle()
@@ -102,14 +103,14 @@ struct FeedView: View {
             }
             
             Button(action: {
-                withAnimation {
+                withAnimation(.easeInOut(duration: 0.3)) {
                     isShowingFollowing = false
                 }
             }) {
                 VStack(spacing: 8) {
                     Text("发现")
                         .foregroundColor(!isShowingFollowing ? .black : .gray)
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: 16, weight: .medium))
                     
                     // 下划线指示器
                     Rectangle()
@@ -126,18 +127,27 @@ struct FeedView: View {
         .background(Color.white)
     }
     
-    // Following feed content
+    // 添加搜索状态
+    @State private var searchText = ""
+    @State private var isSearching = false
+    
+    // 修改 followingFeedContent
     private var followingFeedContent: some View {
         VStack(spacing: 0) {
             // Custom tab header
             FeedCustomTabView(selectedTab: $selectedTab, tabs: tabs)
+            
+            // 添加搜索框
+            SearchBar(text: $searchText, isSearching: $isSearching)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
             
             // Content with TabView
             TabView(selection: $selectedTab) {
                 // Groups Tab
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        GroupsList(groups: viewModel.groups)
+                        GroupsList(groups: filteredGroups)
                     }
                 }
                 .tag(FeedType.Groups)
@@ -145,7 +155,7 @@ struct FeedView: View {
                 // Story Tab
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        StoriesList(stories: viewModel.storys)
+                        StoriesList(stories: filteredStories)
                     }
                 }
                 .tag(FeedType.Story)
@@ -153,12 +163,106 @@ struct FeedView: View {
                 // StoryRole Tab
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        RolesList(roles: viewModel.roles)
+                        RolesList(roles: filteredRoles)
                     }
                 }
                 .tag(FeedType.StoryRole)
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+        }
+        .onChange(of: searchText) { newValue in
+            // 当搜索文本改变时触发搜索
+            if !newValue.isEmpty {
+                Task {
+                    await performSearch(query: newValue)
+                }
+            }
+        }
+    }
+    
+    // 添加搜索框组件
+    struct SearchBar: View {
+        @Binding var text: String
+        @Binding var isSearching: Bool
+        
+        var body: some View {
+            HStack {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.gray)
+                    
+                    TextField("搜索", text: $text)
+                        .foregroundColor(.primary)
+                    
+                    if !text.isEmpty {
+                        Button(action: {
+                            text = ""
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                        }
+                    }
+                }
+                .padding(8)
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
+            }
+        }
+    }
+    
+    // 添加计算属性来过滤内容
+    private var filteredGroups: [BranchGroup] {
+        if searchText.isEmpty {
+            return viewModel.groups
+        }
+        return viewModel.groups.filter { group in
+            group.info.name.localizedCaseInsensitiveContains(searchText) ||
+            group.info.desc.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+    
+    private var filteredStories: [Story] {
+        if searchText.isEmpty {
+            return viewModel.storys
+        }
+        return viewModel.storys.filter { story in
+            story.storyInfo.name.localizedCaseInsensitiveContains(searchText) ||
+            story.storyInfo.origin.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+    
+    private var filteredRoles: [StoryRole] {
+        if searchText.isEmpty {
+            return viewModel.roles
+        }
+        return viewModel.roles.filter { role in
+            role.role.characterName.localizedCaseInsensitiveContains(searchText) ||
+            role.role.characterDescription.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+    
+    // 添加搜索处理函数
+    private func performSearch(query: String) async {
+        guard !query.isEmpty else { return }
+        
+        isSearching = true
+        defer { isSearching = false }
+        
+        do {
+            switch selectedTab {
+            case .Groups:
+                print("Groups")
+                //await viewModel.searchGroups(query: query)
+            case .Story:
+                //await viewModel.searchStories(query: query)
+                print("Story")
+            case .StoryRole:
+                //await viewModel.searchRoles(query: query)
+                print("StoryRole")
+            }
+        } catch {
+            print("Search error: \(error)")
+            // 这里可以添加错误处理逻辑
         }
     }
     
@@ -312,12 +416,13 @@ struct FeedCustomTabView: View {
             HStack {
                 ForEach(tabs, id: \.type) { tab in
                     Button(action: {
-                        withAnimation {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             selectedTab = tab.type
                         }
                     }) {
                         VStack(spacing: 0) {
                             Text(tab.title)
+                                .font(.system(size: 14))
                                 .foregroundColor(selectedTab == tab.type ? .black : .gray)
                             
                             // 添加下划线指示器

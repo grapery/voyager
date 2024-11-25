@@ -11,7 +11,6 @@
 		0F00475D2B088B5B005FF1A6 /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 0F00475C2B088B5B005FF1A6 /* OpenAPIRuntime */; };
 		0F00475F2B088B6D005FF1A6 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 0F00475E2B088B6D005FF1A6 /* OpenAPIURLSession */; };
 		0F0047622B08A4CF005FF1A6 /* Group.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0047612B08A4CF005FF1A6 /* Group.swift */; };
-		0F0709242B1F65400023F8EC /* LeafService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0709232B1F65400023F8EC /* LeafService.swift */; };
 		0F0709262B1F65650023F8EC /* ProjectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0709252B1F65650023F8EC /* ProjectService.swift */; };
 		0F0709282B1F65760023F8EC /* GroupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0709272B1F65760023F8EC /* GroupService.swift */; };
 		0F07092A2B1F65910023F8EC /* SearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0709292B1F65900023F8EC /* SearchService.swift */; };
@@ -139,7 +138,6 @@
 
 /* Begin PBXFileReference section */
 		0F0047612B08A4CF005FF1A6 /* Group.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Group.swift; sourceTree = "<group>"; };
-		0F0709232B1F65400023F8EC /* LeafService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeafService.swift; sourceTree = "<group>"; };
 		0F0709252B1F65650023F8EC /* ProjectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectService.swift; sourceTree = "<group>"; };
 		0F0709272B1F65760023F8EC /* GroupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupService.swift; sourceTree = "<group>"; };
 		0F0709292B1F65900023F8EC /* SearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchService.swift; sourceTree = "<group>"; };
@@ -596,7 +594,6 @@
 				0FFA50AA2B085E4000D3A4CF /* aliyun */,
 				0FFA50822B0857DA00D3A4CF /* ImageUploader.swift */,
 				0FFA50832B0857DA00D3A4CF /* UserService.swift */,
-				0F0709232B1F65400023F8EC /* LeafService.swift */,
 				0F0709252B1F65650023F8EC /* ProjectService.swift */,
 				0F0709272B1F65760023F8EC /* GroupService.swift */,
 				0F0709292B1F65900023F8EC /* SearchService.swift */,
@@ -817,7 +814,6 @@
 				0FF7FF5C2CA23D8700F92343 /* StoryViewModel.swift in Sources */,
 				0F59E7372B064E2F007C2B74 /* voyager.xcdatamodeld in Sources */,
 				0F1D0D112CC86DFD00D12E0B /* Story.swift in Sources */,
-				0F0709242B1F65400023F8EC /* LeafService.swift in Sources */,
 				0F3568B22B2212CE00F6CA74 /* vstore.xcdatamodeld in Sources */,
 				0F62EF682CE822BD00BED6A7 /* AllGroupsView.swift in Sources */,
 				0FF7FF662CA23E6400F92343 /* StoryRolesView.swift in Sources */,

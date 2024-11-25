@@ -13,15 +13,13 @@ import Connect
 import SwiftUI
 
 enum UserProfileFilterViewModel: Int, CaseIterable {
-    case storys
-    case groups
+    case storyboards
     case roles
     
     var title: String {
         switch self {
-        case .storys: return "参与的故事"
-        case .groups: return "加入的小组"
-        case .roles: return  "关注的角色"
+        case .storyboards: return "创建的故事板"
+        case .roles: return  "创建的角色"
         }
     }
 }
@@ -45,14 +43,23 @@ class ProfileViewModel: ObservableObject {
     
     @State var StoriesPage = 0
     @State var StoriesSize = 10
+    @State var stories = [Story]()
     
     @State var StoryRolePage = 0
     @State var StoryRoleSize = 10
+    @State var storyRoles = [StoryRole]()
     
     @State var GroupsPage = 0
     @State var GroupsSize = 10
+    @State var groups = [BranchGroup]()
+    
+    @State var StoryboardsPage = 0
+    @State var StoryboardsSize = 10
+    @State var storyboards = [StoryBoard]()
     
     private var uiImage: UIImage?
+    
+    @State var query: String = ""
     
     init(user: User) {
         self.user = user
@@ -102,22 +109,6 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
-    func fetchUserStories(keyword: String, userId: Int64, page: Int64, size: Int64,groupId:Int64) async throws -> ([Story]?,Error?){
-        do{
-            let result = try await APIClient.shared.SearchStories(keyword: keyword, userId: userId, page: page, size: size)
-            if result.3 != nil {
-                self.StoriesPage = 0
-                self.StoriesSize = 10
-                return (nil,result.3)
-            }
-            self.StoriesPage = Int(result.1)
-            self.StoriesSize = Int(result.2)
-            return (result.0,nil)
-        }catch{
-            return (nil,error)
-        }
-    }
-    
     func ResetStoriesParams(){
         self.StoriesPage = 0
         self.StoriesSize = 10
@@ -131,9 +122,27 @@ class ProfileViewModel: ObservableObject {
         self.StoryRoleSize = 10
     }
     
-    func fetchUserGroups(keyword: String, userId: Int64, page: Int64, size: Int64) async throws -> ([BranchGroup]?,Error?){
+    func SearchStories(userId: Int64,groupId:Int64) async throws -> ([Story]?,Error?){
         do{
-            let result = try await APIClient.shared.SearchGroups(name: keyword, userId: userId, offset: page, pageSize: size)
+            let result = await APIClient.shared.SearchStories(keyword: self.query, userId: userId, page: Int64(self.StoriesPage), size: Int64(self.StoriesSize))
+            if result.3 != nil {
+                self.StoriesPage = 0
+                self.StoriesSize = 10
+                return (nil,result.3)
+            }
+            self.StoriesPage = Int(result.1)
+            self.StoriesSize = Int(result.2)
+            return (result.0,nil)
+        }catch{
+            return (nil,error)
+        }
+    }
+    
+    
+    
+    func SearchGroups(userId: Int64) async throws -> ([BranchGroup]?,Error?){
+        do{
+            let result = await APIClient.shared.SearchGroups(name: self.query, userId: userId, offset: Int64(self.GroupsPage), pageSize: Int64(self.GroupsSize))
             if result.3 != nil {
                 self.GroupsPage = 0
                 self.GroupsSize = 10
@@ -147,9 +156,41 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
-    func fetchUserStoryRoles(keyword: String, userId: Int64, page: Int64, size: Int64,groupId:Int64) async throws -> ([StoryRole]?,Error?){
+    func SearchStoryRoles(userId: Int64,groupId:Int64) async throws -> ([StoryRole]?,Error?){
         do{
-            let result = try await APIClient.shared.SearchStoryRoles(keyword: keyword, userId: userId, page: page, size: size)
+            let result = await APIClient.shared.SearchStoryRoles(keyword: self.query, userId: userId, page: Int64(self.StoryRolePage), size: Int64(self.StoryRoleSize))
+            if result.3 != nil {
+                self.StoryRolePage = 0
+                self.StoryRoleSize = 10
+                return (nil,result.3)
+            }
+            self.StoryRolePage = Int(result.1)
+            self.StoryRoleSize = Int(result.2)
+            return (result.0,nil)
+        }catch{
+            return (nil,error)
+        }
+    }
+    
+    func fetchUserCreatedStoryboards(userId: Int64,groupId:Int64,storyId:Int64) async throws -> ([StoryBoard]?,Error?){
+        do{
+            let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryboardsSize), storyId: storyId)
+            if result.3 != nil {
+                self.StoryboardsPage = 0
+                self.StoryboardsSize = 10
+                return (nil,result.3)
+            }
+            self.StoryboardsPage = Int(result.1)
+            self.StoryboardsSize = Int(result.2)
+            return (result.0,nil)
+        }catch{
+            return (nil,error)
+        }
+    }
+    
+    func fetchUserCreatedStoryRoles(userId: Int64,groupId:Int64,storyId:Int64) async throws -> ([StoryRole]?,Error?){
+        do{
+            let result = await APIClient.shared.fetchUserCreatedStoryRoles(userId: storyId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryRoleSize), storyid: storyId)
             if result.3 != nil {
                 self.StoryRolePage = 0
                 self.StoryRoleSize = 10

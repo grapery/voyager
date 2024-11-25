@@ -1091,4 +1091,94 @@ extension APIClient {
         }
     }
     
+    func fetchUserCreatedStoryBoards(userId:Int64,page: Int64,size: Int64,storyId:Int64) async -> ([StoryBoard]?,Int64,Int64,Error?){
+        do {
+            print("fetchUserCreatedStoryBoards " ,userId)
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_GetUserCreatedStoryboardsRequest.with {
+                $0.userID = userId
+                $0.offset = page
+                $0.pageSize = size
+                $0.storyID = Int32(storyId)
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            let response = await apiClient.getUserCreatedStoryboards(request: request, headers: header)
+            if response.message?.code != 0{
+                print("fetchUserCreatedStoryBoards response: ",response.message)
+                return ([StoryBoard](),0,0,nil)
+            }
+            let boards = response.message?.storyboards.map { StoryBoard(id: $0.storyBoardID, boardInfo: $0) }
+            return (boards,response.message!.offset,response.message!.pageSize,nil)
+        } catch {
+            return (nil,0,0,error)
+        }
+    }
+    
+    func fetchUserCreatedStoryRoles(userId:Int64,page: Int64,size: Int64,storyid:Int64) async -> ([StoryRole]?,Int64,Int64,Error?){
+        do {
+            print("fetchUserCreatedStoryRoles " ,userId)
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_GetUserCreatedRolesRequest.with {
+                $0.userID = userId
+                $0.offset = page
+                $0.pageSize = size
+                $0.storyID = Int32(storyid)
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(token!)"]
+            let response = await apiClient.getUserCreatedRoles(request: request, headers: header)
+            if response.message?.code != 0{
+                print("fetchUserCreatedStoryRoles response: ",response.message)
+                return ([StoryRole](),0,0,nil)
+            }
+            let roles = response.message?.roles.map { StoryRole(Id: $0.characterID, role: $0) }
+            return (roles,response.message!.offset,response.message!.pageSize,nil)
+        } catch {
+            return (nil,0,0,error)
+        }
+    }
+    
+    func fetchUserWatchedGroup(userId: Int64,offset: Int64,size: Int64,filter: [String]) async  -> ( [BranchGroup],Int64,Int64,Error?) {
+        let groups: [BranchGroup] = []
+        // 用户创建的,用户关注的,用户参与的
+        return (groups,0,0,nil)
+    }
+    
+    func fetchUserTakepartinStorys(userId: Int64,offset: Int64,size: Int64,filter: [String]) async  -> ([Story],Int64,Int64,Error?){
+        // 用户创建的,用户参与的
+        let storys: [Story] = []
+        return (storys,0,0,nil)
+    }
+    
+    func fetchStoryRoles(userId: Int64,offset: Int64,size: Int64,filter: [String]) async -> ([StoryRole],Int64,Int64,Error?){
+        // 用户创建的,用户关注的,用户参与的
+        let roles: [StoryRole] = []
+        return (roles,0,0,nil)
+    }
+    
+    func createCommentForBoards(userId: Int64,boardId: Int64,info: Comment) async ->Void {
+        return
+    }
+    
+    func getBoardComments(userId: Int64,boardId: Int64) async ->([Comment],Error?) {
+        let comments: [Comment] = []
+        return (comments,nil)
+    }
+    
+    func fetchTrendingGroup(userId: Int64,offset: Int64,size: Int64,filter: [String]) async  -> ( [BranchGroup],Int64,Int64,Error?) {
+        let groups: [BranchGroup] = []
+        return (groups,0,0,nil)
+    }
+    
+    func fetchTrendingStorys(userId: Int64,offset: Int64,size: Int64,filter: [String]) async  -> ([Story],Int64,Int64,Error?){
+        let storys: [Story] = []
+        return (storys,0,0,nil)
+    }
+    
+    func fetchTrendingStoryRoles(userId: Int64,offset: Int64,size: Int64,filter: [String]) async -> ([StoryRole],Int64,Int64,Error?){
+        let roles: [StoryRole] = []
+        return (roles,0,0,nil)
+    }
+    
 }

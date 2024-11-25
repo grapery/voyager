@@ -9,14 +9,11 @@
 import SwiftUI
 
 struct UserProfileView: View {
-    @State private var selectedFilter: UserProfileFilterViewModel = .storys
+    @State private var selectedFilter: UserProfileFilterViewModel = .storyboards
     @State private var showingEditProfile = false
     @Namespace var animation
     var user: User
     @StateObject var viewModel: ProfileViewModel
-    @State private var stories: [Story] = []
-    @State private var groups: [BranchGroup] = []
-    @State private var roles: [StoryRole] = []
     @State private var isLoading = false
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
@@ -43,12 +40,6 @@ struct UserProfileView: View {
                     
                     HStack{
                         VStack{
-                            Text("加入 \(viewModel.profile.numGroup) 个群组")
-                                .foregroundColor(.secondary)
-                                .padding(.vertical, 5)
-                            Spacer()
-                        }
-                        VStack{
                             Text("参与 \(viewModel.profile.contributStoryNum) 个故事")
                                 .foregroundColor(.secondary)
                                 .padding(.vertical, 5)
@@ -70,11 +61,9 @@ struct UserProfileView: View {
                                     .fontWeight(selectedFilter == item ? .semibold : .regular)
                                     .foregroundColor(selectedFilter == item ? .primary : .secondary)
                                 
-                                
                                 Capsule()
                                     .foregroundColor(selectedFilter == item ? .primary : .secondary)
                                     .frame(height: 3)
-                                
                             }
                             .onTapGesture {
                                 withAnimation(.easeInOut) {
@@ -88,13 +77,18 @@ struct UserProfileView: View {
                     }
                     .overlay(Divider().offset(x: 0, y: 17))
                     
-                    switch selectedFilter {
-                    case .storys:
-                        StoriesGridView(stories: stories)
-                    case .groups:
-                        GroupsListView(groups: groups)
-                    case .roles:
-                        RolesListView(roles: roles)
+                    TabView(selection: $selectedFilter) {
+                        StoryboardRowView(boards: self.viewModel.storyboards)
+                            .tag(UserProfileFilterViewModel.storyboards)
+                        
+                        RolesListView(roles: self.viewModel.storyRoles)
+                            .tag(UserProfileFilterViewModel.roles)
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .onChange(of: selectedFilter) { newValue in
+                        Task {
+                            await loadFilteredContent(for: newValue)
+                        }
                     }
                 }
                 .padding()
@@ -124,34 +118,34 @@ struct UserProfileView: View {
     }
     private func loadFilteredContent(for filter: UserProfileFilterViewModel) async {
         isLoading = true
-        defer { isLoading = false }
+        defer {
+            isLoading = false
+            print("")
+        }
         
         do {
             switch filter {
-            case .storys:
+            case .storyboards:
                 // 调用获取用户创建的故事的 API
-                let result = try! await viewModel.fetchUserStories(userId: user.userID)
-                await MainActor.run {
-                    stories = result.0!
+                Task{
+                    let result = try! await viewModel.fetchUserCreatedStoryboards(userId: user.userID, groupId: 0, storyId: 0)
+                    
+                    self.viewModel.storyboards = result.0!
+                    print("self.viewModel.storyboards : ",self.viewModel.storyboards)
                 }
                 
-            case .groups:
-                // 调用获取用户加入的群组的 API
-                let result = try! await viewModel.fetchUserGroups(userId: user.userID)
-                await MainActor.run {
-                    groups = result.0!
-                }
                 
             case .roles:
                 // 调用获取用户参与的故事的 API
-                let result = try! await viewModel.fetchUserStoryRoles(userId: user.userID)
-                await MainActor.run {
-                    roles = result.0!
+                Task{
+                    let result = try! await viewModel.fetchUserCreatedStoryRoles(userId: user.userID, groupId: 0, storyId: 0)
+                    
+                    self.viewModel.storyRoles = result.0!
+                    print("self.viewModel.storyRoles : ",self.viewModel.storyRoles)
+                    
                 }
+                
             }
-        } catch {
-            print("Error loading content: \(error)")
-            // 这里可以添加错误处理逻辑
         }
     }
 }
@@ -175,33 +169,12 @@ struct StoriesGridView: View {
 
 struct StoryCardRowView: View{
     var body: some View{
-        VStack{
-            
+        VStack(alignment: .center){
+           Text("Story")
         }
     }
 }
     
-
-struct GroupsListView: View {
-    let groups: [BranchGroup]
-    
-    var body: some View {
-        LazyVStack(spacing: 12) {
-            ForEach(groups, id: \.id) { group in
-                GroupRowView()
-                    .padding(.horizontal)
-            }
-        }
-    }
-}
-
-struct GroupRowView: View{
-    var body: some View{
-        VStack{
-            
-        }
-    }
-}
 
 struct RolesListView: View {
     let roles: [StoryRole]
@@ -218,8 +191,29 @@ struct RolesListView: View {
 
 struct StoryRoleRowView: View{
     var body: some View{
-        VStack{
-            
+        VStack(alignment: .center){
+            Text("StoryRole")
+        }
+    }
+}
+
+struct StoryboardRowView: View {
+    let boards: [StoryBoard]
+    
+    var body: some View {
+        LazyVStack(spacing: 16) {
+            ForEach(boards, id: \.id) { role in
+                StoryboardRowCellView()
+                    .padding(.horizontal)
+            }
+        }
+    }
+}
+
+struct StoryboardRowCellView: View{
+    var body: some View{
+        VStack(alignment: .center){
+            Text("Storyboard")
         }
     }
 }

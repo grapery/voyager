@@ -134,12 +134,12 @@ class FeedViewModel: ObservableObject {
     
     @MainActor
     func fetchUserCreatedStoryBoards() async -> Void{
-        let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: self.userId, offset: self.page, size: self.size, filter: self.filters)
+        let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: self.userId, page: self.page, size: self.size, storyId:0)
         if result.3 != nil {
             print("fetchUserCreatedStoryBoards failed: ",result.3!)
             return
         }
-        self.boards = result.0
+        self.boards = result.0!
         self.page = result.1
         self.size = result.2
         return
