@@ -43,19 +43,19 @@ class ProfileViewModel: ObservableObject {
     
     @State var StoriesPage = 0
     @State var StoriesSize = 10
-    @State var stories = [Story]()
+    @Published var stories = [Story]()
     
     @State var StoryRolePage = 0
     @State var StoryRoleSize = 10
-    @State var storyRoles = [StoryRole]()
+    @Published var storyRoles = [StoryRole]()
     
     @State var GroupsPage = 0
     @State var GroupsSize = 10
-    @State var groups = [BranchGroup]()
+    @Published var groups = [BranchGroup]()
     
     @State var StoryboardsPage = 0
     @State var StoryboardsSize = 10
-    @State var storyboards = [StoryBoard]()
+    @Published var storyboards = [StoryBoard]()
     
     private var uiImage: UIImage?
     

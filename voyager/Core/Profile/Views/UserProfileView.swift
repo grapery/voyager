@@ -35,21 +35,21 @@ struct UserProfileView: View {
                         }
                         Spacer()
                         CircularProfileImageView(avatarUrl: user.avatar.isEmpty ? defaultAvator : user.avatar, size: .profile)
-                        
                     }
-                    
                     HStack{
                         VStack{
-                            Text("参与 \(viewModel.profile.contributStoryNum) 个故事")
-                                .foregroundColor(.secondary)
-                                .padding(.vertical, 5)
-                            Spacer()
-                        }
-                        VStack{
+                            Image(systemName: "mountain.2")
+                                .foregroundColor(.blue)
                             Text("创建 \(viewModel.profile.createdStoryNum) 个故事")
                                 .foregroundColor(.secondary)
-                                .padding(.vertical, 5)
-                            Spacer()
+                                .padding(.vertical, 2)
+                        }
+                        VStack{
+                            Image(systemName: "poweroutlet.type.k")
+                                .foregroundColor(.gray)
+                            Text("创建 \(viewModel.profile.createdRoleNum) 个故事角色")
+                                .foregroundColor(.secondary)
+                                .padding(.vertical, 2)
                         }
                     }
                     Divider()
@@ -80,11 +80,14 @@ struct UserProfileView: View {
                     TabView(selection: $selectedFilter) {
                         StoryboardRowView(boards: self.viewModel.storyboards)
                             .tag(UserProfileFilterViewModel.storyboards)
+                            .gesture(DragGesture().onChanged { _ in })
                         
                         RolesListView(roles: self.viewModel.storyRoles)
                             .tag(UserProfileFilterViewModel.roles)
+                            .gesture(DragGesture().onChanged { _ in })
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
+                    .frame(height: UIScreen.main.bounds.height * 0.7)
                     .onChange(of: selectedFilter) { newValue in
                         Task {
                             await loadFilteredContent(for: newValue)
@@ -115,37 +118,35 @@ struct UserProfileView: View {
         .sheet(isPresented: $showingEditProfile) {
             EditUserProfileView(user: user)
         }
-    }
-    private func loadFilteredContent(for filter: UserProfileFilterViewModel) async {
-        isLoading = true
-        defer {
-            isLoading = false
-            print("")
+        .refreshable {
+            await loadFilteredContent(for: selectedFilter, forceRefresh: true)
         }
-        
+    }
+    private func loadFilteredContent(for filter: UserProfileFilterViewModel, forceRefresh: Bool = false) async {
         do {
             switch filter {
             case .storyboards:
-                // 调用获取用户创建的故事的 API
-                Task{
-                    let result = try! await viewModel.fetchUserCreatedStoryboards(userId: user.userID, groupId: 0, storyId: 0)
-                    
-                    self.viewModel.storyboards = result.0!
-                    print("self.viewModel.storyboards : ",self.viewModel.storyboards)
+                if self.viewModel.storyboards.isEmpty || forceRefresh {
+                    let (boards, _) = try await viewModel.fetchUserCreatedStoryboards(userId: user.userID, groupId: 0, storyId: 0)
+                    if let boards = boards {
+                        await MainActor.run {
+                            self.viewModel.storyboards = boards
+                        }
+                    }
                 }
-                
                 
             case .roles:
-                // 调用获取用户参与的故事的 API
-                Task{
-                    let result = try! await viewModel.fetchUserCreatedStoryRoles(userId: user.userID, groupId: 0, storyId: 0)
-                    
-                    self.viewModel.storyRoles = result.0!
-                    print("self.viewModel.storyRoles : ",self.viewModel.storyRoles)
-                    
+                if self.viewModel.storyRoles.isEmpty || forceRefresh {
+                    let (roles, _) = try await viewModel.fetchUserCreatedStoryRoles(userId: user.userID, groupId: 0, storyId: 0)
+                    if let roles = roles {
+                        await MainActor.run {
+                            self.viewModel.storyRoles = roles
+                        }
+                    }
                 }
-                
             }
+        } catch {
+            print("Error loading filtered content: \(error)")
         }
     }
 }
