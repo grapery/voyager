@@ -23,7 +23,7 @@ extension APIClient {
                 $0.account = ""
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             resp = await authClient.userInfo(request: request, headers:header)
             result = resp.message!.info
         }
@@ -40,7 +40,7 @@ extension APIClient {
                 $0.projectID = Int32(projectId)
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             resp = await authClient.getProjectMembers(request:request)
         }
         return (resp.message!.data.list,resp.message!.data.total,resp.message!.data.role)
@@ -57,7 +57,7 @@ extension APIClient {
                 $0.pageSize = Int64(size)
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             resp = await authClient.fetchGroupMembers(request:request)
         }
         return resp.message!.data.list
@@ -69,6 +69,24 @@ extension APIClient {
     }
     
     func fetchUserProfile(userId: Int64) async -> UserProfile{
+        if (globalUserToken == nil){
+            return UserProfile()
+        }
+        var resp :ResponseMessage<Common_GetUserProfileResponse>
+        do {
+            let authClient = Common_TeamsApiClient(client: self.client!)
+            // Performed within an async context.
+            let request = Common_GetUserProfileRequest.with {
+                $0.userID = Int64(userId)
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+            resp = await authClient.getUserProfile(request:request, headers: header)
+            if resp.code.rawValue != 0 {
+                return UserProfile()
+            }
+            return resp.message!.info
+        }
         return UserProfile()
     }
     

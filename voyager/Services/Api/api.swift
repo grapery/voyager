@@ -11,7 +11,7 @@ import Connect
 import Foundation
 
 let GrpcGatewayCookie = "grpcgateway-cookie"
-var token : String?
+var globalUserToken : String?
 
 struct APIClient{
     // Instantiate your chosen transport library.
@@ -45,7 +45,7 @@ struct APIClient{
                 throw NSError(domain: "LoginError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Login failed: Empty token"])
             }
             
-            token = message.token
+            globalUserToken = message.token
             return message
         } catch {
             throw error
@@ -80,7 +80,7 @@ struct APIClient{
                 $0.account = ""
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             resp = await authClient.userInfo(request: request, headers:header)
             result = resp.message!.info
         }
@@ -103,7 +103,7 @@ struct APIClient{
                 throw NSError(domain: "RefreshTokenError", code: 0, userInfo: [NSLocalizedDescriptionKey: "RefreshToken failed: Empty token"])
             }
             
-            token = message.token
+            globalUserToken = message.token
             result.token = message.token
             result.userID = message.userID
         }
@@ -117,10 +117,10 @@ struct APIClient{
             let authClient = Common_TeamsApiClient(client: self.client!)
             // Performed within an async context.
             let request = Common_LogoutRequest.with {
-                $0.token = token!
+                $0.token = globalUserToken!
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             resp = await authClient.logout(request: request, headers: header)
             print("resp \(resp)")
         }

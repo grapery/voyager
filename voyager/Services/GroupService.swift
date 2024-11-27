@@ -23,7 +23,7 @@ extension APIClient {
             }
             
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let authClient = Common_TeamsApiClient(client: self.client!)
             let response =  await authClient.userGroup(request: request, headers: header)
@@ -51,7 +51,7 @@ extension APIClient {
             }
             
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let authClient = Common_TeamsApiClient(client: self.client!)
             let response = await authClient.userGroup(request: request, headers: header)
@@ -77,7 +77,7 @@ extension APIClient {
             }
             
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let authClient = Common_TeamsApiClient(client: self.client!)
             let response = try await authClient.joinGroup(request: request, headers: header)
@@ -101,7 +101,7 @@ extension APIClient {
             }
             
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let authClient = Common_TeamsApiClient(client: self.client!)
             let response = try await authClient.leaveGroup(request: request, headers: header)
@@ -129,7 +129,7 @@ extension APIClient {
                 $0.name = name
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             response = await authClient.createGroup(request:request,headers:header)
             if let group = response.message?.data.info {
                 result.info = group
@@ -150,7 +150,7 @@ extension APIClient {
             }
             
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let authClient = Common_TeamsApiClient(client: self.client!)
             let response =  await authClient.getGroupProfile(request: request, headers: header)
@@ -175,7 +175,7 @@ extension APIClient {
                 $0.info = profile
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let authClient = Common_TeamsApiClient(client: self.client!)
             let response = await authClient.updateGroupProfile(request: request, headers: header)
             if response.message?.code != 0{
@@ -204,7 +204,7 @@ extension APIClient {
                 $0.info = groupInfo
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             response = await apiClient.updateGroupInfo(request:request,headers:header)
             if let group = response.message?.data.info {
                 result.info = group
@@ -227,7 +227,7 @@ extension APIClient {
             }
             
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.fetchGroupMembers(request: request, headers: header)
@@ -253,7 +253,7 @@ extension APIClient {
             }
             
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.fetchGroupStorys(request: request, headers: header)
@@ -280,7 +280,7 @@ extension APIClient {
                 $0.userID = userId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.searchGroup(request: request, headers: header)
             if response.message?.code != 0{

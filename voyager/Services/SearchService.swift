@@ -31,7 +31,7 @@ extension APIClient {
                 $0.pageSize = pageSize
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.searchGroup(request: request, headers: header)
             
@@ -67,7 +67,7 @@ extension APIClient {
                 $0.storyID = storyId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let resp = await authClient.searchRoles(request: request, headers: header)
             if resp.message?.code != 0 {
                 return (nil,0,0,NSError(domain: "SearchStoryRoles", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
@@ -96,7 +96,7 @@ extension APIClient {
                 $0.groupID = groupId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let resp = await authClient.searchStories(request: request, headers: header)
             if resp.message?.code != 0 {
                 return (nil,0,0,NSError(domain: "SearchStorys", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))

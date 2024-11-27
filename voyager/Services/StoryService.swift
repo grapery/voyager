@@ -33,7 +33,7 @@ extension APIClient {
                 $0.params = params
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             resp = await authClient.createStory(request: request, headers:header)
             if resp.code.rawValue != 0 {
                 return (nil,-1,-1,NSError(domain: "CreateStory", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
@@ -55,7 +55,7 @@ extension APIClient {
                 $0.storyID = storyId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let resp = await authClient.getStoryInfo(request: request, headers: header)
             if resp.message?.code != 0 {
                 err = nil
@@ -91,7 +91,7 @@ extension APIClient {
                 $0.params = params
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.updateStory(request: request, headers: header)
             
@@ -116,7 +116,7 @@ extension APIClient {
                 $0.userID = userId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.watchStory(request: request, headers: header)
             
@@ -157,7 +157,7 @@ extension APIClient {
             }
             
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.createStoryboard(request: request, headers: header)
             
@@ -189,7 +189,7 @@ extension APIClient {
                 $0.boardID = boardId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.getStoryboard(request: request, headers: header)
             
@@ -220,7 +220,7 @@ extension APIClient {
                 $0.params = params
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.updateStoryboard(request: request, headers: header)
             
@@ -257,7 +257,7 @@ extension APIClient {
                 $0.pageSize = Int32(size)
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.getStoryboards(request: request, headers: header)
             
@@ -288,7 +288,7 @@ extension APIClient {
                 $0.userID = userId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.delStoryboard(request: request, headers: header)
             
@@ -315,7 +315,7 @@ extension APIClient {
                 $0.board = storyParam
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.forkStoryboard(request: request, headers: header)
             
@@ -345,7 +345,7 @@ extension APIClient {
                 $0.userID = userId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.shareStoryboard(request: request, headers: header)
             
@@ -372,7 +372,7 @@ extension APIClient {
                 $0.renderType = render_type
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.renderStory(request: request, headers: header)
             
@@ -403,7 +403,7 @@ extension APIClient {
             }
             print("RenderStoryboard request: ",request)
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.renderStoryboard(request: request, headers: header)
             
@@ -435,7 +435,7 @@ extension APIClient {
                 $0.prompt = prompt
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.genStoryboardImages(request: request, headers: header)
             
@@ -467,7 +467,7 @@ extension APIClient {
                 $0.prompt = prompt
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.genStoryboardText(request: request, headers: header)
             
@@ -500,7 +500,7 @@ extension APIClient {
                 $0.renderType = 0
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.getStoryRender(request: request, headers: header)
             
@@ -531,7 +531,7 @@ extension APIClient {
                 $0.renderType = 0
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.getStoryBoardRender(request: request, headers: header)
             
@@ -566,7 +566,7 @@ extension APIClient {
                 $0.background = backgroud
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.continueRenderStory(request: request, headers: header)
             
@@ -598,7 +598,7 @@ extension APIClient {
                 $0.boardID = boardId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.getStoryBoardSences(request: request, headers: header)
             
@@ -638,7 +638,7 @@ extension APIClient {
                 $0.sence = newSenceItem
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.createStoryBoardSence(request: request, headers: header)
             
@@ -673,7 +673,7 @@ extension APIClient {
                 $0.sence = newSenceItem
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.updateStoryBoardSence(request: request, headers: header)
             
@@ -693,7 +693,7 @@ extension APIClient {
                 $0.senceID = senceId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.deleteStoryBoardSence(request: request, headers: header)
             
@@ -713,7 +713,7 @@ extension APIClient {
                 $0.userID = userId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.renderStoryBoardSences(request: request, headers: header)
             
@@ -739,7 +739,7 @@ extension APIClient {
                 $0.senceID = senceId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.renderStoryBoardSence(request: request, headers: header)
             
@@ -764,7 +764,7 @@ extension APIClient {
                 $0.senceID = sceneId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.getStoryBoardSenceGenerate(request: request, headers: header)
             
@@ -791,7 +791,7 @@ extension APIClient {
                 $0.userID = userId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.getStoryBoardGenerate(request: request, headers: header)
             
@@ -818,7 +818,7 @@ extension APIClient {
                 $0.senceID = sceneId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.getStoryBoardSenceGenerate(request: request, headers: header)
             
@@ -868,7 +868,7 @@ extension APIClient {
                 $0.userID = userId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.likeStoryboard(request: request, headers: header)
             
@@ -894,7 +894,7 @@ extension APIClient {
                 $0.userID = userId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.unLikeStoryboard(request: request, headers: header)
             
@@ -919,7 +919,7 @@ extension APIClient {
                 $0.userID = userId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.likeStory(request: request, headers: header)
             
@@ -944,7 +944,7 @@ extension APIClient {
                 $0.userID = userId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
             let resp = await authClient.unLikeStory(request: request, headers: header)
             
@@ -970,7 +970,7 @@ extension APIClient {
                 $0.pageSize = size
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.searchRoles(request: request, headers: header)
             if response.message?.code != 0{
@@ -993,7 +993,7 @@ extension APIClient {
                 $0.storyID = storyId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.followStoryRole(request: request, headers: header)
             if response.message?.code != 0{
@@ -1014,7 +1014,7 @@ extension APIClient {
                 $0.storyID = storyId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.likeStoryRole(request: request, headers: header)
             if response.message?.code != 0{
@@ -1034,7 +1034,7 @@ extension APIClient {
                 $0.storyID = storyId
             }   
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.unLikeStoryRole(request: request, headers: header)
             if response.message?.code != 0{
@@ -1055,7 +1055,7 @@ extension APIClient {
                 $0.storyID = storyId
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.unFollowStoryRole(request: request, headers: header)
             if response.message?.code != 0{ 
@@ -1076,7 +1076,7 @@ extension APIClient {
                 $0.pageSize = size
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.searchStories(request: request, headers: header)
             if response.message?.code != 0{ 
@@ -1102,7 +1102,7 @@ extension APIClient {
                 $0.storyID = Int32(storyId)
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let response = await apiClient.getUserCreatedStoryboards(request: request, headers: header)
             if response.message?.code != 0{
                 print("fetchUserCreatedStoryBoards response: ",response.message as Any)
@@ -1127,7 +1127,7 @@ extension APIClient {
                 $0.storyID = Int32(storyid)
             }
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let response = await apiClient.getUserCreatedRoles(request: request, headers: header)
             if response.message?.code != 0{
                 print("fetchUserCreatedStoryRoles response: ",response.message as Any)

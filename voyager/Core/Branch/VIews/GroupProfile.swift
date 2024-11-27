@@ -27,6 +27,9 @@ struct GroupProfileView: View{
                 Section(header: Text("Group Details")) {
                     Text("群组设置")
                 }
+                Section(header: Text("Group Details")) {
+                    Text("群组公告")
+                }
             }
             .navigationTitle("群组设置")
             .navigationBarItems(leading: cancelButton)

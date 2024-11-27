@@ -31,7 +31,7 @@ extension APIClient {
             // 假设我们有一个gRPC客户端实例
             let apiClient = Common_TeamsApiClient(client: self.client!)
             var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(token!)"]
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let response = await apiClient.uploadImageFile(request: request, headers: header)
             if response.code.rawValue != 0 {
                 return ""

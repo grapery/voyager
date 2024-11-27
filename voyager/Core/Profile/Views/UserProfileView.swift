@@ -36,18 +36,20 @@ struct UserProfileView: View {
                         Spacer()
                         CircularProfileImageView(avatarUrl: user.avatar.isEmpty ? defaultAvator : user.avatar, size: .profile)
                     }
-                    HStack{
-                        VStack{
+                    VStack{
+                        HStack{
                             Image(systemName: "mountain.2")
                                 .foregroundColor(.blue)
-                            Text("创建 \(viewModel.profile.createdStoryNum) 个故事")
+                            Text("\(viewModel.profile.createdStoryNum) 个故事")
+                                .font(.body)
                                 .foregroundColor(.secondary)
                                 .padding(.vertical, 2)
                         }
-                        VStack{
+                        HStack{
                             Image(systemName: "poweroutlet.type.k")
                                 .foregroundColor(.gray)
-                            Text("创建 \(viewModel.profile.createdRoleNum) 个故事角色")
+                            Text("\(viewModel.profile.createdRoleNum) 个故事角色")
+                                .font(.body)
                                 .foregroundColor(.secondary)
                                 .padding(.vertical, 2)
                         }
@@ -80,11 +82,9 @@ struct UserProfileView: View {
                     TabView(selection: $selectedFilter) {
                         StoryboardRowView(boards: self.viewModel.storyboards)
                             .tag(UserProfileFilterViewModel.storyboards)
-                            .gesture(DragGesture().onChanged { _ in })
                         
                         RolesListView(roles: self.viewModel.storyRoles)
                             .tag(UserProfileFilterViewModel.roles)
-                            .gesture(DragGesture().onChanged { _ in })
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
                     .frame(height: UIScreen.main.bounds.height * 0.7)
@@ -124,6 +124,9 @@ struct UserProfileView: View {
     }
     private func loadFilteredContent(for filter: UserProfileFilterViewModel, forceRefresh: Bool = false) async {
         do {
+            if self.viewModel.profile.userID == 0 {
+                self.viewModel.profile = await self.viewModel.fetchUserProfile()
+            }
             switch filter {
             case .storyboards:
                 if self.viewModel.storyboards.isEmpty || forceRefresh {
@@ -202,19 +205,64 @@ struct StoryboardRowView: View {
     let boards: [StoryBoard]
     
     var body: some View {
-        LazyVStack(spacing: 16) {
-            ForEach(boards, id: \.id) { role in
-                StoryboardRowCellView()
-                    .padding(.horizontal)
+        ScrollView {
+            LazyVStack {
+                ForEach(boards, id: \.id) { board in
+                    StoryboardRowCellView(info: board)
+                        .padding(.horizontal)
+                }
             }
         }
+        .simultaneousGesture(DragGesture().onChanged { _ in })
     }
 }
 
-struct StoryboardRowCellView: View{
-    var body: some View{
-        VStack(alignment: .center){
-            Text("Storyboard")
+struct StoryboardRowCellView: View {
+    var info: StoryBoard
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // 标题和AI标记
+            HStack {
+                Text(info.boardInfo.title)
+                    .font(.headline)
+                    .lineLimit(1)
+                
+                if info.boardInfo.isAiGen {
+                    Image(systemName: "sparkles")
+                        .foregroundColor(.blue)
+                }
+                
+                Spacer()
+                
+                Text("#\(info.boardInfo.num)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            // 内容预览
+            Text(info.boardInfo.content)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+            
+            // 角色信息
+            if !info.boardInfo.roles.isEmpty {
+                HStack {
+                    Image(systemName: "person.2")
+                        .foregroundColor(.gray)
+                    Text("\(info.boardInfo.roles.count) 个角色")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
         }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(.systemBackground))
+                .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+        )
     }
 }
