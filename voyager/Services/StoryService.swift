@@ -1182,4 +1182,113 @@ extension APIClient {
         return (roles,0,0,nil)
     }
     
+    func createStoryRole(userId: Int64,role:Common_StoryRole) async -> Error?{
+        do {
+            print("createStoryRole " ,userId)
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_CreateStoryRoleRequest.with {
+                $0.userID = userId
+                $0.role = role
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+            let response = await apiClient.createStoryRole(request: request, headers: header)
+            if response.message?.code != 0{
+                print("createStoryRole response: ",response.message as Any)
+                return (nil)
+            }
+            return (nil)
+        } catch {
+            return NSError(domain: "createStoryRole", code: 0, userInfo: [NSLocalizedDescriptionKey: "create story role failed"])
+        }
+    }
+    
+    func getStoryRoles(userId:Int64,storyId:Int64)async -> ([StoryRole]?,Error?){
+        do{
+            print("getStoryRoles ",userId,storyId)
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_GetStoryRolesRequest.with {
+                $0.userID = userId
+                $0.storyID = storyId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+            let response = await apiClient.getStoryRoles(request: request, headers: header)
+            if response.message?.code != 0{
+                print("getStoryRoles response: ",response.message as Any)
+                return ([],nil)
+            }
+            let roles = response.message?.data.list.map { StoryRole(Id: $0.characterID, role: $0) }
+            return (roles,nil)
+        } catch {
+            return ([],NSError(domain: "getStoryRoles", code: 0, userInfo: [NSLocalizedDescriptionKey: "get story roles failed"]))
+        }
+    }
+
+    func getStoryBoardRoles(userId:Int64,boardId:Int64)async -> ([StoryRole]?,Error?){
+        let roles: [StoryRole] = []
+        do {
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_GetStoryBoardRolesRequest.with {
+                $0.userID = userId
+                $0.boardID = boardId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+            let response = await apiClient.getStoryBoardRoles(request: request, headers: header)
+            if response.message?.code != 0{
+                print("getStoryBoardRoles response: ",response.message as Any)
+                return ([],nil)
+            }
+            let roles = response.message?.data.list.map { StoryRole(Id: $0.characterID, role: $0) }
+            return (roles,nil)
+        }
+        return (roles,nil)
+    }
+
+    func getStoryContributors(userId:Int64,storyId:Int64)async -> ([StoryRole],Error?){
+        let roles: [StoryRole] = []
+        return (roles,nil)
+    }
+
+    func getStoryRoleDetail(userId:Int64,roleId:Int64)async -> (StoryRole?,Error?){
+        let role: StoryRole? = nil
+        do {
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_GetStoryRoleDetailRequest.with {
+                $0.roleID = roleId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+            let response = await apiClient.getStoryRoleDetail(request: request, headers: header)
+            if response.message?.code != 0{
+                print("getStoryRoleDetail response: ",response.message as Any)
+                return (nil,nil)
+            }
+            let role = StoryRole(Id: response.message!.info.characterID, role: response.message!.info)
+            return (role,nil)
+        } catch {
+            return (nil,NSError(domain: "getStoryRoleDetail", code: 0, userInfo: [NSLocalizedDescriptionKey: "get story role detail failed"]))
+        }   
+        return (role,nil)
+    }
+
+    func RenderStoryRole(userId:Int64,roleId:Int64,refImage:[String],prompt:String)async -> Error?{
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_RenderStoryRoleRequest.with {
+            $0.userID = userId
+            $0.roleID = roleId
+            $0.refImages = refImage
+            $0.prompt = prompt
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.renderStoryRole(request: request, headers: header)
+        if response.message?.code != 0{
+            print("RenderStoryRole response: ",response.message as Any)
+            return NSError(domain: "RenderStoryRole", code: 0, userInfo: [NSLocalizedDescriptionKey: "render story role failed"])
+        }
+        return nil
+    }
+    
 }

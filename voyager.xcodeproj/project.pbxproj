@@ -11,7 +11,6 @@
 		0F00475D2B088B5B005FF1A6 /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 0F00475C2B088B5B005FF1A6 /* OpenAPIRuntime */; };
 		0F00475F2B088B6D005FF1A6 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 0F00475E2B088B6D005FF1A6 /* OpenAPIURLSession */; };
 		0F0047622B08A4CF005FF1A6 /* Group.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0047612B08A4CF005FF1A6 /* Group.swift */; };
-		0F0709262B1F65650023F8EC /* ProjectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0709252B1F65650023F8EC /* ProjectService.swift */; };
 		0F0709282B1F65760023F8EC /* GroupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0709272B1F65760023F8EC /* GroupService.swift */; };
 		0F07092A2B1F65910023F8EC /* SearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0709292B1F65900023F8EC /* SearchService.swift */; };
 		0F07092C2B1F65B80023F8EC /* HelperService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F07092B2B1F65B80023F8EC /* HelperService.swift */; };
@@ -138,7 +137,6 @@
 
 /* Begin PBXFileReference section */
 		0F0047612B08A4CF005FF1A6 /* Group.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Group.swift; sourceTree = "<group>"; };
-		0F0709252B1F65650023F8EC /* ProjectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectService.swift; sourceTree = "<group>"; };
 		0F0709272B1F65760023F8EC /* GroupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupService.swift; sourceTree = "<group>"; };
 		0F0709292B1F65900023F8EC /* SearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchService.swift; sourceTree = "<group>"; };
 		0F07092B2B1F65B80023F8EC /* HelperService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperService.swift; sourceTree = "<group>"; };
@@ -594,7 +592,6 @@
 				0FFA50AA2B085E4000D3A4CF /* aliyun */,
 				0FFA50822B0857DA00D3A4CF /* ImageUploader.swift */,
 				0FFA50832B0857DA00D3A4CF /* UserService.swift */,
-				0F0709252B1F65650023F8EC /* ProjectService.swift */,
 				0F0709272B1F65760023F8EC /* GroupService.swift */,
 				0F0709292B1F65900023F8EC /* SearchService.swift */,
 				0F07092B2B1F65B80023F8EC /* HelperService.swift */,
@@ -803,7 +800,6 @@
 				0F59E7B12B065409007C2B74 /* LocalStorageManager.swift in Sources */,
 				0F980A2A2CAABF0400510E5A /* GroupProfile.swift in Sources */,
 				0F2363A82BC75EA900907E75 /* DeleteGroupView.swift in Sources */,
-				0F0709262B1F65650023F8EC /* ProjectService.swift in Sources */,
 				0F980A2F2CACC9AC00510E5A /* GroupProfileViewModel.swift in Sources */,
 				0FF3C5952BC37A2A00CA9827 /* Model.xcdatamodeld in Sources */,
 				0F6F16C82C8678CA004FAAD9 /* agents.pb.swift in Sources */,

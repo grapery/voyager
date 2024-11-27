@@ -12,7 +12,8 @@ class StoryRoleModel: ObservableObject {
     @Published var story: Story?
     @Published var isLoading: Bool = false
     @Published var storyId: Int64
-    @Published var storyboards:[StoryBoard]?
+    @State var roles: [StoryRole] = [StoryRole]()
+    var userId: Int64
     var isUpdateOk: Bool = false
     var isCreateOk: Bool = false
     var isGenerate: Bool = false
@@ -21,27 +22,26 @@ class StoryRoleModel: ObservableObject {
     var page: Int64 = 0
     var pageSize: Int64 = 10
     
-    var userId: Int64
-    init(story: Story? = nil,  storyId: Int64, storyboards: [StoryBoard]? = nil,  err: Error? = nil, page: Int64, pageSize: Int64, userId: Int64) {
+    
+    init(story: Story? = nil, storyId: Int64, err: Error? = nil, page: Int64, pageSize: Int64, userId: Int64) {
         self.story = story
         self.storyId = storyId
-        self.storyboards = storyboards
         self.err = err
         self.page = page
         self.pageSize = pageSize
         self.userId = userId
         Task{
-            await fetchStoryRoles()
+            await fetchStoryRoles(storyId:storyId)
         }
     }
-    func fetchStoryRoles() async {
-        let (board,err) = await apiClient.getStoryRoles(boardId: self.storyboardId)
+    func fetchStoryRoles(storyId:Int64) async {
+        let (roles,err) = await APIClient.shared.getStoryRoles(userId: self.userId, storyId: storyId)
         if err != nil {
             print("fetchStoryboard failed: ",err as Any)
-            return err
+            return
         }
-        self.storyboard = board
-        return nil
+        self.roles = roles!
+        return 
     }
     
     func fetchStoryRoleDetail() async -> Error?{
