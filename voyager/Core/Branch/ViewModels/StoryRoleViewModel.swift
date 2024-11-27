@@ -35,7 +35,13 @@ class StoryRoleModel: ObservableObject {
         }
     }
     func fetchStoryRoles() async {
-        
+        let (board,err) = await apiClient.getStoryRoles(boardId: self.storyboardId)
+        if err != nil {
+            print("fetchStoryboard failed: ",err as Any)
+            return err
+        }
+        self.storyboard = board
+        return nil
     }
     
     func fetchStoryRoleDetail() async -> Error?{
