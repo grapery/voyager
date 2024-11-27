@@ -21,67 +21,69 @@ struct GroupView: View {
     }
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                // 搜索栏
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.gray)
-                    TextField("搜索小组", text: $searchText)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                }
-                .padding()
-                
-                // 我的小组标题
-                HStack {
-                    Text("我的小组")
-                        .font(.title2)
-                        .bold()
-                    Spacer()
-                    NavigationLink {
-                        AllGroupsView(viewModel: viewModel)
-                    } label: {
-                        Text("全部 >")
+            ScrollView {
+                VStack(spacing: 0) {
+                    // 搜索栏
+                    HStack {
+                        Image(systemName: "magnifyingglass")
                             .foregroundColor(.gray)
+                        TextField("搜索小组", text: $searchText)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
-                }
-                .padding(.horizontal)
-                .onAppear {
-                    Task{
-                        await viewModel.fetchGroups()
-                    }
-                }
-                
-                // 小组网格
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHGrid(rows: [GridItem(.fixed(120))], spacing: 15) {
-                        ForEach(viewModel.groups) { group in
-                            GroupGridItemView(group: group, viewModel: self.viewModel)
+                    .padding()
+                    
+                    // 我的小组标题
+                    HStack {
+                        Text("我的小组")
+                            .font(.title2)
+                            .bold()
+                        Spacer()
+                        NavigationLink {
+                            AllGroupsView(viewModel: viewModel)
+                        } label: {
+                            Text("全部 >")
+                                .foregroundColor(.gray)
                         }
                     }
                     .padding(.horizontal)
-                }
-                
-                // 分类标签
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 20) {
-                        ForEach(tabs, id: \.self) { tab in
-                            Text(tab)
-                                .foregroundColor(selectedTab == tab ? .green : .gray)
-                                .onTapGesture {
-                                    selectedTab = tab
-                                }
+                    .onAppear {
+                        Task{
+                            await viewModel.fetchGroups()
                         }
                     }
-                    .padding()
-                }
-                
-                // 讨论列表
-                List {
-                    ForEach(viewModel.groups) { group in
-                        GroupDiscussionCell(group: group, viewModel: viewModel)
+                    
+                    // 小组网格
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHGrid(rows: [GridItem(.fixed(120))], spacing: 15) {
+                            ForEach(viewModel.groups) { group in
+                                GroupGridItemView(group: group, viewModel: self.viewModel)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    // 分类标签
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 20) {
+                            ForEach(tabs, id: \.self) { tab in
+                                Text(tab)
+                                    .foregroundColor(selectedTab == tab ? .green : .gray)
+                                    .onTapGesture {
+                                        selectedTab = tab
+                                    }
+                            }
+                        }
+                        .padding()
+                    }
+                    
+                    // 替换 List 为 LazyVStack
+                    LazyVStack(spacing: 16) {
+                        ForEach(viewModel.groups) { group in
+                            GroupDiscussionCell(group: group, viewModel: viewModel)
+                                .padding(.horizontal)
+                        }
                     }
                 }
-                .listStyle(PlainListStyle())
             }
             .navigationBarItems(trailing: Button(action: {
                 isShowingNewGroupView = true
@@ -165,6 +167,7 @@ struct GroupDiscussionCell: View {
         .onTapGesture {
             showGroupDetail = true
         }
+        .simultaneousGesture(DragGesture().onChanged { _ in })
         .fullScreenCover(isPresented: $showGroupDetail) {
             NavigationView {
                 GroupDetailView(user: self.viewModel.user, group: group)
