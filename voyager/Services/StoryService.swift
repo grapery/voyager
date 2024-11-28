@@ -974,7 +974,7 @@ extension APIClient {
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.searchRoles(request: request, headers: header)
             if response.message?.code != 0{
-                let roles = response.message?.roles.map { StoryRole(Id:$0.characterID,role: $0) }
+                let roles = response.message?.roles.map { StoryRole(Id:$0.roleID,role: $0) }
                 return (roles, page, size,nil)
             } else {
                 return ([], 0,  0,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Search story roles failed"]))
@@ -1133,7 +1133,7 @@ extension APIClient {
                 print("fetchUserCreatedStoryRoles response: ",response.message as Any)
                 return ([StoryRole](),0,0,nil)
             }
-            let roles = response.message?.roles.map { StoryRole(Id: $0.characterID, role: $0) }
+            let roles = response.message?.roles.map { StoryRole(Id: $0.roleID, role: $0) }
             return (roles,response.message!.offset,response.message!.pageSize,nil)
         } catch {
             return (nil,0,0,error)
@@ -1218,7 +1218,7 @@ extension APIClient {
                 print("getStoryRoles response: ",response.message as Any)
                 return ([],nil)
             }
-            let roles = response.message?.data.list.map { StoryRole(Id: $0.characterID, role: $0) }
+            let roles = response.message?.data.list.map { StoryRole(Id: $0.roleID, role: $0) }
             return (roles,nil)
         } catch {
             return ([],NSError(domain: "getStoryRoles", code: 0, userInfo: [NSLocalizedDescriptionKey: "get story roles failed"]))
@@ -1240,7 +1240,7 @@ extension APIClient {
                 print("getStoryBoardRoles response: ",response.message as Any)
                 return ([],nil)
             }
-            let roles = response.message?.data.list.map { StoryRole(Id: $0.characterID, role: $0) }
+            let roles = response.message?.data.list.map { StoryRole(Id: $0.roleID, role: $0) }
             return (roles,nil)
         }
         return (roles,nil)
@@ -1265,7 +1265,7 @@ extension APIClient {
                 print("getStoryRoleDetail response: ",response.message as Any)
                 return (nil,nil)
             }
-            let role = StoryRole(Id: response.message!.info.characterID, role: response.message!.info)
+            let role = StoryRole(Id: response.message!.info.roleID, role: response.message!.info)
             return (role,nil)
         } catch {
             return (nil,NSError(domain: "getStoryRoleDetail", code: 0, userInfo: [NSLocalizedDescriptionKey: "get story role detail failed"]))

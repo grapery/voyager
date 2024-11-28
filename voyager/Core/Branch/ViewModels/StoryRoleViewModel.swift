@@ -44,19 +44,34 @@ class StoryRoleModel: ObservableObject {
         return 
     }
     
-    func fetchStoryRoleDetail() async -> Error?{
+    func fetchStoryRoleDetail(roleId:Int64) async -> (StoryRole?,Error?){
+        let (role,err) = await APIClient.shared.getStoryRoleDetail(userId: self.userId, roleId: roleId)
+        if err != nil {
+            print("fetchStoryRoleDetail failed: ",err as Any)
+            return (nil,err)
+        }
+        return (role,err)
+    }
+    
+    func createNewStoryRole(role:Common_StoryRole) async -> Error?{
+        let err = await APIClient.shared.createStoryRole(userId: self.userId, role: role)
+        if err != nil {
+            print("createNewStoryRole failed: ",err as Any)
+            return err
+        }
         return nil
     }
     
-    func createNewStoryRole() async -> (Int64,Error?){
-        return (0,nil)
-    }
-    
-    func updateStoryRole() async -> Error?{
+    func updateStoryRole(role:Common_StoryRole) async -> Error?{
         return nil
     }
     
-    func genStoryRoleDetail() async -> Error?{
+    func genStoryRoleDetail(roleId:Int64,prompt: String,refImage:[String]) async -> Error?{
+        let err = await APIClient.shared.RenderStoryRole(userId: self.userId, roleId: roleId, refImage: refImage, prompt: prompt)
+        if err != nil {
+            print("genStoryRoleDetail failed: ",err as Any)
+            return err
+        }
         return nil
     }
     

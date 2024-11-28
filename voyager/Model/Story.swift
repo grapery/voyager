@@ -29,14 +29,14 @@ class Story:Identifiable {
 }
 
 class StoryRole: Identifiable {
-    var Id: String
+    var Id: Int64
     var role: Common_StoryRole
     init(){
-        self.Id = ""
+        self.Id = 0
         self.role = Common_StoryRole()
     }
     
-    init(Id: String, role: Common_StoryRole) {
+    init(Id: Int64, role: Common_StoryRole) {
         self.Id = Id
         self.role = role
     }

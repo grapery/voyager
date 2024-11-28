@@ -20,7 +20,7 @@ struct StoryDetailView: View {
         self.storyId = storyId
         self.story = story
         self.userId = userId
-        self._viewModel = StateObject(wrappedValue: StoryDetailViewModel(storyId: storyId, story: story))
+        self._viewModel = StateObject(wrappedValue: StoryDetailViewModel(story: story, storyId: storyId, userId: userId))
     }
     
     var body: some View {
@@ -288,18 +288,6 @@ struct StoryDetailView: View {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 15) {
-                    ForEach(viewModel.characters, id: \.userID) { character in
-                        VStack {
-                            KFImage(URL(string: character.avatar))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 50, height: 50)
-                                .clipShape(Circle())
-                            Text(character.name)
-                                .font(.caption)
-                                .lineLimit(1)
-                        }
-                    }
                     Button(action: {
                         showNewStoryRole = true
                     }) {
@@ -312,7 +300,28 @@ struct StoryDetailView: View {
                                 .font(.caption)
                         }
                     }
+                    
+                    ForEach(Array(viewModel.characters.enumerated()), id: \.offset) { _, character in
+                        VStack {
+                            KFImage(URL(string: character.characterAvatar))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 50, height: 50)
+                                .clipShape(Circle())
+                            Text(character.characterName)
+                                .font(.caption)
+                                .lineLimit(1)
+                        }
+                    }
                 }
+                .padding(.horizontal)
+            }
+            .sheet(isPresented: $showNewStoryRole) {
+                NewStoryRole(
+                    storyId: (viewModel.story?.storyInfo.id)!,
+                    userId: self.userId,
+                    viewModel: viewModel
+                )
             }
         }
     }
@@ -405,17 +414,31 @@ struct StoryUser: View {
 
 class StoryDetailViewModel: ObservableObject {
     @Published var story: Story?
-    private let storyId: Int64
-    @Published var characters: [User] = []
+    public let storyId: Int64
+    public let userId: Int64
+    @Published var characters: [Common_StoryRole] = []
     @Published var participants: [User] = []
     var likes: Int = 10
     var followers: Int = 10
     var shares: Int = 10
+    
     private let apiClient = APIClient.shared
-    init(storyId: Int64,story: Story) {
-        self.storyId = storyId
+    
+    init(story: Story? = nil, storyId: Int64, userId: Int64) {
         self.story = story
+        self.storyId = storyId
+        self.userId = userId
+        
+        self.characters = [Common_StoryRole]()
+        self.participants = [User]()
+        self.likes = 10
+        self.followers = 10
+        self.shares = 10
     }
+    
+    
+    
+    
     
     func fetchStoryDetails() async{
         // TODO: Implement API call to fetch story details
@@ -426,8 +449,25 @@ class StoryDetailViewModel: ObservableObject {
         // TODO: Implement API call to save story changes
     }
     
-    func createStoryRole(){
-        // TODO: Implement API call to create new roel for story
+    func createStoryRole(
+        storyId: Int64,
+        name: String,
+        description: String,
+        voice: String,
+        language: String,
+        isPublic: Bool
+    ) async {
+       do {
+            // 调用 API 创建角色
+            var role = Common_StoryRole()
+            let newRole = await apiClient.createStoryRole(
+                userId: self.userId,
+                role: role
+            )
+            self.characters.append(role)
+            // 重新获取故事详情
+            await fetchStoryDetails()
+        }
     }
     
     func editStoryRole(){
@@ -446,18 +486,16 @@ struct AllCharactersView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 20) {
-                ForEach(viewModel.characters, id: \.userID) { character in
+                ForEach(Array(viewModel.characters.enumerated()), id: \.offset) { _, character in
                     VStack {
-                        KFImage(URL(string: character.avatar))
+                        KFImage(URL(string: character.characterAvatar))
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 80, height: 80)
+                            .frame(width: 50, height: 50)
                             .clipShape(Circle())
-                        
-                        Text(character.name)
+                        Text(character.characterName)
                             .font(.caption)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.center)
+                            .lineLimit(1)
                     }
                 }
             }

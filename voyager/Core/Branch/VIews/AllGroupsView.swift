@@ -110,7 +110,7 @@ struct GroupListItemView: View {
         Button(action: {
             showGroupDetail = true
         }) {
-            HStack(spacing: 1) {
+            HStack(spacing: 4) {
                 // 小组头像
                 KFImage(URL(string: group.info.avatar))
                     .resizable()

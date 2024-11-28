@@ -75,7 +75,7 @@ extension APIClient {
             var roles = [StoryRole]()
             if let roleList = resp.message?.roles {
                 for item in roleList {
-                    var role = StoryRole(Id:item.characterID,role: item)
+                    var role = StoryRole(Id:item.roleID,role: item)
                     roles.append(role)
                 }
             }

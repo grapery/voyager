@@ -11,9 +11,8 @@ import Kingfisher
 // 创建角色视图
 struct NewStoryRole: View {
     let storyId: Int64
-    let boardId: Int64
     let userId: Int64
-    @Binding var viewModel: StoryDetailViewModel
+    @ObservedObject var viewModel: StoryDetailViewModel
     
     @State private var roleName: String = ""
     @State private var roleDescription: String = ""
@@ -21,12 +20,16 @@ struct NewStoryRole: View {
     @State private var selectedLanguage: String = "中文"
     @State private var isPublic: Bool = true
     @State private var showAdvancedSettings: Bool = false
+    @Environment(\.dismiss) private var dismiss
+    @State private var isLoading = false
     
     var body: some View {
         VStack(spacing: 0) {
             // Navigation Bar
             HStack {
-                Button(action: { /* 返回操作 */ }) {
+                Button(action: { 
+                    dismiss()  // 添加关闭操作
+                }) {
                     Image(systemName: "xmark")
                         .foregroundColor(.primary)
                 }
@@ -140,18 +143,56 @@ struct NewStoryRole: View {
             }
             
             // Create Button
-            Button(action: { /* 创建操作 */ }) {
-                Text("创建故事角色")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .cornerRadius(10)
+            Button(action: {
+                createRole()  // 添加创建操作
+            }) {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                } else {
+                    Text("创建故事角色")
+                }
             }
+            .font(.headline)
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(roleName.isEmpty ? Color.gray : Color.blue)
+            .cornerRadius(10)
+            .disabled(roleName.isEmpty || isLoading)
             .padding()
         }
         .background(Color(.systemGroupedBackground))
+    }
+    
+    // 添加创建角色方法
+    private func createRole() {
+        guard !roleName.isEmpty else { return }
+        isLoading = true
+        
+        Task {
+            do {
+                await viewModel.createStoryRole(
+                    storyId: storyId,
+                    name: roleName,
+                    description: roleDescription,
+                    voice: selectedVoice,
+                    language: selectedLanguage,
+                    isPublic: isPublic
+                )
+                
+                await MainActor.run {
+                    isLoading = false
+                    dismiss()
+                }
+            } catch {
+                print("Error creating role: \(error)")
+                await MainActor.run {
+                    isLoading = false
+                    // 这里可以添加错误提示
+                }
+            }
+        }
     }
 }
 
