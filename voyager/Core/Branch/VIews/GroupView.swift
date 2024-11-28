@@ -138,45 +138,45 @@ struct GroupDiscussionCell: View {
     @ObservedObject var viewModel: GroupViewModel
     @State private var showGroupDetail = false
     
-    init(group: BranchGroup, viewModel: GroupViewModel) {
-        self.group = group
-        self.viewModel = viewModel
-    }
-    
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(group.info.name)
-                Text("・")
-                Text("小组")
-                Spacer()
-                Text("更新时间")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-            }
-            
-            Text(group.info.desc)
-                .lineLimit(2)
-            
-            KFImage(URL(string: group.info.avatar))
-                .resizable()
-                .scaledToFill()
-                .frame(height: 200)
-                .clipped()
-        }
-        .onTapGesture {
+        Button(action: {
             showGroupDetail = true
+        }) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text(group.info.name)
+                    Text("・")
+                    Text("小组")
+                    Spacer()
+                    Text("更新时间")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+                
+                Text(group.info.desc)
+                    .lineLimit(2)
+                
+                KFImage(URL(string: group.info.avatar))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 200)
+                    .clipped()
+            }
         }
-        .simultaneousGesture(DragGesture().onChanged { _ in })
+        .buttonStyle(PlainButtonStyle())  // 保持原有的视觉样式
         .fullScreenCover(isPresented: $showGroupDetail) {
-            NavigationView {
+            NavigationStack {  // 使用 NavigationStack 替代 NavigationView
                 GroupDetailView(user: self.viewModel.user, group: group)
-                    .navigationBarItems(leading: Button(action: {
-                        showGroupDetail = false
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(.primary)
-                    })
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button(action: {
+                                showGroupDetail = false
+                            }) {
+                                Image(systemName: "chevron.left")
+                                    .foregroundColor(.primary)
+                            }
+                        }
+                    }
             }
         }
     }
