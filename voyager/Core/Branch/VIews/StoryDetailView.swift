@@ -287,7 +287,7 @@ struct StoryDetailView: View {
             }
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 15) {
+                HStack(spacing: 4) {
                     Button(action: {
                         showNewStoryRole = true
                     }) {
@@ -482,6 +482,7 @@ class StoryDetailViewModel: ObservableObject {
 // 假设的全部角色视图
 struct AllCharactersView: View {
     @ObservedObject var viewModel: StoryDetailViewModel
+    @State private var showNewStoryRole = false
     
     var body: some View {
         ScrollView {
@@ -502,6 +503,22 @@ struct AllCharactersView: View {
             .padding()
         }
         .navigationTitle("所有角色")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    showNewStoryRole = true
+                }) {
+                    Image(systemName: "plus.circle")
+                }
+            }
+        }
+        .sheet(isPresented: $showNewStoryRole) {
+            NewStoryRole(
+                storyId: (viewModel.story?.storyInfo.id)!,
+                userId: viewModel.userId,
+                viewModel: viewModel
+            )
+        }
     }
 }
 
