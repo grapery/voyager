@@ -18,7 +18,7 @@ struct MainTabView: View {
     }
     var body: some View {
         TabView (selection: $selectedItem){
-            FeedView(userId: user.userID)
+            FeedView(userId: self.user.userID)
                 .onTapGesture {
                     self.selectedItem = 1
                 }
@@ -42,7 +42,7 @@ struct MainTabView: View {
                     Image(systemName: "bubble.left.and.bubble.right")
                 }
                 .tag(3)
-            UserProfileView(user: user)
+            UserProfileView(user: self.user)
                 .onTapGesture {
                     self.selectedItem = 4
                 }

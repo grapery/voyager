@@ -253,7 +253,7 @@ private struct CreateRoleButton: View {
     }
     
     private var isDisabled: Bool {
-        roleName.isEmpty || roleAvatar.isEmpty || rolePrompt.isEmpty || isLoading
+        roleName.isEmpty ||  isLoading
     }
 }
 

@@ -16,6 +16,7 @@ struct UserProfileView: View {
     @StateObject var viewModel: ProfileViewModel
     @State private var isLoading = false
     init(user: User) {
+        print("user :", user)
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
         self.user = user
     }
@@ -82,9 +83,11 @@ struct UserProfileView: View {
                     TabView(selection: $selectedFilter) {
                         StoryboardRowView(boards: self.viewModel.storyboards)
                             .tag(UserProfileFilterViewModel.storyboards)
+                            .padding(.horizontal, 1)
                         
                         RolesListView(roles: self.viewModel.storyRoles)
                             .tag(UserProfileFilterViewModel.roles)
+                            .padding(.horizontal, 1)
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
                     .frame(height: UIScreen.main.bounds.height * 0.7)
@@ -94,7 +97,7 @@ struct UserProfileView: View {
                         }
                     }
                 }
-                .padding()
+                .padding(.horizontal, 2)
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -141,6 +144,7 @@ struct UserProfileView: View {
             case .roles:
                 if self.viewModel.storyRoles.isEmpty || forceRefresh {
                     let (roles, _) = try await viewModel.fetchUserCreatedStoryRoles(userId: user.userID, groupId: 0, storyId: 0)
+                    print("roles list info :",roles as Any)
                     if let roles = roles {
                         await MainActor.run {
                             self.viewModel.storyRoles = roles
@@ -184,20 +188,50 @@ struct RolesListView: View {
     let roles: [StoryRole]
     
     var body: some View {
-        LazyVStack(spacing: 16) {
-            ForEach(roles, id: \.id) { role in
-                StoryRoleRowView()
-                    .padding(.horizontal)
+        ScrollView {
+            LazyVStack {
+                ForEach(roles, id: \.id) { role in
+                    StoryRoleRowView(role: role)
+                        .padding(.horizontal, 4)
+                }
             }
         }
+        .simultaneousGesture(DragGesture().onChanged { _ in })
     }
 }
 
-struct StoryRoleRowView: View{
-    var body: some View{
-        VStack(alignment: .center){
-            Text("StoryRole")
+struct StoryRoleRowView: View {
+    var role: StoryRole
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // 头像
+            if !role.role.characterAvatar.isEmpty {
+                CircularProfileImageView(avatarUrl: role.role.characterAvatar, size: .profile)
+            }
+            
+            // 名称和描述
+            VStack(alignment: .leading, spacing: 4) {
+                Text(role.role.characterName)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                
+                Text(role.role.characterDescription)
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+            }
+            
+            Spacer()
         }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(.systemBackground))
+                .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        )
     }
 }
 
@@ -209,7 +243,7 @@ struct StoryboardRowView: View {
             LazyVStack {
                 ForEach(boards, id: \.id) { board in
                     StoryboardRowCellView(info: board)
-                        .padding(.horizontal)
+                        .padding(.horizontal, 4)
                 }
             }
         }

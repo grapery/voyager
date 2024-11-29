@@ -190,7 +190,7 @@ class ProfileViewModel: ObservableObject {
     
     func fetchUserCreatedStoryRoles(userId: Int64,groupId:Int64,storyId:Int64) async throws -> ([StoryRole]?,Error?){
         do{
-            let result = await APIClient.shared.fetchUserCreatedStoryRoles(userId: storyId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryRoleSize), storyid: storyId)
+            let result = await APIClient.shared.fetchUserCreatedStoryRoles(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryRoleSize), storyid: storyId)
             if result.3 != nil {
                 self.StoryRolePage = 0
                 self.StoryRoleSize = 10
@@ -198,6 +198,7 @@ class ProfileViewModel: ObservableObject {
             }
             self.StoryRolePage = Int(result.1)
             self.StoryRoleSize = Int(result.2)
+            print("fetchUserCreatedStoryRoles result: ",result)
             return (result.0,nil)
         }catch{
             return (nil,error)

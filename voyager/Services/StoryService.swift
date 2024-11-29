@@ -1126,6 +1126,7 @@ extension APIClient {
                 $0.pageSize = size
                 $0.storyID = Int32(storyid)
             }
+            print("req : ",request)
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let response = await apiClient.getUserCreatedRoles(request: request, headers: header)
@@ -1133,6 +1134,7 @@ extension APIClient {
                 print("fetchUserCreatedStoryRoles response: ",response.message as Any)
                 return ([StoryRole](),0,0,nil)
             }
+            print("rpc resp: ",response.message?.roles as Any)
             let roles = response.message?.roles.map { StoryRole(Id: $0.roleID, role: $0) }
             return (roles,response.message!.offset,response.message!.pageSize,nil)
         } catch {
