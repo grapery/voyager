@@ -448,19 +448,40 @@ class StoryDetailViewModel: ObservableObject {
     func saveStory() {
         // TODO: Implement API call to save story changes
     }
+
+    func uploadImage(_ image: UIImage) async throws -> String {
+        // 实现图片上传逻辑
+        // 1. 压缩图片
+        guard let imageData = image.jpegData(compressionQuality: 0.6) else {
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to compress image"])
+        }
+        
+        // 2. 调用上传 API
+//        let imageUrl = try await apiClient.uploadImage(imageData)
+//        return imageUrl
+        return ""
+    }
     
     func createStoryRole(
         storyId: Int64,
         name: String,
         description: String,
-        voice: String,
-        language: String,
-        isPublic: Bool
+        avatar: String,
+        characterPrompt: String,
+        userId: Int64,
+        characterRefImages: [String]?
     ) async {
        do {
             // 调用 API 创建角色
-            var role = Common_StoryRole()
-            let newRole = await apiClient.createStoryRole(
+           var role = Common_StoryRole()
+           role.storyID = storyId
+           role.characterDescription = description
+           role.characterName = name
+           role.characterAvatar = avatar
+           role.characterPrompt = characterPrompt
+           role.characterRefImages = characterRefImages!
+           role.creatorID = userId
+           _ = await apiClient.createStoryRole(
                 userId: self.userId,
                 role: role
             )

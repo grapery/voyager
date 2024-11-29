@@ -221,7 +221,7 @@ struct StoryboardRowCellView: View {
     var info: StoryBoard
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 2) {
             // 标题和AI标记
             HStack {
                 Text(info.boardInfo.title)
@@ -260,7 +260,7 @@ struct StoryboardRowCellView: View {
         }
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 2)
                 .fill(Color(.systemBackground))
                 .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
         )
