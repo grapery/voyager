@@ -379,50 +379,36 @@ struct StoryBoardCellView: View {
             ForEach(sceneMediaContents) { sceneContent in
                 VStack(alignment: .leading) {
                     Text(sceneContent.sceneTitle)
-                        .font(.headline)
+                        .font(.subheadline)
                         .padding(.vertical, 4)
-                    
-                    if sceneContent.mediaItems.isEmpty {
-                        Text((self.board?.boardInfo.content)!)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .lineLimit(2)
-                            .padding(.vertical, 4)
-                    } else {
-                        // 如果场景只有一张图片
-                        if sceneMediaContents.count == 4 {
-                            KFImage(sceneContent.mediaItems[0].url)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(height: 200)
-                                .frame(maxWidth: .infinity)
-                                .clipped()
-                                .cornerRadius(8)
-                        }
-                        // 如果场景有多张图片
-                        else {
-                            LazyVGrid(columns: columns, spacing: 4) {
-                                ForEach(Array(sceneContent.mediaItems.prefix(4).enumerated()), id: \.element.id) { index, item in
-                                    KFImage(item.url)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(height: UIScreen.main.bounds.width / 2 - 16)
-                                        .frame(maxWidth: .infinity)
-                                        .clipped()
-                                        .cornerRadius(8)
-                                        .overlay(
-                                            // 如果有更多图片，在最后一张上显示剩余数量
-                                            index == 3 && sceneContent.mediaItems.count > 4 ?
-                                            ZStack {
-                                                Color.black.opacity(0.4)
-                                                Text("+\(sceneContent.mediaItems.count - 4)")
-                                                    .foregroundColor(.white)
-                                                    .font(.title2)
-                                            }
-                                                .cornerRadius(8)
-                                            : nil
-                                        )
-                                }
+                    // 如果场景只有一张图片
+                    if sceneMediaContents.count == 4 {
+                        RectProfileImageView(avatarUrl: sceneContent.mediaItems[0].url.description, size: .content).clipped()
+                            .cornerRadius(8)
+                    }
+                    // 如果场景有多张图片
+                    else {
+                        LazyVGrid(columns: columns, spacing: 4) {
+                            ForEach(Array(sceneContent.mediaItems.prefix(4).enumerated()), id: \.element.id) { index, item in
+                                KFImage(item.url)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(height: UIScreen.main.bounds.width / 2 - 16)
+                                    .frame(maxWidth: .infinity)
+                                    .clipped()
+                                    .cornerRadius(8)
+                                    .overlay(
+                                        // 如果有更多图片，在最后一张上显示剩余数量
+                                        index == 3 && sceneContent.mediaItems.count > 4 ?
+                                        ZStack {
+                                            Color.black.opacity(0.4)
+                                            Text("+\(sceneContent.mediaItems.count - 4)")
+                                                .foregroundColor(.white)
+                                                .font(.title2)
+                                        }
+                                            .cornerRadius(8)
+                                        : nil
+                                    )
                             }
                         }
                     }
@@ -738,9 +724,7 @@ struct MediaItemView: View {
             Group {
                 switch item.type {
                 case .image:
-                    KFImage(item.url)
-                        .resizable()
-                        .scaledToFill()
+                    RectProfileImageView(avatarUrl: item.url.description, size: .content)
                 case .video:
                     ZStack {
                         if let thumbnail = item.thumbnail {

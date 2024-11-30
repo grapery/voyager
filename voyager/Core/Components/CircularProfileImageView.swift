@@ -15,6 +15,7 @@ enum ProfileImageSize {
     case inProject
     case inGroup
     case search
+    case content
     
     var dimension: CGFloat {
         switch self {
@@ -30,6 +31,8 @@ enum ProfileImageSize {
             return 30
         case .search:
             return 50
+        case .content:
+            return 120
         }
     }
 }
@@ -51,6 +54,28 @@ struct CircularProfileImageView: View {
                 .resizable()
                 .frame(width: size.dimension, height: size.dimension)
                 .clipShape(Circle())
+                .foregroundColor(Color(.systemGray5))
+        }
+    }
+}
+
+struct RectProfileImageView: View {
+    
+    let avatarUrl: String
+    let size: ProfileImageSize
+    
+    var body: some View {
+        if !avatarUrl.isEmpty {
+            KFImage(URL(string: self.avatarUrl))
+                .resizable()
+                .scaledToFill()
+                .frame(width: size.dimension, height: size.dimension)
+                .clipShape(Rectangle())
+        } else {
+            Image(systemName: "person.circle.fill")
+                .resizable()
+                .frame(width: size.dimension, height: size.dimension)
+                .clipShape(Rectangle())
                 .foregroundColor(Color(.systemGray5))
         }
     }
