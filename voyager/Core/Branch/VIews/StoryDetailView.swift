@@ -280,7 +280,7 @@ struct StoryDetailView: View {
                     .font(.headline)
                 Spacer()
                 NavigationLink(destination: AllCharactersView(viewModel: viewModel)) {
-                    Text("查看\(viewModel.characters.count)名角色 >")
+                    Text("查看\(viewModel.characters!.count)名角色 >")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 }
@@ -301,14 +301,14 @@ struct StoryDetailView: View {
                         }
                     }
                     
-                    ForEach(Array(viewModel.characters.enumerated()), id: \.offset) { _, character in
+                    ForEach(Array(viewModel.characters!.enumerated()), id: \.offset) { _, character in
                         VStack {
-                            KFImage(URL(string: character.characterAvatar))
+                            KFImage(URL(string: character.role.characterAvatar))
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 50, height: 50)
                                 .clipShape(Circle())
-                            Text(character.characterName)
+                            Text(character.role.characterName)
                                 .font(.caption)
                                 .lineLimit(1)
                         }
@@ -416,7 +416,7 @@ class StoryDetailViewModel: ObservableObject {
     @Published var story: Story?
     public let storyId: Int64
     public let userId: Int64
-    @Published var characters: [Common_StoryRole] = []
+    @Published var characters: [StoryRole]? = []
     @Published var participants: [User] = []
     var likes: Int = 10
     var followers: Int = 10
@@ -429,16 +429,12 @@ class StoryDetailViewModel: ObservableObject {
         self.storyId = storyId
         self.userId = userId
         
-        self.characters = [Common_StoryRole]()
+        self.characters = [StoryRole]()
         self.participants = [User]()
         self.likes = 10
         self.followers = 10
         self.shares = 10
     }
-    
-    
-    
-    
     
     func fetchStoryDetails() async{
         // TODO: Implement API call to fetch story details
@@ -462,6 +458,22 @@ class StoryDetailViewModel: ObservableObject {
         return ""
     }
     
+    func getTopStoryRoles(
+        storyId: Int64,
+        userId:Int64
+    ) async {
+        do {
+            let (roles,err) = await apiClient.getStoryRoles(userId: userId, storyId: storyId)
+            if err != nil {
+                print("getTopStoryRoles err: ",err as Any)
+                return
+            }
+            self.characters = roles
+        } catch {
+            print("Error fetching top story roles: \(error)")
+        }
+    }
+    
     func createStoryRole(
         storyId: Int64,
         name: String,
@@ -481,13 +493,15 @@ class StoryDetailViewModel: ObservableObject {
            role.characterPrompt = characterPrompt
            role.characterRefImages = characterRefImages!
            role.creatorID = userId
-           _ = await apiClient.createStoryRole(
+           let err = await apiClient.createStoryRole(
                 userId: self.userId,
                 role: role
             )
-            self.characters.append(role)
+           if err != nil{
+               print("create story role failed: ",err as Any)
+           }
             // 重新获取故事详情
-            await fetchStoryDetails()
+           await fetchStoryDetails()
         }
     }
     
@@ -507,30 +521,12 @@ struct AllCharactersView: View {
     
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 20) {
-                ForEach(Array(viewModel.characters.enumerated()), id: \.offset) { _, character in
-                    VStack {
-                        KFImage(URL(string: character.characterAvatar))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 50, height: 50)
-                            .clipShape(Circle())
-                        Text(character.characterName)
-                            .font(.caption)
-                            .lineLimit(1)
-                    }
-                }
-            }
-            .padding()
+            characterGrid
         }
         .navigationTitle("所有角色")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    showNewStoryRole = true
-                }) {
-                    Image(systemName: "plus.circle")
-                }
+                addButton
             }
         }
         .sheet(isPresented: $showNewStoryRole) {
@@ -539,6 +535,40 @@ struct AllCharactersView: View {
                 userId: viewModel.userId,
                 viewModel: viewModel
             )
+        }
+    }
+    
+    private var characterGrid: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 20) {
+            ForEach(viewModel.characters ?? [], id: \.role.characterID) { character in
+                CharacterCell(character: character)
+            }
+        }
+        .padding()
+    }
+    
+    private var addButton: some View {
+        Button(action: {
+            showNewStoryRole = true
+        }) {
+            Image(systemName: "plus.circle")
+        }
+    }
+}
+
+struct CharacterCell: View {
+    let character: StoryRole
+    
+    var body: some View {
+        VStack {
+            KFImage(URL(string: character.role.characterAvatar))
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 50, height: 50)
+                .clipShape(Circle())
+            Text(character.role.characterName)
+                .font(.caption)
+                .lineLimit(1)
         }
     }
 }
