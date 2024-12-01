@@ -40,9 +40,9 @@ struct CharacterCell: View {
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     .lineLimit(2)
-                
+                Divider()
                 // 操作按钮
-                HStack(spacing: 12) {
+                HStack(spacing: 8) {
                     // 点赞按钮
                     Spacer()
                     Button(action: {
@@ -61,7 +61,7 @@ struct CharacterCell: View {
                         // TODO: 实现关注功能
                     }) {
                         VStack {
-                            Image(systemName: "star")
+                            Image(systemName: "bell")
                             Text("关注")
                                 .font(.caption2)
                         }
@@ -94,18 +94,18 @@ struct CharacterCell: View {
                     .navigationDestination(isPresented: $showingDetail) {
                         StoryRoleDetailView(
                             storyId: character.role.storyID,
-                            boardIds: [Int64](),
                             roleId: character.role.roleID,
-                            viewModel: self.viewModel
+                            userId: character.role.creatorID,
+                            role: character
                         )
                     }
                     Spacer()
                 }
             }
         }
-        .padding(8)
+        .padding(4)
         .background(Color(.systemBackground))
-        .cornerRadius(8)
+        .cornerRadius(4)
         .shadow(color: .black.opacity(0.1), radius: 5)
     }
 }
@@ -114,95 +114,102 @@ struct CharacterCell: View {
 // 角色详情视图
 struct StoryRoleDetailView: View {
     let storyId: Int64
-    let boardIds: [Int64]
+    var boardIds: [Int64]
     let roleId: Int64
+    let userId: Int64
     @State var role: StoryRole?
-    var viewModel: StoryDetailViewModel
+    var viewModel: StoryRoleModel?
+    init(storyId: Int64, roleId: Int64, userId: Int64,role: StoryRole? = nil){
+        self.storyId = storyId
+        self.roleId = roleId
+        self.role = role
+        self.viewModel = StoryRoleModel(story: nil, storyId: 0, userId: userId)
+        self.boardIds = [Int64]()
+        self.userId = userId
+    }
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(spacing: 20) {
+                // 头像和基本信息区域
+                VStack(spacing: 16) {
+                    if let role = role {
+                        // 头像
+                        if !role.role.characterAvatar.isEmpty {
+                            RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .profile)
+                                .frame(width: 120, height: 120)
+                        } else {
+                            RectProfileImageView(avatarUrl: defaultAvator, size: .profile)
+                                .frame(width: 120, height: 120)
+                        }
+                        
+                        
+                        // 名称
+                        Text(role.role.characterName)
+                            .font(.title2)
+                            .bold()
+                    } else {
+                        ProgressView()
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical)
+                
+                // 统计信息
                 if let role = role {
-                    // 角色头像
-                    if !role.role.characterAvatar.isEmpty {
-                        RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .profile)
-                    }else{
-                        RectProfileImageView(avatarUrl: defaultAvator, size: .profile)
+                    HStack(spacing: 24) {
+                        StatView(image: "heart.fill", color: .red, value: role.role.likeCount, title: "点赞")
+                        StatView(image: "person.2.fill", color: .blue, value: role.role.followCount, title: "关注")
+                        StatView(image: "book.fill", color: .green, value: role.role.storyboardNum, title: "故事")
                     }
+                    .padding(.horizontal)
                     
-                    // 角色名称
-                    Text(role.role.characterName)
-                        .font(.title)
-                        .bold()
-                    
-                    // 角色描述
-                    if role.role.characterDescription.isEmpty {
-                        Text(role.role.characterDescription)
-                            .font(.body)
-                    }else{
-                        Text("角色比较神秘，没有介绍！")
-                            .font(.body)
+                    // 详细信息卡片
+                    VStack(alignment: .leading, spacing: 16) {
+                        InfoSection(title: "角色描述") {
+                            if !role.role.characterDescription.isEmpty {
+                                Text(role.role.characterDescription)
+                            } else {
+                                Text("角色比较神秘，没有介绍！")
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        
+                        Divider()
+                        
+                        InfoSection(title: "角色提示词") {
+                            if !role.role.characterPrompt.isEmpty {
+                                Text(role.role.characterPrompt)
+                            } else {
+                                HStack {
+                                    Text("提示词为空")
+                                        .foregroundColor(.secondary)
+                                    Image(systemName: "rectangle.dashed.and.paperclip")
+                                        .foregroundColor(.red)
+                                }
+                            }
+                        }
+                        
+                        Divider()
+                        
+                        InfoSection(title: "其他信息") {
+                            HStack {
+                                Label(formatDate(timestamp: role.role.ctime), systemImage: "clock")
+                                Spacer()
+                                Label("ID: \(role.role.creatorID)", systemImage: "person.circle")
+                            }
+                            .foregroundColor(.secondary)
+                        }
                     }
-                    
-                    // 角色提示词
-                    if role.role.characterPrompt.isEmpty {
-                        Text(role.role.characterPrompt)
-                            .font(.body)
-                    }else{
-                        Text("角色比较神秘，没有介绍！")
-                            .font(.body)
-                    }
-                } else {
-                    ProgressView()
+                    .padding()
+                    .background(Color(.systemBackground))
+                    .cornerRadius(12)
+                    .shadow(color: .black.opacity(0.05), radius: 5)
+                    .padding(.horizontal)
                 }
             }
-            .padding()
-            HStack(spacing: 16) {
-                // 点赞数
-                HStack(spacing: 4) {
-                    Image(systemName: "heart.fill")
-                        .foregroundColor(.red)
-                    Text("\(role?.role.likeCount ?? 0)")
-                }
-                .padding(4)
-                
-                // 关注数
-                HStack(spacing: 4) {
-                    Image(systemName: "person.2.fill")
-                        .foregroundColor(.blue)
-                    Text("\(role?.role.followCount ?? 0)")
-                }
-                .padding(4)
-                
-                // 故事板数量
-                HStack(spacing: 4) {
-                    Image(systemName: "book.fill")
-                        .foregroundColor(.green)
-                    Text("\(role?.role.storyboardNum ?? 0)")
-                }
-                .padding(4)
-                
-                // 创建时间
-                HStack(spacing: 4) {
-                    Image(systemName: "clock.fill")
-                        .foregroundColor(.gray)
-                    Text(self.formatDate(timestamp: (role?.role.ctime)!))
-                }
-                .padding(4)
-                
-                // 创建者ID
-                HStack(spacing: 4) {
-                    Image(systemName: "person.fill")
-                        .foregroundColor(.purple)
-                    Text("\(role?.role.creatorID ?? 0)")
-                }
-                .padding(4)
-            }
-            .font(.footnote)
-            .padding(.horizontal)
         }
         .onAppear {
-            // 在视图出现时加载角色数据
             loadRoleData()
         }
     }
@@ -218,6 +225,40 @@ struct StoryRoleDetailView: View {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         return formatter.string(from: date)
+    }
+}
+
+// 辅助视图
+struct StatView: View {
+    let image: String
+    let color: Color
+    let value: Int64
+    let title: String
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(systemName: image)
+                .foregroundColor(color)
+            Text("\(value)")
+                .bold()
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+    }
+}
+
+struct InfoSection<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: () -> Content
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+            content()
+                .font(.body)
+        }
     }
 }
 

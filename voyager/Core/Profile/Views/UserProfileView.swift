@@ -14,84 +14,33 @@ struct UserProfileView: View {
     @Namespace var animation
     var user: User
     @StateObject var viewModel: ProfileViewModel
-    @State private var isLoading = false
+    
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
         self.user = user
     }
+    
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading,spacing: 4) {
-                    HStack (spacing: 4){
-                        CircularProfileImageView(avatarUrl: user.avatar.isEmpty ? defaultAvator : user.avatar, size: .profile)
-                        VStack(alignment: .leading) {
-                            Text(user.name)
-                                .foregroundColor(.primary)
-                                .font(.title)
-                                .bold()
-                        }
-                    }
-                    VStack(alignment: .leading,spacing: 4){
-                        if user.desc.isEmpty {
-                            Text("神秘的人物，没有简介!")
-                                .font(.body)
-                                .lineLimit(3)
-                        }else{
-                            Text(user.desc)
-                                .font(.body)
-                                .lineLimit(3)
-                        }
-                    }
-                    VStack(alignment: .leading,spacing: 4){
-                        HStack{
-                            Image(systemName: "mountain.2")
-                                .foregroundColor(.blue)
-                            Text("\(viewModel.profile.createdStoryNum) 个故事")
-                                .font(.body)
-                                .foregroundColor(.secondary)
-                                .padding(.vertical, 2)
-                        }
-                        HStack{
-                            Image(systemName: "poweroutlet.type.k")
-                                .foregroundColor(.gray)
-                            Text("\(viewModel.profile.createdRoleNum) 个故事角色")
-                                .font(.body)
-                                .foregroundColor(.secondary)
-                                .padding(.vertical, 2)
-                        }
-                    }
+                VStack(alignment: .leading, spacing: 4) {
+                    ProfileHeaderView(user: user)
+                    ProfileDescriptionView(description: user.desc)
+                    ProfileStatsView(
+                        storyCount: Int(viewModel.profile.createdStoryNum),
+                        roleCount: Int(viewModel.profile.createdRoleNum)
+                    )
+                    
                     Divider()
-                    HStack {
-                        ForEach(UserProfileFilterViewModel.allCases, id: \.rawValue) { item in
-                            VStack {
-                                Text(item.title)
-                                    .font(.subheadline)
-                                    .fontWeight(selectedFilter == item ? .semibold : .regular)
-                                    .foregroundColor(selectedFilter == item ? .primary : .secondary)
-                                
-                                Capsule()
-                                    .foregroundColor(selectedFilter == item ? .primary : .secondary)
-                                    .frame(height: 3)
-                            }
-                            .onTapGesture {
-                                withAnimation(.easeInOut) {
-                                    selectedFilter = item
-                                    Task {
-                                        await loadFilteredContent(for: item)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .overlay(Divider().offset(x: 0, y: 17))
+                    
+                    ProfileFilterView(selectedFilter: $selectedFilter)
                     
                     TabView(selection: $selectedFilter) {
-                        StoryboardRowView(boards: self.viewModel.storyboards)
+                        StoryboardRowView(boards: viewModel.storyboards)
                             .tag(UserProfileFilterViewModel.storyboards)
                             .padding(.horizontal, 1)
                         
-                        RolesListView(roles: self.viewModel.storyRoles)
+                        RolesListView(roles: viewModel.storyRoles, viewModel: self.viewModel)
                             .tag(UserProfileFilterViewModel.roles)
                             .padding(.horizontal, 1)
                     }
@@ -109,7 +58,7 @@ struct UserProfileView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         showingEditProfile.toggle()
-                    } label : {
+                    } label: {
                         Image(systemName: "slider.vertical.3")
                     }
                     .foregroundColor(.primary)
@@ -123,29 +72,29 @@ struct UserProfileView: View {
             await loadFilteredContent(for: selectedFilter, forceRefresh: true)
         }
     }
+    
     private func loadFilteredContent(for filter: UserProfileFilterViewModel, forceRefresh: Bool = false) async {
         do {
-            if self.viewModel.profile.userID == 0 {
-                self.viewModel.profile = await self.viewModel.fetchUserProfile()
+            if viewModel.profile.userID == 0 {
+                viewModel.profile = await viewModel.fetchUserProfile()
             }
             switch filter {
             case .storyboards:
-                if self.viewModel.storyboards.isEmpty || forceRefresh {
+                if viewModel.storyboards.isEmpty || forceRefresh {
                     let (boards, _) = try await viewModel.fetchUserCreatedStoryboards(userId: user.userID, groupId: 0, storyId: 0)
                     if let boards = boards {
                         await MainActor.run {
-                            self.viewModel.storyboards = boards
+                            viewModel.storyboards = boards
                         }
                     }
                 }
                 
             case .roles:
-                if self.viewModel.storyRoles.isEmpty || forceRefresh {
+                if viewModel.storyRoles.isEmpty || forceRefresh {
                     let (roles, _) = try await viewModel.fetchUserCreatedStoryRoles(userId: user.userID, groupId: 0, storyId: 0)
-                    print("roles list info :",roles as Any)
                     if let roles = roles {
                         await MainActor.run {
-                            self.viewModel.storyRoles = roles
+                            viewModel.storyRoles = roles
                         }
                     }
                 }
@@ -181,15 +130,14 @@ struct StoryCardRowView: View{
     }
 }
     
-
 struct RolesListView: View {
     let roles: [StoryRole]
-    var viewModel: StoryDetailViewModel
+    var viewModel: ProfileViewModel
     var body: some View {
         ScrollView {
             LazyVStack {
                 ForEach(roles, id: \.id) { role in
-                    StoryRoleRowView(role: role,viewModel: viewModel)
+                    StoryRoleRowView(role: role,viewModel: viewModel, userId: viewModel.user!.userID)
                         .padding(.horizontal, 4)
                 }
             }
@@ -201,7 +149,8 @@ struct RolesListView: View {
 struct StoryRoleRowView: View {
     var role: StoryRole
     @State private var showRoleDetail = false
-    var viewModel: StoryDetailViewModel
+    var viewModel: ProfileViewModel
+    let userId: Int64
     
     var body: some View {
         HStack(spacing: 12) {
@@ -240,9 +189,9 @@ struct StoryRoleRowView: View {
         .sheet(isPresented: $showRoleDetail) {
             StoryRoleDetailView(
                 storyId: role.role.storyID,
-                boardIds: [Int64](),
                 roleId: role.role.roleID,
-                viewModel: self.viewModel
+                userId: self.userId,
+                role: self.role
             )
         }
     }
@@ -266,7 +215,6 @@ struct StoryboardRowView: View {
 
 struct StoryboardRowCellView: View {
     var info: StoryBoard
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             // 标题和AI标记

@@ -9,7 +9,7 @@ import Foundation
 
 let defaultStory = Story(Id: -1, storyInfo: Common_Story())
 
-class Story:Identifiable {
+class Story:Identifiable{
     var Id: Int64
     var storyInfo: Common_Story
     init(){
@@ -28,7 +28,7 @@ class Story:Identifiable {
     }
 }
 
-class StoryRole: Identifiable {
+class StoryRole: Identifiable, Hashable {
     var Id: Int64
     var role: Common_StoryRole
     init(){
@@ -40,11 +40,12 @@ class StoryRole: Identifiable {
         self.Id = Id
         self.role = role
     }
-    static func == (lhs: StoryRole,rhs: StoryRole)-> Bool{
-        if lhs.id == rhs.id {
-            return true
-        }
-        return false
+    static func == (lhs: StoryRole, rhs: StoryRole) -> Bool {
+        return lhs.Id == rhs.Id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 

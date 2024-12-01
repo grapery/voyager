@@ -1207,7 +1207,6 @@ extension APIClient {
     
     func getStoryRoles(userId:Int64,storyId:Int64)async -> ([StoryRole]?,Error?){
         do{
-            print("getStoryRoles ",userId,storyId)
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let request = Common_GetStoryRolesRequest.with {
                 $0.userID = userId
@@ -1250,7 +1249,7 @@ extension APIClient {
 
     func getStoryContributors(userId:Int64,storyId:Int64)async -> ([User]?,Error?){
         let users: [User]? = []
-        do {    
+        do {
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let request = Common_GetStoryContributorsRequest.with {
                 $0.storyID = storyId

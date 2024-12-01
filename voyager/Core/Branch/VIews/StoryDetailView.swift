@@ -337,7 +337,7 @@ struct StoryDetailView: View {
     private var participantsList: some View {
         VStack(alignment: .leading) {
             HStack {
-                Text("参与故事创建")
+                Text("��与故事创建")
                     .font(.headline)
                 Spacer()
                 NavigationLink(destination: AllParticipantsView(viewModel: viewModel)) {
@@ -435,6 +435,7 @@ struct StoryUser: View {
 struct AllCharactersView: View {
     @ObservedObject var viewModel: StoryDetailViewModel
     @State private var showNewStoryRole = false
+    @State private var selectedCharacter: StoryRole?
     
     var body: some View {
         ScrollView {
@@ -453,13 +454,24 @@ struct AllCharactersView: View {
                 viewModel: viewModel
             )
         }
+        .navigationDestination(for: StoryRole.self) { character in
+            StoryRoleDetailView(
+                storyId: character.role.storyID,
+                roleId: character.role.roleID,
+                userId: character.role.creatorID,
+                role: character
+            )
+        }
     }
     
     private var characterGrid: some View {
         LazyVStack(spacing: 8) {
             ForEach(viewModel.characters ?? [], id: \.role.roleID) { character in
-                CharacterCell(character: character,viewModel: self.viewModel)
+                CharacterCell(character: character, viewModel: self.viewModel)
                     .padding(.horizontal)
+                    .onTapGesture {
+                        selectedCharacter = character
+                    }
             }
         }
     }

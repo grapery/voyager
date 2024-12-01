@@ -14,26 +14,17 @@ class StoryRoleModel: ObservableObject {
     @Published var storyId: Int64
     @State var roles: [StoryRole] = [StoryRole]()
     var userId: Int64
-    var isUpdateOk: Bool = false
-    var isCreateOk: Bool = false
-    var isGenerate: Bool = false
     
     var err: Error? = nil
     var page: Int64 = 0
     var pageSize: Int64 = 10
     
-    
-    init(story: Story? = nil, storyId: Int64, err: Error? = nil, page: Int64, pageSize: Int64, userId: Int64) {
+    init(story: Story? = nil, storyId: Int64 = 0, userId: Int64 = 0) {
         self.story = story
         self.storyId = storyId
-        self.err = err
-        self.page = page
-        self.pageSize = pageSize
         self.userId = userId
-        Task{
-            await fetchStoryRoles(storyId:storyId)
-        }
     }
+    
     func fetchStoryRoles(storyId:Int64) async {
         let (roles,err) = await APIClient.shared.getStoryRoles(userId: self.userId, storyId: storyId)
         if err != nil {
