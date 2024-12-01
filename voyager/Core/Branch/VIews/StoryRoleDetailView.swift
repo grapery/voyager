@@ -118,7 +118,11 @@ struct StoryRoleDetailView: View {
     let roleId: Int64
     let userId: Int64
     @State var role: StoryRole?
-    var viewModel: StoryRoleModel?
+    @State var viewModel: StoryRoleModel?
+    @State private var showingEditView = false
+    @State private var showingChatView = false
+    @State private var showingPosterView = false
+    
     init(storyId: Int64, roleId: Int64, userId: Int64,role: StoryRole? = nil){
         self.storyId = storyId
         self.roleId = roleId
@@ -131,6 +135,19 @@ struct StoryRoleDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
+                // Add edit button to the top
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        showingEditView = true
+                    }) {
+                        Image(systemName: "pencil.circle")
+                            .font(.title2)
+                            .foregroundColor(.orange)
+                    }
+                }
+                .padding(.horizontal)
+                
                 // 头像和基本信息区域
                 VStack(spacing: 16) {
                     if let role = role {
@@ -207,10 +224,48 @@ struct StoryRoleDetailView: View {
                     .shadow(color: .black.opacity(0.05), radius: 5)
                     .padding(.horizontal)
                 }
+                
+                // Add bottom buttons after the last card
+                if let role = role {
+                    HStack(spacing: 20) {
+                        Button(action: {
+                            showingChatView = true
+                        }) {
+                            HStack {
+                                Image(systemName: "message.fill")
+                                Text("聊天")
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.orange)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                        }
+                        
+                        Button(action: {
+                            showingPosterView = true
+                        }) {
+                            HStack {
+                                Image(systemName: "photo.fill")
+                                Text("海报")
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.orange)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.top, 10)
+                }
             }
         }
-        .onAppear {
-            loadRoleData()
+        .navigationDestination(isPresented: $showingEditView) {
+            EditStoryRoleDetailView(role: role,userId: self.userId,viewModel: self.$viewModel)
+        }
+        .navigationDestination(isPresented: $showingChatView) {
+            MessageContextView(userId: self.userId, roleId: (role?.role.roleID)!,role: self.role!)
         }
     }
     

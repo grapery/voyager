@@ -58,9 +58,13 @@ struct MessageContextCellView: View{
 struct MessageContextView: View {
     @ObservedObject var viewModel: MessageContextViewModel
     @State private var newMessageContent: String = ""
-    @State var role: StoryRole
+    @State var role: StoryRole?
     @FocusState private var isInputFocused: Bool
-    
+    init(userId: Int64, roleId: Int64,role: StoryRole) {
+        self.role = role
+        self.viewModel  = MessageContextViewModel.create(userId: userId, roleId: roleId)!
+        self.isInputFocused = false
+    }
     var body: some View {
         VStack(spacing: 0) {
             // 顶部导航栏
@@ -141,7 +145,6 @@ struct MessageContextView: View {
     }
     
     private func sendMessage() async {
-        await viewModel.sendMessage()
         newMessageContent = ""
     }
     

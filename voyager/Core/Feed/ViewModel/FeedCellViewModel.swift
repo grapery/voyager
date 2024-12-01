@@ -110,26 +110,26 @@ class MessageViewModel: ObservableObject{
 
 class MessageContextViewModel: ObservableObject{
     @Published var msg_ctx_id: Int64
-    @Published var creatorId = -1
-    @Published var users = [User]()
-    @Published var roles = [StoryRole]()
+    @Published var user: User?
+    @Published var role: StoryRole?
     @Published var avator = defaultAvator
-    @Published var currentId = 0
+    
+    var userId: Int64
+    var roleId: Int64
  
     var page = 0
     var size = 10
     @Published var messages = [Message]()
-    init(msg_ctx_id: Int64) {
-        self.msg_ctx_id = msg_ctx_id
-    }
     
-    func sendMessage() async -> Void{
-        self.currentId = self.currentId + 1
-        return
-    }
-    
-    func recvMessage() async -> Void{
-        self.currentId = self.currentId + 1
+    init(userId: Int64, roleId: Int64) {
+        self.userId = userId
+        self.roleId = roleId
+        self.msg_ctx_id = 0
+        let (msgContext, err) = await APIClient.shared.getUserChatWithRole(userId: userId, roleId: roleId)
+        if let err = err {
+            print("MessageContextViewModel init error: ", err)
+            return
+        }
     }
     
     func fetchMessages() async -> Void{

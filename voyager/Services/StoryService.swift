@@ -1307,4 +1307,19 @@ extension APIClient {
         return nil
     }
     
+    func getUserChatWithRole(userId: Int64,roleId: Int64) async -> (Common_ChatContext?,Error?){
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_GetUserChatWithRoleRequest.with {
+            $0.userID = userId
+            $0.roleID = roleId
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.getUserChatWithRole(request: request, headers: header)
+        if response.message?.code != 0{
+            return (nil,NSError(domain: "getUserChatWithRole", code: 0, userInfo: [NSLocalizedDescriptionKey: "get user chat with role failed"]))
+        }
+        return (response.message?.chatContext,nil)
+    }
+    
 }

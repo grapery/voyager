@@ -153,39 +153,41 @@ struct StoryRoleRowView: View {
     let userId: Int64
     
     var body: some View {
-        HStack(spacing: 12) {
-            // 头像
-            if !role.role.characterAvatar.isEmpty {
-                RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .profile)
-            }else{
-                RectProfileImageView(avatarUrl: defaultAvator, size: .profile)
-            }
-            
-            // 名称和描述
-            VStack(alignment: .leading, spacing: 4) {
-                Text(role.role.characterName)
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
-                
-                Text(role.role.characterDescription)
-                    .font(.system(size: 12))
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
-            }
-            
-            Spacer()
-        }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color(.systemBackground))
-                .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
-        )
-        .onTapGesture {
+        Button(action: {
             showRoleDetail = true
+        }) {
+            HStack(spacing: 12) {
+                // 头像
+                if !role.role.characterAvatar.isEmpty {
+                    RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .profile)
+                }else{
+                    RectProfileImageView(avatarUrl: defaultAvator, size: .profile)
+                }
+                
+                // 名称和描述
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(role.role.characterName)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                    
+                    Text(role.role.characterDescription)
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
+                
+                Spacer()
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(.systemBackground))
+                    .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+            )
         }
+        .buttonStyle(PlainButtonStyle())
         .sheet(isPresented: $showRoleDetail) {
             StoryRoleDetailView(
                 storyId: role.role.storyID,
