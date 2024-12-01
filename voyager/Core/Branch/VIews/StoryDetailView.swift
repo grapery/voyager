@@ -288,26 +288,22 @@ struct StoryDetailView: View {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 4) {
-                    Button(action: {
-                        showNewStoryRole = true
-                    }) {
-                        VStack {
-                            Image(systemName: "plus")
-                                .frame(width: 50, height: 50)
-                                .background(Color.gray.opacity(0.2))
-                                .clipShape(Circle())
-                            Text("添加人物角色")
-                                .font(.caption)
-                        }
-                    }
-                    
                     ForEach(Array(viewModel.characters!.enumerated()), id: \.offset) { _, character in
                         VStack {
-                            KFImage(URL(string: character.role.characterAvatar))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 50, height: 50)
-                                .clipShape(Circle())
+                            if character.role.characterAvatar.isEmpty {
+                                KFImage(URL(string: defaultAvator))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(Circle())
+                            }else{
+                                KFImage(URL(string: character.role.characterAvatar))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(Circle())
+                            }
+                            
                             Text(character.role.characterName)
                                 .font(.caption)
                                 .lineLimit(1)
@@ -315,6 +311,18 @@ struct StoryDetailView: View {
                     }
                 }
                 .padding(.horizontal)
+                Button(action: {
+                    showNewStoryRole = true
+                }) {
+                    VStack {
+                        Image(systemName: "plus")
+                            .frame(width: 50, height: 50)
+                            .background(Color.gray.opacity(0.2))
+                            .clipShape(Circle())
+                        Text("添加人物角色")
+                            .font(.caption)
+                    }
+                }
             }
             .sheet(isPresented: $showNewStoryRole) {
                 NewStoryRole(
@@ -343,11 +351,20 @@ struct StoryDetailView: View {
                 HStack(spacing: 15) {
                     ForEach(viewModel.participants, id: \.userID) { participant in
                         VStack {
-                            KFImage(URL(string: participant.avatar))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 50, height: 50)
-                                .clipShape(Circle())
+                            if participant.avatar.isEmpty {
+                                KFImage(URL(string: defaultAvator))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(Circle())
+                            }else{
+                                KFImage(URL(string: participant.avatar))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(Circle())
+                            }
+                            
                             Text(participant.name)
                                 .font(.caption)
                                 .lineLimit(1)
@@ -412,107 +429,7 @@ struct StoryUser: View {
     }
 }
 
-class StoryDetailViewModel: ObservableObject {
-    @Published var story: Story?
-    public let storyId: Int64
-    public let userId: Int64
-    @Published var characters: [StoryRole]? = []
-    @Published var participants: [User] = []
-    var likes: Int = 10
-    var followers: Int = 10
-    var shares: Int = 10
-    
-    private let apiClient = APIClient.shared
-    
-    init(story: Story? = nil, storyId: Int64, userId: Int64) {
-        self.story = story
-        self.storyId = storyId
-        self.userId = userId
-        
-        self.characters = [StoryRole]()
-        self.participants = [User]()
-        self.likes = 10
-        self.followers = 10
-        self.shares = 10
-    }
-    
-    func fetchStoryDetails() async{
-        // TODO: Implement API call to fetch story details
-        
-    }
-    
-    func saveStory() {
-        // TODO: Implement API call to save story changes
-    }
 
-    func uploadImage(_ image: UIImage) async throws -> String {
-        // 实现图片上传逻辑
-        // 1. 压缩图片
-        guard let imageData = image.jpegData(compressionQuality: 0.6) else {
-            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to compress image"])
-        }
-        
-        // 2. 调用上传 API
-//        let imageUrl = try await apiClient.uploadImage(imageData)
-//        return imageUrl
-        return ""
-    }
-    
-    func getTopStoryRoles(
-        storyId: Int64,
-        userId:Int64
-    ) async {
-        do {
-            let (roles,err) = await apiClient.getStoryRoles(userId: userId, storyId: storyId)
-            if err != nil {
-                print("getTopStoryRoles err: ",err as Any)
-                return
-            }
-            self.characters = roles
-        } catch {
-            print("Error fetching top story roles: \(error)")
-        }
-    }
-    
-    func createStoryRole(
-        storyId: Int64,
-        name: String,
-        description: String,
-        avatar: String,
-        characterPrompt: String,
-        userId: Int64,
-        characterRefImages: [String]?
-    ) async {
-       do {
-            // 调用 API 创建角色
-           var role = Common_StoryRole()
-           role.storyID = storyId
-           role.characterDescription = description
-           role.characterName = name
-           role.characterAvatar = avatar
-           role.characterPrompt = characterPrompt
-           role.characterRefImages = characterRefImages!
-           role.creatorID = userId
-           let err = await apiClient.createStoryRole(
-                userId: self.userId,
-                role: role
-            )
-           if err != nil{
-               print("create story role failed: ",err as Any)
-           }
-            // 重新获取故事详情
-           await fetchStoryDetails()
-        }
-    }
-    
-    func editStoryRole(){
-        // TODO: Implement API call to edit role in story
-    }
-    
-    func delStoryRole(){
-        // TODO: Implement API call to delete role instory
-    }
-}
 
 // 假设的全部角色视图
 struct AllCharactersView: View {
@@ -539,12 +456,12 @@ struct AllCharactersView: View {
     }
     
     private var characterGrid: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 20) {
-            ForEach(viewModel.characters ?? [], id: \.role.characterID) { character in
-                CharacterCell(character: character)
+        LazyVStack(spacing: 8) {
+            ForEach(viewModel.characters ?? [], id: \.role.roleID) { character in
+                CharacterCell(character: character,viewModel: self.viewModel)
+                    .padding(.horizontal)
             }
         }
-        .padding()
     }
     
     private var addButton: some View {
@@ -552,23 +469,6 @@ struct AllCharactersView: View {
             showNewStoryRole = true
         }) {
             Image(systemName: "plus.circle")
-        }
-    }
-}
-
-struct CharacterCell: View {
-    let character: StoryRole
-    
-    var body: some View {
-        VStack {
-            KFImage(URL(string: character.role.characterAvatar))
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 50, height: 50)
-                .clipShape(Circle())
-            Text(character.role.characterName)
-                .font(.caption)
-                .lineLimit(1)
         }
     }
 }
@@ -582,11 +482,19 @@ struct AllParticipantsView: View {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 20) {
                 ForEach(viewModel.participants, id: \.userID) { participant in
                     VStack {
-                        KFImage(URL(string: participant.avatar))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 80, height: 80)
-                            .clipShape(Circle())
+                        if !participant.avatar.isEmpty{
+                            KFImage(URL(string: participant.avatar))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 80, height: 80)
+                                .clipShape(Circle())
+                        }else{
+                            KFImage(URL(string: defaultAvator))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 80, height: 80)
+                                .clipShape(Circle())
+                        }
                         
                         Text(participant.name)
                             .font(.caption)

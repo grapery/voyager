@@ -16,28 +16,34 @@ struct UserProfileView: View {
     @StateObject var viewModel: ProfileViewModel
     @State private var isLoading = false
     init(user: User) {
-        print("user :", user)
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
         self.user = user
     }
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading) {
-                    HStack {
+                VStack(alignment: .leading,spacing: 4) {
+                    HStack (spacing: 4){
+                        CircularProfileImageView(avatarUrl: user.avatar.isEmpty ? defaultAvator : user.avatar, size: .profile)
                         VStack(alignment: .leading) {
                             Text(user.name)
                                 .foregroundColor(.primary)
                                 .font(.title)
                                 .bold()
-                            
-                            Text(user.desc)
-                                .font(.subheadline)
                         }
-                        Spacer()
-                        CircularProfileImageView(avatarUrl: user.avatar.isEmpty ? defaultAvator : user.avatar, size: .profile)
                     }
-                    VStack{
+                    VStack(alignment: .leading,spacing: 4){
+                        if user.desc.isEmpty {
+                            Text("神秘的人物，没有简介!")
+                                .font(.body)
+                                .lineLimit(3)
+                        }else{
+                            Text(user.desc)
+                                .font(.body)
+                                .lineLimit(3)
+                        }
+                    }
+                    VStack(alignment: .leading,spacing: 4){
                         HStack{
                             Image(systemName: "mountain.2")
                                 .foregroundColor(.blue)
@@ -100,14 +106,6 @@ struct UserProfileView: View {
                 .padding(.horizontal, 2)
             }
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        
-                    } label: {
-                        Image(systemName: "gearshape.circle")
-                    }
-                    .foregroundColor(.primary)
-                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         showingEditProfile.toggle()
@@ -186,12 +184,12 @@ struct StoryCardRowView: View{
 
 struct RolesListView: View {
     let roles: [StoryRole]
-    
+    var viewModel: StoryDetailViewModel
     var body: some View {
         ScrollView {
             LazyVStack {
                 ForEach(roles, id: \.id) { role in
-                    StoryRoleRowView(role: role)
+                    StoryRoleRowView(role: role,viewModel: viewModel)
                         .padding(.horizontal, 4)
                 }
             }
@@ -202,6 +200,8 @@ struct RolesListView: View {
 
 struct StoryRoleRowView: View {
     var role: StoryRole
+    @State private var showRoleDetail = false
+    var viewModel: StoryDetailViewModel
     
     var body: some View {
         HStack(spacing: 12) {
@@ -234,6 +234,17 @@ struct StoryRoleRowView: View {
                 .fill(Color(.systemBackground))
                 .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
         )
+        .onTapGesture {
+            showRoleDetail = true
+        }
+        .sheet(isPresented: $showRoleDetail) {
+            StoryRoleDetailView(
+                storyId: role.role.storyID,
+                boardIds: [Int64](),
+                roleId: role.role.roleID,
+                viewModel: self.viewModel
+            )
+        }
     }
 }
 

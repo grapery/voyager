@@ -158,8 +158,8 @@
             filePath = "voyager/Core/Profile/Views/UserProfileView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "142"
-            endingLineNumber = "142"
+            startingLineNumber = "140"
+            endingLineNumber = "140"
             landmarkName = "loadFilteredContent(for:forceRefresh:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -174,8 +174,8 @@
             filePath = "voyager/Core/Profile/Views/UserProfileView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "143"
-            endingLineNumber = "143"
+            startingLineNumber = "141"
+            endingLineNumber = "141"
             landmarkName = "loadFilteredContent(for:forceRefresh:)"
             landmarkType = "7">
          </BreakpointContent>

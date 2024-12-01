@@ -79,3 +79,130 @@ class StoryRoleModel: ObservableObject {
         return nil
     }
 }
+
+
+class StoryDetailViewModel: ObservableObject {
+    @Published var story: Story?
+    public let storyId: Int64
+    public let userId: Int64
+    @Published var characters: [StoryRole]? = []
+    @Published var participants: [User] = []
+    var likes: Int = 10
+    var followers: Int = 10
+    var shares: Int = 10
+    
+    private let apiClient = APIClient.shared
+    
+    init(story: Story? = nil, storyId: Int64, userId: Int64) {
+        self.story = story
+        self.storyId = storyId
+        self.userId = userId
+        
+        self.characters = [StoryRole]()
+        self.participants = [User]()
+        self.likes = 10
+        self.followers = 10
+        self.shares = 10
+        Task{
+            await getTopStoryRoles(storyId: storyId, userId: userId)
+        }
+    }
+    
+    func fetchStoryDetails() async{
+        // TODO: Implement API call to fetch story details
+        
+    }
+    
+    func saveStory() {
+        // TODO: Implement API call to save story changes
+    }
+    
+    func uploadImage(_ image: UIImage) async throws -> String {
+        // 实现图片上传逻辑
+        // 1. 压缩图片
+        guard let imageData = image.jpegData(compressionQuality: 0.6) else {
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to compress image"])
+        }
+        
+        // 2. 调用上传 API
+        //        let imageUrl = try await apiClient.uploadImage(imageData)
+        //        return imageUrl
+        return ""
+    }
+    
+    func getTopStoryRoles(
+        storyId: Int64,
+        userId: Int64
+    ) async {
+        do {
+            let (roles, err) = await apiClient.getStoryRoles(userId: userId, storyId: storyId)
+            if err != nil {
+                print("getTopStoryRoles err: ", err as Any)
+                return
+            }
+            // 在主线程上更新 UI
+            await MainActor.run {
+                self.characters = roles
+            }
+            print("characters : ", characters as Any)
+        } catch {
+            print("Error fetching top story roles: \(error)")
+        }
+    }
+    
+    func createStoryRole(
+        storyId: Int64,
+        name: String,
+        description: String,
+        avatar: String,
+        characterPrompt: String,
+        userId: Int64,
+        characterRefImages: [String]?
+    ) async {
+        do {
+            // 调用 API 创建角色
+            var role = Common_StoryRole()
+            role.storyID = storyId
+            role.characterDescription = description
+            role.characterName = name
+            role.characterAvatar = avatar
+            role.characterPrompt = characterPrompt
+            role.characterRefImages = characterRefImages!
+            role.creatorID = userId
+            let err = await apiClient.createStoryRole(
+                userId: self.userId,
+                role: role
+            )
+            if err != nil{
+                print("create story role failed: ",err as Any)
+            }
+            // 重新获取故事详情
+            await fetchStoryDetails()
+        }
+    }
+    
+    func editStoryRole(){
+        // TODO: Implement API call to edit role in story
+    }
+    
+    func delStoryRole(){
+        // TODO: Implement API call to delete role instory
+    }
+    
+    func getTopParticipants(
+        storyId: Int64,
+        userId: Int64
+    ) async {
+        do {
+            let (participants,err) = await apiClient.getStoryContributors(userId: userId, storyId: storyId)
+            if err != nil {
+                print("getTopParticipants err: ",err as Any)
+                return
+            }
+            self.participants = participants!
+            print("getTopParticipants : ",participants as Any)
+        } catch {
+            print("Error fetching top story roles: \(error)")
+        }
+    }
+}

@@ -1248,9 +1248,24 @@ extension APIClient {
         return (roles,nil)
     }
 
-    func getStoryContributors(userId:Int64,storyId:Int64)async -> ([StoryRole],Error?){
-        let roles: [StoryRole] = []
-        return (roles,nil)
+    func getStoryContributors(userId:Int64,storyId:Int64)async -> ([User]?,Error?){
+        let users: [User]? = []
+        do {    
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let request = Common_GetStoryContributorsRequest.with {
+                $0.storyID = storyId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+            let response = await apiClient.getStoryContributors(request: request, headers: header)
+            if response.message?.code != 0{
+                return ([],nil)
+            }
+            let users = response.message?.data.list.map { User(userID: $0.userID, name: $0.username,avatar : $0.avatar) }
+            return (users,nil)
+        } catch {
+            return ([],NSError(domain: "getStoryContributors", code: 0, userInfo: [NSLocalizedDescriptionKey: "get story contributors failed"]))
+        }
     }
 
     func getStoryRoleDetail(userId:Int64,roleId:Int64)async -> (StoryRole?,Error?){
