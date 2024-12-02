@@ -1322,4 +1322,19 @@ extension APIClient {
         return (response.message?.chatContext,nil)
     }
     
+    
+    func createChatWithRoleContext(userId: Int64,roleId: Int64) async -> (Common_ChatContext?,Error?){
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_CreateStoryRoleChatRequest.with {
+            $0.userID = userId
+            $0.roleID = roleId
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.createStoryRoleChat(request: request, headers: header)
+        if response.message?.code != 0{
+            return (nil,NSError(domain: "createChatWithRoleContext", code: 0, userInfo: [NSLocalizedDescriptionKey: "create chat with role context failed"]))
+        }
+        return (response.message?.chatContext,nil)
+    }
 }

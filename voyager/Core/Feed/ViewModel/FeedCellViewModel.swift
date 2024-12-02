@@ -109,7 +109,7 @@ class MessageViewModel: ObservableObject{
 }
 
 class MessageContextViewModel: ObservableObject{
-    @Published var msg_ctx_id: Int64
+    @Published var msgContext: Common_ChatContext
     @Published var user: User?
     @Published var role: StoryRole?
     @Published var avator = defaultAvator
@@ -124,16 +124,37 @@ class MessageContextViewModel: ObservableObject{
     init(userId: Int64, roleId: Int64) {
         self.userId = userId
         self.roleId = roleId
-        self.msg_ctx_id = 0
-        let (msgContext, err) = await APIClient.shared.getUserChatWithRole(userId: userId, roleId: roleId)
-        if let err = err {
-            print("MessageContextViewModel init error: ", err)
-            return
+        self.msgContext = Common_ChatContext()
+        Task{
+            let err = await self.getChatContext(userId: userId, roleId: roleId)
+            if err != nil {
+                print("MessageContextViewModel init error: ",err as Any)
+            }
         }
     }
     
-    func fetchMessages() async -> Void{
+    func getChatContext(userId:Int64,roleId: Int64) async -> Error?{
+        let (msgContext, err) = await APIClient.shared.createChatWithRoleContext(userId: userId, roleId: roleId)
+        if let err = err {
+            print("MessageContextViewModel init error: ", err)
+            return err
+        }
+        print("msgContext: ",msgContext as Any)
         
+        // 在主线程上更新 @Published 属性
+        await MainActor.run {
+            self.msgContext = msgContext!
+        }
+        
+        return nil
+    }
+    
+    func fetchMessages() async -> (Error?,Common_ChatMessage?){
+        return (nil,nil)
+    }
+    
+    func sendMessage(msg: Common_ChatMessage) async -> Error?{
+        return nil
     }
 }
 

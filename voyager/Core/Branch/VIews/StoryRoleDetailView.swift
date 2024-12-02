@@ -42,17 +42,14 @@ struct CharacterCell: View {
                     .lineLimit(2)
                 Divider()
                 // 操作按钮
-                HStack(spacing: 8) {
+                HStack(spacing: 4) {
                     // 点赞按钮
                     Spacer()
                     Button(action: {
                         // TODO: 实现点赞功能
                     }) {
-                        VStack {
-                            Image(systemName: "heart")
-                            Text("点赞")
-                                .font(.caption2)
-                        }
+                        Image(systemName: "heart")
+                            .font(.system(size: 16))
                     }
                     .foregroundColor(.orange)
                     Spacer()
@@ -60,11 +57,8 @@ struct CharacterCell: View {
                     Button(action: {
                         // TODO: 实现关注功能
                     }) {
-                        VStack {
-                            Image(systemName: "bell")
-                            Text("关注")
-                                .font(.caption2)
-                        }
+                        Image(systemName: "bell")
+                            .font(.system(size: 16))
                     }
                     .foregroundColor(.orange)
                     Spacer()
@@ -72,11 +66,8 @@ struct CharacterCell: View {
                     Button(action: {
                         // TODO: 跳转到聊天界面
                     }) {
-                        VStack {
-                            Image(systemName: "message")
-                            Text("聊天")
-                                .font(.caption2)
-                        }
+                        Image(systemName: "message")
+                            .font(.system(size: 16))
                     }
                     .foregroundColor(.orange)
                     Spacer()
@@ -84,11 +75,8 @@ struct CharacterCell: View {
                     Button(action: {
                         showingDetail = true
                     }) {
-                        VStack {
-                            Image(systemName: "info.circle")
-                            Text("详情")
-                                .font(.caption2)
-                        }
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 16))
                     }
                     .foregroundColor(.orange)
                     .navigationDestination(isPresented: $showingDetail) {
@@ -130,142 +118,167 @@ struct StoryRoleDetailView: View {
         self.viewModel = StoryRoleModel(story: nil, storyId: 0, userId: userId)
         self.boardIds = [Int64]()
         self.userId = userId
+        print("StoryRoleDetailView role: ",self.role?.role.characterName as Any)
     }
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                // Add edit button to the top
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        showingEditView = true
-                    }) {
-                        Image(systemName: "pencil.circle")
-                            .font(.title2)
-                            .foregroundColor(.orange)
-                    }
-                }
-                .padding(.horizontal)
-                
-                // 头像和基本信息区域
-                VStack(spacing: 16) {
-                    if let role = role {
-                        // 头像
-                        if !role.role.characterAvatar.isEmpty {
-                            RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .profile)
-                                .frame(width: 120, height: 120)
-                        } else {
-                            RectProfileImageView(avatarUrl: defaultAvator, size: .profile)
-                                .frame(width: 120, height: 120)
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Add edit button to the top
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            showingEditView = true
+                        }) {
+                            Image(systemName: "pencil.circle")
+                                .font(.title2)
+                                .foregroundColor(.orange)
                         }
-                        
-                        
-                        // 名称
-                        Text(role.role.characterName)
-                            .font(.title2)
-                            .bold()
-                    } else {
-                        ProgressView()
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical)
-                
-                // 统计信息
-                if let role = role {
-                    HStack(spacing: 24) {
-                        StatView(image: "heart.fill", color: .red, value: role.role.likeCount, title: "点赞")
-                        StatView(image: "person.2.fill", color: .blue, value: role.role.followCount, title: "关注")
-                        StatView(image: "book.fill", color: .green, value: role.role.storyboardNum, title: "故事")
                     }
                     .padding(.horizontal)
                     
-                    // 详细信息卡片
-                    VStack(alignment: .leading, spacing: 16) {
-                        InfoSection(title: "角色描述") {
-                            if !role.role.characterDescription.isEmpty {
-                                Text(role.role.characterDescription)
+                    // 头像和基本信息区域
+                    VStack(spacing: 16) {
+                        if let role = role {
+                            // 头像
+                            if !role.role.characterAvatar.isEmpty {
+                                RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .profile)
+                                    .frame(width: 120, height: 120)
                             } else {
-                                Text("角色比较神秘，没有介绍！")
-                                    .foregroundColor(.secondary)
+                                RectProfileImageView(avatarUrl: defaultAvator, size: .profile)
+                                    .frame(width: 120, height: 120)
+                            }
+                            
+                            
+                            // 名称
+                            Text(role.role.characterName)
+                                .font(.title2)
+                                .bold()
+                        } else {
+                            ProgressView()
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical)
+                    
+                    // 统计信息
+                    if let role = role {
+                        HStack(spacing: 24) {
+                            StatView(image: "heart.fill", color: .red, value: role.role.likeCount, title: "点赞")
+                            StatView(image: "person.2.fill", color: .blue, value: role.role.followCount, title: "关注")
+                            StatView(image: "book.fill", color: .green, value: role.role.storyboardNum, title: "故事")
+                        }
+                        .padding(.horizontal)
+                        
+                        // 详细信息卡片
+                        VStack(alignment: .leading, spacing: 16) {
+                            InfoSection(title: "角色描述") {
+                                if !role.role.characterDescription.isEmpty {
+                                    Text(role.role.characterDescription)
+                                } else {
+                                    Text("角色比较神秘，没有介绍！")
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            
+                            Divider()
+                            
+                            InfoSection(title: "角色提示词") {
+                                if !role.role.characterPrompt.isEmpty {
+                                    Text(role.role.characterPrompt)
+                                } else {
+                                    HStack {
+                                        Text("提示词为空")
+                                            .foregroundColor(.secondary)
+                                        Image(systemName: "rectangle.dashed.and.paperclip")
+                                            .foregroundColor(.red)
+                                    }
+                                }
+                            }
+                            
+                            Divider()
+                            
+                            InfoSection(title: "其他信息") {
+                                HStack {
+                                    Label(formatDate(timestamp: role.role.ctime), systemImage: "clock")
+                                    Spacer()
+                                    Label("ID: \(role.role.creatorID)", systemImage: "person.circle")
+                                }
+                                .foregroundColor(.secondary)
                             }
                         }
-                        
-                        Divider()
-                        
-                        InfoSection(title: "角色提示词") {
-                            if !role.role.characterPrompt.isEmpty {
-                                Text(role.role.characterPrompt)
-                            } else {
+                        .padding()
+                        .background(Color(.systemBackground))
+                        .cornerRadius(12)
+                        .shadow(color: .black.opacity(0.05), radius: 5)
+                        .padding(.horizontal)
+                    }
+                    
+                    // Add bottom buttons after the last card
+                    if role?.role.roleID != 0 {
+                        HStack(spacing: 20) {
+                            Button(action: {
+                                showingChatView = true
+                            }) {
                                 HStack {
-                                    Text("提示词为空")
-                                        .foregroundColor(.secondary)
-                                    Image(systemName: "rectangle.dashed.and.paperclip")
-                                        .foregroundColor(.red)
+                                    Image(systemName: "message.fill")
+                                    Text("聊天")
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.orange)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                            }
+                            
+                            Button(action: {
+                                showingPosterView = true
+                            }) {
+                                HStack {
+                                    Image(systemName: "photo.fill")
+                                    Text("海报")
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.orange)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 10)
+                    }
+                }
+            }
+            .fullScreenCover(isPresented: $showingEditView) {
+                NavigationStack {
+                    EditStoryRoleDetailView(role: role, userId: self.userId, viewModel: self.$viewModel)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button("返回") {
+                                    showingEditView = false
                                 }
                             }
                         }
-                        
-                        Divider()
-                        
-                        InfoSection(title: "其他信息") {
-                            HStack {
-                                Label(formatDate(timestamp: role.role.ctime), systemImage: "clock")
-                                Spacer()
-                                Label("ID: \(role.role.creatorID)", systemImage: "person.circle")
-                            }
-                            .foregroundColor(.secondary)
-                        }
-                    }
-                    .padding()
-                    .background(Color(.systemBackground))
-                    .cornerRadius(12)
-                    .shadow(color: .black.opacity(0.05), radius: 5)
-                    .padding(.horizontal)
-                }
-                
-                // Add bottom buttons after the last card
-                if let role = role {
-                    HStack(spacing: 20) {
-                        Button(action: {
-                            showingChatView = true
-                        }) {
-                            HStack {
-                                Image(systemName: "message.fill")
-                                Text("聊天")
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.orange)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                        }
-                        
-                        Button(action: {
-                            showingPosterView = true
-                        }) {
-                            HStack {
-                                Image(systemName: "photo.fill")
-                                Text("海报")
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.orange)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 10)
                 }
             }
-        }
-        .navigationDestination(isPresented: $showingEditView) {
-            EditStoryRoleDetailView(role: role,userId: self.userId,viewModel: self.$viewModel)
-        }
-        .navigationDestination(isPresented: $showingChatView) {
-            MessageContextView(userId: self.userId, roleId: (role?.role.roleID)!,role: self.role!)
+            .fullScreenCover(isPresented: $showingChatView) {
+                NavigationStack {
+                    MessageContextView(userId: self.userId, roleId: (role?.role.roleID)!, role: self.role!)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button("返回") {
+                                    showingChatView = false
+                                }
+                            }
+                        }
+                }
+            }
+            .fullScreenCover(isPresented: $showingPosterView) {
+                // 添加海报视图的导航目标
+                // PosterView() // 取决于你的海报视图实现
+            }
         }
     }
     

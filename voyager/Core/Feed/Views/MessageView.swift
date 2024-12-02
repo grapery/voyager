@@ -62,7 +62,7 @@ struct MessageContextView: View {
     @FocusState private var isInputFocused: Bool
     init(userId: Int64, roleId: Int64,role: StoryRole) {
         self.role = role
-        self.viewModel  = MessageContextViewModel.create(userId: userId, roleId: roleId)!
+        self.viewModel  = MessageContextViewModel(userId: userId, roleId: roleId)
         self.isInputFocused = false
     }
     var body: some View {
