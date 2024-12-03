@@ -269,7 +269,7 @@ struct StoryRoleDetailView: View {
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
                                 Button("返回") {
-                                    showingChatView = false
+                                    showingEditView = false
                                 }
                             }
                         }

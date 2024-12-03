@@ -14,11 +14,31 @@ struct MessageView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            List{
-                
+            // 顶部导航栏
+            HStack {
+                Text("消息")
+                    .font(.title2)
+                    .bold()
+                Spacer()
+            }
+            .padding()
+            
+            // 消息列表
+            ScrollView {
+                LazyVStack(spacing: 10) {
+                    ForEach(viewModel.msgCtxs, id: \.id) { msgCtx in
+                        MessageContextCellView(msgCtxId: msgCtx.chatinfo.chatID, curUserId: user!.userID)
+                            .padding(.horizontal)
+                    }
+                }
             }
         }
         .navigationBarHidden(true)
+        .onAppear{
+            Task{
+                await self.viewModel.initUserChatContext()
+            }
+        }
     }
 }
 
@@ -60,6 +80,8 @@ struct MessageContextView: View {
     @State private var newMessageContent: String = ""
     @State var role: StoryRole?
     @FocusState private var isInputFocused: Bool
+    @Environment(\.dismiss) private var dismiss
+    
     init(userId: Int64, roleId: Int64,role: StoryRole) {
         self.role = role
         self.viewModel  = MessageContextViewModel(userId: userId, roleId: roleId)
@@ -71,21 +93,18 @@ struct MessageContextView: View {
             HStack {
                 Button(action: {
                     // 返回操作
+                    dismiss()
                 }) {
                     Image(systemName: "chevron.left")
                 }
                 Spacer()
-                Button(action: {
-                    // 返回操作
-                }) {
-                    Image(systemName: "face.smiling")
-                }
+                Text((role?.role.characterName)!)
                 Spacer()
                 
                 Button(action: {
                     // 更多操作
                 }) {
-                    Image(systemName: "ellipsis")
+                    Image(systemName: "plus")
                 }
             }
             .padding()
@@ -110,20 +129,17 @@ struct MessageContextView: View {
             
             // 输入框
             HStack(alignment: .bottom) {
-                Button(action: {
-                    // 表情选择
-                }) {
-                    Image(systemName: "face.smiling")
-                }
-                
                 TextField("发送消息", text: $newMessageContent)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .focused($isInputFocused)
+                    .padding(10)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(20)
                 
                 Button(action: {
                     // 图片选择
                 }) {
-                    Image(systemName: "photo")
+                    Image(systemName: "plus.circle")
+                        .font(.system(size: 32))
+                        .foregroundColor(.orange)
                 }
                 
                 Button(action: {
@@ -131,12 +147,15 @@ struct MessageContextView: View {
                         await sendMessage()
                     }
                 }) {
-                    Text("发送")
+                    Image(systemName: "paperplane.circle")
+                            .font(.system(size: 32))
+                            .foregroundColor(.orange)
                 }
                 .disabled(newMessageContent.isEmpty)
             }
-            .padding()
-            .background(Color.white)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color(.systemBackground))
         }
         .navigationBarHidden(true)
         .onTapGesture {

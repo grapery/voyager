@@ -88,6 +88,7 @@
 		0FCCA8212CFC274300495ADF /* ProfileStatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA81F2CFC274300495ADF /* ProfileStatsView.swift */; };
 		0FCCA8222CFC274300495ADF /* ProfileDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA81C2CFC274300495ADF /* ProfileDescriptionView.swift */; };
 		0FCCA8232CFC274300495ADF /* ProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA81E2CFC274300495ADF /* ProfileHeaderView.swift */; };
+		0FCCA8422CFF386A00495ADF /* MessageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA8412CFF385900495ADF /* MessageViewModel.swift */; };
 		0FD831A82B12037600A319DA /* Connect in Frameworks */ = {isa = PBXBuildFile; productRef = 0FD831A72B12037600A319DA /* Connect */; };
 		0FD831AA2B12037600A319DA /* ConnectMocks in Frameworks */ = {isa = PBXBuildFile; productRef = 0FD831A92B12037600A319DA /* ConnectMocks */; };
 		0FD831AC2B12037600A319DA /* ConnectNIO in Frameworks */ = {isa = PBXBuildFile; productRef = 0FD831AB2B12037600A319DA /* ConnectNIO */; };
@@ -211,6 +212,7 @@
 		0FCCA81D2CFC274300495ADF /* ProfileFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFilterView.swift; sourceTree = "<group>"; };
 		0FCCA81E2CFC274300495ADF /* ProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderView.swift; sourceTree = "<group>"; };
 		0FCCA81F2CFC274300495ADF /* ProfileStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStatsView.swift; sourceTree = "<group>"; };
+		0FCCA8412CFF385900495ADF /* MessageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageViewModel.swift; sourceTree = "<group>"; };
 		0FF3C5942BC37A2A00CA9827 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		0FF591B52CBE3065002F60C0 /* UpdateStoryboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateStoryboardView.swift; sourceTree = "<group>"; };
 		0FF7FF5B2CA23D7B00F92343 /* StoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModel.swift; sourceTree = "<group>"; };
@@ -514,6 +516,7 @@
 		0FFA50692B0857DA00D3A4CF /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				0FCCA8412CFF385900495ADF /* MessageViewModel.swift */,
 				0FFA50592B0857DA00D3A4CF /* SearchViewModel.swift */,
 				0FFA506A2B0857DA00D3A4CF /* FeedViewModel.swift */,
 				0F0F1A202BB64373009494FC /* FeedCellViewModel.swift */,
@@ -861,6 +864,7 @@
 				0FF7FF622CA23E2200F92343 /* StoryGenView.swift in Sources */,
 				0F1D0CFA2CC4EC7800D12E0B /* NewStoryRole.swift in Sources */,
 				0F6F16C92C8678CA004FAAD9 /* error.pb.swift in Sources */,
+				0FCCA8422CFF386A00495ADF /* MessageViewModel.swift in Sources */,
 				0F6F16C72C8678CA004FAAD9 /* license.pb.swift in Sources */,
 				0FFA50A22B0857DA00D3A4CF /* User.swift in Sources */,
 				0F0047622B08A4CF005FF1A6 /* Group.swift in Sources */,
