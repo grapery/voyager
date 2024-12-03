@@ -44,13 +44,13 @@ struct MessageView: View {
 
 struct MessageContextCellView: View{
     var msgCtxId: Int64
-    var roleId = 0
-    var lastMessageContent = "hello"
-    var curUserId: Int64
-    var roleAvatar = ""
-    init(msgCtxId: Int64, curUserId: Int64) {
+    var user: User?
+    var userId: Int64
+    var role: StoryRole?
+    var lastMessage: Common_ChatMessage?
+    init(msgCtxId: Int64, userId: Int64) {
         self.msgCtxId = msgCtxId
-        self.curUserId = curUserId
+        self.userId = userId
     }
     var body: some View {
         VStack(spacing: 0) {
@@ -65,7 +65,7 @@ struct MessageContextCellView: View{
             }
             VStack(alignment: .trailing){
                 HStack {
-                    Text("\(self.lastMessageContent)")
+                    Text("\(self.lastMessage!.message)")
                         .font(.subheadline)
                 }
             }
