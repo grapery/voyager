@@ -159,9 +159,9 @@ struct StoryRoleRowView: View {
             HStack(spacing: 12) {
                 // 头像
                 if !role.role.characterAvatar.isEmpty {
-                    RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .profile)
+                    RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .InProfile)
                 }else{
-                    RectProfileImageView(avatarUrl: defaultAvator, size: .profile)
+                    RectProfileImageView(avatarUrl: defaultAvator, size: .InProfile)
                 }
                 
                 // 名称和描述

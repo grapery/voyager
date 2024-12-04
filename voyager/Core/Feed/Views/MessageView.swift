@@ -13,30 +13,41 @@ struct MessageView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // 顶部导航栏
-            HStack {
-                Text("消息")
-                    .font(.title2)
-                    .bold()
-                Spacer()
-            }
-            .padding()
-            
-            // 消息列表
-            ScrollView {
-                LazyVStack(spacing: 10) {
-                    ForEach(viewModel.msgCtxs, id: \.id) { msgCtx in
-                        MessageContextCellView(msgCtxId: msgCtx.chatinfo.chatID, curUserId: user!.userID)
-                            .padding(.horizontal)
+        NavigationView {
+            VStack(spacing: 0) {
+                // 顶部导航栏
+                HStack {
+                    Text("消息")
+                        .font(.title2)
+                        .bold()
+                    Spacer()
+                }
+                .padding()
+                
+                // 消息列表
+                ScrollView {
+                    LazyVStack(spacing: 2) {
+                        ForEach(viewModel.msgCtxs, id: \.id) { msgCtx in
+                            VStack{
+                                MessageContextCellView(
+                                    msgCtxId: msgCtx.chatinfo.chatID,
+                                    userId: user!.userID,
+                                    user: msgCtx.chatinfo.user,
+                                    role: StoryRole(Id: msgCtx.chatinfo.role.roleID,role: msgCtx.chatinfo.role),
+                                    lastMessage: msgCtx.chatinfo.lastMessage
+                                )
+                                .padding(.horizontal)
+                                Divider()
+                            }
+                        }
                     }
                 }
             }
-        }
-        .navigationBarHidden(true)
-        .onAppear{
-            Task{
-                await self.viewModel.initUserChatContext()
+            .navigationBarHidden(true)
+            .onAppear{
+                Task{
+                    await self.viewModel.initUserChatContext()
+                }
             }
         }
     }
@@ -48,29 +59,67 @@ struct MessageContextCellView: View{
     var userId: Int64
     var role: StoryRole?
     var lastMessage: Common_ChatMessage?
-    init(msgCtxId: Int64, userId: Int64) {
+    init(msgCtxId: Int64, userId: Int64,user: User,role: StoryRole,lastMessage: Common_ChatMessage) {
         self.msgCtxId = msgCtxId
         self.userId = userId
+        self.lastMessage = lastMessage
+        self.user = user
+        self.role = role
     }
-    var body: some View {
-        VStack(spacing: 0) {
-            VStack(alignment: .leading){
-                HStack {
-                    KFImage(URL(string: defaultAvator))
-                        .resizable()
-                        .scaledToFill()
-                        .clipShape(Circle())
-                        .frame(width: 40, height: 40)
-                }
-            }
-            VStack(alignment: .trailing){
-                HStack {
-                    Text("\(self.lastMessage!.message)")
-                        .font(.subheadline)
-                }
-            }
+    
+    private var isFromUser: Bool {
+        lastMessage!.sender == userId
+    }
+    
+    private var avatarURL: String {
+        if isFromUser {
+            return user?.avatar ?? defaultAvator
+        } else {
+            return role?.role.characterAvatar ?? defaultAvator
         }
-        .navigationBarHidden(true)
+    }
+    
+    private func formatTime(_ timestamp: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: date, relativeTo: Date())
+    }
+    
+    var body: some View {
+        NavigationLink(destination: MessageContextView(
+            userId: userId,
+            roleId: role?.Id ?? 0,
+            role: role!
+        )) {
+            HStack(spacing: 2) {
+                // Avatar
+                RectProfileImageView(avatarUrl: defaultAvator, size: .InChat)
+                
+                // Message content and time
+                VStack(alignment: .leading) {
+                    // Name
+                    Text(isFromUser ? (user?.name ?? "Me") : (role?.role.characterName ?? "Unknown"))
+                        .font(.headline)
+                    
+                    // Last message
+                    Text(lastMessage?.message ?? "")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                }
+                
+                Spacer()
+                
+                // Time
+                Text(formatTime(lastMessage?.timestamp ?? 0))
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+            .padding(.vertical, 8)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

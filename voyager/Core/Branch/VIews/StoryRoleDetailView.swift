@@ -143,10 +143,10 @@ struct StoryRoleDetailView: View {
                         if let role = role {
                             // 头像
                             if !role.role.characterAvatar.isEmpty {
-                                RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .profile)
+                                RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .InProfile)
                                     .frame(width: 120, height: 120)
                             } else {
-                                RectProfileImageView(avatarUrl: defaultAvator, size: .profile)
+                                RectProfileImageView(avatarUrl: defaultAvator, size: .InProfile)
                                     .frame(width: 120, height: 120)
                             }
                             

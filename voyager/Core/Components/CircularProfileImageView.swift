@@ -9,29 +9,26 @@ import SwiftUI
 import Kingfisher
 
 enum ProfileImageSize {
-    case profile
-    case leaf
+    case InProfile
     case InChat
-    case inProject
-    case inGroup
-    case search
-    case content
+    case InStory
+    case InGroup
+    case InSearch
+    case InContent
     
     var dimension: CGFloat {
         switch self {
-        case .profile:
+        case .InProfile:
             return 80
-        case .leaf:
-            return 60
         case .InChat:
-            return 20
-        case .inProject:
+            return 60
+        case .InStory:
             return 25
-        case .inGroup:
+        case .InGroup:
             return 30
-        case .search:
+        case .InSearch:
             return 50
-        case .content:
+        case .InContent:
             return 120
         }
     }

@@ -383,7 +383,7 @@ struct StoryBoardCellView: View {
                         .padding(.vertical, 4)
                     // 如果场景只有一张图片
                     if sceneMediaContents.count == 4 {
-                        RectProfileImageView(avatarUrl: sceneContent.mediaItems[0].url.description, size: .content).clipped()
+                        RectProfileImageView(avatarUrl: sceneContent.mediaItems[0].url.description, size: .InContent).clipped()
                             .cornerRadius(8)
                     }
                     // 如果场景有多张图片
@@ -724,7 +724,7 @@ struct MediaItemView: View {
             Group {
                 switch item.type {
                 case .image:
-                    RectProfileImageView(avatarUrl: item.url.description, size: .content)
+                    RectProfileImageView(avatarUrl: item.url.description, size: .InContent)
                 case .video:
                     ZStack {
                         if let thumbnail = item.thumbnail {

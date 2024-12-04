@@ -16,7 +16,7 @@ struct CommentsCell: View {
     
     var body: some View {
         HStack {
-            CircularProfileImageView(avatarUrl: self.comment.commentUser.avatar, size: .profile)
+            CircularProfileImageView(avatarUrl: self.comment.commentUser.avatar, size: .InContent)
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 2) {
@@ -65,7 +65,7 @@ struct StoryCommentsView: View {
             .padding(.top)
             Divider()
             HStack(spacing: 12) {
-                CircularProfileImageView(avatarUrl: self.user.avatar, size: .profile)
+                CircularProfileImageView(avatarUrl: self.user.avatar, size: .InProfile)
                 ZStack(alignment: .trailing) {
                     TextField("Add a comment...", text: $commentText, axis: .vertical)
                         .font(.footnote)

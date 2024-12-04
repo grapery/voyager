@@ -50,7 +50,7 @@ struct EditUserProfileView: View {
                             .foregroundColor(.primary)
                             .clipShape(Circle())
                     } else {
-                        CircularProfileImageView(avatarUrl: viewModel.user!.avatar, size: .profile)
+                        CircularProfileImageView(avatarUrl: viewModel.user!.avatar, size: .InProfile)
                     }
                 }
             }
