@@ -195,7 +195,7 @@ struct StoryDetailView: View {
                             .padding(14)
                             .background(Color(.systemGray5))
                             .cornerRadius(14)
-                            .frame(minHeight: 150, maxWidth: .infinity, alignment: .leading)
+                            .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
                         }
                     }
                     
@@ -209,7 +209,7 @@ struct StoryDetailView: View {
                             .padding(14)
                             .background(Color(.systemGray5))
                             .cornerRadius(14)
-                            .frame(minHeight: 150, maxWidth: .infinity, alignment: .leading)
+                            .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
                         }
                     }
                     
@@ -223,7 +223,7 @@ struct StoryDetailView: View {
                             .padding(14)
                             .background(Color(.systemGray5))
                             .cornerRadius(14)
-                            .frame(minHeight: 150, maxWidth: .infinity, alignment: .leading)
+                            .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
                         }
                     }
                     
@@ -237,7 +237,7 @@ struct StoryDetailView: View {
                             .padding(14)
                             .background(Color(.systemGray5))
                             .cornerRadius(14)
-                            .frame(minHeight: 150, maxWidth: .infinity, alignment: .leading)
+                            .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
                         }
                     }
                 } else {
