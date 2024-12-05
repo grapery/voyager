@@ -28,7 +28,7 @@ struct StoryDetailView: View {
             Color(.systemGray6).ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 10) {
                     storyHeader
                     storyStats
                     Divider()
@@ -73,10 +73,10 @@ struct StoryDetailView: View {
                     set: { story.storyInfo.name = $0 }
                 ))
                 .font(.subheadline)
-                .padding(14)
+                .padding(10)
                 .background(Color(.systemGray5))
-                .cornerRadius(14)
-                .padding(.horizontal, 30)
+                .cornerRadius(5)
+                .padding(.horizontal, 10)
             } else {
                 Text(viewModel.story?.storyInfo.name ?? "")
                     .font(.title)
@@ -127,7 +127,7 @@ struct StoryDetailView: View {
     }
     
     private var storyDetails: some View {
-        VStack(alignment: .leading, spacing: 15) {
+        VStack(alignment: .leading, spacing: 8) {
             Group{
                 if isEditing {
                     Text("故事描述")
@@ -197,7 +197,7 @@ struct StoryDetailView: View {
                             .cornerRadius(14)
                             .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
                         }
-                    }
+                    }.background(Color(.orange))
                     
                     DisclosureGroup("故事背景") {
                         ScrollView {
@@ -211,7 +211,7 @@ struct StoryDetailView: View {
                             .cornerRadius(14)
                             .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
                         }
-                    }
+                    }.background(Color(.orange))
                     
                     DisclosureGroup("正面提示词") {
                         ScrollView {
@@ -225,7 +225,7 @@ struct StoryDetailView: View {
                             .cornerRadius(14)
                             .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
                         }
-                    }
+                    }.background(Color(.orange))
                     
                     DisclosureGroup("负面提示词") {
                         ScrollView {
@@ -239,39 +239,39 @@ struct StoryDetailView: View {
                             .cornerRadius(14)
                             .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
                         }
-                    }
+                    }.background(Color(.orange))
                 } else {
                     DisclosureGroup("故事描述") {
                         Text(viewModel.story?.storyInfo.desc ?? "")
                             .padding(14)
-                            .background(Color(.orange))
+                            .background(Color(.systemGray5))
                             .cornerRadius(14)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+                    }.background(Color(.orange))
 
                     DisclosureGroup("故事背景") {
                         Text(viewModel.story?.storyInfo.params.background ?? "")
                             .padding(14)
-                            .background(Color(.orange))
+                            .background(Color(.systemGray5))
                             .cornerRadius(14)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+                    }.background(Color(.orange))
                     
                     DisclosureGroup("正面提示词") {
                         Text(viewModel.story?.storyInfo.params.negativePrompt ?? "")
                             .padding(14)
-                            .background(Color(.orange))
+                            .background(Color(.systemGray5))
                             .cornerRadius(14)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+                    }.background(Color(.orange))
                     
                     DisclosureGroup("负面提示词") {
                         Text(viewModel.story?.storyInfo.params.negativePrompt ?? "")
                             .padding(14)
-                            .background(Color(.orange))
+                            .background(Color(.systemGray5))
                             .cornerRadius(14)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+                    }.background(Color(.orange))
                 }
             }
         }
