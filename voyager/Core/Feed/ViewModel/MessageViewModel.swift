@@ -24,6 +24,21 @@ class ChatContext: Identifiable {
     }
 }
 
+class ChatMessage: Identifiable,Equatable {
+    var id: Int64
+    var msg: Common_ChatMessage
+    init(id: Int64, msg: Common_ChatMessage) {
+        self.id = id
+        self.msg = msg
+    }
+    static func == (lhs: ChatMessage,rhs: ChatMessage) -> Bool {
+        if lhs.msg.id == rhs.msg.id {
+            return true
+        }
+        return false
+    }
+}
+
 
 class MessageViewModel: ObservableObject{
     @Published var userId: Int64
@@ -106,7 +121,7 @@ class MessageContextViewModel: ObservableObject{
     
     var page = 0
     var size = 10
-    @Published var messages = [Message]()
+    @Published var messages = [ChatMessage]()
     
     init(userId: Int64, roleId: Int64) {
         self.userId = userId
@@ -136,23 +151,18 @@ class MessageContextViewModel: ObservableObject{
         return nil
     }
     
-    func fetchMessages() async -> (Error?,Common_ChatMessage?){
+    func fetchMessages() async -> (Common_ChatMessage?,Error?){
         return (nil,nil)
     }
     
-    func sendMessage(msg: Common_ChatMessage) async -> Error?{
-        return nil
+    func sendMessage(msg: Common_ChatMessage) async -> ([Common_ChatMessage]?,Error?){
+        var waitSendMsgs = [Common_ChatMessage]()
+        waitSendMsgs.append(msg)
+        let (newMsgs,err) = await APIClient.shared.chatWithStoryRole(msgs: waitSendMsgs)
+        if err != nil {
+            return (nil,err)
+        }
+        return (newMsgs,nil)
     }
 }
 
-struct Message: Identifiable,Equatable {
-    let id = UUID()
-    var senderName: String
-    var avatarName: String
-    var content: String
-    var timeAgo: String
-    var isFromCurrentUser: Bool
-    static func == (lhs: Message, rhs: Message) -> Bool {
-        return lhs.id == rhs.id
-    }
-}

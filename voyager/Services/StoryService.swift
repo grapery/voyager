@@ -1355,4 +1355,18 @@ extension APIClient {
         }
         return (response.message?.chats,nil)
     }
+    
+    func chatWithStoryRole(msgs: [Common_ChatMessage]?) async -> ([Common_ChatMessage]?,Error?) {
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_ChatWithStoryRoleRequest.with {
+            $0.messages = msgs!
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.chatWithStoryRole(request: request, headers: header)
+        if response.message?.code != 0{
+            return (nil,NSError(domain: "chatWithStoryRole", code: 0, userInfo: [NSLocalizedDescriptionKey: "chat with story role failed"]))
+        }
+        return (response.message?.replyMessages,nil)
+    }
 }

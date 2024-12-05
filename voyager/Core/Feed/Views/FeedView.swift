@@ -93,12 +93,6 @@ struct FeedView: View {
                     Text("最新动态")
                         .foregroundColor(isShowingFollowing ? .black : .gray)
                         .font(.system(size: 16, weight: .medium))
-                    
-                    // 下划线指示器
-                    Rectangle()
-                        .fill(isShowingFollowing ? .black : .clear)
-                        .frame(height: 2)
-                        .matchedGeometryEffect(id: "underline", in: namespace, isSource: isShowingFollowing)
                 }
             }
             
@@ -422,13 +416,8 @@ struct FeedCustomTabView: View {
                     }) {
                         VStack(spacing: 0) {
                             Text(tab.title)
-                                .font(.system(size: 14))
-                                .foregroundColor(selectedTab == tab.type ? .black : .gray)
-                            
-                            // 添加下划线指示器
-                            Rectangle()
-                                .fill(selectedTab == tab.type ? Color.black : Color.clear)
-                                .frame(height: 2)
+                                .font(.system(size: 12))
+                                .foregroundColor(selectedTab == tab.type ? .orange : .gray)
                         }
                     }
                     .frame(maxWidth: .infinity)

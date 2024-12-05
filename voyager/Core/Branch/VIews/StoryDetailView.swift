@@ -195,7 +195,7 @@ struct StoryDetailView: View {
                             .padding(14)
                             .background(Color(.systemGray5))
                             .cornerRadius(14)
-                            .frame(minHeight: 150) // Set minimum height for large text
+                            .frame(minHeight: 150, maxWidth: .infinity, alignment: .leading)
                         }
                     }
                     
@@ -209,7 +209,7 @@ struct StoryDetailView: View {
                             .padding(14)
                             .background(Color(.systemGray5))
                             .cornerRadius(14)
-                            .frame(minHeight: 150) // Set minimum height for large text
+                            .frame(minHeight: 150, maxWidth: .infinity, alignment: .leading)
                         }
                     }
                     
@@ -223,7 +223,7 @@ struct StoryDetailView: View {
                             .padding(14)
                             .background(Color(.systemGray5))
                             .cornerRadius(14)
-                            .frame(minHeight: 150) // Set minimum height for large text
+                            .frame(minHeight: 150, maxWidth: .infinity, alignment: .leading)
                         }
                     }
                     
@@ -237,36 +237,40 @@ struct StoryDetailView: View {
                             .padding(14)
                             .background(Color(.systemGray5))
                             .cornerRadius(14)
-                            .frame(minHeight: 150) // Set minimum height for large text
+                            .frame(minHeight: 150, maxWidth: .infinity, alignment: .leading)
                         }
                     }
                 } else {
                     DisclosureGroup("故事描述") {
                         Text(viewModel.story?.storyInfo.desc ?? "")
                             .padding(14)
-                            .background(Color(.systemGray5))
+                            .background(Color(.orange))
                             .cornerRadius(14)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
                     DisclosureGroup("故事背景") {
                         Text(viewModel.story?.storyInfo.params.background ?? "")
                             .padding(14)
-                            .background(Color(.systemGray5))
+                            .background(Color(.orange))
                             .cornerRadius(14)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     
                     DisclosureGroup("正面提示词") {
                         Text(viewModel.story?.storyInfo.params.negativePrompt ?? "")
                             .padding(14)
-                            .background(Color(.systemGray5))
+                            .background(Color(.orange))
                             .cornerRadius(14)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     
                     DisclosureGroup("负面提示词") {
                         Text(viewModel.story?.storyInfo.params.negativePrompt ?? "")
                             .padding(14)
-                            .background(Color(.systemGray5))
+                            .background(Color(.orange))
                             .cornerRadius(14)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
             }
@@ -309,20 +313,21 @@ struct StoryDetailView: View {
                                 .lineLimit(1)
                         }
                     }
-                }
-                .padding(.horizontal)
-                Button(action: {
-                    showNewStoryRole = true
-                }) {
-                    VStack {
-                        Image(systemName: "plus")
-                            .frame(width: 50, height: 50)
-                            .background(Color.gray.opacity(0.2))
-                            .clipShape(Circle())
-                        Text("添加人物角色")
-                            .font(.caption)
+                    
+                    Button(action: {
+                        showNewStoryRole = true
+                    }) {
+                        VStack {
+                            Image(systemName: "plus")
+                                .frame(width: 50, height: 50)
+                                .background(Color.gray.opacity(0.2))
+                                .clipShape(Circle())
+                            Text("添加人物角色")
+                                .font(.caption)
+                        }
                     }
                 }
+                .padding(.horizontal)
             }
             .sheet(isPresented: $showNewStoryRole) {
                 NewStoryRole(
@@ -337,7 +342,7 @@ struct StoryDetailView: View {
     private var participantsList: some View {
         VStack(alignment: .leading) {
             HStack {
-                Text("��与故事创建")
+                Text("参与故事创建")
                     .font(.headline)
                 Spacer()
                 NavigationLink(destination: AllParticipantsView(viewModel: viewModel)) {
