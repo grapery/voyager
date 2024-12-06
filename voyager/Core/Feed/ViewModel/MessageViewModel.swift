@@ -25,11 +25,19 @@ class ChatContext: Identifiable {
 }
 
 class ChatMessage: Identifiable,Equatable {
-    var id: Int64
+    let id: Int64
     var msg: Common_ChatMessage
+    var type: MessageType = .text
+    var status: MessageStatus = .sent
+    var mediaURL: String?
     init(id: Int64, msg: Common_ChatMessage) {
         self.id = id
         self.msg = msg
+    }
+    init(id: Int64, msg: Common_ChatMessage,status: MessageStatus) {
+        self.id = id
+        self.msg = msg
+        self.status = status
     }
     static func == (lhs: ChatMessage,rhs: ChatMessage) -> Bool {
         if lhs.msg.id == rhs.msg.id {
@@ -127,6 +135,19 @@ class MessageContextViewModel: ObservableObject{
         self.userId = userId
         self.roleId = roleId
         self.msgContext = Common_ChatContext()
+        Task{
+            let err = await self.getChatContext(userId: userId, roleId: roleId)
+            if err != nil {
+                print("MessageContextViewModel init error: ",err as Any)
+            }
+        }
+    }
+    
+    init(userId: Int64, roleId: Int64 ,role: StoryRole) {
+        self.userId = userId
+        self.roleId = roleId
+        self.msgContext = Common_ChatContext()
+        self.role = role
         Task{
             let err = await self.getChatContext(userId: userId, roleId: roleId)
             if err != nil {
