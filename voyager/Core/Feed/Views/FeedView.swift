@@ -28,6 +28,8 @@ struct FeedView: View {
     @State private var selectedTab: FeedType = .Groups
     @State private var showNewItemView = false
     @State private var isShowingFollowing = true
+    @State private var chatMessages: [ChatMessage] = []
+    @State private var chatInput = ""
     
     // 定义标签页数组
     let tabs: [(type: FeedType, title: String)] = [
@@ -48,10 +50,14 @@ struct FeedView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // Top tab selector
-                topTabSelector
+                // 顶部导航栏
+                CustomNavigationBar(
+                    isShowingFollowing: $isShowingFollowing,
+                    showNewItemView: $showNewItemView,
+                    namespace: namespace
+                )
                 
-                // Main content
+                // 主要内容区域
                 TabView(selection: $isShowingFollowing) {
                     followingFeedContent
                         .tag(true)
@@ -62,147 +68,93 @@ struct FeedView: View {
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 .animation(.easeInOut(duration: 0.3), value: isShowingFollowing)
             }
-            .navigationBarItems(trailing:
-                Button(action: {
-                    showNewItemView = true
-                }) {
-                    Image(systemName: "plus.circle")
+            .navigationBarHidden(true)
+        }
+        .onAppear { fetchData() }
+        .onChange(of: selectedTab) { _ in fetchData() }
+        .onChange(of: isShowingFollowing) { _ in fetchData() }
+    }
+    
+    // 自定义导航栏
+    private struct CustomNavigationBar: View {
+        @Binding var isShowingFollowing: Bool
+        @Binding var showNewItemView: Bool
+        var namespace: Namespace.ID
+        
+        var body: some View {
+            HStack(spacing: 20) {
+                // Logo或标题
+                Image("app_logo") // 替换为实际的logo
+                    .resizable()
+                    .frame(width: 32, height: 32)
+                
+                // 标签切换器
+                HStack(spacing: 24) {
+                    TabButton(
+                        title: "最新动态",
+                        isSelected: isShowingFollowing,
+                        action: { withAnimation { isShowingFollowing = true } }
+                    )
+                    
+                    TabButton(
+                        title: "发现",
+                        isSelected: !isShowingFollowing,
+                        action: { withAnimation { isShowingFollowing = false } }
+                    )
                 }
+                
+                Spacer()
+                
+                // 右侧按钮
+                Button(action: { showNewItemView = true }) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.primary)
+                        .frame(width: 36, height: 36)
+                        .background(Color(.systemGray6))
+                        .clipShape(Circle())
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 12)
+            .background(
+                Color.white
+                    .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
             )
-        }
-        .onAppear {
-            fetchData()
-        }
-        .onChange(of: selectedTab) { _ in
-            fetchData()
-        }
-        .onChange(of: isShowingFollowing) { _ in
-            fetchData()
         }
     }
     
-    // 顶部标签选择器
-    private var topTabSelector: some View {
-        HStack(spacing: 16) {
-            Button(action: { 
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    isShowingFollowing = true
-                }
-            }) {
-                VStack(spacing: 12) {
-                    Text("最新动态")
-                        .foregroundColor(isShowingFollowing ? .black : .gray)
-                        .font(.system(size: 16, weight: .medium))
+    // 修改后的followingFeedContent
+    private var followingFeedContent: some View {
+        VStack(spacing: 0) {
+            // 自定义分类标签
+            CustomSegmentedControl(selectedTab: $selectedTab, tabs: tabs)
+                .padding(.vertical, 8)
+            
+            // 搜索栏
+            EnhancedSearchBar(text: $searchText, isSearching: $isSearching)
+                .padding(.horizontal)
+                .padding(.bottom, 8)
+            
+            // 内容区域
+            TabView(selection: $selectedTab) {
+                ForEach(tabs, id: \.type) { tab in
+                    FeedContentView(
+                        type: tab.type,
+                        groups: filteredGroups,
+                        stories: filteredStories,
+                        roles: filteredRoles
+                    )
+                    .tag(tab.type)
                 }
             }
-            
-            Button(action: {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    isShowingFollowing = false
-                }
-            }) {
-                VStack(spacing: 8) {
-                    Text("发现")
-                        .foregroundColor(!isShowingFollowing ? .black : .gray)
-                        .font(.system(size: 16, weight: .medium))
-                    
-                    // 下划线指示器
-                    Rectangle()
-                        .fill(!isShowingFollowing ? .black : .clear)
-                        .frame(height: 2)
-                        .matchedGeometryEffect(id: "underline", in: namespace, isSource: !isShowingFollowing)
-                }
-            }
-            
-            Spacer()
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 8)
-        .background(Color.white)
     }
     
     // 添加搜索状态
     @State private var searchText = ""
     @State private var isSearching = false
-    
-    // 修改 followingFeedContent
-    private var followingFeedContent: some View {
-        VStack(spacing: 0) {
-            // Custom tab header
-            FeedCustomTabView(selectedTab: $selectedTab, tabs: tabs)
-            
-            // 添加搜索框
-            SearchBar(text: $searchText, isSearching: $isSearching)
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-            
-            // Content with TabView
-            TabView(selection: $selectedTab) {
-                // Groups Tab
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        GroupsList(groups: filteredGroups)
-                    }
-                }
-                .tag(FeedType.Groups)
-                
-                // Story Tab
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        StoriesList(stories: filteredStories)
-                    }
-                }
-                .tag(FeedType.Story)
-                
-                // StoryRole Tab
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        RolesList(roles: filteredRoles)
-                    }
-                }
-                .tag(FeedType.StoryRole)
-            }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-        }
-        .onChange(of: searchText) { newValue in
-            // 当搜索文本改变时触发搜索
-            if !newValue.isEmpty {
-                Task {
-                    await performSearch(query: newValue)
-                }
-            }
-        }
-    }
-    
-    // 添加搜索框组件
-    struct SearchBar: View {
-        @Binding var text: String
-        @Binding var isSearching: Bool
-        
-        var body: some View {
-            HStack {
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.gray)
-                    
-                    TextField("搜索", text: $text)
-                        .foregroundColor(.primary)
-                    
-                    if !text.isEmpty {
-                        Button(action: {
-                            text = ""
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.gray)
-                        }
-                    }
-                }
-                .padding(8)
-                .background(Color(.systemGray6))
-                .cornerRadius(10)
-            }
-        }
-    }
     
     // 添加计算属性来过滤内容
     private var filteredGroups: [BranchGroup] {
@@ -263,78 +215,44 @@ struct FeedView: View {
     // Discover/trending content
     private var discoverFeedContent: some View {
         VStack(spacing: 0) {
-            // Tab Selector
-            HStack(spacing: 0) {
-                ForEach(discoverTabs, id: \.self) { tab in
-                    Spacer().scaledToFit()
-                    Button(action: {
-                        discoverSelectedTab = tab
-                    }) {
-                        VStack{
-                            HStack {
-                                Image(systemName: getTabIcon(tab))
-                            }
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
-                            .background(discoverSelectedTab == tab ? Color(.systemGray5) : Color(.systemGray6))
-                            .cornerRadius(20)
-                        }
+            // 分类标签栏
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    ForEach(discoverTabs, id: \.self) { tab in
+                        DiscoverTabButton(
+                            title: tab,
+                            icon: getTabIcon(tab),
+                            isSelected: discoverSelectedTab == tab,
+                            action: { discoverSelectedTab = tab }
+                        )
                     }
-                    .foregroundColor(.primary)
-                    Spacer().scaledToFit()
                 }
+                .padding(.horizontal)
+                .padding(.vertical, 12)
             }
-            .padding(.horizontal)
-            .background(Color(.systemGray6))
-            
-            // Chat Content
-            ScrollView {
-                VStack(alignment: .leading, spacing: 4) {
-                    // AI Assistant Intro Message
-                    HStack(alignment: .top, spacing: 12) {
-                        VStack{
-                            Image(systemName: "infinity.circle") // 替换为实际的 AI 头像
-                                .resizable()
-                                .frame(width: 32, height: 32)
-                                .clipShape(Circle())
-                        }
-                        HStack(alignment: .top, spacing: 12) {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("你好，我是矩阵，为您推荐故事或者故事角色")
-                                    .font(.body)
-                            }
-                        }
-                    }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                    
-                }
-                .padding()
-            }
-            
-            // Bottom Input Bar
-            HStack(spacing: 12) {
-                TextField("Ask for knowledge", text: $chatInput)
-                    .padding(8)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(16)
-                
-                Button(action: { /* Send message */ }) {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.system(size: 16))
-                        .foregroundColor(.orange)
-                }
-            }
-            .padding()
             .background(Color.white)
-            .shadow(color: .black.opacity(0.05), radius: 5, y: -2)
+            
+            // AI助手区域
+            VStack(spacing: 16) {
+                AIAssistantHeader()
+                
+                if !chatMessages.isEmpty {
+                    ChatMessagesList(messages: chatMessages)
+                }
+                
+                Spacer()
+                
+                ChatInputBar(
+                    text: $chatInput,
+                    onSend: sendMessage
+                )
+            }
+            .padding(.top, 16)
         }
     }
     
     // Helper properties and methods
     @State private var discoverSelectedTab = "世界观"
-    @State private var chatInput = ""
     
     private func getTabIcon(_ tab: String) -> String {
         switch tab {
@@ -397,6 +315,55 @@ struct FeedView: View {
                 }
             }
             
+        }
+    }
+    
+    struct ChatMessage: Identifiable {
+        let id = UUID()
+        let content: String
+        let isAI: Bool
+        let timestamp: Date
+        
+        init(content: String, isAI: Bool) {
+            self.content = content
+            self.isAI = isAI
+            self.timestamp = Date()
+        }
+    }
+    
+    struct ChatMessagesList: View {
+        let messages: [ChatMessage]
+        
+        var body: some View {
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    ForEach(messages) { message in
+                        ChatMessageView(
+                            isAI: message.isAI,
+                            message: message.content,
+                            avatar: message.isAI ? "ai_avatar" : "user_avatar" // Replace with actual avatar images
+                        )
+                    }
+                }
+                .padding()
+            }
+        }
+    }
+    
+    private func sendMessage() {
+        guard !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        
+        // Add user message
+        let userMessage = ChatMessage(content: chatInput, isAI: false)
+        chatMessages.append(userMessage)
+        
+        // Clear input
+        chatInput = ""
+        
+        // Simulate AI response (replace with actual AI integration)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            let aiResponse = ChatMessage(content: "这是AI助手的回复示例。", isAI: true)
+            chatMessages.append(aiResponse)
         }
     }
 }
@@ -583,10 +550,501 @@ struct FeedCellView: View {
 }
 
 // 辅助扩展，用于显示相对时间
+
+// 增强版搜索栏
+private struct EnhancedSearchBar: View {
+    @Binding var text: String
+    @Binding var isSearching: Bool
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+                
+                TextField("搜索内容...", text: $text)
+                    .font(.system(size: 15))
+                
+                if !text.isEmpty {
+                    Button(action: { text = "" }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                            .transition(.scale)
+                    }
+                }
+            }
+            .padding(10)
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+        }
+    }
+}
+
+// 自定义分段控制器
+private struct CustomSegmentedControl: View {
+    @Binding var selectedTab: FeedType
+    let tabs: [(type: FeedType, title: String)]
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 20) {
+                ForEach(tabs, id: \.type) { tab in
+                    Button(action: {
+                        withAnimation { selectedTab = tab.type }
+                    }) {
+                        VStack(spacing: 8) {
+                            Text(tab.title)
+                                .font(.system(size: 15, weight: selectedTab == tab.type ? .semibold : .regular))
+                                .foregroundColor(selectedTab == tab.type ? .primary : .gray)
+                            
+                            // 选中指示器
+                            Rectangle()
+                                .fill(selectedTab == tab.type ? Color.accentColor : Color.clear)
+                                .frame(height: 2)
+                                .animation(.spring(), value: selectedTab)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+}
+
+// Feed内容视图
+struct FeedContentView: View {
+    let type: FeedType
+    let groups: [BranchGroup]
+    let stories: [Story]
+    let roles: [StoryRole]
+    
+    var body: some View {
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                switch type {
+                case .Groups:
+                    ForEach(groups, id: \.id) { group in
+                        GroupFeedCell(group: group)
+                    }
+                case .Story:
+                    ForEach(stories, id: \.id) { story in
+                        StoryFeedCell(story: story)
+                    }
+                case .StoryRole:
+                    ForEach(roles, id: \.id) { role in
+                        RoleFeedCell(role: role)
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top, 8)
+        }
+        .refreshable {
+            // 添加下拉刷新功能
+            // await refreshData()
+        }
+    }
+}
+
+// 优化后的小组Feed单元格
+struct GroupFeedCell: View {
+    let group: BranchGroup
+    @State private var isFollowing = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // 头部信息
+            HStack(spacing: 12) {
+                KFImage(URL(string: group.info.avatar))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 48, height: 48)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(group.info.name)
+                        .font(.system(size: 16, weight: .semibold))
+                    
+                    Text("成员: \(10)")
+                        .font(.system(size: 13))
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+                
+                Button(action: { isFollowing.toggle() }) {
+                    Text(isFollowing ? "已关注" : "关注")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(isFollowing ? .gray : .white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(isFollowing ? Color.gray.opacity(0.1) : Color.blue)
+                        .clipShape(Capsule())
+                }
+            }
+            
+            // 描述内容
+            if !group.info.desc.isEmpty {
+                Text(group.info.desc)
+                    .font(.system(size: 15))
+                    .lineLimit(3)
+                    .padding(.vertical, 8)
+            }
+            
+            // 互动栏
+            HStack(spacing: 24) {
+                InteractionButton(
+                    icon: "bell",
+                    count: 20,
+                    isActive: false
+                )
+                
+                InteractionButton(
+                    icon: "bubble.left",
+                    count: 20,
+                    isActive: false
+                )
+                
+                InteractionButton(
+                    icon: "heart",
+                    count: 20,
+                    isActive: false
+                )
+                
+                Spacer()
+                
+                Button(action: {}) {
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(.top, 8)
+        }
+        .padding(16)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
+    }
+}
+
+// 优化后的故事Feed单元
+struct StoryFeedCell: View {
+    let story: Story
+    @State private var isFollowing = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // 头部信息
+            HStack(spacing: 12) {
+                KFImage(URL(string: story.storyInfo.avatar))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 48, height: 48)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(story.storyInfo.name)
+                        .font(.system(size: 16, weight: .semibold))
+                    
+                    Text(Date(timeIntervalSince1970: TimeInterval(story.storyInfo.mtime)).timeAgoDisplay())
+                        .font(.system(size: 13))
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+                
+                Button(action: { isFollowing.toggle() }) {
+                    Text(isFollowing ? "已关注" : "关注")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(isFollowing ? .gray : .white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(isFollowing ? Color.gray.opacity(0.1) : Color.blue)
+                        .clipShape(Capsule())
+                }
+            }
+            
+            // 故事内容预览
+            if !story.storyInfo.origin.isEmpty {
+                Text(story.storyInfo.origin)
+                    .font(.system(size: 15))
+                    .lineLimit(3)
+                    .padding(.vertical, 8)
+            }
+            
+            // 故事封面图（如果有的话）
+            if !story.storyInfo.avatar.isEmpty {
+                KFImage(URL(string: story.storyInfo.avatar))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(height: 200)
+                    .clipped()
+                    .cornerRadius(12)
+            }
+            
+            // 互动栏
+            HStack(spacing: 24) {
+                InteractionButton(
+                    icon: "bookmark",
+                    count: 10,
+                    isActive: false
+                )
+                
+                InteractionButton(
+                    icon: "bubble.left",
+                    count: 10,
+                    isActive: false
+                )
+                
+                InteractionButton(
+                    icon: "heart",
+                    count: 10,
+                    isActive: false
+                )
+                
+                Spacer()
+                
+                Button(action: {}) {
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(.top, 8)
+        }
+        .padding(16)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
+    }
+}
+
+// 角色Feed单元格
+struct RoleFeedCell: View {
+    let role: StoryRole
+    @State private var isFollowing = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // 头部信息
+            HStack(spacing: 12) {
+                KFImage(URL(string: role.role.characterAvatar))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 48, height: 48)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(role.role.characterName)
+                        .font(.system(size: 16, weight: .semibold))
+                    
+                    Text("来自故事: \(role.role.characterName)")
+                        .font(.system(size: 13))
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+                
+                Button(action: { isFollowing.toggle() }) {
+                    Text(isFollowing ? "已关注" : "关注")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(isFollowing ? .gray : .white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(isFollowing ? Color.gray.opacity(0.1) : Color.blue)
+                        .clipShape(Capsule())
+                }
+            }
+            
+            // 角色描述
+            if !role.role.characterDescription.isEmpty {
+                Text(role.role.characterDescription)
+                    .font(.system(size: 15))
+                    .lineLimit(3)
+                    .padding(.vertical, 8)
+            }
+            
+            
+            // 互动栏
+            HStack(spacing: 24) {
+                InteractionButton(
+                    icon: "bell",
+                    count: 30,
+                    isActive: false
+                )
+                
+                InteractionButton(
+                    icon: "bubble.left",
+                    count: 30,
+                    isActive: false
+                )
+                
+                InteractionButton(
+                    icon: "heart",
+                    count: 30,
+                    isActive: false
+                )
+                
+                Spacer()
+                
+                Button(action: {}) {
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(.top, 8)
+        }
+        .padding(16)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
+    }
+}
+
+// 互动按钮组件
+struct InteractionButton: View {
+    let icon: String
+    let count: Int
+    let isActive: Bool
+    
+    var body: some View {
+        Button(action: {}) {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                Text("\(count)")
+                    .font(.system(size: 14))
+            }
+            .foregroundColor(isActive ? .blue : .gray)
+        }
+    }
+}
+
+// 发现页面组件
+struct DiscoverTabButton: View {
+    let title: String
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                Text(title)
+                    .font(.system(size: 15, weight: isSelected ? .semibold : .regular))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(isSelected ? Color.blue.opacity(0.1) : Color.clear)
+            .foregroundColor(isSelected ? .blue : .gray)
+            .cornerRadius(20)
+        }
+    }
+}
+
+// AI���手头部
+struct AIAssistantHeader: View {
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: "brain.head.profile")
+                .font(.system(size: 24))
+                .foregroundColor(.blue)
+                .frame(width: 48, height: 48)
+                .background(Color.blue.opacity(0.1))
+                .clipShape(Circle())
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("AI故事助手")
+                    .font(.system(size: 16, weight: .semibold))
+                Text("为您推荐个性化的故事和角色")
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
+            }
+            
+            Spacer()
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
+    }
+}
+
+// 聊天输入栏
+struct ChatInputBar: View {
+    @Binding var text: String
+    let onSend: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            TextField("输入您的问题...", text: $text)
+                .padding(12)
+                .background(Color(.systemGray6))
+                .cornerRadius(24)
+            
+            Button(action: onSend) {
+                Image(systemName: "arrow.up.circle.fill")
+                    .font(.system(size: 28))
+                    .foregroundColor(.blue)
+            }
+            .disabled(text.isEmpty)
+        }
+        .padding()
+        .background(Color.white)
+        .shadow(color: Color.black.opacity(0.05), radius: 8, y: -2)
+    }
+}
+
+struct TabButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Text(title)
+                    .font(.system(size: 16, weight: isSelected ? .semibold : .regular))
+                    .foregroundColor(isSelected ? .primary : .gray)
+                
+                // Selection indicator
+                Rectangle()
+                    .fill(isSelected ? Color.blue : Color.clear)
+                    .frame(height: 2)
+                    .matchedGeometryEffect(id: "tab_\(title)", in: namespace)
+            }
+        }
+    }
+    
+    @Namespace private var namespace
+}
+
 extension Date {
     func timeAgoDisplay() -> String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: self, relativeTo: Date())
+        let now = Date()
+        let components = Calendar.current.dateComponents([.second, .minute, .hour, .day, .month, .year], from: self, to: now)
+        
+        if let years = components.year, years > 0 {
+            return years == 1 ? "1年前" : "\(years)年前"
+        }
+        if let months = components.month, months > 0 {
+            return months == 1 ? "1个月前" : "\(months)个月前"
+        }
+        if let days = components.day, days > 0 {
+            return days == 1 ? "1天前" : "\(days)天前"
+        }
+        if let hours = components.hour, hours > 0 {
+            return hours == 1 ? "1小时前" : "\(hours)小时前"
+        }
+        if let minutes = components.minute, minutes > 0 {
+            return minutes == 1 ? "1分钟前" : "\(minutes)分钟前"
+        }
+        if let seconds = components.second, seconds > 0 {
+            return seconds < 5 ? "刚刚" : "\(seconds)秒前"
+        }
+        return "刚刚"
     }
 }
