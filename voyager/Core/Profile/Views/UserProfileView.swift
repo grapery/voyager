@@ -23,26 +23,32 @@ struct UserProfileView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 4) {
-                    ProfileHeaderView(user: user)
-                    ProfileDescriptionView(description: user.desc)
-                    ProfileStatsView(
-                        storyCount: Int(viewModel.profile.createdStoryNum),
-                        roleCount: Int(viewModel.profile.createdRoleNum)
-                    )
+                VStack(alignment: .leading, spacing: 16) {
+                    // Profile Header Card
+                    VStack(spacing: 16) {
+                        ProfileHeaderView(user: user)
+                        ProfileDescriptionView(description: user.desc)
+                        ProfileStatsView(
+                            storyCount: Int(viewModel.profile.createdStoryNum),
+                            roleCount: Int(viewModel.profile.createdRoleNum)
+                        )
+                    }
+                    .padding(16)
+                    .background(Color.white)
+                    .cornerRadius(16)
+                    .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
                     
-                    Divider()
-                    
+                    // Filter View
                     ProfileFilterView(selectedFilter: $selectedFilter)
+                        .padding(.vertical, 8)
                     
+                    // Content TabView
                     TabView(selection: $selectedFilter) {
                         StoryboardRowView(boards: viewModel.storyboards)
                             .tag(UserProfileFilterViewModel.storyboards)
-                            .padding(.horizontal, 1)
                         
                         RolesListView(roles: viewModel.storyRoles, viewModel: self.viewModel)
                             .tag(UserProfileFilterViewModel.roles)
-                            .padding(.horizontal, 1)
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
                     .frame(height: UIScreen.main.bounds.height * 0.7)
@@ -52,7 +58,7 @@ struct UserProfileView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 2)
+                .padding(.horizontal)
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -60,8 +66,11 @@ struct UserProfileView: View {
                         showingEditProfile.toggle()
                     } label: {
                         Image(systemName: "slider.vertical.3")
+                            .foregroundColor(.primary)
+                            .padding(8)
+                            .background(Color(.systemGray6))
+                            .clipShape(Circle())
                     }
-                    .foregroundColor(.primary)
                 }
             }
         }
@@ -133,16 +142,15 @@ struct StoryCardRowView: View{
 struct RolesListView: View {
     let roles: [StoryRole]
     var viewModel: ProfileViewModel
+    
     var body: some View {
         ScrollView {
-            LazyVStack {
+            LazyVStack(spacing: 16) {
                 ForEach(roles, id: \.id) { role in
-                    StoryRoleRowView(role: role,viewModel: viewModel, userId: viewModel.user!.userID)
-                        .padding(.horizontal, 4)
+                    StoryRoleRowView(role: role, viewModel: viewModel, userId: viewModel.user!.userID)
                 }
             }
         }
-        .simultaneousGesture(DragGesture().onChanged { _ in })
     }
 }
 
@@ -153,39 +161,43 @@ struct StoryRoleRowView: View {
     let userId: Int64
     
     var body: some View {
-        Button(action: {
-            showRoleDetail = true
-        }) {
-            HStack(spacing: 12) {
-                // 头像
-                if !role.role.characterAvatar.isEmpty {
-                    RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .InProfile)
-                }else{
-                    RectProfileImageView(avatarUrl: defaultAvator, size: .InProfile)
-                }
-                
-                // 名称和描述
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(role.role.characterName)
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
+        Button(action: { showRoleDetail = true }) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 12) {
+                    // Avatar
+                    if !role.role.characterAvatar.isEmpty {
+                        RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .InProfile)
+                    } else {
+                        RectProfileImageView(avatarUrl: defaultAvator, size: .InProfile)
+                    }
                     
-                    Text(role.role.characterDescription)
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-                        .lineLimit(2)
+                    // Name and Description
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(role.role.characterName)
+                            .font(.system(size: 16, weight: .semibold))
+                        
+                        Text(role.role.characterDescription)
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray)
+                            .lineLimit(2)
+                    }
                 }
                 
-                Spacer()
+                // Interaction buttons
+                HStack(spacing: 24) {
+                    InteractionButton(icon: "bubble.left", count: 0, isActive: false)
+                    InteractionButton(icon: "heart", count: 0, isActive: false)
+                    Spacer()
+                    Button(action: {}) {
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundColor(.gray)
+                    }
+                }
             }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color(.systemBackground))
-                    .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
-            )
+            .padding(16)
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
         .sheet(isPresented: $showRoleDetail) {
@@ -204,26 +216,24 @@ struct StoryboardRowView: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack {
+            LazyVStack(spacing: 16) {
                 ForEach(boards, id: \.id) { board in
                     StoryboardRowCellView(info: board)
-                        .padding(.horizontal, 4)
                 }
             }
         }
-        .simultaneousGesture(DragGesture().onChanged { _ in })
     }
 }
 
 struct StoryboardRowCellView: View {
     var info: StoryBoard
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            // 标题和AI标记
+        VStack(alignment: .leading, spacing: 12) {
+            // Header
             HStack {
                 Text(info.boardInfo.title)
-                    .font(.headline)
-                    .lineLimit(1)
+                    .font(.system(size: 16, weight: .semibold))
                 
                 if info.boardInfo.isAiGen {
                     Image(systemName: "sparkles")
@@ -233,33 +243,41 @@ struct StoryboardRowCellView: View {
                 Spacer()
                 
                 Text("#\(info.boardInfo.num)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
             }
             
-            // 内容预览
+            // Content
             Text(info.boardInfo.content)
-                .font(.subheadline)
+                .font(.system(size: 15))
                 .foregroundColor(.secondary)
                 .lineLimit(2)
-                .multilineTextAlignment(.leading)
             
-            // 角色信息
+            // Footer
             if !info.boardInfo.roles.isEmpty {
                 HStack {
                     Image(systemName: "person.2")
                         .foregroundColor(.gray)
                     Text("\(info.boardInfo.roles.count) 个角色")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                }
+            }
+            
+            // Interaction buttons
+            HStack(spacing: 24) {
+                InteractionButton(icon: "bubble.left", count: 0, isActive: false)
+                InteractionButton(icon: "heart", count: 0, isActive: false)
+                Spacer()
+                Button(action: {}) {
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundColor(.gray)
                 }
             }
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 2)
-                .fill(Color(.systemBackground))
-                .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-        )
+        .padding(16)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
     }
 }

@@ -23,7 +23,10 @@ struct MessageView: View {
     @ObservedObject var viewModel: MessageViewModel
     @State private var newMessageContent: String = ""
     @State var user: User?
-    init( user: User? = nil) {
+    @State private var searchText = ""
+    @State private var isSearching = false
+    
+    init(user: User? = nil) {
         self.user = user
         self.viewModel = MessageViewModel(userId: user!.userID, page: 0, pageSize: 10)
     }
@@ -31,37 +34,48 @@ struct MessageView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // 顶部导航栏
+                // 优化顶部导航栏
                 HStack {
                     Text("消息")
-                        .font(.title2)
-                        .bold()
+                        .font(.system(size: 24, weight: .bold))
                     Spacer()
+                    Button(action: {}) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.blue)
+                    }
                 }
                 .padding()
+                .background(Color.white)
+                .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
                 
-                // 消息列表
+                // 添加搜索栏
+                SearchBar(text: $searchText, isSearching: $isSearching)
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                
+                // 优化消息列表
                 ScrollView {
-                    LazyVStack(spacing: 2) {
+                    LazyVStack(spacing: 0) {
                         ForEach(viewModel.msgCtxs, id: \.id) { msgCtx in
-                            VStack{
-                                MessageContextCellView(
-                                    msgCtxId: msgCtx.chatinfo.chatID,
-                                    userId: user!.userID,
-                                    user: msgCtx.chatinfo.user,
-                                    role: StoryRole(Id: msgCtx.chatinfo.role.roleID,role: msgCtx.chatinfo.role),
-                                    lastMessage: msgCtx.chatinfo.lastMessage
-                                )
+                            MessageContextCellView(
+                                msgCtxId: msgCtx.chatinfo.chatID,
+                                userId: user!.userID,
+                                user: msgCtx.chatinfo.user,
+                                role: StoryRole(Id: msgCtx.chatinfo.role.roleID, role: msgCtx.chatinfo.role),
+                                lastMessage: msgCtx.chatinfo.lastMessage
+                            )
+                            .background(Color.white)
+                            Divider()
                                 .padding(.horizontal)
-                                Divider()
-                            }
                         }
                     }
                 }
+                .background(Color(.systemGray6))
             }
             .navigationBarHidden(true)
-            .onAppear{
-                Task{
+            .onAppear {
+                Task {
                     await self.viewModel.initUserChatContext()
                 }
             }
@@ -69,7 +83,34 @@ struct MessageView: View {
     }
 }
 
-struct MessageContextCellView: View{
+// 优化搜索栏组件
+struct SearchBar: View {
+    @Binding var text: String
+    @Binding var isSearching: Bool
+    
+    var body: some View {
+        HStack {
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+                TextField("搜索聊天记录", text: $text)
+                    .font(.system(size: 15))
+                if !text.isEmpty {
+                    Button(action: { text = "" }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+            .padding(10)
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+        }
+    }
+}
+
+// 优化消息单元格视图
+struct MessageContextCellView: View {
     var msgCtxId: Int64
     var user: User?
     var userId: Int64
@@ -108,32 +149,29 @@ struct MessageContextCellView: View{
             roleId: role?.Id ?? 0,
             role: role!
         )) {
-            HStack(spacing: 2) {
-                // Avatar
-                RectProfileImageView(avatarUrl: defaultAvator, size: .InChat)
+            HStack(spacing: 12) {
+                // 优化头像显示
+                RectProfileImageView(avatarUrl: avatarURL, size: .InChat)
+                    .overlay(Circle().stroke(Color.gray.opacity(0.1), lineWidth: 1))
                 
-                // Message content and time
-                VStack(alignment: .leading) {
-                    // Name
-                    Text(isFromUser ? (user?.name ?? "Me") : (role?.role.characterName ?? "Unknown"))
-                        .font(.headline)
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(isFromUser ? (user?.name ?? "Me") : (role?.role.characterName ?? "Unknown"))
+                            .font(.system(size: 16, weight: .semibold))
+                        Spacer()
+                        Text(formatTime(lastMessage?.timestamp ?? 0))
+                            .font(.system(size: 13))
+                            .foregroundColor(.gray)
+                    }
                     
-                    // Last message
                     Text(lastMessage?.message ?? "")
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundColor(.gray)
                         .lineLimit(1)
                 }
-                
-                Spacer()
-                
-                // Time
-                Text(formatTime(lastMessage?.timestamp ?? 0))
-                    .font(.caption)
-                    .foregroundColor(.gray)
             }
-            .padding(.vertical, 8)
-            .contentShape(Rectangle())
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
         }
         .buttonStyle(PlainButtonStyle())
     }
