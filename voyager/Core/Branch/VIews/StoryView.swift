@@ -37,7 +37,7 @@ struct StoryView: View {
         if isGenerating {
             buttonMsg = "正在生成..."
         } else if generatedStory != nil {
-            buttonMsg = "重新生成"
+            buttonMsg = "���新生成"
         } else if errorMessage != nil {
             buttonMsg = "重试"
         } else {
@@ -58,68 +58,65 @@ struct StoryView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Story Info Header
-            VStack(alignment: .leading, spacing: 8) {
-                NavigationLink(destination: StoryDetailView(storyId: self.storyId, story: self.viewModel.story!,userId: self.userId)) {
-                    HStack {
+            VStack(alignment: .leading, spacing: 12) {
+                // 用户信息部分
+                NavigationLink(destination: StoryDetailView(storyId: self.storyId, story: self.viewModel.story!, userId: self.userId)) {
+                    HStack(spacing: 12) {
                         KFImage(URL(string: self.viewModel.story?.storyInfo.avatar ?? ""))
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 40, height: 40)
+                            .frame(width: 44, height: 44)
                             .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
                         
-                        VStack(alignment: .leading) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(self.viewModel.story?.storyInfo.name ?? "")
-                                .font(.headline)
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.primary)
                                 .lineLimit(1)
                             
                             if let createdAt = self.viewModel.story?.storyInfo.ctime {
-                                Text("创建于: \(formatDate(timestamp: createdAt))")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
+                                Text(formatDate(timestamp: createdAt))
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.secondary)
                             }
                         }
-                        
                         Spacer()
                     }
                 }
                 
-                HStack{
-                    VStack(alignment: .leading, spacing: 2){
-                        Text("故事简介")
-                            .font(.subheadline)
-                            .lineLimit(3)
-                        Text(self.viewModel.story?.storyInfo.origin ?? "")
-                            .font(.body)
-                            .lineLimit(3)
+                // 故事简介部分
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(self.viewModel.story?.storyInfo.origin ?? "")
+                        .font(.system(size: 15))
+                        .foregroundColor(.primary)
+                        .lineLimit(3)
+                    
+                    Button(action: { generateStory() }) {
+                        Text(buttonMsg)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Color.blue)
+                            .cornerRadius(20)
                     }
-                    Spacer()
-                    VStack(alignment: .trailing, spacing: 2){
-                        Button(action: {
-                            generateStory()
-                        }) {
-                            Text(buttonMsg)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(Color.green.opacity(0.2))
-                                .cornerRadius(16)
-                        }
-                    }
+                    .disabled(isGenerating)
                 }
-                HStack {
-                    Spacer().scaledToFit()
-                    Label("10", systemImage: "heart.circle")
-                    Spacer().scaledToFit()
-                    Label("1", systemImage: "bell.circle")
-                    Spacer().scaledToFit()
-                    Label("分享", systemImage: "arrow.up.circle")
-                    Spacer().scaledToFit()
+                
+                // 交互按钮栏
+                HStack(spacing: 24) {
+                    InteractionButton(count: "10", icon: "heart", color: .red)
+                    InteractionButton(count: "1", icon: "bell", color: .blue)
+                    InteractionButton(count: "分享", icon: "square.and.arrow.up", color: .green)
                 }
-                .foregroundColor(.secondary)
-                .font(.caption)
+                .padding(.top, 4)
             }
-            .padding()
-            .background(Color.white)
+            .padding(16)
+            .background(Color(.systemBackground))
+            
             Divider()
+            
             StoryTabView(selectedTab: $selectedTab)
                 .padding(.top, 2) // 减少顶部间距
 
@@ -359,18 +356,17 @@ struct StoryBoardCellView: View {
     }
     
     private var storyboardCellHeader: some View {
-        HStack {
-            VStack(alignment: .leading) {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(board?.boardInfo.title ?? "无标题故事章节")
-                    .font(.headline)
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.primary)
-            }
-            Spacer()
-            VStack(alignment: .trailing) {
-                Text("\(formatDate(timestamp: (board?.boardInfo.ctime)!))")
-                    .font(.caption)
+                
+                Text(formatDate(timestamp: (board?.boardInfo.ctime)!))
+                    .font(.system(size: 14))
                     .foregroundColor(.secondary)
             }
+            Spacer()
         }
     }
     
@@ -419,137 +415,57 @@ struct StoryBoardCellView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 12) {
             storyboardCellHeader
-            VStack{
+            
+            // Content
+            VStack {
                 if sceneMediaContents.count <= 0 {
-                    ZStack(alignment: .trailing) {
-                        Text((board?.boardInfo.content)!)
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                            .lineLimit(3)
-                    }
-                }else{
-                    // 显示场景内容
+                    Text((board?.boardInfo.content)!)
+                        .font(.system(size: 15))
+                        .foregroundColor(.primary)
+                        .lineLimit(3)
+                } else {
                     senceDetails
                 }
             }
-            .onTapGesture {
-                isShowingBoardDetail = true
-            }
-            .fullScreenCover(isPresented: $isShowingBoardDetail){
-                StoryBoardView(
-                    board: self.board,
-                    userId: userId,
-                    groupId: groupId,
-                    storyId: storyId,
-                    viewModel: self.viewModel
-                )
-            }
+            .padding(.vertical, 8)
             
-            
-            
-            Spacer()
-            HStack {
-                Spacer()
-                Button(action: {
-                    // 处理创建逻辑
+            // Action buttons
+            HStack(spacing: 32) {
+                ActionButton(icon: "pencil.circle", action: {
                     self.isPressed = true
                     self.isShowingNewStoryBoard = true
-                }) {
-                    HStack {
-                        Image(systemName: "pencil.circle")
-                            .font(.headline)
-                    }
-                    .scaledToFill()
-                }
-                Spacer()
-                    .scaledToFit()
-                    .border(Color.green.opacity(0.3))
-                Button(action: {
-                    // 处理分叉逻辑
+                })
+                
+                ActionButton(icon: "signpost.right.and.left.circle", action: {
                     self.isPressed = true
                     self.isForkingStory = true
-                }) {
-                    HStack {
-                        Image(systemName: "signpost.right.and.left.circle")
-                            .font(.headline)
-                    }
-                    .scaledToFill()
-                }
-                Spacer()
-                    .scaledToFit()
-                    .border(Color.green.opacity(0.3))
-                Button(action: {
-                    // 处理点赞逻辑
+                })
+                
+                ActionButton(icon: "heart.circle", action: {
                     self.isPressed = true
                     self.isLiked = true
-                    
-                }) {
-                    HStack {
-                        Image(systemName: "heart.circle")
-                            .font(.headline)
-                    }
-                    .scaledToFill()
-                    
-                }
+                })
+                
                 if self.board?.boardInfo.creator == self.userId {
-                    Spacer()
-                        .scaledToFit()
-                        .border(Color.green.opacity(0.3))
-                    Button(action: {
-                        Task{
-                            // 处理删除逻辑
-                            await self.viewModel.deleteStoryBoard(storyId: self.storyId, boardId: (self.board?.boardInfo.storyBoardID)!, userId: self.userId)
+                    ActionButton(icon: "trash.circle", action: {
+                        Task {
+                            await self.viewModel.deleteStoryBoard(
+                                storyId: self.storyId,
+                                boardId: (self.board?.boardInfo.storyBoardID)!,
+                                userId: self.userId
+                            )
                         }
-                        
-                    }) {
-                        HStack {
-                            Image(systemName: "trash.circle")
-                                .font(.headline)
-                        }
-                        .scaledToFill()
-                        
-                    }
+                    })
                 }
-                
-                Spacer()
-                    .scaledToFit()
-                    .border(Color.green.opacity(0.3))
             }
-            .foregroundColor(.secondary)
-            .font(.caption)
-            .sheet(isPresented: self.$isPressed) {
-                if self.$isShowingNewStoryBoard.wrappedValue {
-                    NewStoryBoardView(
-                        storyId: self.viewModel.storyId,
-                        boardId: (self.board?.boardInfo.storyBoardID)!,
-                        prevBoardId: (self.board?.boardInfo.prevBoardID)!,
-                        viewModel: self.$viewModel,
-                        roles: [StoryRole](), isForkingStory: false  )
-                }else if self.$isForkingStory.wrappedValue {
-                    NewStoryBoardView(
-                        storyId: self.viewModel.storyId,
-                        boardId: (self.board?.boardInfo.storyBoardID)!,
-                        prevBoardId: (self.board?.boardInfo.prevBoardID)!,
-                        viewModel: self.$viewModel,
-                        roles: [StoryRole](),isForkingStory: true)
-                }else if self.$isLiked.wrappedValue{
-                    NewStoryBoardView(
-                        storyId: self.viewModel.storyId,
-                        boardId: (self.board?.boardInfo.storyBoardID)!,
-                        prevBoardId: (self.board?.boardInfo.prevBoardID)!,
-                        viewModel: self.$viewModel,
-                        roles: [StoryRole](),isForkingStory: false)
-                }
-                
-            }
-            
+            .padding(.top, 8)
         }
-        .padding()
+        .padding(16)
         .background(Color(.systemBackground))
-        .contentShape(Rectangle())
-        
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
     
     private func formatDate(timestamp: Int64) -> String {
@@ -782,6 +698,39 @@ struct VideoPlayer: UIViewControllerRepresentable {
     }
     
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {}
+}
+
+// 新增的交互按钮组件
+struct InteractionButton: View {
+    let count: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        Button(action: {}) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                Text(count)
+                    .foregroundColor(.secondary)
+            }
+            .font(.system(size: 14, weight: .medium))
+        }
+    }
+}
+
+// 新增的操作按钮组件
+struct ActionButton: View {
+    let icon: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: 22))
+                .foregroundColor(.secondary)
+        }
+    }
 }
 
 
