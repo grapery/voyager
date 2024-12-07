@@ -90,6 +90,7 @@
 		0FCCA8232CFC274300495ADF /* ProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA81E2CFC274300495ADF /* ProfileHeaderView.swift */; };
 		0FCCA8422CFF386A00495ADF /* MessageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA8412CFF385900495ADF /* MessageViewModel.swift */; };
 		0FCCA8702D03FD1B00495ADF /* MessageContextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA86F2D03FD1700495ADF /* MessageContextView.swift */; };
+		0FCCA8782D040EF700495ADF /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA8762D040EF700495ADF /* CoreDataManager.swift */; };
 		0FD831A82B12037600A319DA /* Connect in Frameworks */ = {isa = PBXBuildFile; productRef = 0FD831A72B12037600A319DA /* Connect */; };
 		0FD831AA2B12037600A319DA /* ConnectMocks in Frameworks */ = {isa = PBXBuildFile; productRef = 0FD831A92B12037600A319DA /* ConnectMocks */; };
 		0FD831AC2B12037600A319DA /* ConnectNIO in Frameworks */ = {isa = PBXBuildFile; productRef = 0FD831AB2B12037600A319DA /* ConnectNIO */; };
@@ -215,6 +216,7 @@
 		0FCCA81F2CFC274300495ADF /* ProfileStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStatsView.swift; sourceTree = "<group>"; };
 		0FCCA8412CFF385900495ADF /* MessageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageViewModel.swift; sourceTree = "<group>"; };
 		0FCCA86F2D03FD1700495ADF /* MessageContextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageContextView.swift; sourceTree = "<group>"; };
+		0FCCA8762D040EF700495ADF /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		0FF3C5942BC37A2A00CA9827 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		0FF591B52CBE3065002F60C0 /* UpdateStoryboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateStoryboardView.swift; sourceTree = "<group>"; };
 		0FF7FF5B2CA23D7B00F92343 /* StoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModel.swift; sourceTree = "<group>"; };
@@ -441,9 +443,18 @@
 			path = Api;
 			sourceTree = "<group>";
 		};
+		0FCCA8772D040EF700495ADF /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				0FCCA8762D040EF700495ADF /* CoreDataManager.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
 		0FFA50542B0857D900D3A4CF /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				0FCCA8772D040EF700495ADF /* Data */,
 				0F7602AD2BB98B8A00F8D900 /* Branch */,
 				0FFA50552B0857D900D3A4CF /* TabBar */,
 				0FFA505C2B0857DA00D3A4CF /* Components */,
@@ -879,6 +890,7 @@
 				0F1117D42BB7AE0900B022AA /* CommentViewModel.swift in Sources */,
 				0FFA509E2B0857DA00D3A4CF /* CompleteRegistrationView.swift in Sources */,
 				0F59E7B42B065409007C2B74 /* resources.swift in Sources */,
+				0FCCA8782D040EF700495ADF /* CoreDataManager.swift in Sources */,
 				0F3FF9E72BB0FEF000AAD4EE /* License.swift in Sources */,
 				0F0709282B1F65760023F8EC /* GroupService.swift in Sources */,
 				0F07092C2B1F65B80023F8EC /* HelperService.swift in Sources */,

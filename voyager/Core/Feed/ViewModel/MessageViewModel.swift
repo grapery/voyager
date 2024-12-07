@@ -130,6 +130,7 @@ class MessageContextViewModel: ObservableObject{
     var page = 0
     var size = 10
     @Published var messages = [ChatMessage]()
+    private let coreDataManager = CoreDataManager.shared
     
     init(userId: Int64, roleId: Int64) {
         self.userId = userId
@@ -154,6 +155,40 @@ class MessageContextViewModel: ObservableObject{
                 print("MessageContextViewModel init error: ",err as Any)
             }
         }
+    }
+
+    func loadMessages() async {
+        do {
+            // 1. 首先加载本地消息
+            let localMessages = try coreDataManager.fetchRecentMessages(chatId: msgContext.chatID)
+            
+            DispatchQueue.main.async {
+                self.messages = localMessages
+            }
+            
+            // 2. 然后从服务器获取新消息
+            let lastMessageTimestamp = localMessages.last?.msg.timestamp ?? 0
+            let serverMessages = await APIClient.shared.
+            
+            // 3. 保存新消息到本地
+            for message in serverMessages {
+                try coreDataManager.saveMessage(message)
+            }
+            
+            DispatchQueue.main.async {
+                self.messages.append(contentsOf: serverMessages)
+            }
+            
+            // 4. 清理旧消息
+            try await cleanupOldMessages()
+            
+        } catch {
+            print("Error loading messages: \(error)")
+        }
+    }
+    
+    private func cleanupOldMessages() async throws {
+        try coreDataManager.cleanupOldMessages()
     }
     
     func getChatContext(userId:Int64,roleId: Int64) async -> Error?{

@@ -54,39 +54,52 @@ struct MessageContextView: View {
     }
     
     private func sendMessage() async {
-        if newMessageContent == "" {
-            return
-        }
+        guard !newMessageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        
+        // 创建消息
         var chatMsg = Common_ChatMessage()
         chatMsg.message = newMessageContent
-        chatMsg.chatID = self.viewModel.msgContext.chatID
-        chatMsg.userID = self.viewModel.userId
-        chatMsg.roleID = (self.viewModel.role?.role.roleID)!
-        chatMsg.sender = Int32(self.viewModel.userId)
+        chatMsg.chatID = viewModel.msgContext.chatID
+        chatMsg.userID = viewModel.userId
+        chatMsg.roleID = (viewModel.role?.role.roleID)!
+        chatMsg.sender = Int32(viewModel.userId)
+        
         let tempMessage = ChatMessage(
             id: Int64(Date().timeIntervalSince1970 * 1000),
             msg: chatMsg,
             status: .MessageSending
         )
-        // 添加到消息列表
-        self.viewModel.messages.append(tempMessage)
         
-        let (_,err) = await self.viewModel.sendMessage(msg: chatMsg)
-        if let error = err {
-            // 更新消息状态为失败
-            if let index = self.viewModel.messages.firstIndex(where: { $0.id == tempMessage.id }) {
-                self.viewModel.messages[index].status = .MessageSendFailed
+        do {
+            // 保存待发送消息到本地
+            try CoreDataManager.shared.savePendingMessage(tempMessage)
+            
+            // 更新UI
+            DispatchQueue.main.async {
+                self.viewModel.messages.append(tempMessage)
+                self.newMessageContent = ""
             }
-            errorMessage = error.localizedDescription
-            showErrorAlert = true
-        } else {
-            // 更新消息状态为已发送
-            if let index = self.viewModel.messages.firstIndex(where: { $0.id == tempMessage.id }) {
-                self.viewModel.messages[index].status = .MessageSendSuccess
+            
+            // 发送消息
+            let (_, error) = await viewModel.sendMessage(msg: chatMsg)
+            
+            if let error = error {
+                // 更新消息状态为失败
+                try CoreDataManager.shared.updateMessageStatus(id: tempMessage.id, status: .MessageSendFailed)
+                DispatchQueue.main.async {
+                    self.errorMessage = error.localizedDescription
+                    self.showErrorAlert = true
+                }
+            } else {
+                // 更新消息状态为成功
+                try CoreDataManager.shared.updateMessageStatus(id: tempMessage.id, status: .MessageSendSuccess)
             }
-            // 清空输入
-            newMessageContent = ""
-            selectedImage = nil
+            
+        } catch {
+            DispatchQueue.main.async {
+                self.errorMessage = error.localizedDescription
+                self.showErrorAlert = true
+            }
         }
     }
     
@@ -314,13 +327,19 @@ struct MessageCellView: View {
                 ProgressView()
                     .scaleEffect(0.7)
             case .MessageSendSuccess:
-                Image(systemName: "checkmark")
+                Image(systemName: "checkmark.circle")
                     .foregroundColor(.gray)
                     .font(.caption2)
             case .MessageSendFailed:
-                Image(systemName: "exclamationmark.circle")
-                    .foregroundColor(.red)
-                    .font(.caption2)
+                Button(action: {
+                    Task {
+                        //await viewModel.retryMessage(message)
+                    }
+                }) {
+                    Image(systemName: "arrow.clockwise.circle")
+                        .foregroundColor(.red)
+                        .font(.caption2)
+                }
             }
         }
         .frame(width: 20)

@@ -1367,6 +1367,7 @@ extension APIClient {
         if response.message?.code != 0{
             return (nil,NSError(domain: "chatWithStoryRole", code: 0, userInfo: [NSLocalizedDescriptionKey: "chat with story role failed"]))
         }
+        print("reply: ",response.message?.replyMessages as Any)
         return (response.message?.replyMessages,nil)
     }
 }
