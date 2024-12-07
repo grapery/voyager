@@ -37,7 +37,7 @@ struct StoryView: View {
         if isGenerating {
             buttonMsg = "正在生成..."
         } else if generatedStory != nil {
-            buttonMsg = "���新生成"
+            buttonMsg = "新生成"
         } else if errorMessage != nil {
             buttonMsg = "重试"
         } else {
@@ -106,9 +106,9 @@ struct StoryView: View {
                 
                 // 交互按钮栏
                 HStack(spacing: 24) {
-                    InteractionButton(count: "10", icon: "heart", color: .red)
-                    InteractionButton(count: "1", icon: "bell", color: .blue)
-                    InteractionButton(count: "分享", icon: "square.and.arrow.up", color: .green)
+                    StoryInteractionButton(count: "10", icon: "heart", color: .red)
+                    StoryInteractionButton(count: "1", icon: "bell", color: .blue)
+                    StoryInteractionButton(count: "分享", icon: "square.and.arrow.up", color: .green)
                 }
                 .padding(.top, 4)
             }
@@ -415,57 +415,60 @@ struct StoryBoardCellView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            storyboardCellHeader
-            
-            // Content
-            VStack {
-                if sceneMediaContents.count <= 0 {
-                    Text((board?.boardInfo.content)!)
-                        .font(.system(size: 15))
-                        .foregroundColor(.primary)
-                        .lineLimit(3)
-                } else {
-                    senceDetails
+        NavigationLink(destination: StoryBoardView(board: board!, userId: userId,groupId: self.groupId,storyId: self.storyId, viewModel: self.viewModel)) {
+            VStack(alignment: .leading, spacing: 12) {
+                storyboardCellHeader
+                
+                // Content
+                VStack {
+                    if sceneMediaContents.count <= 0 {
+                        Text((board?.boardInfo.content)!)
+                            .font(.system(size: 15))
+                            .foregroundColor(.primary)
+                            .lineLimit(3)
+                    } else {
+                        senceDetails
+                    }
                 }
-            }
-            .padding(.vertical, 8)
-            
-            // Action buttons
-            HStack(spacing: 32) {
-                ActionButton(icon: "pencil.circle", action: {
-                    self.isPressed = true
-                    self.isShowingNewStoryBoard = true
-                })
+                .padding(.vertical, 8)
                 
-                ActionButton(icon: "signpost.right.and.left.circle", action: {
-                    self.isPressed = true
-                    self.isForkingStory = true
-                })
-                
-                ActionButton(icon: "heart.circle", action: {
-                    self.isPressed = true
-                    self.isLiked = true
-                })
-                
-                if self.board?.boardInfo.creator == self.userId {
-                    ActionButton(icon: "trash.circle", action: {
-                        Task {
-                            await self.viewModel.deleteStoryBoard(
-                                storyId: self.storyId,
-                                boardId: (self.board?.boardInfo.storyBoardID)!,
-                                userId: self.userId
-                            )
-                        }
+                // Action buttons
+                HStack(spacing: 32) {
+                    ActionButton(icon: "pencil.circle", action: {
+                        self.isPressed = true
+                        self.isShowingNewStoryBoard = true
                     })
+                    
+                    ActionButton(icon: "signpost.right.and.left.circle", action: {
+                        self.isPressed = true
+                        self.isForkingStory = true
+                    })
+                    
+                    ActionButton(icon: "heart.circle", action: {
+                        self.isPressed = true
+                        self.isLiked = true
+                    })
+                    
+                    if self.board?.boardInfo.creator == self.userId {
+                        ActionButton(icon: "trash.circle", action: {
+                            Task {
+                                await self.viewModel.deleteStoryBoard(
+                                    storyId: self.storyId,
+                                    boardId: (self.board?.boardInfo.storyBoardID)!,
+                                    userId: self.userId
+                                )
+                            }
+                        })
+                    }
                 }
+                .padding(.top, 8)
             }
-            .padding(.top, 8)
+            .padding(16)
+            .background(Color(.systemBackground))
+            .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         }
-        .padding(16)
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .buttonStyle(PlainButtonStyle()) // 保持原有样式
     }
     
     private func formatDate(timestamp: Int64) -> String {
@@ -701,7 +704,7 @@ struct VideoPlayer: UIViewControllerRepresentable {
 }
 
 // 新增的交互按钮组件
-struct InteractionButton: View {
+struct StoryInteractionButton: View {
     let count: String
     let icon: String
     let color: Color
