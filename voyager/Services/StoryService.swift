@@ -1370,4 +1370,22 @@ extension APIClient {
         print("reply: ",response.message?.replyMessages as Any)
         return (response.message?.replyMessages,nil)
     }
+    
+    func getUserChatMessages(userId: Int64,roleId: Int64,chatCtxId: Int64,timestamp: Int64) async -> ([Common_ChatMessage]?,Int64,Error?){
+        let messages: [Common_ChatMessage] = []
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_GetUserChatMessagesRequest.with {
+            $0.userID = userId
+            $0.roleID = roleId
+            $0.chatID = chatCtxId
+            $0.timestamp = timestamp
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.getUserChatMessages(request: request, headers: header)
+        if response.message?.code != 0{
+            return (nil,0,NSError(domain: "getUserChatMessages", code: 0, userInfo: [NSLocalizedDescriptionKey: "get user chat messages failed"]))
+        }
+        return (response.message?.messages,response.message!.timestamp,nil)
+    }
 }

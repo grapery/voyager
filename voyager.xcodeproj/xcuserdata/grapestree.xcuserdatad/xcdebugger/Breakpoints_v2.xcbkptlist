@@ -322,50 +322,6 @@
             endingLineNumber = "85"
             landmarkName = "sendMessage()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "8CF322F9-F095-42CE-862C-C1FA496B027D - 89127e69092e7b7a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for voyager.MessageContextView.sendMessage() async -&gt; ()"
-                  moduleName = "voyager.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/grapestree/Desktop/apps/voyager/voyager/Core/Feed/Views/MessageContextView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "85"
-                  endingLineNumber = "85">
-               </Location>
-               <Location
-                  uuid = "8CF322F9-F095-42CE-862C-C1FA496B027D - 89127e69092e7b7a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for voyager.MessageContextView.sendMessage() async -&gt; ()"
-                  moduleName = "voyager.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/grapestree/Desktop/apps/voyager/voyager/Core/Feed/Views/MessageContextView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "85"
-                  endingLineNumber = "85">
-               </Location>
-               <Location
-                  uuid = "8CF322F9-F095-42CE-862C-C1FA496B027D - b3d513144d396517"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 (voyager.ChatMessage) -&gt; Swift.Bool in voyager.MessageContextView.sendMessage() async -&gt; ()"
-                  moduleName = "voyager.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/grapestree/Desktop/apps/voyager/voyager/Core/Feed/Views/MessageContextView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "85"
-                  endingLineNumber = "85">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

@@ -30,6 +30,17 @@ class ChatMessage: Identifiable,Equatable {
     var type: MessageType = .MessageTypeText
     var status: MessageStatus = .MessageSendSuccess
     var mediaURL: String?
+    
+    var statusInt: NSNumber {
+        return NSNumber(value: status.rawValue)
+    }
+    
+    func setStatusFromInt(_ value: NSNumber) {
+        if let newStatus = MessageStatus(rawValue: value.int64Value) {
+            status = newStatus
+        }
+    }
+    
     init(id: Int64, msg: Common_ChatMessage) {
         self.id = id
         self.msg = msg
@@ -157,7 +168,7 @@ class MessageContextViewModel: ObservableObject{
         }
     }
 
-    func loadMessages() async {
+    func loadMessages(userId: Int64,roleId: Int64,chatCtxId: Int64,timestamp: Int64) async {
         do {
             // 1. 首先加载本地消息
             let localMessages = try coreDataManager.fetchRecentMessages(chatId: msgContext.chatID)
@@ -168,15 +179,26 @@ class MessageContextViewModel: ObservableObject{
             
             // 2. 然后从服务器获取新消息
             let lastMessageTimestamp = localMessages.last?.msg.timestamp ?? 0
-            let serverMessages = await APIClient.shared.
-            
+            let (serverMessages,_,err) = await APIClient.shared.getUserChatMessages(userId: userId,roleId: roleId,chatCtxId: chatCtxId,timestamp: lastMessageTimestamp)
+            if err != nil {
+                print("fetch message error")
+                return
+            }
             // 3. 保存新消息到本地
-            for message in serverMessages {
-                try coreDataManager.saveMessage(message)
+            if let messages = serverMessages {
+                for message in messages {
+                    let chatMst = ChatMessage(id: message.id, msg: message,status: .MessageSendSuccess)
+                    try coreDataManager.saveMessage(chatMst)
+                }
             }
             
+            //Convert server messages to ChatMessage objects before appending
+            let newChatMessages = serverMessages?.map { message in
+                ChatMessage(id: message.id, msg: message, status: .MessageSendSuccess)
+            } ?? []
+            
             DispatchQueue.main.async {
-                self.messages.append(contentsOf: serverMessages)
+                self.messages.append(contentsOf: newChatMessages)
             }
             
             // 4. 清理旧消息

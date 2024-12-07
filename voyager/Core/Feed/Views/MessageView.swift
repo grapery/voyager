@@ -12,18 +12,18 @@ import Kingfisher
 let defaultAvator = "https://grapery-1301865260.cos.ap-shanghai.myqcloud.com/avator/tmp3evp1xxl.png"
 
 // 添加消息类型枚举
-enum MessageType {
-    case MessageTypeText
-    case MessageTypeImage
-    case MessageTypeVideo
-    case MessageTypeAudio
+enum MessageType: Int64 {
+    case MessageTypeText = 1
+    case MessageTypeImage = 2
+    case MessageTypeVideo = 3
+    case MessageTypeAudio = 4
 }
 
 // 添加消息状态枚举
-enum MessageStatus {
-    case MessageSending
-    case MessageSendSuccess
-    case MessageSendFailed
+enum MessageStatus: Int64 {
+    case MessageSending = 1
+    case MessageSendSuccess = 2
+    case MessageSendFailed = 3
 }
 
 

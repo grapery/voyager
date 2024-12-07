@@ -3,7 +3,7 @@ import CoreData
 class CoreDataManager {
     static let shared = CoreDataManager()
     
-    private let containerName = "ChatMessage"
+    private let containerName = "voyager"
     private let messageEntityName = "LocalChatMessage"
     
     lazy var persistentContainer: NSPersistentContainer = {
@@ -32,7 +32,7 @@ class CoreDataManager {
         localMessage.setValue(message.msg.roleID, forKey: "roleId")
         localMessage.setValue(message.msg.message, forKey: "message")
         localMessage.setValue(message.type, forKey: "messageType")
-        localMessage.setValue(message.status, forKey: "status")
+        localMessage.setValue(message.statusInt, forKey: "status")
         localMessage.setValue(Date(), forKey: "timestamp")
         localMessage.setValue(message.mediaURL, forKey: "mediaURL")
         //localMessage.setValue(message.localMediaPath, forKey: "localMediaPath")
@@ -58,7 +58,7 @@ class CoreDataManager {
         fetchRequest.predicate = NSPredicate(format: "id == %lld", id)
         
         if let message = try context.fetch(fetchRequest).first {
-            message.setValue(status, forKey: "status")
+            message.setValue(status.rawValue, forKey: "status")
             try context.save()
         }
     }
@@ -108,7 +108,7 @@ class CoreDataManager {
         chatMsg.roleID = managedObject.value(forKey: "roleId") as! Int64
         chatMsg.message = managedObject.value(forKey: "message") as! String
         
-        var msgItem = ChatMessage(
+        let msgItem = ChatMessage(
             id: managedObject.value(forKey: "id") as! Int64,
             msg: chatMsg,
             status: managedObject.value(forKey: "status") as! MessageStatus
