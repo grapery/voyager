@@ -27,8 +27,8 @@ class ChatContext: Identifiable {
 class ChatMessage: Identifiable,Equatable {
     let id: Int64
     var msg: Common_ChatMessage
-    var type: MessageType = .text
-    var status: MessageStatus = .sent
+    var type: MessageType = .MessageTypeText
+    var status: MessageStatus = .MessageSendSuccess
     var mediaURL: String?
     init(id: Int64, msg: Common_ChatMessage) {
         self.id = id

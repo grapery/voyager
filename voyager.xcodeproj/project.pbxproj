@@ -89,6 +89,7 @@
 		0FCCA8222CFC274300495ADF /* ProfileDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA81C2CFC274300495ADF /* ProfileDescriptionView.swift */; };
 		0FCCA8232CFC274300495ADF /* ProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA81E2CFC274300495ADF /* ProfileHeaderView.swift */; };
 		0FCCA8422CFF386A00495ADF /* MessageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA8412CFF385900495ADF /* MessageViewModel.swift */; };
+		0FCCA8702D03FD1B00495ADF /* MessageContextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA86F2D03FD1700495ADF /* MessageContextView.swift */; };
 		0FD831A82B12037600A319DA /* Connect in Frameworks */ = {isa = PBXBuildFile; productRef = 0FD831A72B12037600A319DA /* Connect */; };
 		0FD831AA2B12037600A319DA /* ConnectMocks in Frameworks */ = {isa = PBXBuildFile; productRef = 0FD831A92B12037600A319DA /* ConnectMocks */; };
 		0FD831AC2B12037600A319DA /* ConnectNIO in Frameworks */ = {isa = PBXBuildFile; productRef = 0FD831AB2B12037600A319DA /* ConnectNIO */; };
@@ -213,6 +214,7 @@
 		0FCCA81E2CFC274300495ADF /* ProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderView.swift; sourceTree = "<group>"; };
 		0FCCA81F2CFC274300495ADF /* ProfileStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStatsView.swift; sourceTree = "<group>"; };
 		0FCCA8412CFF385900495ADF /* MessageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageViewModel.swift; sourceTree = "<group>"; };
+		0FCCA86F2D03FD1700495ADF /* MessageContextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageContextView.swift; sourceTree = "<group>"; };
 		0FF3C5942BC37A2A00CA9827 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		0FF591B52CBE3065002F60C0 /* UpdateStoryboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateStoryboardView.swift; sourceTree = "<group>"; };
 		0FF7FF5B2CA23D7B00F92343 /* StoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModel.swift; sourceTree = "<group>"; };
@@ -528,6 +530,7 @@
 		0FFA506B2B0857DA00D3A4CF /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				0FCCA86F2D03FD1700495ADF /* MessageContextView.swift */,
 				0F1D0D082CC7339E00D12E0B /* MessageView.swift */,
 				0F2715902CC22E7C00B1A0FC /* CommentDetailView.swift */,
 				0FFA506C2B0857DA00D3A4CF /* FeedView.swift */,
@@ -804,6 +807,7 @@
 				0FF7FF602CA23DF900F92343 /* StoryView.swift in Sources */,
 				0F1D0D022CC5CBF900D12E0B /* UpdateStoryRole.swift in Sources */,
 				0F1D0D092CC7339E00D12E0B /* MessageView.swift in Sources */,
+				0FCCA8702D03FD1B00495ADF /* MessageContextView.swift in Sources */,
 				0F2715912CC22E8600B1A0FC /* CommentDetailView.swift in Sources */,
 				0FFA50962B0857DA00D3A4CF /* ContentView.swift in Sources */,
 				0F8855612B3B10BE002AD7E4 /* user.pb.swift in Sources */,
