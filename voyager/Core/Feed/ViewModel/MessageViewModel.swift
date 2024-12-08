@@ -29,6 +29,7 @@ class ChatMessage: Identifiable,Equatable {
     var msg: Common_ChatMessage
     var type: MessageType = .MessageTypeText
     var status: MessageStatus = .MessageSendSuccess
+    var uuid: UUID?
     var mediaURL: String?
     
     var statusInt: NSNumber {
@@ -44,14 +45,16 @@ class ChatMessage: Identifiable,Equatable {
     init(id: Int64, msg: Common_ChatMessage) {
         self.id = id
         self.msg = msg
+        self.uuid = UUID()
     }
     init(id: Int64, msg: Common_ChatMessage,status: MessageStatus) {
         self.id = id
         self.msg = msg
         self.status = status
+        self.uuid = UUID()
     }
     static func == (lhs: ChatMessage,rhs: ChatMessage) -> Bool {
-        if lhs.msg.id == rhs.msg.id {
+        if lhs.msg.uuid == rhs.msg.uuid {
             return true
         }
         return false
@@ -114,18 +117,6 @@ class MessageViewModel: ObservableObject{
         }
         
         return
-    }
-    
-    func createUserChatContext(userId: Int64,roleId: Int64) async -> (Common_ChatContext?,Error?) {
-        return (nil,nil)
-    }
-    
-    func delUserChatContext(msgCtxId: Int64) async -> Error? {
-        return nil
-    }
-    
-    func saveUserChatContext(msgCtxId: Int64) async -> Error? {
-        return nil
     }
 }
 

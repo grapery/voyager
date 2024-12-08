@@ -74,8 +74,7 @@ struct MessageView: View {
                                 lastMessage: msgCtx.chatinfo.lastMessage
                             )
                             .background(Color.white)
-                            Divider()
-                                .padding(.horizontal)
+                            Divider().padding(.horizontal)
                         }
                     }
                 }
@@ -151,12 +150,14 @@ struct MessageContextCellView: View {
         return formatter.localizedString(for: date, relativeTo: Date())
     }
     
-    var body: some View {
+    var body: some View { 
         NavigationLink(destination: MessageContextView(
             userId: userId,
             roleId: role?.Id ?? 0,
             role: role!
-        )) {
+        )
+        .navigationBarHidden(true)  // 隐藏导航栏
+        ) {
             HStack(spacing: 12) {
                 // 优化头像显示
                 RectProfileImageView(avatarUrl: avatarURL, size: .InChat)

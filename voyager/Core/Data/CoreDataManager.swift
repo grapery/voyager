@@ -37,7 +37,7 @@ class CoreDataManager {
         localMessage.setValue(message.mediaURL, forKey: "mediaURL")
         //localMessage.setValue(message.localMediaPath, forKey: "localMediaPath")
         localMessage.setValue(true, forKey: "isFromServer")
-        
+        localMessage.setValue(message.uuid, forKey: "uuid")
         try context.save()
     }
     
@@ -56,6 +56,16 @@ class CoreDataManager {
     func updateMessageStatus(id: Int64, status: MessageStatus) throws {
         let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
         fetchRequest.predicate = NSPredicate(format: "id == %lld", id)
+        
+        if let message = try context.fetch(fetchRequest).first {
+            message.setValue(status.rawValue, forKey: "status")
+            try context.save()
+        }
+    }
+    
+    func updateMessageStatusByUUID(uuid: String, status: MessageStatus) throws {
+        let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
+        fetchRequest.predicate = NSPredicate(format: "uuid == %@", uuid)
         
         if let message = try context.fetch(fetchRequest).first {
             message.setValue(status.rawValue, forKey: "status")

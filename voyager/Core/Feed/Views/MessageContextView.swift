@@ -43,6 +43,7 @@ struct MessageContextView: View {
             )
         }
         .navigationBarHidden(true)
+        .ignoresSafeArea(.keyboard)
         .onTapGesture {
             isInputFocused = false
         }
@@ -69,30 +70,31 @@ struct MessageContextView: View {
             msg: chatMsg,
             status: .MessageSending
         )
-        
+        chatMsg.uuid = tempMessage.uuid!.uuidString
+        tempMessage.msg.uuid = tempMessage.uuid!.uuidString
         do {
             // 保存待发送消息到本地
             try CoreDataManager.shared.savePendingMessage(tempMessage)
-            
-            // 更新UI
-            DispatchQueue.main.async {
-                self.viewModel.messages.append(tempMessage)
-                self.newMessageContent = ""
-            }
-            
             // 发送消息
-            let (_, error) = await viewModel.sendMessage(msg: chatMsg)
+            let (relpyMsg, error) = await viewModel.sendMessage(msg: chatMsg)
+            // 更新UI
             
             if let error = error {
                 // 更新消息状态为失败
-                try CoreDataManager.shared.updateMessageStatus(id: tempMessage.id, status: .MessageSendFailed)
+                try CoreDataManager.shared.updateMessageStatusByUUID(uuid: tempMessage.uuid!.uuidString, status: .MessageSendFailed)
                 DispatchQueue.main.async {
                     self.errorMessage = error.localizedDescription
                     self.showErrorAlert = true
                 }
             } else {
+                tempMessage.msg.id = relpyMsg![0].id
+                tempMessage.status = .MessageSendSuccess
+                DispatchQueue.main.async {
+                    self.viewModel.messages.append(tempMessage)
+                    self.newMessageContent = ""
+                }
                 // 更新消息状态为成功
-                try CoreDataManager.shared.updateMessageStatus(id: tempMessage.id, status: .MessageSendSuccess)
+                try CoreDataManager.shared.updateMessageStatusByUUID(uuid: tempMessage.uuid!.uuidString, status: .MessageSendSuccess)
             }
             
         } catch {
@@ -253,6 +255,10 @@ struct MessageCellView: View {
     
     var body: some View {
         HStack(alignment: .bottom, spacing: 8) {
+            if !isFromCurrentUser {
+                AvatarView(roleId: message.msg.roleID)
+            }
+            
             if isFromCurrentUser {
                 Spacer()
                 messageStatusIndicator
@@ -268,6 +274,8 @@ struct MessageCellView: View {
             
             if !isFromCurrentUser {
                 Spacer()
+            } else {
+                AvatarView(userId: currentUserId)
             }
         }
         .padding(.horizontal, 8)
@@ -386,3 +394,32 @@ struct MessageCellView: View {
         .foregroundColor(isFromCurrentUser ? .white : .black)
     }
 }
+
+// 新增头像组件
+struct AvatarView: View {
+    var userId: Int64? = nil
+    var roleId: Int64? = nil
+    
+    var body: some View {
+        AsyncImage(url: URL(string: getAvatarUrl())) { image in
+            image
+                .resizable()
+                .scaledToFill()
+        } placeholder: {
+            Color.gray.opacity(0.3)
+        }
+        .frame(width: 40, height: 40)
+        .clipShape(Circle())
+    }
+    
+    private func getAvatarUrl() -> String {
+        if let userId = userId {
+            return defaultAvator
+        } else if let roleId = roleId {
+            return defaultAvator
+        }
+        return ""
+    }
+}
+
+

@@ -170,6 +170,7 @@ struct StoryRoleDetailView: View {
                                 }
                             }
                         }
+                        .navigationBarHidden(true)
                 }
             }
             .fullScreenCover(isPresented: $showingPosterView) {
