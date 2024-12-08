@@ -27,83 +27,101 @@ struct EditStoryBoardView: View {
     
     var body: some View {
         NavigationView {
-            VStack {
+            VStack(spacing: 0) {
+                // 自定义导航栏
+                CustomNavigationBar(title: "编辑故事板", presentationMode: presentationMode)
+                    .background(Color.white)
+                    .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
+                
                 // 进度指示器
                 StoryboardStepIndicatorView(steps: steps, currentStep: currentStep)
-                    .padding()
+                    .padding(.vertical, 12)
+                    .background(Color.white)
                 
                 // 主要内容区域
                 ScrollView {
                     VStack(spacing: 20) {
                         switch currentStep {
                         case 0:
-                            // 编辑故事板
                             EditBoardStepView(
                                 title: $boardTitle,
                                 content: $boardContent,
                                 isLoading: $isLoading
                             )
+                            .transition(.opacity.combined(with: .move(edge: .leading)))
                         case 1:
-                            // 创建场景
                             CreateScenesStepView(
                                 scenes: $scenes,
                                 isLoading: $isLoading
                             )
+                            .transition(.opacity.combined(with: .move(edge: .leading)))
                         case 2:
-                            // 发布
                             PublishStepView(
                                 generatedImages: $generatedImages,
                                 isLoading: $isLoading
                             )
+                            .transition(.opacity.combined(with: .move(edge: .leading)))
                         default:
                             EmptyView()
                         }
                     }
                     .padding()
+                    .animation(.easeInOut, value: currentStep)
                 }
                 
                 // 底部导航按钮
-                HStack {
+                HStack(spacing: 20) {
                     if currentStep > 0 {
-                        Button("Previous") {
-                            withAnimation {
-                                currentStep -= 1
+                        Button(action: { withAnimation { currentStep -= 1 } }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "chevron.left")
+                                Text("上一步")
                             }
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.gray)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
+                            .background(Color.gray.opacity(0.1))
+                            .clipShape(Capsule())
                         }
-                        .buttonStyle(.bordered)
                     }
                     
                     Spacer()
                     
                     if currentStep < steps.count - 1 {
-                        Button("Next") {
-                            withAnimation {
-                                currentStep += 1
+                        Button(action: { withAnimation { currentStep += 1 } }) {
+                            HStack(spacing: 8) {
+                                Text("下一步")
+                                Image(systemName: "chevron.right")
                             }
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
+                            .background(Color.blue)
+                            .clipShape(Capsule())
                         }
-                        .buttonStyle(.borderedProminent)
                     } else {
-                        Button("Finish") {
-                            // 处理完成逻辑
-                            handleFinish()
+                        Button(action: handleFinish) {
+                            HStack(spacing: 8) {
+                                Text("完成")
+                                Image(systemName: "checkmark")
+                            }
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
+                            .background(Color.blue)
+                            .clipShape(Capsule())
                         }
-                        .buttonStyle(.borderedProminent)
                     }
                 }
                 .padding()
+                .background(Color.white)
+                .shadow(color: .black.opacity(0.05), radius: 8, y: -4)
             }
-            .navigationBarItems(leading: Button(action: {
-                presentationMode.wrappedValue.dismiss()
-            }) {
-                Image(systemName: "chevron.left")
-                    .foregroundColor(.primary)
-            })
-            .navigationBarTitle("Edit StoryBoard", displayMode: .inline)
-            .overlay(
-                StoryboardLoadingView()
-                    .opacity(isLoading ? 1 : 0)
-            )
         }
+        .navigationBarHidden(true)
     }
     
     private func handleFinish() {
@@ -112,6 +130,38 @@ struct EditStoryBoardView: View {
         // TODO: 调用相关 API 保存更新
         // 完成后关闭视图
         presentationMode.wrappedValue.dismiss()
+    }
+}
+
+// 自定义导航栏
+private struct CustomNavigationBar: View {
+    let title: String
+    let presentationMode: Binding<PresentationMode>
+    
+    var body: some View {
+        HStack {
+            Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(.primary)
+                    .frame(width: 36, height: 36)
+                    .background(Color(.systemGray6))
+                    .clipShape(Circle())
+            }
+            
+            Spacer()
+            
+            Text(title)
+                .font(.system(size: 17, weight: .semibold))
+            
+            Spacer()
+            
+            // 保持对称性的占位视图
+            Color.clear
+                .frame(width: 36, height: 36)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 12)
     }
 }
 

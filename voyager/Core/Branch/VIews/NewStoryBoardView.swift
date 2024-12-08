@@ -312,71 +312,142 @@ struct NewStoryBoardView: View {
         .tag(TimelineStep.complete)
     }
     
-    private var SenceGenEmptyView: some View{
+    private var SenceGenEmptyView: some View {
         VStack(spacing: 20) {
             Image(systemName: "doc.text.image")
-                .font(.system(size: 40))
-                .foregroundColor(.gray)
+                .font(.system(size: 48))
+                .foregroundColor(.gray.opacity(0.5))
             
             Text("暂无场景数据")
-                .font(.headline)
-                .foregroundColor(.gray)
+                .font(.system(size: 18, weight: .medium))
+                .foregroundColor(.primary)
             
-            Text("请先生成故事场景")
-                .font(.subheadline)
-                .foregroundColor(.gray.opacity(0.7))
+            Text("点击下方按钮生成故事场景")
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
             
-            Button(action: {
+            ActionButton(
+                title: "生成场景",
+                icon: "wand.and.stars",
+                color: .blue
+            ) {
                 Task {
                     await generateStoryboardPrompt()
                 }
-            }) {
-                Text("生成场景")
-                    .foregroundColor(.white)
-                    .frame(width: 200, height: 44)
-                    .background(Color.blue)
-                    .cornerRadius(22)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .padding(24)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
     }
     
-    // 1. 首先创建一个场景卡片视图
+    // 1. 修改 SceneCardView 的样式
     private struct SceneCardView: View {
         let scene: StoryBoardSence
         let index: Int
+        
         var body: some View {
-            VStack(alignment: .leading, spacing: 16) {
-                // Scene number
+            VStack(alignment: .leading, spacing: 12) {
+                // 场景标题栏
                 HStack {
                     Text("场景 \(scene.senceIndex)")
-                        .font(.headline)
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.primary)
+                    Spacer()
                 }
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
                 .background(Color.blue.opacity(0.1))
                 .cornerRadius(8)
                 
-                // Scene content sections
-                SceneContentSection(title: "场景故事", content: scene.content)
-                SceneContentSection(title: "参与人物", content: scene.characters)
-                SceneContentSection(title: "图片生成提示词", content: scene.imagePrompt)
+                // 内容区域
+                VStack(alignment: .leading, spacing: 16) {
+                    contentSection("场景故事", content: scene.content)
+                    contentSection("参与人物", content: scene.characters)
+                    contentSection("图片提示词", content: scene.imagePrompt)
+                }
             }
-            .padding()
-            .background(Color.white)
-            .cornerRadius(12)
-            .shadow(color: .black.opacity(0.05), radius: 5)
-            Spacer()
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(.systemBackground))
+                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+            )
+        }
+        
+        private func contentSection(_ title: String, content: String) ->some View {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(title)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.secondary)
+                
+                Text(content)
+                    .font(.system(size: 15))
+                    .foregroundColor(.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
+            }
         }
     }
 
-    // 2. 创建内容部分视图
-    
+    // 2. 修改控制按钮样式
+    private func SenceGenControlView(idx: Int, senceId:Int64) -> some View {
+        HStack(spacing: 12) {
+            // 应用按钮
+            ActionButton(
+                title: "应用",
+                icon: "checkmark.circle.fill",
+                color: .blue
+            ) {
+                Task {
+                    await handleApplyAction(idx: idx)
+                }
+            }
+            
+            // 生成图片按钮
+            ActionButton(
+                title: "生成图片",
+                icon: "photo.fill",
+                color: .green
+            ) {
+                Task {
+                    await handleGenerateImageAction(idx: idx)
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 16)
+    }
+
+    // 3. 添加通用按钮组件
+    private struct ActionButton: View {
+        let title: String
+        let icon: String
+        let color: Color
+        let action: () -> Void
+        
+        var body: some View {
+            Button(action: action) {
+                HStack(spacing: 6) {
+                    Image(systemName: icon)
+                        .font(.system(size: 14))
+                    Text(title)
+                        .font(.system(size: 14, weight: .medium))
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(color)
+                .cornerRadius(20)
+            }
+        }
+    }
 
     // 3. 修改 SenceGenListView
     private var SenceGenListView: some View {
@@ -391,64 +462,6 @@ struct NewStoryBoardView: View {
         }
     }
 
-    public func SenceGenControlView(idx: Int,senceId: Int64) -> some View{
-            return  VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 16) {
-                    Button(action: {
-                        Task {
-                            showLoading(message: "正在创建场景信息...")
-                            do {
-                                let (senceId,err) = await self.viewModel.createStoryboardSence(idx: idx, boardId: self.boardId)
-                                hideLoading()
-                                if let err2 = err{
-                                    throw err2
-                                }
-                                self.viewModel.storyScenes[idx].senceId = senceId
-                                print("new senceid: ",self.viewModel.storyScenes[idx].senceId)
-                                showNotification(message: "场景信息创建成功", type: .success)
-                                return
-                            } catch {
-                                handleError(error)
-                            }
-                        }
-                    }) {
-                        Text("应用")
-                            .foregroundColor(.white)
-                            .frame(width: 100, height: 36)
-                            .background(Color.blue)
-                            .cornerRadius(18)
-                    }
-                    
-                    Button(action: {
-                        Task {
-                            showLoading(message: "正在生成场景图片...")
-                            do {
-                                let err = await self.viewModel.genStoryBoardSpecSence(storyId: self.storyId, boardId: self.boardId, userId: self.viewModel.userId, senceId: self.viewModel.storyScenes[idx].senceId, renderType: Common_RenderType(rawValue: 1)!)
-                                hideLoading()
-                                if let err2 = err{
-                                    throw err2
-                                }
-                                showNotification(message: "场景图片生成成功", type: .success)
-                            } catch {
-                                handleError(error)
-                            }
-                        }
-                    }) {
-                        Text("生成图片")
-                            .foregroundColor(.white)
-                            .frame(width: 100, height: 36)
-                            .background(Color.green)
-                            .cornerRadius(18)
-                    }
-                    
-                    Spacer()
-                }
-            }
-        }
-    
-    
-    
-    
     private var SenceGenView: some View{
         VStack(alignment: .leading, spacing: 25) {
             if viewModel.storyScenes.isEmpty {
@@ -1151,6 +1164,52 @@ extension NewStoryBoardView {
             return isStoryGenerated && !sceneDescription.isEmpty
         case .narrate:
             return isImageGenerated && generatedImage != nil
+        }
+    }
+}
+
+// 添加操作处理方法
+extension NewStoryBoardView {
+    private func handleApplyAction(idx: Int) async {
+        showLoading(message: "正在创建场景信息...")
+        do {
+            let (senceId, err) = await viewModel.createStoryboardSence(
+                idx: idx,
+                boardId: boardId
+            )
+            hideLoading()
+            
+            if let err = err {
+                throw err
+            }
+            
+            viewModel.storyScenes[idx].senceId = senceId
+            showNotification(message: "场景信息创建成功", type: .success)
+        } catch {
+            handleError(error)
+        }
+    }
+    
+    private func handleGenerateImageAction(idx: Int) async {
+        showLoading(message: "正在生成场景图片...")
+        do {
+            let err = await viewModel.genStoryBoardSpecSence(
+                storyId: storyId,
+                boardId: boardId,
+                userId: viewModel.userId,
+                senceId: viewModel.storyScenes[idx].senceId,
+                renderType: Common_RenderType(rawValue: 1)!
+            )
+            
+            hideLoading()
+            
+            if let err = err {
+                throw err
+            }
+            
+            showNotification(message: "场景图片生成成功", type: .success)
+        } catch {
+            handleError(error)
         }
     }
 }
