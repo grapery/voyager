@@ -44,6 +44,7 @@ struct MessageContextView: View {
         }
         .navigationBarHidden(true)
         .ignoresSafeArea(.keyboard)
+        .toolbar(.hidden, for: .tabBar)
         .onTapGesture {
             isInputFocused = false
         }
