@@ -78,7 +78,7 @@ class GroupDetailViewModel: ObservableObject {
         self.storys = [Story]()
         self.members = [User]()
         self.groupId = groupId
-        Task{
+        Task{@MainActor in
             await self.fetchGroupStorys(groupdId:groupId)
         }
     }
@@ -119,6 +119,7 @@ class GroupDetailViewModel: ObservableObject {
             print("fetchGroupStorys err",err!)
             return
         }
+        print("fetchGroupStorys : ",storys?.count as Any)
         self.storyPage = Int32(page)
         self.storyPageSize = Int32(pageSize)
         self.storys = storys!
