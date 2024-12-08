@@ -513,6 +513,39 @@ class StoryViewModel: ObservableObject {
         return nil
     }
     
+    func likeStoryBoard(storyId: Int64, boardId: Int64, userId: Int64) async -> Error? {
+        self.err = nil
+        do {
+            let result = await apiClient.LikeStoryboard(boardId: boardId, storyId: storyId, userId: userId)
+            
+            if let error = result {
+                // 如果API返回错误，返回该错误
+                return error
+            }
+            return nil
+        } catch {
+            // 捕获并返回任何其他错误
+            self.err = error
+            return error
+        }
+    }
+    
+    func unlikeStoryBoard(storyId: Int64, boardId: Int64, userId: Int64) async -> Error? {
+        self.err = nil
+        do {
+            let result = await apiClient.UnLikeStoryboard(boardId: boardId, storyId: storyId, userId: userId)
+            if let error = result {
+                // 如果API返回错误，返回该错误
+                return error
+            }
+            return nil
+        } catch {
+            // 捕获并返回任何其他错误
+            self.err = error
+            return error
+        }
+    }
+    
 }
 
 

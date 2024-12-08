@@ -37,7 +37,7 @@ struct StoryView: View {
         if isGenerating {
             buttonMsg = "正在生成..."
         } else if generatedStory != nil {
-            buttonMsg = "新生成"
+            buttonMsg = "���生成"
         } else if errorMessage != nil {
             buttonMsg = "重试"
         } else {
@@ -175,56 +175,6 @@ struct StoryView: View {
             }
         }
         .background(Color(.systemBackground))
-    }
-    
-    // 时间线项组件
-    struct TimelineItemView<Content: View>: View {
-        let board: StoryBoard
-        let content: Content
-        
-        init(board: StoryBoard, @ViewBuilder content: () -> Content) {
-            self.board = board
-            self.content = content()
-        }
-        
-        var body: some View {
-            HStack(alignment: .top, spacing: 16) {
-                // 时间线指示器
-                VStack(spacing: 0) {
-                    // 时间点
-                    Circle()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(width: 12, height: 12)
-                    
-                    // 连接线
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(width: 2)
-                        .frame(maxHeight: .infinity)
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    // 时间戳
-                    Text(formatDate(board.boardInfo.ctime))
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.gray)
-                    
-                    // 内容卡片
-                    content
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
-                }
-            }
-            .padding(.vertical, 12)
-        }
-        
-        private func formatDate(_ timestamp: Int64) -> String {
-            let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
-            let formatter = DateFormatter()
-            formatter.dateFormat = "dd MMMM yyyy"
-            return formatter.string(from: date).uppercased()
-        }
     }
     
     private func generateStory() {
@@ -447,6 +397,9 @@ struct StoryBoardCellView: View {
                     ActionButton(icon: "heart.circle", action: {
                         self.isPressed = true
                         self.isLiked = true
+                        Task {
+                            await self.viewModel.likeStoryBoard(storyId: self.storyId, boardId: (self.board?.boardInfo.storyBoardID)!, userId: self.userId)
+                        }
                     })
                     
                     if self.board?.boardInfo.creator == self.userId {
@@ -468,7 +421,24 @@ struct StoryBoardCellView: View {
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         }
-        .buttonStyle(PlainButtonStyle()) // 保持原有样式
+        .buttonStyle(PlainButtonStyle())
+        .sheet(isPresented: $isPressed) {
+            if self.$isShowingNewStoryBoard.wrappedValue {
+                NewStoryBoardView(
+                    storyId: self.viewModel.storyId,
+                    boardId: (self.board?.boardInfo.storyBoardID)!,
+                    prevBoardId: (self.board?.boardInfo.prevBoardID)!,
+                    viewModel: self.$viewModel,
+                    roles: [StoryRole](), isForkingStory: false  )
+            }else if self.$isForkingStory.wrappedValue {
+                NewStoryBoardView(
+                    storyId: self.viewModel.storyId,
+                    boardId: (self.board?.boardInfo.storyBoardID)!,
+                    prevBoardId: (self.board?.boardInfo.prevBoardID)!,
+                    viewModel: self.$viewModel,
+                    roles: [StoryRole](),isForkingStory: true)
+            }
+        }
     }
     
     private func formatDate(timestamp: Int64) -> String {

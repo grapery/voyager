@@ -101,13 +101,7 @@ struct NewStoryBoardView: View {
             VStack(spacing: 0) {
                 // Progress bar and timeline buttons container
                 VStack(spacing: 0) {
-                    GeometryReader { geometry in
-                        progressBar(in: geometry)
-                    }
-                    .frame(height: progressBarHeight)
-                    .padding(.horizontal)
-                    
-                    // Timeline buttons aligned with progress segments
+                    // Timeline buttons with improved visual feedback
                     HStack(spacing: segmentSpacing) {
                         ForEach(TimelineStep.allCases, id: \.self) { step in
                             TimelineButton(
@@ -119,19 +113,23 @@ struct NewStoryBoardView: View {
                                     isImageGenerated: isImageGenerated,
                                     isNarrationCompleted: isNarrationCompleted
                                 ),
+                                isActive: currentStep == step,
                                 action: {
-                                    handleTimelineAction(step)
+                                    withAnimation(.spring()) {
+                                        handleTimelineAction(step)
+                                    }
                                 }
                             )
                             .frame(maxWidth: .infinity)
                         }
                     }
                     .padding(.horizontal)
-                    .padding(.top, 8) // Add space between progress bar and buttons
+                    .padding(.top, 8)
                 }
                 .background(
                     Rectangle()
                         .fill(.ultraThinMaterial)
+                        .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
                 )
                 
                 Divider()
@@ -565,6 +563,7 @@ struct NewStoryBoardView: View {
                             isImageGenerated: isImageGenerated,
                             isNarrationCompleted: isNarrationCompleted
                         ),
+                        isActive: currentStep == step,
                         action: {
                             handleTimelineAction(step)
                         }
@@ -849,113 +848,8 @@ struct SceneContentSection: View {
 }
 
 // MARK: - Supporting Views
-struct TimelineButton: View {
-    let title: String
-    let icon: String
-    var isCompleted: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.system(size: 20))
-                    .foregroundColor(isCompleted ? .green : .gray)
-                
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.gray)
-            }
-            .frame(maxWidth: .infinity)
-        }
-    }
-}
 
-// Timeline Step Enum
-enum TimelineStep: CaseIterable {
-    case write
-    case complete
-    case draw
-    case narrate
-    
-    var title: String {
-        switch self {
-        case .write: return "续写"
-        case .complete: return "创建"
-        case .draw: return "绘画"
-        case .narrate: return "发布"
-        }
-    }
-    
-    var icon: String {
-        switch self {
-        case .write: return "pencil.circle"
-        case .complete: return "checkmark.circle"
-        case .draw: return "paintbrush.fill"
-        case .narrate: return "text.bubble"
-        }
-    }
-    
-    func isCompleted(
-        isInputCompleted: Bool,
-        isStoryGenerated: Bool,
-        isImageGenerated: Bool,
-        isNarrationCompleted: Bool
-    ) -> Bool {
-        switch self {
-        case .write: return isInputCompleted
-        case .complete: return isStoryGenerated
-        case .draw: return isImageGenerated
-        case .narrate: return isNarrationCompleted
-        }
-    }
-    
-    func color(
-        isInputCompleted: Bool,
-        isStoryGenerated: Bool,
-        isImageGenerated: Bool,
-        isNarrationCompleted: Bool
-    ) -> Color {
-        let completed = isCompleted(
-            isInputCompleted: isInputCompleted,
-            isStoryGenerated: isStoryGenerated,
-            isImageGenerated: isImageGenerated,
-            isNarrationCompleted: isNarrationCompleted
-        )
-        return completed ? Color.green.opacity(0.6) : Color.red.opacity(0.6)
-    }
-}
 
-// Notification type enum
-enum NotificationType {
-    case success
-    case error
-    case warning
-    
-    var iconName: String {
-        switch self {
-        case .success: return "checkmark.circle.fill"
-        case .error: return "xmark.circle.fill"
-        case .warning: return "exclamationmark.triangle.fill"
-        }
-    }
-    
-    var color: Color {
-        switch self {
-        case .success: return .green
-        case .error: return .red
-        case .warning: return .yellow
-        }
-    }
-    
-    var backgroundColor: Color {
-        switch self {
-        case .success: return Color.green.opacity(0.3)
-        case .error: return Color.red.opacity(0.3)
-        case .warning: return Color.yellow.opacity(0.3)
-        }
-    }
-}
 
 // Error handling extension
 extension NewStoryBoardView {

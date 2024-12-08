@@ -42,6 +42,8 @@
 		0F3568B22B2212CE00F6CA74 /* vstore.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0F3568B02B2212CE00F6CA74 /* vstore.xcdatamodeld */; };
 		0F3FF9E72BB0FEF000AAD4EE /* License.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F3FF9E62BB0FEF000AAD4EE /* License.swift */; };
 		0F54890A2B0CEA96009BD805 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 0F5489092B0CEA96009BD805 /* OpenAPIURLSession */; };
+		0F57E0F42D0576D7009DDA99 /* TimelineStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F57E0F32D0576D7009DDA99 /* TimelineStep.swift */; };
+		0F57E0F52D0576D7009DDA99 /* NotificationType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F57E0F22D0576D7009DDA99 /* NotificationType.swift */; };
 		0F59E72B2B064E2D007C2B74 /* voyagerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F59E72A2B064E2D007C2B74 /* voyagerApp.swift */; };
 		0F59E72F2B064E2F007C2B74 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0F59E72E2B064E2F007C2B74 /* Assets.xcassets */; };
 		0F59E7322B064E2F007C2B74 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0F59E7312B064E2F007C2B74 /* Preview Assets.xcassets */; };
@@ -171,6 +173,8 @@
 		0F29163E2CB27780002366BE /* StoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryDetailView.swift; sourceTree = "<group>"; };
 		0F3568B12B2212CE00F6CA74 /* vstore.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = vstore.xcdatamodel; sourceTree = "<group>"; };
 		0F3FF9E62BB0FEF000AAD4EE /* License.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = License.swift; sourceTree = "<group>"; };
+		0F57E0F22D0576D7009DDA99 /* NotificationType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationType.swift; sourceTree = "<group>"; };
+		0F57E0F32D0576D7009DDA99 /* TimelineStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineStep.swift; sourceTree = "<group>"; };
 		0F59E7272B064E2D007C2B74 /* voyager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = voyager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0F59E72A2B064E2D007C2B74 /* voyagerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = voyagerApp.swift; sourceTree = "<group>"; };
 		0F59E72E2B064E2F007C2B74 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -419,6 +423,8 @@
 		0F7602AF2BB98E2200F8D900 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				0F57E0F22D0576D7009DDA99 /* NotificationType.swift */,
+				0F57E0F32D0576D7009DDA99 /* TimelineStep.swift */,
 				0F254DBB2CCD0F7C00367804 /* StoryRoleViewModel.swift */,
 				0F2916302CB0DF56002366BE /* StoryboardViewModel.swift */,
 				0FF7FF5B2CA23D7B00F92343 /* StoryViewModel.swift */,
@@ -816,6 +822,8 @@
 				0F2363A32BC75E8300907E75 /* NewGroupView.swift in Sources */,
 				0FF7FF642CA23E3300F92343 /* StoryBoardView.swift in Sources */,
 				0FF7FF602CA23DF900F92343 /* StoryView.swift in Sources */,
+				0F57E0F42D0576D7009DDA99 /* TimelineStep.swift in Sources */,
+				0F57E0F52D0576D7009DDA99 /* NotificationType.swift in Sources */,
 				0F1D0D022CC5CBF900D12E0B /* UpdateStoryRole.swift in Sources */,
 				0F1D0D092CC7339E00D12E0B /* MessageView.swift in Sources */,
 				0FCCA8702D03FD1B00495ADF /* MessageContextView.swift in Sources */,
