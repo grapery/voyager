@@ -8,11 +8,29 @@ class CoreDataManager {
     
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: containerName)
+        
+        // 配置存储选项
+        let storeDescription = NSPersistentStoreDescription()
+        storeDescription.type = NSSQLiteStoreType
+        
+        // 获取应用程序的 Documents 目录
+        let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        let docURL = urls[0]
+        let storeURL = docURL.appendingPathComponent("\(containerName).sqlite")
+        storeDescription.url = storeURL
+        
+        container.persistentStoreDescriptions = [storeDescription]
+        
         container.loadPersistentStores { _, error in
             if let error = error {
                 fatalError("Failed to load Core Data stack: \(error)")
             }
         }
+        
+        // 启用自动合并更改
+        container.viewContext.automaticallyMergesChangesFromParent = true
+        container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        
         return container
     }()
     
@@ -31,24 +49,31 @@ class CoreDataManager {
         localMessage.setValue(message.msg.userID, forKey: "userId")
         localMessage.setValue(message.msg.roleID, forKey: "roleId")
         localMessage.setValue(message.msg.message, forKey: "message")
-        localMessage.setValue(message.type, forKey: "messageType")
+        localMessage.setValue(message.type.rawValue, forKey: "messageType")
         localMessage.setValue(message.statusInt, forKey: "status")
         localMessage.setValue(message.msg.timestamp, forKey: "ctime")
         localMessage.setValue(message.mediaURL, forKey: "mediaURL")
         //localMessage.setValue(message.localMediaPath, forKey: "localMediaPath")
         localMessage.setValue(true, forKey: "isFromServer")
-        localMessage.setValue(message.uuid, forKey: "uuid")
+        localMessage.setValue(message.uuid?.uuidString, forKey: "uuid")
         try context.save()
     }
     
     func savePendingMessage(_ message: ChatMessage) throws {
         let entity = NSEntityDescription.entity(forEntityName: messageEntityName, in: context)!
         let localMessage = NSManagedObject(entity: entity, insertInto: context)
-        
-        // 设置基本属性
         localMessage.setValue(message.id, forKey: "id")
-        // ... 设置其他属性 ...
-        localMessage.setValue(false, forKey: "isFromServer") // 标记为本地消息
+        localMessage.setValue(message.msg.chatID, forKey: "chatId")
+        localMessage.setValue(message.msg.userID, forKey: "userId")
+        localMessage.setValue(message.msg.roleID, forKey: "roleId")
+        localMessage.setValue(message.msg.message, forKey: "message")
+        localMessage.setValue(message.type.rawValue, forKey: "messageType")
+        localMessage.setValue(message.statusInt, forKey: "status")
+        localMessage.setValue(message.msg.timestamp, forKey: "ctime")
+        localMessage.setValue(message.mediaURL, forKey: "mediaURL")
+        //localMessage.setValue(message.localMediaPath, forKey: "localMediaPath")
+        localMessage.setValue(true, forKey: "isFromServer")
+        localMessage.setValue(message.uuid?.uuidString, forKey: "uuid")
         
         try context.save()
     }
@@ -107,7 +132,14 @@ class CoreDataManager {
         fetchRequest.predicate = NSPredicate(format: "ctime < %lld", oldTimeStamp)
         
         let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-        try persistentContainer.persistentStoreCoordinator.execute(batchDeleteRequest, with: context)
+        batchDeleteRequest.resultType = .resultTypeObjectIDs
+        
+        let result = try persistentContainer.persistentStoreCoordinator.execute(batchDeleteRequest, with: context) as? NSBatchDeleteResult
+        
+        if let objectIDs = result?.result as? [NSManagedObjectID] {
+            let changes = [NSDeletedObjectsKey: objectIDs]
+            NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes, into: [context])
+        }
     }
     
     // MARK: - Helper Methods
@@ -118,15 +150,45 @@ class CoreDataManager {
         chatMsg.userID = managedObject.value(forKey: "userId") as! Int64
         chatMsg.roleID = managedObject.value(forKey: "roleId") as! Int64
         chatMsg.message = managedObject.value(forKey: "message") as! String
-        
+        chatMsg.timestamp = managedObject.value(forKey: "ctime") as! Int64
         let msgItem = ChatMessage(
             id: managedObject.value(forKey: "id") as! Int64,
             msg: chatMsg,
             status: .MessageSendSuccess
         )
-        //msgItem.type = managedObject.value(forKey: "messageType") as! MessageType
-        //msgItem.mediaURL = managedObject.value(forKey: "mediaURL") as? String
-        //msgItem.localMediaPath = managedObject.value(forKey: "localMediaPath") as? String
+        msgItem.type = MessageType(rawValue: Int64(managedObject.value(forKey: "messageType") as! Int)) ?? .MessageTypeText
+        if let mediaURL = managedObject.value(forKey: "mediaURL") as? String {
+            msgItem.mediaURL = mediaURL
+        }
+        if let uuid = managedObject.value(forKey: "uuid") as? String {
+            msgItem.uuid = UUID(uuidString: uuid)
+        }
         return msgItem 
+    }
+
+    func debugPrintAllMessages() {
+        let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
+        do {
+            let results = try context.fetch(fetchRequest)
+            print("Total messages in database: \(results.count)")
+            if results.isEmpty {
+                print("Database is empty. Checking store URL...")
+                if let storeURL = persistentContainer.persistentStoreDescriptions.first?.url {
+                    print("Store URL: \(storeURL)")
+                    let fileExists = FileManager.default.fileExists(atPath: storeURL.path)
+                    print("Database file exists: \(fileExists)")
+                }
+            }
+            for (index, message) in results.enumerated() {
+                print("Message \(index):")
+                print("- id: \(message.value(forKey: "id") ?? "nil")")
+                print("- chatId: \(message.value(forKey: "chatId") ?? "nil")")
+                print("- message: \(message.value(forKey: "message") ?? "nil")")
+                print("- timestamp: \(message.value(forKey: "ctime") ?? "nil")")
+                print("------------------------")
+            }
+        } catch {
+            print("Debug print failed: \(error)")
+        }
     }
 } 

@@ -163,6 +163,7 @@ class MessageContextViewModel: ObservableObject{
 
     func loadMessages(userId: Int64,roleId: Int64,chatCtxId: Int64,timestamp: Int64) async {
         do {
+            coreDataManager.debugPrintAllMessages()
             // 1. 首先加载本地消息
             let localMessages = try coreDataManager.fetchRecentMessages(chatId: msgContext.chatID)
             print("首先加载本地消息: ",localMessages.count)
@@ -193,7 +194,6 @@ class MessageContextViewModel: ObservableObject{
             DispatchQueue.main.async {
                 self.messages.append(contentsOf: newChatMessages)
             }
-            print("self.messages: ",self.messages.count)
             // 4. 清理旧消息
             try await cleanupOldMessages()
             
@@ -223,7 +223,29 @@ class MessageContextViewModel: ObservableObject{
     }
     
     func fetchMessages() async -> (Common_ChatMessage?,Error?){
-        return (nil,nil)
+        // 1. 然后从服务器获取新消息
+        let lastMessageTimestamp = localMessages.last?.msg.timestamp ?? 0
+        let (serverMessages,_,err) = await APIClient.shared.getUserChatMessages(userId: userId,roleId: roleId,chatCtxId: chatCtxId,timestamp: lastMessageTimestamp)
+        if err != nil {
+            print("fetch message error")
+            return
+        }
+        // 2. 保存新消息到本地
+        if let messages = serverMessages {
+            for message in messages {
+                let chatMst = ChatMessage(id: message.id, msg: message,status: .MessageSendSuccess)
+                try coreDataManager.saveMessage(chatMst)
+            }
+        }
+        
+        //3. Convert server messages to ChatMessage objects before appending
+        let newChatMessages = serverMessages?.map { message in
+            ChatMessage(id: message.id, msg: message, status: .MessageSendSuccess)
+        } ?? []
+        
+        DispatchQueue.main.async {
+            self.messages.append(contentsOf: newChatMessages)
+        }
     }
     
     func sendMessage(msg: Common_ChatMessage) async -> ([Common_ChatMessage]?,Error?){

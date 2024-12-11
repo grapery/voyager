@@ -334,8 +334,8 @@
             filePath = "voyager/Core/Feed/ViewModel/MessageViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "167"
-            endingLineNumber = "167"
+            startingLineNumber = "168"
+            endingLineNumber = "168"
             landmarkName = "loadMessages(userId:roleId:chatCtxId:timestamp:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -350,8 +350,8 @@
             filePath = "voyager/Core/Feed/ViewModel/MessageViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "175"
-            endingLineNumber = "175"
+            startingLineNumber = "176"
+            endingLineNumber = "176"
             landmarkName = "loadMessages(userId:roleId:chatCtxId:timestamp:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -366,8 +366,8 @@
             filePath = "voyager/Core/Feed/ViewModel/MessageViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "184"
-            endingLineNumber = "184"
+            startingLineNumber = "185"
+            endingLineNumber = "185"
             landmarkName = "loadMessages(userId:roleId:chatCtxId:timestamp:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -398,25 +398,9 @@
             filePath = "voyager/Core/Data/CoreDataManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "109"
-            endingLineNumber = "109"
-            landmarkName = "cleanupOldMessages(olderThan:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "A955F54F-0FC7-4349-84C8-216401775E8D"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "voyager/Core/Feed/Views/MessageContextView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "78"
-            endingLineNumber = "78"
-            landmarkName = "sendMessage()"
+            startingLineNumber = "116"
+            endingLineNumber = "116"
+            landmarkName = "fetchRecentMessages(chatId:days:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
