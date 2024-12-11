@@ -124,6 +124,15 @@ class CoreDataManager {
         return results.map { convertToMessage($0) }
     }
     
+    func fetchRecentMessageTimestamp(chatId: Int64)throws -> Int64{
+        let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
+        fetchRequest.predicate = NSPredicate(format: "chatId == %lld", chatId)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "ctime", ascending: false)]
+        fetchRequest.fetchLimit = 1
+        let results = try context.fetch(fetchRequest)
+        return results.first?.value(forKey: "ctime") as? Int64 ?? 0
+    }
+    
     func cleanupOldMessages(olderThan days: Int = 7) throws {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: messageEntityName)
         let calendar = Calendar.current

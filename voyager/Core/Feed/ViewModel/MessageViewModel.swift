@@ -222,30 +222,37 @@ class MessageContextViewModel: ObservableObject{
         return nil
     }
     
-    func fetchMessages() async -> (Common_ChatMessage?,Error?){
-        // 1. 然后从服务器获取新消息
-        let lastMessageTimestamp = localMessages.last?.msg.timestamp ?? 0
-        let (serverMessages,_,err) = await APIClient.shared.getUserChatMessages(userId: userId,roleId: roleId,chatCtxId: chatCtxId,timestamp: lastMessageTimestamp)
-        if err != nil {
-            print("fetch message error")
-            return
-        }
-        // 2. 保存新消息到本地
-        if let messages = serverMessages {
-            for message in messages {
-                let chatMst = ChatMessage(id: message.id, msg: message,status: .MessageSendSuccess)
-                try coreDataManager.saveMessage(chatMst)
+    func fetchMessages(userId:Int64,chatCtxId: Int64) async -> (ChatMessage?,Error?){
+        do {
+            // 1. 首先获取 chatCtxId 聊天上下文的最后一条消息的时间戳
+            let localMessageTimestamp = try coreDataManager.fetchRecentMessageTimestamp(chatId: msgContext.chatID)
+            // 2. 然后从服务器获取新消息
+            let (serverMessages,_,err) = await APIClient.shared.getUserChatMessages(userId: userId,roleId: roleId,chatCtxId: chatCtxId,timestamp: localMessageTimestamp)
+            if err != nil {
+                print("fetch message error")
+                return (nil,err)
             }
+            if (serverMessages?.count)! > 0 {
+                // 3. 保存新消息到本地
+                if let messages = serverMessages {
+                    for message in messages {
+                        let chatMst = ChatMessage(id: message.id, msg: message,status: .MessageSendSuccess)
+                        try coreDataManager.saveMessage(chatMst)
+                    }
+                }
+                // 4. Convert server messages to ChatMessage objects before appending
+                let newChatMessages = serverMessages?.map { message in
+                    ChatMessage(id: message.id, msg: message, status: .MessageSendSuccess)
+                } ?? []
+                
+                DispatchQueue.main.async {
+                    self.messages.append(contentsOf: newChatMessages)
+                }
+            }
+        }catch{
+            
         }
-        
-        //3. Convert server messages to ChatMessage objects before appending
-        let newChatMessages = serverMessages?.map { message in
-            ChatMessage(id: message.id, msg: message, status: .MessageSendSuccess)
-        } ?? []
-        
-        DispatchQueue.main.async {
-            self.messages.append(contentsOf: newChatMessages)
-        }
+        return  (nil,nil)
     }
     
     func sendMessage(msg: Common_ChatMessage) async -> ([Common_ChatMessage]?,Error?){
