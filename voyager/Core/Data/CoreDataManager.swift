@@ -4,7 +4,7 @@ class CoreDataManager {
     static let shared = CoreDataManager()
     
     private let containerName = "voyager"
-    private let messageEntityName = "LocalChatMessage"
+    private let messageEntityName = "LocalChatMessages"
     
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: containerName)
@@ -33,7 +33,7 @@ class CoreDataManager {
         localMessage.setValue(message.msg.message, forKey: "message")
         localMessage.setValue(message.type, forKey: "messageType")
         localMessage.setValue(message.statusInt, forKey: "status")
-        localMessage.setValue(Date(), forKey: "timestamp")
+        localMessage.setValue(message.msg.timestamp, forKey: "ctime")
         localMessage.setValue(message.mediaURL, forKey: "mediaURL")
         //localMessage.setValue(message.localMediaPath, forKey: "localMediaPath")
         localMessage.setValue(true, forKey: "isFromServer")
@@ -63,12 +63,13 @@ class CoreDataManager {
         }
     }
     
-    func updateMessageStatusByUUID(uuid: String, status: MessageStatus) throws {
+    func updateMessageStatusByUUID(uuid: String,id:Int64,status: MessageStatus) throws {
         let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
         fetchRequest.predicate = NSPredicate(format: "uuid == %@", uuid)
         
         if let message = try context.fetch(fetchRequest).first {
             message.setValue(status.rawValue, forKey: "status")
+            message.setValue(id, forKey: "id")
             try context.save()
         }
     }
@@ -76,7 +77,7 @@ class CoreDataManager {
     func fetchMessages(chatId: Int64, limit: Int = 100) throws -> [ChatMessage] {
         let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
         fetchRequest.predicate = NSPredicate(format: "chatId == %lld", chatId)
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: true)]
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "ctime", ascending: true)]
         fetchRequest.fetchLimit = limit
         
         let results = try context.fetch(fetchRequest)
@@ -89,10 +90,10 @@ class CoreDataManager {
     func fetchRecentMessages(chatId: Int64, days: Int = 7) throws -> [ChatMessage] {
         let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
         let calendar = Calendar.current
-        let startDate = calendar.date(byAdding: .day, value: -days, to: Date())!
+        let startTimeStamp = Int64(calendar.date(byAdding: .day, value: -days, to: Date())?.timeIntervalSince1970 ?? 0)
         
-        fetchRequest.predicate = NSPredicate(format: "chatId == %lld AND timestamp >= %@", chatId, startDate as NSDate)
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: true)]
+        fetchRequest.predicate = NSPredicate(format: "chatId == %lld AND ctime >= %lld", chatId, startTimeStamp)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "ctime", ascending: true)]
         
         let results = try context.fetch(fetchRequest)
         return results.map { convertToMessage($0) }
@@ -101,9 +102,9 @@ class CoreDataManager {
     func cleanupOldMessages(olderThan days: Int = 7) throws {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: messageEntityName)
         let calendar = Calendar.current
-        let oldDate = calendar.date(byAdding: .day, value: -days, to: Date())!
+        let oldTimeStamp = Int64(calendar.date(byAdding: .day, value: -days, to: Date())?.timeIntervalSince1970 ?? 0)
         
-        fetchRequest.predicate = NSPredicate(format: "timestamp < %@", oldDate as NSDate)
+        fetchRequest.predicate = NSPredicate(format: "ctime < %lld", oldTimeStamp)
         
         let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
         try persistentContainer.persistentStoreCoordinator.execute(batchDeleteRequest, with: context)
@@ -121,10 +122,10 @@ class CoreDataManager {
         let msgItem = ChatMessage(
             id: managedObject.value(forKey: "id") as! Int64,
             msg: chatMsg,
-            status: managedObject.value(forKey: "status") as! MessageStatus
+            status: .MessageSendSuccess
         )
-        msgItem.type = managedObject.value(forKey: "messageType") as! MessageType
-        msgItem.mediaURL = managedObject.value(forKey: "mediaURL") as? String
+        //msgItem.type = managedObject.value(forKey: "messageType") as! MessageType
+        //msgItem.mediaURL = managedObject.value(forKey: "mediaURL") as? String
         //msgItem.localMediaPath = managedObject.value(forKey: "localMediaPath") as? String
         return msgItem 
     }

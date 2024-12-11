@@ -47,7 +47,6 @@
 		0F59E72B2B064E2D007C2B74 /* voyagerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F59E72A2B064E2D007C2B74 /* voyagerApp.swift */; };
 		0F59E72F2B064E2F007C2B74 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0F59E72E2B064E2F007C2B74 /* Assets.xcassets */; };
 		0F59E7322B064E2F007C2B74 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0F59E7312B064E2F007C2B74 /* Preview Assets.xcassets */; };
-		0F59E7342B064E2F007C2B74 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F59E7332B064E2F007C2B74 /* Persistence.swift */; };
 		0F59E7372B064E2F007C2B74 /* voyager.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0F59E7352B064E2F007C2B74 /* voyager.xcdatamodeld */; };
 		0F59E7412B064E2F007C2B74 /* voyagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F59E7402B064E2F007C2B74 /* voyagerTests.swift */; };
 		0F59E74B2B064E2F007C2B74 /* voyagerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F59E74A2B064E2F007C2B74 /* voyagerUITests.swift */; };
@@ -98,7 +97,6 @@
 		0FD831AC2B12037600A319DA /* ConnectNIO in Frameworks */ = {isa = PBXBuildFile; productRef = 0FD831AB2B12037600A319DA /* ConnectNIO */; };
 		0FD831AE2B12037600A319DA /* protoc-gen-connect-swift in Frameworks */ = {isa = PBXBuildFile; productRef = 0FD831AD2B12037600A319DA /* protoc-gen-connect-swift */; };
 		0FD831B42B12045900A319DA /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 0FD831B32B12045900A319DA /* OpenAPIURLSession */; };
-		0FF3C5952BC37A2A00CA9827 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0FF3C5932BC37A2A00CA9827 /* Model.xcdatamodeld */; };
 		0FF591B72CBE3073002F60C0 /* UpdateStoryboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF591B52CBE3065002F60C0 /* UpdateStoryboardView.swift */; };
 		0FF7FF5C2CA23D8700F92343 /* StoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF7FF5B2CA23D7B00F92343 /* StoryViewModel.swift */; };
 		0FF7FF602CA23DF900F92343 /* StoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF7FF5F2CA23DF300F92343 /* StoryView.swift */; };
@@ -179,7 +177,6 @@
 		0F59E72A2B064E2D007C2B74 /* voyagerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = voyagerApp.swift; sourceTree = "<group>"; };
 		0F59E72E2B064E2F007C2B74 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0F59E7312B064E2F007C2B74 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		0F59E7332B064E2F007C2B74 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		0F59E7362B064E2F007C2B74 /* voyager.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = voyager.xcdatamodel; sourceTree = "<group>"; };
 		0F59E73C2B064E2F007C2B74 /* voyagerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = voyagerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0F59E7402B064E2F007C2B74 /* voyagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = voyagerTests.swift; sourceTree = "<group>"; };
@@ -221,7 +218,6 @@
 		0FCCA8412CFF385900495ADF /* MessageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageViewModel.swift; sourceTree = "<group>"; };
 		0FCCA86F2D03FD1700495ADF /* MessageContextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageContextView.swift; sourceTree = "<group>"; };
 		0FCCA8762D040EF700495ADF /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
-		0FF3C5942BC37A2A00CA9827 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		0FF591B52CBE3065002F60C0 /* UpdateStoryboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateStoryboardView.swift; sourceTree = "<group>"; };
 		0FF7FF5B2CA23D7B00F92343 /* StoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModel.swift; sourceTree = "<group>"; };
 		0FF7FF5F2CA23DF300F92343 /* StoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryView.swift; sourceTree = "<group>"; };
@@ -323,7 +319,6 @@
 				0F59E7882B065408007C2B74 /* utils */,
 				0F59E72A2B064E2D007C2B74 /* voyagerApp.swift */,
 				0F59E72E2B064E2F007C2B74 /* Assets.xcassets */,
-				0F59E7332B064E2F007C2B74 /* Persistence.swift */,
 				0F59E7352B064E2F007C2B74 /* voyager.xcdatamodeld */,
 				0F59E7302B064E2F007C2B74 /* Preview Content */,
 				0F3568B02B2212CE00F6CA74 /* vstore.xcdatamodeld */,
@@ -641,7 +636,6 @@
 				0F3FF9E62BB0FEF000AAD4EE /* License.swift */,
 				0F0047612B08A4CF005FF1A6 /* Group.swift */,
 				0F0F1A242BB64BF7009494FC /* Timeline.swift */,
-				0FF3C5932BC37A2A00CA9827 /* Model.xcdatamodeld */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -836,12 +830,10 @@
 				0F980A2A2CAABF0400510E5A /* GroupProfile.swift in Sources */,
 				0F2363A82BC75EA900907E75 /* DeleteGroupView.swift in Sources */,
 				0F980A2F2CACC9AC00510E5A /* GroupProfileViewModel.swift in Sources */,
-				0FF3C5952BC37A2A00CA9827 /* Model.xcdatamodeld in Sources */,
 				0F6F16C82C8678CA004FAAD9 /* agents.pb.swift in Sources */,
 				0F88555E2B3B10BE002AD7E4 /* group.pb.swift in Sources */,
 				0F2916392CB20CAE002366BE /* tencent.swift in Sources */,
 				0FFA509A2B0857DA00D3A4CF /* RegistrationViewModel.swift in Sources */,
-				0F59E7342B064E2F007C2B74 /* Persistence.swift in Sources */,
 				0FF7FF5C2CA23D8700F92343 /* StoryViewModel.swift in Sources */,
 				0F59E7372B064E2F007C2B74 /* voyager.xcdatamodeld in Sources */,
 				0F1D0D112CC86DFD00D12E0B /* Story.swift in Sources */,
@@ -1400,17 +1392,6 @@
 			);
 			currentVersion = 0F59E7362B064E2F007C2B74 /* voyager.xcdatamodel */;
 			path = voyager.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-		0FF3C5932BC37A2A00CA9827 /* Model.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				0FF3C5942BC37A2A00CA9827 /* Model.xcdatamodel */,
-			);
-			currentVersion = 0FF3C5942BC37A2A00CA9827 /* Model.xcdatamodel */;
-			name = Model.xcdatamodeld;
-			path = /Users/grapestree/Desktop/apps/voyager/voyager/Model/Model.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

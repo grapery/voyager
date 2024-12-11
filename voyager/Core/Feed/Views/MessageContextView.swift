@@ -82,7 +82,7 @@ struct MessageContextView: View {
             
             if let error = error {
                 // 更新消息状态为失败
-                try CoreDataManager.shared.updateMessageStatusByUUID(uuid: tempMessage.uuid!.uuidString, status: .MessageSendFailed)
+                try CoreDataManager.shared.updateMessageStatusByUUID(uuid: tempMessage.uuid!.uuidString,id:-1, status: .MessageSendFailed)
                 DispatchQueue.main.async {
                     self.errorMessage = error.localizedDescription
                     self.showErrorAlert = true
@@ -95,7 +95,7 @@ struct MessageContextView: View {
                     self.newMessageContent = ""
                 }
                 // 更新消息状态为成功
-                try CoreDataManager.shared.updateMessageStatusByUUID(uuid: tempMessage.uuid!.uuidString, status: .MessageSendSuccess)
+                try CoreDataManager.shared.updateMessageStatusByUUID(uuid: tempMessage.uuid!.uuidString,id:tempMessage.msg.id , status: .MessageSendSuccess)
             }
             
         } catch {

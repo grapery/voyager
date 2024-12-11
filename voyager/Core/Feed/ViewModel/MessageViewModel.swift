@@ -143,6 +143,7 @@ class MessageContextViewModel: ObservableObject{
             if err != nil {
                 print("MessageContextViewModel init error: ",err as Any)
             }
+            await self.loadMessages(userId: userId, roleId: roleId, chatCtxId: self.msgContext.chatID, timestamp: 0)
         }
     }
     
@@ -156,6 +157,7 @@ class MessageContextViewModel: ObservableObject{
             if err != nil {
                 print("MessageContextViewModel init error: ",err as Any)
             }
+            await self.loadMessages(userId: userId, roleId: roleId, chatCtxId: self.msgContext.chatID, timestamp: 0)
         }
     }
 
@@ -163,11 +165,11 @@ class MessageContextViewModel: ObservableObject{
         do {
             // 1. 首先加载本地消息
             let localMessages = try coreDataManager.fetchRecentMessages(chatId: msgContext.chatID)
-            
+            print("首先加载本地消息: ",localMessages.count)
             DispatchQueue.main.async {
                 self.messages = localMessages
             }
-            
+            print("localMessages: ",localMessages.count)
             // 2. 然后从服务器获取新消息
             let lastMessageTimestamp = localMessages.last?.msg.timestamp ?? 0
             let (serverMessages,_,err) = await APIClient.shared.getUserChatMessages(userId: userId,roleId: roleId,chatCtxId: chatCtxId,timestamp: lastMessageTimestamp)
@@ -191,7 +193,7 @@ class MessageContextViewModel: ObservableObject{
             DispatchQueue.main.async {
                 self.messages.append(contentsOf: newChatMessages)
             }
-            
+            print("self.messages: ",self.messages.count)
             // 4. 清理旧消息
             try await cleanupOldMessages()
             
