@@ -212,8 +212,6 @@ class MessageContextViewModel: ObservableObject{
             print("MessageContextViewModel init error: ", err)
             return err
         }
-        print("msgContext: ",msgContext as Any)
-        
         // 在主线程上更新 @Published 属性
         await MainActor.run {
             self.msgContext = msgContext!
@@ -250,7 +248,7 @@ class MessageContextViewModel: ObservableObject{
                 }
             }
         }catch{
-            
+            //return (nil,NSError)
         }
         return  (nil,nil)
     }

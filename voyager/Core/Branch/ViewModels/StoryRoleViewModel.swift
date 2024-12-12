@@ -69,6 +69,20 @@ class StoryRoleModel: ObservableObject {
     func genStoryRoleAvatar() async -> Error?{
         return nil
     }
+    
+    func likeStoryRole(roleId: Int64) async{
+        let err = await APIClient.shared.LikeStoryRole(roleId: roleId, storyId: self.storyId, userId: self.userId)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+    }
+    
+    func unlikeStoryRole(roleId: Int64) async{
+        let (_,err) = await APIClient.shared.UnLikeStoryRole(userId: self.userId,roleId: roleId, storyId: self.storyId)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+    }
 }
 
 
@@ -196,4 +210,19 @@ class StoryDetailViewModel: ObservableObject {
             print("Error fetching top story roles: \(error)")
         }
     }
+    
+    func likeStory() async{
+        let err = await APIClient.shared.LikeStory(storyId: self.storyId, userId: self.userId)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+    }
+    
+    func unlikeStory() async{
+        let err = await APIClient.shared.UnLikeStory(storyId: self.storyId, userId: self.userId)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+    }
+    
 }
