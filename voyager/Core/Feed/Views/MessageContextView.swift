@@ -210,7 +210,7 @@ struct MessageContextView: View {
         let messages: [ChatMessage]?
         let currentUserId: Int64
         @State private var isLoading = false
-        let onLoadMore: async -> Void
+        let onLoadMore: () async -> Void
 
         var body: some View {
             ScrollViewReader { scrollProxy in
