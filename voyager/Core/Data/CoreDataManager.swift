@@ -49,9 +49,10 @@ class CoreDataManager {
         localMessage.setValue(message.msg.userID, forKey: "userId")
         localMessage.setValue(message.msg.roleID, forKey: "roleId")
         localMessage.setValue(message.msg.message, forKey: "message")
+        localMessage.setValue(message.msg.sender, forKey: "sender")
         localMessage.setValue(message.type.rawValue, forKey: "messageType")
         localMessage.setValue(message.statusInt, forKey: "status")
-        localMessage.setValue(message.msg.timestamp, forKey: "ctime")
+        localMessage.setValue(message.msg.timestamp, forKey: "timestamp")
         localMessage.setValue(message.mediaURL, forKey: "mediaURL")
         //localMessage.setValue(message.localMediaPath, forKey: "localMediaPath")
         localMessage.setValue(true, forKey: "isFromServer")
@@ -67,9 +68,10 @@ class CoreDataManager {
         localMessage.setValue(message.msg.userID, forKey: "userId")
         localMessage.setValue(message.msg.roleID, forKey: "roleId")
         localMessage.setValue(message.msg.message, forKey: "message")
+        localMessage.setValue(message.msg.sender, forKey: "sender")
         localMessage.setValue(message.type.rawValue, forKey: "messageType")
         localMessage.setValue(message.statusInt, forKey: "status")
-        localMessage.setValue(message.msg.timestamp, forKey: "ctime")
+        localMessage.setValue(message.msg.timestamp, forKey: "timestamp")
         localMessage.setValue(message.mediaURL, forKey: "mediaURL")
         //localMessage.setValue(message.localMediaPath, forKey: "localMediaPath")
         localMessage.setValue(true, forKey: "isFromServer")
@@ -83,6 +85,7 @@ class CoreDataManager {
         fetchRequest.predicate = NSPredicate(format: "id == %lld", id)
         
         if let message = try context.fetch(fetchRequest).first {
+            print("updateMessageStatus message: ",message)
             message.setValue(status.rawValue, forKey: "status")
             try context.save()
         }
@@ -93,6 +96,23 @@ class CoreDataManager {
         fetchRequest.predicate = NSPredicate(format: "uuid == %@", uuid)
         
         if let message = try context.fetch(fetchRequest).first {
+            let currentTimestamp = Int64(Date().timeIntervalSince1970)
+            message.setValue(currentTimestamp, forKey: "timestamp")
+            let realMsg = convertToMessage(message)
+            print("""
+                updateMessageStatusByUUID message:
+                - ID: \(realMsg.id)
+                - Chat ID: \(realMsg.msg.chatID)
+                - User ID: \(realMsg.msg.userID)
+                - Role ID: \(realMsg.msg.roleID)
+                - Message: \(realMsg.msg.message)
+                - Sender: \(realMsg.msg.sender)
+                - Type: \(realMsg.type)
+                - Status: \(realMsg.status)
+                - Timestamp: \(realMsg.msg.timestamp)
+                - Media URL: \(realMsg.mediaURL ?? "nil")
+                - UUID: \(realMsg.uuid?.uuidString ?? "nil")
+                """)
             message.setValue(status.rawValue, forKey: "status")
             message.setValue(id, forKey: "id")
             try context.save()
@@ -102,7 +122,7 @@ class CoreDataManager {
     func fetchMessages(chatId: Int64, limit: Int = 100) throws -> [ChatMessage] {
         let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
         fetchRequest.predicate = NSPredicate(format: "chatId == %lld", chatId)
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "ctime", ascending: true)]
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: true)]
         fetchRequest.fetchLimit = limit
         
         let results = try context.fetch(fetchRequest)
@@ -117,8 +137,19 @@ class CoreDataManager {
         let calendar = Calendar.current
         let startTimeStamp = Int64(calendar.date(byAdding: .day, value: -days, to: Date())?.timeIntervalSince1970 ?? 0)
         
-        fetchRequest.predicate = NSPredicate(format: "chatId == %lld AND ctime >= %lld", chatId, startTimeStamp)
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "ctime", ascending: true)]
+        fetchRequest.predicate = NSPredicate(format: "chatId == %lld AND timestamp >= %lld", chatId, 0)
+        //fetchRequest.sortDescriptors = [NSSortDescriptor(key: "ctime", ascending: true)]
+        
+        let results = try context.fetch(fetchRequest)
+        return results.map { convertToMessage($0) }
+    }
+    
+    func fetchRecentMessagesByTimestamp(chatId: Int64, timestamp: Int64) throws -> [ChatMessage] {
+        let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
+        
+        fetchRequest.predicate = NSPredicate(format: "chatId == %lld AND timestamp <= %lld", chatId, timestamp)
+        fetchRequest.fetchLimit = 20
+        //fetchRequest.sortDescriptors = [NSSortDescriptor(key: "ctime", ascending: true)]
         
         let results = try context.fetch(fetchRequest)
         return results.map { convertToMessage($0) }
@@ -127,10 +158,10 @@ class CoreDataManager {
     func fetchRecentMessageTimestamp(chatId: Int64)throws -> Int64{
         let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
         fetchRequest.predicate = NSPredicate(format: "chatId == %lld", chatId)
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "ctime", ascending: false)]
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
         fetchRequest.fetchLimit = 1
         let results = try context.fetch(fetchRequest)
-        return results.first?.value(forKey: "ctime") as? Int64 ?? 0
+        return results.first?.value(forKey: "timestamp") as? Int64 ?? 0
     }
     
     func cleanupOldMessages(olderThan days: Int = 7) throws {
@@ -138,7 +169,7 @@ class CoreDataManager {
         let calendar = Calendar.current
         let oldTimeStamp = Int64(calendar.date(byAdding: .day, value: -days, to: Date())?.timeIntervalSince1970 ?? 0)
         
-        fetchRequest.predicate = NSPredicate(format: "ctime < %lld", oldTimeStamp)
+        fetchRequest.predicate = NSPredicate(format: "timestamp < %lld", oldTimeStamp)
         
         let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
         batchDeleteRequest.resultType = .resultTypeObjectIDs
@@ -159,7 +190,8 @@ class CoreDataManager {
         chatMsg.userID = managedObject.value(forKey: "userId") as! Int64
         chatMsg.roleID = managedObject.value(forKey: "roleId") as! Int64
         chatMsg.message = managedObject.value(forKey: "message") as! String
-        chatMsg.timestamp = managedObject.value(forKey: "ctime") as! Int64
+        chatMsg.timestamp = managedObject.value(forKey: "timestamp") as! Int64
+        chatMsg.sender = managedObject.value(forKey: "sender") as! Int32
         let msgItem = ChatMessage(
             id: managedObject.value(forKey: "id") as! Int64,
             msg: chatMsg,
@@ -193,7 +225,7 @@ class CoreDataManager {
                 print("- id: \(message.value(forKey: "id") ?? "nil")")
                 print("- chatId: \(message.value(forKey: "chatId") ?? "nil")")
                 print("- message: \(message.value(forKey: "message") ?? "nil")")
-                print("- timestamp: \(message.value(forKey: "ctime") ?? "nil")")
+                print("- timestamp: \(message.value(forKey: "timestamp") ?? "nil")")
                 print("------------------------")
             }
         } catch {

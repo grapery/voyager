@@ -193,6 +193,8 @@ class MessageContextViewModel: ObservableObject{
             
             DispatchQueue.main.async {
                 self.messages.append(contentsOf: newChatMessages)
+                // Add debug printing
+                print("Total messages count: \(self.messages.count)")
             }
             // 4. 清理旧消息
             try await cleanupOldMessages()
@@ -248,7 +250,40 @@ class MessageContextViewModel: ObservableObject{
                 }
             }
         }catch{
-            //return (nil,NSError)
+            return (nil,NSError(domain: "ChatError", code: -1, userInfo: [NSLocalizedDescriptionKey: "获取历史消息失败"]))
+        }
+        return  (nil,nil)
+    }
+    
+    func fetchRemoteHistoryMessages(chatCtxId: Int64,timestamp: Int64) async -> (ChatMessage?,Error?){
+        do {
+            // 1. 首先获取 chatCtxId 聊天上下文的最后一条消息的时间戳
+            let localMessageTimestamp = try coreDataManager.fetchRecentMessageTimestamp(chatId: msgContext.chatID)
+            // 2. 然后从服务器获取新消息
+            let (serverMessages,_,err) = await APIClient.shared.getUserChatMessages(userId: userId,roleId: roleId,chatCtxId: chatCtxId,timestamp: localMessageTimestamp)
+            if err != nil {
+                print("fetch message error")
+                return (nil,err)
+            }
+            if (serverMessages?.count)! > 0 {
+                // 3. 保存新消息到本地
+                if let messages = serverMessages {
+                    for message in messages {
+                        let chatMst = ChatMessage(id: message.id, msg: message,status: .MessageSendSuccess)
+                        try coreDataManager.saveMessage(chatMst)
+                    }
+                }
+                // 4. Convert server messages to ChatMessage objects before appending
+                let newChatMessages = serverMessages?.map { message in
+                    ChatMessage(id: message.id, msg: message, status: .MessageSendSuccess)
+                } ?? []
+                
+                DispatchQueue.main.async {
+                    self.messages.insert(contentsOf: newChatMessages, at: 0)
+                }
+            }
+        }catch{
+            return (nil,NSError(domain: "ChatError", code: -1, userInfo: [NSLocalizedDescriptionKey: "获取历史消息失败"]))
         }
         return  (nil,nil)
     }
@@ -256,11 +291,28 @@ class MessageContextViewModel: ObservableObject{
     func sendMessage(msg: Common_ChatMessage) async -> ([Common_ChatMessage]?,Error?){
         var waitSendMsgs = [Common_ChatMessage]()
         waitSendMsgs.append(msg)
-        let (newMsgs,err) = await APIClient.shared.chatWithStoryRole(msgs: waitSendMsgs)
+        let (newMsgs,err) = await APIClient.shared.chatWithStoryRole(userId: self.userId, roleId: self.roleId, msgs: waitSendMsgs)
         if err != nil {
             return (nil,err)
         }
         return (newMsgs,nil)
+    }
+    
+    func fetchHistoryMessages(chatId: Int64,timestamp: Int64,size: Int64) async -> Error?{
+        var historyMsg = [ChatMessage]()
+        do {
+            // 1. 首先加载本地消息
+            let localMessages = try coreDataManager.fetchRecentMessagesByTimestamp(chatId: msgContext.chatID,timestamp:timestamp)
+            print("加载本地消息: ",localMessages.count)
+            DispatchQueue.main.async {
+                self.messages.insert(contentsOf: localMessages, at: 0)
+            }
+            return nil
+        } catch {
+            print("Error loading messages: \(error)")
+            return NSError(domain: "ChatError", code: -1, userInfo: [NSLocalizedDescriptionKey: "获取历史消息失败"])
+        }
+        return nil
     }
 }
 

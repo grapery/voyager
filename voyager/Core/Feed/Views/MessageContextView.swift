@@ -19,6 +19,9 @@ struct MessageContextView: View {
     var currentUserId: Int64
     @State private var isShowingMediaPicker = false
     @State private var selectedImage: UIImage?
+
+    @State private var isLoadingHistory = false
+    @State private var hasMoreMessages = true  // 新增：标记是否还有更多消息
     
     init(userId: Int64, roleId: Int64, role: StoryRole) {
         self.role = role
@@ -30,7 +33,11 @@ struct MessageContextView: View {
         VStack(spacing: 0) {
             ChatNavigationBar(title: role?.role.characterName ?? "", onDismiss: { dismiss() })
             
-            ChatMessageList(messages: viewModel.messages, currentUserId:self.currentUserId)
+            ChatMessageList(
+                messages: viewModel.messages,
+                currentUserId: self.currentUserId,
+                onLoadMore: loadMoreMessages
+            )
             
             ChatInputBar(
                 newMessageContent: $newMessageContent,
@@ -73,39 +80,107 @@ struct MessageContextView: View {
         )
         chatMsg.uuid = tempMessage.uuid!.uuidString
         tempMessage.msg.uuid = tempMessage.uuid!.uuidString
+        
+        // 立即清空输入框并显示发送中的消息
+        DispatchQueue.main.async {
+            self.viewModel.messages.append(tempMessage)
+            self.newMessageContent = ""
+        }
+        
         do {
             // 保存待发送消息到本地
             try CoreDataManager.shared.savePendingMessage(tempMessage)
             // 发送消息
             let (relpyMsg, error) = await viewModel.sendMessage(msg: chatMsg)
-            // 更新UI
             
             if let error = error {
                 // 更新消息状态为失败
-                try CoreDataManager.shared.updateMessageStatusByUUID(uuid: tempMessage.uuid!.uuidString,id:-1, status: .MessageSendFailed)
+                try CoreDataManager.shared.updateMessageStatusByUUID(uuid: tempMessage.uuid!.uuidString, id:-1, status: .MessageSendFailed)
+                // 更新UI中对应消息的状态
                 DispatchQueue.main.async {
+                    if let index = self.viewModel.messages.firstIndex(where: { $0.uuid == tempMessage.uuid }) {
+                        self.viewModel.messages[index].status = .MessageSendFailed
+                    }
                     self.errorMessage = error.localizedDescription
                     self.showErrorAlert = true
                 }
             } else {
-                tempMessage.msg.id = relpyMsg![0].id
-                tempMessage.status = .MessageSendSuccess
-                DispatchQueue.main.async {
-                    self.viewModel.messages.append(tempMessage)
-                    self.newMessageContent = ""
+                // 更新临时消息的ID和状态
+                try CoreDataManager.shared.updateMessageStatusByUUID(
+                    uuid: tempMessage.uuid!.uuidString,
+                    id: relpyMsg![0].id,
+                    status: .MessageSendSuccess
+                )
+                self.viewModel.messages.last?.status = .MessageSendSuccess
+                self.viewModel.messages.last?.msg.id = relpyMsg![0].id
+
+                // 添加服务器返回的其他消息
+                if relpyMsg!.count > 1 {
+                    for i in 1..<relpyMsg!.count {
+                        let serverMessage = relpyMsg![i]
+                        let newChatMessage = ChatMessage(
+                            id: serverMessage.id,
+                            msg: serverMessage,
+                            status: .MessageSendSuccess
+                        )
+                        
+                        try CoreDataManager.shared.savePendingMessage(newChatMessage)
+                        
+                        DispatchQueue.main.async {
+                            self.viewModel.messages.append(newChatMessage)
+                        }
+                    }
                 }
-                // 更新消息状态为成功
-                try CoreDataManager.shared.updateMessageStatusByUUID(uuid: tempMessage.uuid!.uuidString,id:tempMessage.msg.id , status: .MessageSendSuccess)
             }
-            
         } catch {
             DispatchQueue.main.async {
+                if let index = self.viewModel.messages.firstIndex(where: { $0.uuid == tempMessage.uuid }) {
+                    self.viewModel.messages[index].status = .MessageSendFailed
+                }
                 self.errorMessage = error.localizedDescription
                 self.showErrorAlert = true
             }
         }
     }
-    
+    private func loadMoreMessages() async {
+        guard !isLoadingHistory && hasMoreMessages else { return }
+        isLoadingHistory = true
+        defer { isLoadingHistory = false }
+        
+        do {
+            // 获取最早的消息ID作为分页标记
+            let earliestMessageTimestamp = viewModel.messages.first?.msg.timestamp ?? 0
+            
+            // 从本地数据库加载历史消息
+            let localMessages =  try CoreDataManager.shared.fetchRecentMessagesByTimestamp(
+                chatId: viewModel.msgContext.chatID,
+                timestamp: earliestMessageTimestamp
+            )
+            
+            if !localMessages.isEmpty {
+                // 如果本地有历史消息，直接添加到消息列表前面
+                DispatchQueue.main.async {
+                    withAnimation {
+                        viewModel.messages.insert(contentsOf: localMessages, at: 0)
+                    }
+                }
+            } else {
+                // 如果本地没有更多消息，从服务器获取
+                let err = try await viewModel.fetchRemoteHistoryMessages(
+                    chatCtxId: viewModel.msgContext.chatID,
+                    timestamp: earliestMessageTimestamp
+                )
+            }
+        } catch {
+            print("Failed to load history messages: \(error)")
+            DispatchQueue.main.async {
+                self.errorMessage = "加载历史消息失败"
+                self.showErrorAlert = true
+                // 出错时也要更新状态
+                self.hasMoreMessages = false
+            }
+        }
+    }
     
     // 顶部导航栏组件
     private struct ChatNavigationBar: View {
@@ -134,39 +209,79 @@ struct MessageContextView: View {
     private struct ChatMessageList: View {
         let messages: [ChatMessage]?
         let currentUserId: Int64
-        
+        @State private var isLoading = false
+        let onLoadMore: async -> Void
+
         var body: some View {
             ScrollViewReader { scrollProxy in
                 ScrollView {
                     LazyVStack(spacing: 10) {
+                        // 将加载指示器移到消息列表上方
+                        LoadingIndicator(isLoading: isLoading)
+                            .frame(height: 50)
+                            .opacity(isLoading ? 1 : 0)
+                            .onAppear {
+                                if !isLoading {
+                                    Task {
+                                        isLoading = true
+                                        await onLoadMore()
+                                        isLoading = false
+                                    }
+                                }
+                            }
+                        
                         if let messages = messages {
                             ForEach(messages) { message in
                                 MessageCellView(currentUserId: currentUserId, message: message)
                                     .id(message.id)
                             }
                         }
+                        
+                        // 添加一个空视图作为滚动锚点
+                        Color.clear
+                            .frame(height: 1)
+                            .id("bottom")
                     }
                     .padding()
                 }
                 .onChange(of: messages?.count) { _ in
-                    scrollToBottom(proxy: scrollProxy)
+                    // 当新消息添加时，滚动到底部
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        scrollProxy.scrollTo("bottom", anchor: .bottom)
+                    }
                 }
                 .onAppear {
-                    scrollToBottom(proxy: scrollProxy)
-                }
-            }
-        }
-        
-        private func scrollToBottom(proxy: ScrollViewProxy) {
-            if let lastMessage = messages?.last {
-                withAnimation {
-                    proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                    // 初始加载时滚动到底部
+                    scrollProxy.scrollTo("bottom", anchor: .bottom)
                 }
             }
         }
     }
     
-    
+    // 新增加载指示器组件
+    private struct LoadingIndicator: View {
+        let isLoading: Bool
+        @State private var rotation: Double = 0
+        
+        var body: some View {
+            VStack {
+                if isLoading {
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrow.2.circlepath")
+                            .rotationEffect(.degrees(rotation))
+                            .onAppear {
+                                withAnimation(Animation.linear(duration: 1).repeatForever(autoreverses: false)) {
+                                    rotation = 360
+                                }
+                            }
+                        Text("加载更多消息...")
+                    }
+                    .foregroundColor(.gray)
+                    .padding(.vertical, 10)
+                }
+            }
+        }
+    }
     
     // 输入栏组件
     private struct ChatInputBar: View {
@@ -249,50 +364,60 @@ struct MessageCellView: View {
     let message: ChatMessage
     
     @State private var isAnimating = false
-    
+    init(currentUserId: Int64, message: ChatMessage) {
+        self.currentUserId = currentUserId
+        self.message = message
+    }
     private var isFromCurrentUser: Bool {
-        currentUserId == message.msg.userID
+        currentUserId == message.msg.sender
     }
     
     var body: some View {
-        HStack(alignment: .bottom, spacing: 8) {
+        HStack(alignment: .top, spacing: 8) {
             if !isFromCurrentUser {
                 AvatarView(roleId: message.msg.roleID)
+                    .frame(width: 40, height: 40)
+            } else {
+                Spacer()
+            }
+            
+            VStack(alignment: isFromCurrentUser ? .trailing : .leading) {
+                messageBubble
+                    .scaleEffect(isAnimating ? 1 : 0.5)
+                    .opacity(isAnimating ? 1 : 0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isAnimating)
+                    .onAppear {
+                        isAnimating = true
+                    }
             }
             
             if isFromCurrentUser {
-                Spacer()
-                messageStatusIndicator
-            }
-            
-            messageBubble
-                .scaleEffect(isAnimating ? 1 : 0.5)
-                .opacity(isAnimating ? 1 : 0)
-                .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isAnimating)
-                .onAppear {
-                    isAnimating = true
-                }
-            
-            if !isFromCurrentUser {
-                Spacer()
-            } else {
                 AvatarView(userId: currentUserId)
+                    .frame(width: 40, height: 40)
+            } else {
+                Spacer()
             }
         }
         .padding(.horizontal, 8)
     }
     
     private var messageBubble: some View {
-        Group {
-            switch message.type {
-            case .MessageTypeText:
-                textBubble
-            case .MessageTypeImage:
-                imageBubble
-            case .MessageTypeVideo:
-                videoBubble
-            case .MessageTypeAudio:
-                audioBubble
+        HStack {
+            if isFromCurrentUser {
+                messageStatusIndicator
+            }
+            
+            Group {
+                switch message.type {
+                case .MessageTypeText:
+                    textBubble
+                case .MessageTypeImage:
+                    imageBubble
+                case .MessageTypeVideo:
+                    videoBubble
+                case .MessageTypeAudio:
+                    audioBubble
+                }
             }
         }
     }

@@ -1356,10 +1356,12 @@ extension APIClient {
         return (response.message?.chats,nil)
     }
     
-    func chatWithStoryRole(msgs: [Common_ChatMessage]?) async -> ([Common_ChatMessage]?,Error?) {
+    func chatWithStoryRole(userId:Int64,roleId: Int64,msgs: [Common_ChatMessage]?) async -> ([Common_ChatMessage]?,Error?) {
         let apiClient = Common_TeamsApiClient(client: self.client!)
         let request = Common_ChatWithStoryRoleRequest.with {
             $0.messages = msgs!
+            $0.userID = userId
+            $0.roleID = roleId
         }
         var header = Connect.Headers()
         header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
