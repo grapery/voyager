@@ -42,25 +42,26 @@ struct MessageView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // 优化顶部导航栏
+                // 减小顶部导航栏的尺寸
                 HStack {
                     Text("消息")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.system(size: 20, weight: .bold))
                     Spacer()
                     Button(action: {}) {
                         Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 24))
+                            .font(.system(size: 20))
                             .foregroundColor(.blue)
                     }
                 }
-                .padding()
+                .padding(.horizontal)
+                .padding(.vertical, 8)
                 .background(Color.white)
-                .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
+                .shadow(color: Color.black.opacity(0.05), radius: 4, y: 2)
                 
-                // 添加搜索栏
+                // 减小搜索栏的padding
                 SearchBar(text: $searchText, isSearching: $isSearching)
                     .padding(.horizontal)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 4)
                 
                 // 优化消息列表
                 ScrollView {
@@ -100,7 +101,7 @@ struct SearchBar: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.gray)
                 TextField("搜索聊天记录", text: $text)
-                    .font(.system(size: 15))
+                    .font(.system(size: 14))
                 if !text.isEmpty {
                     Button(action: { text = "" }) {
                         Image(systemName: "xmark.circle.fill")
@@ -108,7 +109,7 @@ struct SearchBar: View {
                     }
                 }
             }
-            .padding(10)
+            .padding(8)
             .background(Color(.systemGray6))
             .cornerRadius(12)
         }
@@ -157,29 +158,29 @@ struct MessageContextCellView: View {
         )
             .toolbar(.visible, for: .tabBar)
         ) {
-            HStack(spacing: 12) {
-                // 优化头像显示
+            HStack(spacing: 10) {
+                // 减小头像尺寸 (需要在RectProfileImageView中调整InChat的尺寸)
                 RectProfileImageView(avatarUrl: avatarURL, size: .InChat)
-                    .overlay(Circle().stroke(Color.gray.opacity(0.1), lineWidth: 1))
+                    .overlay(Circle().stroke(Color.gray.opacity(0.1), lineWidth: 0.5))
                 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 2) {
                     HStack {
                         Text(isFromUser ? (user?.name ?? "Me") : (role?.role.characterName ?? "Unknown"))
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: 15, weight: .medium))
                         Spacer()
                         Text(formatTime(lastMessage?.timestamp ?? 0))
-                            .font(.system(size: 13))
+                            .font(.system(size: 12))
                             .foregroundColor(.gray)
                     }
                     
                     Text(lastMessage?.message ?? "")
-                        .font(.system(size: 15))
+                        .font(.system(size: 13))
                         .foregroundColor(.gray)
                         .lineLimit(1)
                 }
             }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
         }
         .buttonStyle(PlainButtonStyle())
     }

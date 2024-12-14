@@ -24,6 +24,7 @@ class StoryViewModel: ObservableObject {
     var branchId: Int64 = 0
     var userId: Int64
     @Published var storyScenes: [StoryBoardSence] = []
+    @Published var storyRoles: [StoryRole]? = []
     
     init(story: Story,userId: Int64) {
         self.story = story
@@ -545,6 +546,26 @@ class StoryViewModel: ObservableObject {
             return error
         }
     }
+    
+    func getStoryRoles(storyId: Int64, userId: Int64) async -> Error? {
+    self.err = nil
+    do {
+        let (roles, err) = await apiClient.getStoryRoles(userId: userId, storyId: self.storyId)
+        if let err = err {
+            return err
+        }
+        
+        // 在主线程上更新 @Published 属性
+        DispatchQueue.main.async {
+            self.storyRoles = roles!
+        }
+        
+        return nil
+    } catch {
+        self.err = error
+        return error
+    }
+}
     
 }
 

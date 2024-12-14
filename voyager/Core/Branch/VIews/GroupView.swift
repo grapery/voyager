@@ -63,7 +63,7 @@ struct GroupView: View {
                         .padding(.horizontal)
                     }
                     
-                    // 分类标签
+                    // 分类标���
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 20) {
                             ForEach(tabs, id: \.self) { tab in
@@ -78,12 +78,12 @@ struct GroupView: View {
                     }
                     
                     // 小组列表
-                    LazyVStack(spacing: 16) {
+                    LazyVStack(spacing: 12) {
                         ForEach(viewModel.groups) { group in
                             GroupDiscussionCell(group: group, viewModel: viewModel)
-                                .padding(.horizontal)
                         }
                     }
+                    .padding(.top, 8)
                 }
                 .padding(.vertical)
             }
@@ -125,7 +125,7 @@ struct CategoryTabButton: View {
     }
 }
 
-// 优化后的网格项视图
+// 优化后的网��项视图
 struct GroupGridItemView: View {
     @State public var group: BranchGroup
     @State private var groupProfile: GroupProfile?
@@ -169,21 +169,21 @@ struct GroupDiscussionCell: View {
     
     var body: some View {
         Button(action: { showGroupDetail = true }) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 10) {
                 // 头部信息
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     KFImage(URL(string: group.info.avatar))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 48, height: 48)
+                        .frame(width: 40, height: 40)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
+                        .overlay(Circle().stroke(Color.gray.opacity(0.1), lineWidth: 0.5))
                     
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 2) {
                         Text(group.info.name)
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: 15, weight: .medium))
                         Text("成员: \(999)")
-                            .font(.system(size: 13))
+                            .font(.system(size: 12))
                             .foregroundColor(.gray)
                     }
                     
@@ -193,12 +193,13 @@ struct GroupDiscussionCell: View {
                 // 描述内容
                 if !group.info.desc.isEmpty {
                     Text(group.info.desc)
-                        .font(.system(size: 15))
-                        .lineLimit(3)
+                        .font(.system(size: 14))
+                        .lineLimit(2)
+                        .foregroundColor(.secondary)
                 }
                 
                 // 互动栏
-                HStack(spacing: 24) {
+                HStack(spacing: 20) {
                     InteractionButton(icon: "bell", count: 20, isActive: false)
                     InteractionButton(icon: "bubble.left", count: 30, isActive: false)
                     InteractionButton(icon: "heart", count: 40, isActive: false)
@@ -206,13 +207,14 @@ struct GroupDiscussionCell: View {
                     Button(action: {}) {
                         Image(systemName: "square.and.arrow.up")
                             .foregroundColor(.gray)
+                            .font(.system(size: 14))
                     }
                 }
             }
-            .padding(16)
-            .background(Color.white)
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
+            .padding(12)
+            .background(Color(.systemBackground))
+            .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.03), radius: 6, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
         .fullScreenCover(isPresented: $showGroupDetail) {

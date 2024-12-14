@@ -37,7 +37,7 @@ struct StoryView: View {
         if isGenerating {
             buttonMsg = "正在生成..."
         } else if generatedStory != nil {
-            buttonMsg = "���生成"
+            buttonMsg = "生成"
         } else if errorMessage != nil {
             buttonMsg = "重试"
         } else {
@@ -125,13 +125,19 @@ struct StoryView: View {
                         if selectedTab == 0 {
                             // 故事线视图
                             storyLineView
-                        } else {
+                        }else if selectedTab == 1{
                             // 故事生成视图
                             StoryGenView(generatedStory: $generatedStory,
                                          isGenerating: $isGenerating,
                                          errorMessage: $errorMessage,
                                          viewModel: viewModel,
                                          selectedTab: $selectedTab)
+                        }else if selectedTab == 2 {
+                            storyRolesListView.onAppear{
+                                Task{
+                                    await self.viewModel.getStoryRoles(storyId: self.storyId, userId: self.userId)
+                                }
+                            }
                         }
                     }
                     .frame(minHeight: geometry.size.height)
@@ -147,6 +153,26 @@ struct StoryView: View {
         }
     }
 
+    private var storyRolesListView: some View {
+        VStack {
+            if viewModel.isLoading {
+                ProgressView()
+            } else if let roles = viewModel.storyRoles {
+                ScrollView {
+                    LazyVStack(spacing: 16) {
+                        ForEach(roles, id: \.role.roleID) { role in
+                            RoleCard(role: role)
+                        }
+                    }
+                    .padding()
+                }
+            } else {
+                Text("暂无角色")
+                    .foregroundColor(.secondary)
+                    .padding()
+            }
+        }
+    }
     
     private var storyLineView: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -269,7 +295,6 @@ struct StoryBoardCellView: View {
         var tempSceneContents: [SceneMediaContent] = []
         
         if let scenes = board?.boardInfo.sences.list {
-            print("Processing \(scenes.count) scenes")
             
             for scene in scenes {
                 let genResult = scene.genResult
@@ -484,18 +509,28 @@ extension DateFormatter {
 
 struct StoryTabView: View {
     @Binding var selectedTab: Int64
-    let tabs = ["故事板", "故事线"]
+    let tabs = ["故事板", "故事线","故事人物"]
     
     var body: some View {
         HStack {
             Spacer().padding(.horizontal, 2)
-            ForEach(0..<2) { index in
+            ForEach(0..<3) { index in
                 Button(action: {
                     selectedTab = Int64(index)
                 }) {
-                    Text(tabs[index])
+                    if index == 0 {
+                        Image(systemName: "photo.stack")
                         .foregroundColor(selectedTab == index ? .black : .gray)
-                        .padding(.vertical, 8)
+                    }else if index == 1 {
+                        Image(systemName: "arrow.triangle.branch")
+                        .foregroundColor(selectedTab == index ? .black : .gray)
+                    }else if index == 2 {
+                        Image(systemName: "person.crop.rectangle.stack")
+                        .foregroundColor(selectedTab == index ? .black : .gray)
+                    }
+                    // Text(tabs[index])
+                    //     .foregroundColor(selectedTab == index ? .black : .gray)
+                    //     .padding(.vertical, 4)
                 }
                 Spacer().padding(.horizontal, 2)
             }
@@ -703,6 +738,59 @@ struct ActionButton: View {
                 .font(.system(size: 22))
                 .foregroundColor(.secondary)
         }
+    }
+}
+
+// 角色卡片视图
+struct RoleCard: View {
+    let role: StoryRole
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // 角色头像和名称
+            HStack(spacing: 12) {
+                KFImage(URL(string: role.role.characterAvatar))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(role.role.characterName)
+                        .font(.headline)
+                    Text("ID: \(role.role.roleID)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+            }
+            
+            // 角色描述
+            Text(role.role.characterDescription)
+                .font(.body)
+                .lineLimit(3)
+            
+//            // 角色标签
+//            if !role.roleInfo.tags.isEmpty {
+//                ScrollView(.horizontal, showsIndicators: false) {
+//                    HStack(spacing: 8) {
+//                        ForEach(role.roleInfo.tags, id: \.self) { tag in
+//                            Text(tag)
+//                                .font(.caption)
+//                                .padding(.horizontal, 8)
+//                                .padding(.vertical, 4)
+//                                .background(Color.blue.opacity(0.1))
+//                                .foregroundColor(.blue)
+//                                .cornerRadius(12)
+//                        }
+//                    }
+//                }
+//            }
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
     }
 }
 
