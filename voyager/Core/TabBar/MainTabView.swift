@@ -24,6 +24,7 @@ struct MainTabView: View {
                 }
                 .tabItem {
                     Image(systemName: "ellipsis.viewfinder")
+                    Text("发现")
                 }
                 .tag(1)
             GroupView(user: self.user)
@@ -32,6 +33,7 @@ struct MainTabView: View {
                 }
                 .tabItem {
                     Image(systemName: "rectangle.3.group")
+                    Text("小组")
                 }
                 .tag(2)
             MessageView(user: self.user)
@@ -40,6 +42,7 @@ struct MainTabView: View {
                 }
                 .tabItem {
                     Image(systemName: "bubble.left.and.bubble.right")
+                    Text("消息")
                 }
                 .tag(3)
             UserProfileView(user: self.user)
@@ -48,6 +51,7 @@ struct MainTabView: View {
                 }
                 .tabItem {
                     Image(systemName: "person.circle")
+                    Text("个人")
                 }
                 .tag(4)
         }

@@ -375,7 +375,7 @@ struct MessageCellView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
             if !isFromCurrentUser {
-                AvatarView(roleId: message.msg.roleID)
+                AvatarView(userId: currentUserId,roleId: message.msg.roleID)
                     .frame(width: 40, height: 40)
             } else {
                 Spacer()
@@ -392,7 +392,7 @@ struct MessageCellView: View {
             }
             
             if isFromCurrentUser {
-                AvatarView(userId: currentUserId)
+                AvatarView(userId: currentUserId,roleId: message.msg.roleID)
                     .frame(width: 40, height: 40)
             } else {
                 Spacer()
@@ -525,17 +525,28 @@ struct MessageCellView: View {
 struct AvatarView: View {
     var userId: Int64? = nil
     var roleId: Int64? = nil
-    
+    @State private var navigateToRoleDetail = false
+    init(userId: Int64? = nil, roleId: Int64? = nil) {
+        self.userId = userId
+        self.roleId = roleId
+    }
     var body: some View {
-        AsyncImage(url: URL(string: getAvatarUrl())) { image in
-            image
-                .resizable()
-                .scaledToFill()
-        } placeholder: {
-            Color.gray.opacity(0.3)
+        NavigationLink(destination: roleId != nil ? StoryRoleDetailView(roleId: roleId!,userId: userId!): nil, isActive: $navigateToRoleDetail) {
+            AsyncImage(url: URL(string: getAvatarUrl())) { image in
+                image
+                    .resizable()
+                    .scaledToFill()
+            } placeholder: {
+                Color.gray.opacity(0.3)
+            }
+            .frame(width: 40, height: 40)
+            .clipShape(Circle())
+            .onTapGesture {
+                if roleId != nil {
+                    navigateToRoleDetail = true
+                }
+            }
         }
-        .frame(width: 40, height: 40)
-        .clipShape(Circle())
     }
     
     private func getAvatarUrl() -> String {

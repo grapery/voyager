@@ -118,7 +118,26 @@ struct StoryRoleDetailView: View {
         self.viewModel = StoryRoleModel(story: nil, storyId: 0, userId: userId)
         self.boardIds = [Int64]()
         self.userId = userId
-        print("StoryRoleDetailView role: ",self.role?.role.characterName as Any)
+    }
+
+    init(roleId: Int64, userId: Int64) {
+        self.viewModel = StoryRoleModel(userId: userId)
+        self.boardIds = [Int64]()
+        self.userId = userId
+        self.roleId = roleId
+        self.storyId = 0
+    }
+    
+    // 添加新的加载方法
+    private func loadRoleDetails() async {
+        if let viewModel = viewModel {
+            do {
+                let (detail, err) = await viewModel.fetchStoryRoleDetail(roleId: roleId)
+                if err == nil {
+                    role = detail
+                }
+            }
+        }
     }
     
     var body: some View {
@@ -175,8 +194,11 @@ struct StoryRoleDetailView: View {
             }
             .fullScreenCover(isPresented: $showingPosterView) {
                 // 添加海报视图的导航目标
-                // PosterView() // 取决于你的海报视图���现
+                // PosterView() // 取决于你的海报视图现
             }
+        }
+        .task {  // 或者使用 .onAppear
+            await loadRoleDetails()
         }
     }
     

@@ -80,7 +80,6 @@ struct MessageView: View {
                 }
                 .background(Color(.systemGray6))
             }
-            .navigationBarHidden(true)
             .onAppear {
                 Task {
                     await self.viewModel.initUserChatContext()
@@ -156,7 +155,7 @@ struct MessageContextCellView: View {
             roleId: role?.Id ?? 0,
             role: role!
         )
-        .navigationBarHidden(true)  // 隐藏导航栏
+            .toolbar(.visible, for: .tabBar)
         ) {
             HStack(spacing: 12) {
                 // 优化头像显示

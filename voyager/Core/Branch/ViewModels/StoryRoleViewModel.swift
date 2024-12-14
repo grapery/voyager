@@ -25,6 +25,12 @@ class StoryRoleModel: ObservableObject {
         self.userId = userId
     }
     
+    init(userId:Int64){
+        self.userId = userId
+        self.storyId = 0
+        self.story = nil
+    }
+    
     func fetchStoryRoles(storyId:Int64) async {
         let (roles,err) = await APIClient.shared.getStoryRoles(userId: self.userId, storyId: storyId)
         if err != nil {
