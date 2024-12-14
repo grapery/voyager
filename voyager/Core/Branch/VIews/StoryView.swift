@@ -37,7 +37,7 @@ struct StoryView: View {
         if isGenerating {
             buttonMsg = "正在生成..."
         } else if generatedStory != nil {
-            buttonMsg = "生成"
+            buttonMsg = "���成"
         } else if errorMessage != nil {
             buttonMsg = "重试"
         } else {
@@ -115,11 +115,11 @@ struct StoryView: View {
             .padding(16)
             .background(Color(.systemBackground))
             
-            Divider()
             
+            Divider()
             StoryTabView(selectedTab: $selectedTab)
                 .padding(.top, 2) // 减少顶部间距
-
+            Divider()
             GeometryReader { geometry in
                     VStack(spacing: 0) {
                         if selectedTab == 0 {
@@ -513,27 +513,28 @@ struct StoryTabView: View {
     
     var body: some View {
         HStack {
-            Spacer().padding(.horizontal, 2)
-            ForEach(0..<3) { index in
-                Button(action: {
-                    selectedTab = Int64(index)
-                }) {
-                    if index == 0 {
-                        Image(systemName: "photo.stack")
-                        .foregroundColor(selectedTab == index ? .black : .gray)
-                    }else if index == 1 {
-                        Image(systemName: "arrow.triangle.branch")
-                        .foregroundColor(selectedTab == index ? .black : .gray)
-                    }else if index == 2 {
-                        Image(systemName: "person.crop.rectangle.stack")
-                        .foregroundColor(selectedTab == index ? .black : .gray)
-                    }
-                    // Text(tabs[index])
-                    //     .foregroundColor(selectedTab == index ? .black : .gray)
-                    //     .padding(.vertical, 4)
-                }
-                Spacer().padding(.horizontal, 2)
+            Spacer() // 添加起始 Spacer
+            
+            Button(action: { selectedTab = 0 }) {
+                Image(systemName: "photo.stack")
+                    .foregroundColor(selectedTab == 0 ? .black : .gray)
             }
+            
+            Spacer() // 中间 Spacer
+            
+            Button(action: { selectedTab = 1 }) {
+                Image(systemName: "arrow.triangle.branch")
+                    .foregroundColor(selectedTab == 1 ? .black : .gray)
+            }
+            
+            Spacer() // 中间 Spacer
+            
+            Button(action: { selectedTab = 2 }) {
+                Image(systemName: "person.crop.rectangle.stack")
+                    .foregroundColor(selectedTab == 2 ? .black : .gray)
+            }
+            
+            Spacer() // 添加结束 Spacer
         }
         .padding(.horizontal)
     }

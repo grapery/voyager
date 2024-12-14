@@ -548,24 +548,24 @@ class StoryViewModel: ObservableObject {
     }
     
     func getStoryRoles(storyId: Int64, userId: Int64) async -> Error? {
-    self.err = nil
-    do {
-        let (roles, err) = await apiClient.getStoryRoles(userId: userId, storyId: self.storyId)
-        if let err = err {
-            return err
+        self.err = nil
+        do {
+            let (roles, err) = await apiClient.getStoryRoles(userId: userId, storyId: self.storyId)
+            if let err = err {
+                return err
+            }
+            
+            // 在主线程上更新 @Published 属性
+            DispatchQueue.main.async {
+                self.storyRoles = roles!
+            }
+            
+            return nil
+        } catch {
+            self.err = error
+            return error
         }
-        
-        // 在主线程上更新 @Published 属性
-        DispatchQueue.main.async {
-            self.storyRoles = roles!
-        }
-        
-        return nil
-    } catch {
-        self.err = error
-        return error
     }
-}
     
 }
 
