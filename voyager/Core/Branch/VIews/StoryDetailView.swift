@@ -183,97 +183,66 @@ struct StoryDetailView: View {
             Text("故事设置")
                 .font(.headline)
                 .padding(.top)
-            Group {
-                if isEditing {
-                    DisclosureGroup("故事简介") {
-                        ScrollView {
-                            TextEditor(text: Binding(
-                                get: { viewModel.story?.storyInfo.desc ?? "" },
-                                set: { viewModel.story?.storyInfo.desc = $0 }
-                            ))
-                            .font(.subheadline)
-                            .padding(14)
-                            .background(Color(.systemGray5))
-                            .cornerRadius(14)
-                            .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
-                        }
-                    }.background(Color(.orange))
-                    
-                    DisclosureGroup("故事背景") {
-                        ScrollView {
-                            TextEditor(text: Binding(
-                                get: { viewModel.story?.storyInfo.params.background ?? "" },
-                                set: { viewModel.story?.storyInfo.params.background = $0 }
-                            ))
-                            .font(.subheadline)
-                            .padding(14)
-                            .background(Color(.systemGray5))
-                            .cornerRadius(14)
-                            .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
-                        }
-                    }.background(Color(.orange))
-                    
-                    DisclosureGroup("正面提示词") {
-                        ScrollView {
-                            TextEditor(text: Binding(
-                                get: { viewModel.story?.storyInfo.params.negativePrompt ?? "" },
-                                set: { viewModel.story?.storyInfo.params.negativePrompt = $0 }
-                            ))
-                            .font(.subheadline)
-                            .padding(14)
-                            .background(Color(.systemGray5))
-                            .cornerRadius(14)
-                            .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
-                        }
-                    }.background(Color(.orange))
-                    
-                    DisclosureGroup("负面提示词") {
-                        ScrollView {
-                            TextEditor(text: Binding(
-                                get: { viewModel.story?.storyInfo.params.negativePrompt ?? "" },
-                                set: { viewModel.story?.storyInfo.params.negativePrompt = $0 }
-                            ))
-                            .font(.subheadline)
-                            .padding(14)
-                            .background(Color(.systemGray5))
-                            .cornerRadius(14)
-                            .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
-                        }
-                    }.background(Color(.orange))
-                } else {
-                    DisclosureGroup("故事描述") {
-                        Text(viewModel.story?.storyInfo.desc ?? "")
-                            .padding(14)
-                            .background(Color(.systemGray5))
-                            .cornerRadius(14)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }.background(Color(.orange))
-
-                    DisclosureGroup("故事背景") {
-                        Text(viewModel.story?.storyInfo.params.background ?? "")
-                            .padding(14)
-                            .background(Color(.systemGray5))
-                            .cornerRadius(14)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }.background(Color(.orange))
-                    
-                    DisclosureGroup("正面提示词") {
-                        Text(viewModel.story?.storyInfo.params.negativePrompt ?? "")
-                            .padding(14)
-                            .background(Color(.systemGray5))
-                            .cornerRadius(14)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }.background(Color(.orange))
-                    
-                    DisclosureGroup("负面提示词") {
-                        Text(viewModel.story?.storyInfo.params.negativePrompt ?? "")
-                            .padding(14)
-                            .background(Color(.systemGray5))
-                            .cornerRadius(14)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }.background(Color(.orange))
+            
+            VStack(spacing: 8) {
+                NavigationLink(destination: StorySettingDetailView(
+                    title: "故事简介",
+                    content: Binding(
+                        get: { viewModel.story?.storyInfo.desc ?? "" },
+                        set: { viewModel.story?.storyInfo.desc = $0 }
+                    ),
+                    onSave: { newContent in
+                        viewModel.story?.storyInfo.desc = newContent
+                        viewModel.saveStory()
+                    }
+                )) {
+                    SettingRow(title: "故事简介", content: viewModel.story?.storyInfo.desc ?? "")
+                }
+                
+                NavigationLink(destination: StorySettingDetailView(
+                    title: "故事背景",
+                    content: Binding(
+                        get: { viewModel.story?.storyInfo.params.background ?? "" },
+                        set: { viewModel.story?.storyInfo.params.background = $0 }
+                    ),
+                    onSave: { newContent in
+                        viewModel.story?.storyInfo.params.background = newContent
+                        viewModel.saveStory()
+                    }
+                )) {
+                    SettingRow(title: "故事背景", content: viewModel.story?.storyInfo.params.background ?? "")
+                }
+                
+                NavigationLink(destination: StorySettingDetailView(
+                    title: "正面提示词",
+                    content: Binding(
+                        get: { viewModel.story?.storyInfo.params.negativePrompt ?? "" },
+                        set: { viewModel.story?.storyInfo.params.negativePrompt = $0 }
+                    ),
+                    onSave: { newContent in
+                        viewModel.story?.storyInfo.params.negativePrompt = newContent
+                        viewModel.saveStory()
+                    }
+                )) {
+                    SettingRow(title: "正面提示词", content: viewModel.story?.storyInfo.params.negativePrompt ?? "")
+                }
+                
+                NavigationLink(destination: StorySettingDetailView(
+                    title: "负面提示词",
+                    content: Binding(
+                        get: { viewModel.story?.storyInfo.params.negativePrompt ?? "" },
+                        set: { viewModel.story?.storyInfo.params.negativePrompt = $0 }
+                    ),
+                    onSave: { newContent in
+                        viewModel.story?.storyInfo.params.negativePrompt = newContent
+                        viewModel.saveStory()
+                    }
+                )) {
+                    SettingRow(title: "负面提示词", content: viewModel.story?.storyInfo.params.negativePrompt ?? "")
                 }
             }
+            .background(Color(.systemBackground))
+            .cornerRadius(12)
         }
     }
     
@@ -523,6 +492,126 @@ struct AllParticipantsView: View {
             .padding()
         }
         .navigationTitle("所有参与者")
+    }
+}
+
+struct StorySettingDetailView: View {
+    let title: String
+    @Binding var content: String
+    @State private var isEditing: Bool = false
+    @State private var isAIRendering: Bool = false
+    @State private var aiGeneratedContent: String = ""
+    var onSave: (String) -> Void
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            // 原有的文本编辑器
+            TextEditor(text: isEditing ? $content : .constant(content))
+                .font(.body)
+                .padding()
+                .frame(maxWidth: .infinity, minHeight: 200)
+                .background(Color(.systemBackground))
+                .cornerRadius(9)
+                .disabled(!isEditing)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 9)
+                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                )
+                .padding()
+            
+            // AI 渲染控制区域
+            VStack(spacing: 12) {
+                Toggle("使用 AI 优化内容", isOn: $isAIRendering)
+                    .disabled(!isEditing)
+                    .padding(.horizontal)
+                
+                if isAIRendering {
+                    Button(action: {
+                        // TODO: 调用 AI 渲染 API
+                        // 这里是示例代码，需要替换为实际的 AI 渲染逻辑
+                        aiGeneratedContent = "AI渲染: \(content)"
+                    }) {
+                        HStack {
+                            Image(systemName: "wand.and.stars")
+                            Text("开始 AI 优化")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                    }
+                    .disabled(!isEditing)
+                    .padding(.horizontal)
+                    
+                    if !aiGeneratedContent.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("AI 优化结果:")
+                                .font(.headline)
+                            
+                            Text(aiGeneratedContent)
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(8)
+                            
+                            Button(action: {
+                                content = aiGeneratedContent
+                            }) {
+                                HStack {
+                                    Image(systemName: "checkmark.circle")
+                                    Text("应用 AI 优化结果")
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.green)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+            }
+        }
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(isEditing ? "保存" : "编辑") {
+                    if isEditing {
+                        onSave(content)
+                    }
+                    isEditing.toggle()
+                    if !isEditing {
+                        isAIRendering = false
+                        aiGeneratedContent = ""
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct SettingRow: View {
+    let title: String
+    let content: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+                .foregroundColor(.primary)
+            
+            Text(content)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(8)
     }
 }
 
