@@ -33,11 +33,13 @@ struct StoryView: View {
     @State private var selectedBoard: StoryBoard?
     @State private var isShowingBoardDetail = false
     
+    @State private var showingDeleteAlert = false
+    
     private func setButtonMsg() {
         if isGenerating {
             buttonMsg = "正在生成..."
         } else if generatedStory != nil {
-            buttonMsg = "���成"
+            buttonMsg = "生成"
         } else if errorMessage != nil {
             buttonMsg = "重试"
         } else {
@@ -156,7 +158,19 @@ struct StoryView: View {
     private var storyRolesListView: some View {
         VStack {
             if viewModel.isLoading {
-                ProgressView()
+                VStack {
+                    Spacer()
+                    VStack(spacing: 12) {
+                        ProgressView()
+                            .scaleEffect(2.0)
+                            .padding()
+                        Text("加载中......")
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 14))
+                    }
+                    .frame(maxWidth: .infinity)
+                    Spacer()
+                }
             } else if let roles = viewModel.storyRoles {
                 ScrollView {
                     LazyVStack(spacing: 16) {
@@ -327,7 +341,6 @@ struct StoryBoardCellView: View {
         }
         
         self.sceneMediaContents = tempSceneContents
-        print("Initialized with \(self.sceneMediaContents.count) scenes")
     }
     
     private var storyboardCellHeader: some View {
@@ -345,48 +358,56 @@ struct StoryBoardCellView: View {
         }
     }
     
-    private var senceDetails: some View{
-        VStack{
-            ForEach(sceneMediaContents) { sceneContent in
-                VStack(alignment: .leading) {
-                    Text(sceneContent.sceneTitle)
-                        .font(.subheadline)
-                        .padding(.vertical, 4)
-                    // 如果场景只有一张图片
-                    if sceneMediaContents.count == 4 {
-                        RectProfileImageView(avatarUrl: sceneContent.mediaItems[0].url.description, size: .InContent).clipped()
-                            .cornerRadius(8)
-                    }
-                    // 如果场景有多张图片
-                    else {
-                        LazyVGrid(columns: columns, spacing: 4) {
-                            ForEach(Array(sceneContent.mediaItems.prefix(4).enumerated()), id: \.element.id) { index, item in
-                                KFImage(item.url)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(height: UIScreen.main.bounds.width / 2 - 16)
-                                    .frame(maxWidth: .infinity)
-                                    .clipped()
-                                    .cornerRadius(8)
-                                    .overlay(
-                                        // 如果有更多图片，在最后一张上显示剩余数量
-                                        index == 3 && sceneContent.mediaItems.count > 4 ?
-                                        ZStack {
-                                            Color.black.opacity(0.4)
-                                            Text("+\(sceneContent.mediaItems.count - 4)")
-                                                .foregroundColor(.white)
-                                                .font(.title2)
-                                        }
-                                            .cornerRadius(8)
-                                        : nil
-                                    )
+    private var senceDetails: some View {
+        let allMediaItems = sceneMediaContents.flatMap { content in
+            content.mediaItems
+        }
+        
+        return VStack(alignment: .leading, spacing: 12) {
+            // 文字描述
+            if let content = board?.boardInfo.content {
+                Text(content)
+                    .font(.system(size: 15))
+                    .foregroundColor(.primary)
+                    .lineLimit(3)
+            }
+            
+            // 场景图片网格
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 50), count: 3), spacing: 4) {
+                ForEach(Array(allMediaItems.prefix(9).enumerated()), id: \.element.id) { index, item in
+                    KFImage(item.url)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: (UIScreen.main.bounds.width - 32 - 16) / 3,
+                               height: (UIScreen.main.bounds.width - 32 - 16) / 3)
+                        .clipped()
+                        .clipShape(Rectangle())
+                        .cornerRadius(4)
+                        .overlay(
+                            index == 8 && allMediaItems.count > 9 ?
+                            ZStack {
+                                Color.black.opacity(0.4)
+                                Text("+\(allMediaItems.count - 9)")
+                                    .foregroundColor(.white)
+                                    .font(.title2)
                             }
-                        }
-                    }
+                            .cornerRadius(4)
+                            : nil
+                        )
                 }
-                .padding(.vertical, 8)
+            }
+            .padding(.horizontal, 8)
+            
+            // 场景数量提示
+            HStack {
+                Image(systemName: "photo.stack")
+                    .foregroundColor(.secondary)
+                Text("共\(sceneMediaContents.count)个场景")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
         }
+        .padding(.vertical, 8)
     }
     
     var body: some View {
@@ -429,14 +450,22 @@ struct StoryBoardCellView: View {
                     
                     if self.board?.boardInfo.creator == self.userId {
                         ActionButton(icon: "trash.circle", action: {
-                            Task {
-                                await self.viewModel.deleteStoryBoard(
-                                    storyId: self.storyId,
-                                    boardId: (self.board?.boardInfo.storyBoardID)!,
-                                    userId: self.userId
-                                )
-                            }
+                            showingDeleteAlert = true
                         })
+                        .alert("确认删除", isPresented: $showingDeleteAlert) {
+                            Button("取消", role: .cancel) { }
+                            Button("删除", role: .destructive) {
+                                Task {
+                                    await self.viewModel.deleteStoryBoard(
+                                        storyId: self.storyId,
+                                        boardId: (self.board?.boardInfo.storyBoardID)!,
+                                        userId: self.userId
+                                    )
+                                }
+                            }
+                        } message: {
+                            Text("确定要删除这个故事板吗？此操作无法撤销。")
+                        }
                     }
                 }
                 .padding(.top, 8)
