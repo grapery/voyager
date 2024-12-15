@@ -161,9 +161,7 @@ struct StoryRoleDetailView: View {
                     }
                     
                     // 底部操作按钮
-                    if role?.role.roleID != 0 {
-                        bottomActionButtons
-                    }
+                    bottomActionButtons
                 }
                 .padding(.horizontal)
             }
@@ -181,7 +179,7 @@ struct StoryRoleDetailView: View {
             }
             .fullScreenCover(isPresented: $showingChatView) {
                 NavigationStack {
-                    MessageContextView(userId: self.userId, roleId: (role?.role.roleID)!, role: self.role!)
+                    MessageContextView(userId: self.userId, roleId: self.roleId, role: self.role!)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
                                 Button("返回") {

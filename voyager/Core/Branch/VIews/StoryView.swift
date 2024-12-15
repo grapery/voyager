@@ -33,7 +33,6 @@ struct StoryView: View {
     @State private var selectedBoard: StoryBoard?
     @State private var isShowingBoardDetail = false
     
-    @State private var showingDeleteAlert = false
     
     private func setButtonMsg() {
         if isGenerating {
@@ -116,12 +115,10 @@ struct StoryView: View {
             }
             .padding(16)
             .background(Color(.systemBackground))
-            
-            
             Divider()
             StoryTabView(selectedTab: $selectedTab)
                 .padding(.top, 2) // 减少顶部间距
-            Divider()
+            
             GeometryReader { geometry in
                     VStack(spacing: 0) {
                         if selectedTab == 0 {
@@ -245,7 +242,6 @@ struct StoryView: View {
         //DispatchQueue.global().asyncAfter(deadline: .now() + 30) {
             Task { @MainActor in
                 let result = await self.viewModel.getGenStory(storyId: self.storyId, userId: self.userId)
-                print("StoryView help getGenerateStory ")
                 if let error = result.1 {
                     self.errorMessage = error.localizedDescription
                     self.generatedStory = nil
@@ -283,6 +279,7 @@ struct StoryBoardCellView: View {
     @State var isShowingCommentView = false
     @State var isForkingStory = false
     @State var isLiked = false
+    @State var showingDeleteAlert = false
     
     // 添加评论相关状态
     @State private var commentText: String = ""
@@ -334,8 +331,7 @@ struct StoryBoardCellView: View {
                         mediaItems: mediaItems
                     )
                     tempSceneContents.append(sceneContent)
-                    
-                    print("Added scene with \(mediaItems.count) media items")
+
                 }
             }
         }
@@ -450,6 +446,7 @@ struct StoryBoardCellView: View {
                     
                     if self.board?.boardInfo.creator == self.userId {
                         ActionButton(icon: "trash.circle", action: {
+                            print("delete: ")
                             showingDeleteAlert = true
                         })
                         .alert("确认删除", isPresented: $showingDeleteAlert) {

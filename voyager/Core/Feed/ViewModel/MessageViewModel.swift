@@ -163,6 +163,7 @@ class MessageContextViewModel: ObservableObject{
 
     func loadMessages(userId: Int64,roleId: Int64,chatCtxId: Int64,timestamp: Int64) async {
         do {
+            print(userId," ",roleId," ",chatCtxId)
             coreDataManager.debugPrintAllMessages()
             // 1. 首先加载本地消息
             let localMessages = try coreDataManager.fetchRecentMessages(chatId: msgContext.chatID)
@@ -178,6 +179,7 @@ class MessageContextViewModel: ObservableObject{
                 print("fetch message error")
                 return
             }
+            print("serverMessages: ",serverMessages!.count)
             // 3. 保存新消息到本地
             if let messages = serverMessages {
                 for message in messages {
@@ -210,8 +212,9 @@ class MessageContextViewModel: ObservableObject{
     
     func getChatContext(userId:Int64,roleId: Int64) async -> Error?{
         let (msgContext, err) = await APIClient.shared.createChatWithRoleContext(userId: userId, roleId: roleId)
+        print("userId \(userId),roleId \(roleId)")
         if let err = err {
-            print("MessageContextViewModel init error: ", err)
+            print("getChatContext error: ", err)
             return err
         }
         // 在主线程上更新 @Published 属性
