@@ -14,6 +14,7 @@ struct UserProfileView: View {
     @Namespace var animation
     var user: User
     @StateObject var viewModel: ProfileViewModel
+    @GestureState private var dragOffset: CGFloat = 0
     
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
@@ -23,74 +24,159 @@ struct UserProfileView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    // Profile Header Card
+                VStack(spacing: 0) {
+                    // 头部个人信息区域
                     VStack(spacing: 16) {
-                        ProfileHeaderView(user: user)
-                        ProfileDescriptionView(description: user.desc)
-                        ProfileStatsView(
-                            storyCount: Int(viewModel.profile.createdStoryNum),
-                            roleCount: Int(viewModel.profile.createdRoleNum)
-                        )
-                    }
-                    .padding(16)
-                    .background(Color.white)
-                    .cornerRadius(16)
-                    .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
-                    
-                    // Filter View
-                    ProfileFilterView(selectedFilter: $selectedFilter)
-                        .padding(.vertical, 8)
-                    
-                    // Content TabView
-                    TabView(selection: $selectedFilter) {
-                        StoryboardRowView(boards: viewModel.storyboards)
-                            .tag(UserProfileFilterViewModel.storyboards)
+                        // 头像和用户名
+                        HStack(spacing: 12) {
+                            CircularProfileImageView(avatarUrl: user.avatar, size: .InProfile)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(user.name)
+                                    .font(.title3)
+                                    .fontWeight(.semibold)
+                                
+                                Text(user.desc.isEmpty ? "神秘的人物，没有简介！" : user.desc)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(2)
+                            }
+                            Spacer()
+                        }
                         
-                        RolesListView(roles: viewModel.storyRoles, viewModel: self.viewModel)
-                            .tag(UserProfileFilterViewModel.roles)
-                    }
-                    .tabViewStyle(.page(indexDisplayMode: .never))
-                    .frame(height: UIScreen.main.bounds.height * 0.7)
-                    .onChange(of: selectedFilter) { newValue in
-                        Task {
-                            await loadFilteredContent(for: newValue)
+                        // 统计数据
+                        HStack(spacing: 32) {
+                            StatView(
+                                icon: "mountain.2",
+                                count: Int64(viewModel.profile.createdStoryNum),
+                                title: "个故事"
+                            )
+                            
+                            StatView(
+                                icon: "person",
+                                count: Int64(viewModel.profile.createdRoleNum),
+                                title: "个故事角色"
+                            )
                         }
                     }
-                }
-                .padding(.horizontal)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingEditProfile.toggle()
-                    } label: {
-                        Image(systemName: "slider.vertical.3")
-                            .foregroundColor(.primary)
-                            .padding(8)
-                            .background(Color(.systemGray6))
-                            .clipShape(Circle())
+                    .padding(16)
+                    
+                    Divider()
+                    
+                    // 分类标签栏
+                    HStack(spacing: 0) {
+                        ForEach(UserProfileFilterViewModel.allCases, id: \.self) { filter in
+                            TabButton(
+                                title: filter.title,
+                                isSelected: selectedFilter == filter
+                            ) {
+                                withAnimation {
+                                    selectedFilter = filter
+                                }
+                            }
+                        }
                     }
+                    .padding(.top, 8)
+                    
+                    // 内容区域 - 支持左右滑动
+                    GeometryReader { geometry in
+                        HStack(spacing: 0) {
+                            StoryboardRowView(boards: viewModel.storyboards)
+                                .frame(width: geometry.size.width)
+                            
+                            RolesListView(roles: viewModel.storyRoles, viewModel: viewModel)
+                                .frame(width: geometry.size.width)
+                        }
+                        .offset(x: -CGFloat(selectedFilter.rawValue) * geometry.size.width)
+                        .offset(x: dragOffset)
+                        .animation(.interactiveSpring(), value: selectedFilter)
+                        .gesture(
+                            DragGesture()
+                                .updating($dragOffset) { value, state, _ in
+                                    state = value.translation.width
+                                }
+                                .onEnded { value in
+                                    let threshold = geometry.size.width * 0.25
+                                    if value.translation.width > threshold && selectedFilter != .storyboards {
+                                        selectedFilter = .storyboards
+                                    } else if value.translation.width < -threshold && selectedFilter != .roles {
+                                        selectedFilter = .roles
+                                    }
+                                }
+                        )
+                    }
+                    .frame(height: UIScreen.main.bounds.height * 0.7)
                 }
             }
-        }
-        .sheet(isPresented: $showingEditProfile) {
-            EditUserProfileView(user: user)
-        }
-        .refreshable {
-            await loadFilteredContent(for: selectedFilter, forceRefresh: true)
+            .background(Color(.systemBackground))
+            .refreshable {
+                await refreshData()
+            }
+            .task {
+                await loadUserData()
+            }
+            .onChange(of: selectedFilter) { newValue in
+                Task {
+                    await loadFilteredContent(for: newValue)
+                }
+            }
         }
     }
     
-    private func loadFilteredContent(for filter: UserProfileFilterViewModel, forceRefresh: Bool = false) async {
+    // 刷新数据
+    private func refreshData() async {
         do {
+            // 显示加载指示器
+            await MainActor.run {
+                // 如果需要，这里可以设置加载状态
+            }
+            
+            // 强制刷新当前选中标签的内容
+            await loadFilteredContent(for: selectedFilter, forceRefresh: true)
+            
+            // 隐藏加载指示器
+            await MainActor.run {
+                // 如果需要，这里可以重置加载状态
+            }
+        } catch {
+            print("Error refreshing data: \(error)")
+        }
+    }
+    
+    // 加载用户数据
+    private func loadUserData() async {
+        do {
+            await MainActor.run {
+                // 如果需要，这里可以设置加载状态
+            }
+            
+            // 加载用户资料
             if viewModel.profile.userID == 0 {
                 viewModel.profile = await viewModel.fetchUserProfile()
             }
+            
+            // 加载当前选中标签的内容
+            await loadFilteredContent(for: selectedFilter)
+            
+            await MainActor.run {
+                // 如果需要，这里可以重置加载状态
+            }
+        } catch {
+            print("Error loading user data: \(error)")
+        }
+    }
+    
+    // 加载过滤内容
+    private func loadFilteredContent(for filter: UserProfileFilterViewModel, forceRefresh: Bool = false) async {
+        do {
             switch filter {
             case .storyboards:
                 if viewModel.storyboards.isEmpty || forceRefresh {
-                    let (boards, _) = try await viewModel.fetchUserCreatedStoryboards(userId: user.userID, groupId: 0, storyId: 0)
+                    let (boards, _) = try await viewModel.fetchUserCreatedStoryboards(
+                        userId: user.userID,
+                        groupId: 0,
+                        storyId: 0
+                    )
                     if let boards = boards {
                         await MainActor.run {
                             viewModel.storyboards = boards
@@ -100,7 +186,11 @@ struct UserProfileView: View {
                 
             case .roles:
                 if viewModel.storyRoles.isEmpty || forceRefresh {
-                    let (roles, _) = try await viewModel.fetchUserCreatedStoryRoles(userId: user.userID, groupId: 0, storyId: 0)
+                    let (roles, _) = try await viewModel.fetchUserCreatedStoryRoles(
+                        userId: user.userID,
+                        groupId: 0,
+                        storyId: 0
+                    )
                     if let roles = roles {
                         await MainActor.run {
                             viewModel.storyRoles = roles
@@ -111,6 +201,64 @@ struct UserProfileView: View {
         } catch {
             print("Error loading filtered content: \(error)")
         }
+    }
+}
+
+// 统计视图组件
+struct StatView: View {
+    let icon: String
+    let count: Int64
+    let title: String
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .foregroundColor(.blue)
+                .font(.system(size: 16))
+            
+            Text("\(count) \(title)")
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
+        }
+    }
+}
+
+// 标签按钮组件
+struct ProfileTabButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Text(title)
+                    .font(.system(size: 15))
+                    .foregroundColor(isSelected ? .primary : .secondary)
+                    .frame(maxWidth: .infinity)
+                
+                Rectangle()
+                    .fill(isSelected ? Color.blue : Color.clear)
+                    .frame(height: 2)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+// 列表项组件（用于故事板和角色列表）
+struct ContentItemView<Content: View>: View {
+    let content: Content
+    
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+    
+    var body: some View {
+        content
+            .padding(16)
+            .background(Color(.systemBackground))
+            .cornerRadius(8)
     }
 }
 
@@ -162,37 +310,47 @@ struct StoryRoleRowView: View {
     
     var body: some View {
         Button(action: { showRoleDetail = true }) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 12) {
-                    // Avatar
-                    if !role.role.characterAvatar.isEmpty {
-                        RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .InProfile)
-                    } else {
-                        RectProfileImageView(avatarUrl: defaultAvator, size: .InProfile)
-                    }
-                    
-                    // Name and Description
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(role.role.characterName)
-                            .font(.system(size: 16, weight: .semibold))
-                        
-                        Text(role.role.characterDescription)
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-                            .lineLimit(2)
-                    }
+            HStack(alignment: .top, spacing: 5) {
+                // Avatar - 让图片更大且占据左侧空间
+                if !role.role.characterAvatar.isEmpty {
+                    RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .InProfile2)
+                } else {
+                    RectProfileImageView(avatarUrl: defaultAvator, size: .InProfile2)
                 }
                 
-                // Interaction buttons
-                HStack(spacing: 24) {
-                    InteractionButton(icon: "bubble.left", count: 0, isActive: false)
-                    InteractionButton(icon: "heart", count: 0, isActive: false)
-                    Spacer()
-                    Button(action: {}) {
-                        Image(systemName: "square.and.arrow.up")
-                            .foregroundColor(.gray)
+                // Right side content
+                VStack(alignment: .leading, spacing: 4) {
+                    // Name and Description
+                    Text(role.role.characterName)
+                        .font(.system(size: 16, weight: .semibold))
+                    
+                    Text(role.role.characterDescription)
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                        .lineLimit(3)
+                    
+                    // Stats moved below description
+                    HStack(spacing: 16) {
+                        // 参与故事板数量
+                        HStack(spacing: 4) {
+                            Image(systemName: "doc.text")
+                                .foregroundColor(.gray)
+                            Text("\(10) 故事板")
+                                .font(.system(size: 14))
+                                .foregroundColor(.gray)
+                        }
+                        
+                        // 发送消息数量
+                        HStack(spacing: 4) {
+                            Image(systemName: "message")
+                                .foregroundColor(.gray)
+                            Text("\(10) 消息")
+                                .font(.system(size: 14))
+                                .foregroundColor(.gray)
+                        }
                     }
                 }
+                Spacer()
             }
             .padding(16)
             .background(Color.white)

@@ -63,7 +63,7 @@ struct GroupView: View {
                         .padding(.horizontal)
                     }
                     
-                    // 分类标���
+                    // 分类标签
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 20) {
                             ForEach(tabs, id: \.self) { tab in
@@ -125,7 +125,7 @@ struct CategoryTabButton: View {
     }
 }
 
-// 优化后的网��项视图
+// 优化后的网项视图
 struct GroupGridItemView: View {
     @State public var group: BranchGroup
     @State private var groupProfile: GroupProfile?
@@ -156,6 +156,15 @@ struct GroupGridItemView: View {
                     .foregroundColor(.gray)
             }
             .frame(width: 90)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 8)
+            .background(Color(.systemBackground))
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.03), radius: 4, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
     }

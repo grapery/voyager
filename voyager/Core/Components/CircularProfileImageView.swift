@@ -10,6 +10,7 @@ import Kingfisher
 
 enum ProfileImageSize {
     case InProfile
+    case InProfile2
     case InChat
     case InStory
     case InGroup
@@ -19,7 +20,9 @@ enum ProfileImageSize {
     var dimension: CGFloat {
         switch self {
         case .InProfile:
-            return 80
+            return 50
+        case .InProfile2:
+            return 100
         case .InChat:
             return 60
         case .InStory:

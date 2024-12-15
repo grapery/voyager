@@ -45,20 +45,31 @@ struct AllGroupsView: View {
             
             // 主要标签栏
             TabBarView(selectedTab: $selectedTab, tabs: tabs)
+                .padding(.top, 4)
             
             // 数量和搜索栏
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.gray)
                 TextField("搜索小组", text: $searchText)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                if !searchText.isEmpty {
+                    Button(action: { searchText = "" }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                    }
+                }
             }
-            .padding()
+            .padding(8)
+            .background(Color(.systemGray6))
+            .cornerRadius(8)
+            .padding(.horizontal)
+            .padding(.vertical, 8)
             
             // 小组列表
             List {
                 ForEach(viewModel.groups) { group in
                     GroupListItemView(group: group, viewModel: viewModel)
+                        .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
                 }
             }
             .listStyle(PlainListStyle())
@@ -107,46 +118,47 @@ struct GroupListItemView: View {
     @State private var showGroupDetail = false
     
     var body: some View {
-        Button(action: {
-            showGroupDetail = true
-        }) {
-            HStack(spacing: 4) {
-                // 小组头像
+        Button(action: { showGroupDetail = true }) {
+            HStack(spacing: 12) {
+                // 优化头像显示
                 KFImage(URL(string: group.info.avatar))
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 60, height: 60)
+                    .frame(width: 48, height: 48)
                     .clipShape(Circle())
                     .overlay(
                         Text("999+")
-                            .font(.caption2)
+                            .font(.system(size: 10))
                             .foregroundColor(.white)
-                            .padding(.horizontal, 1)
-                            .padding(.vertical, 1)
-                            .background(Color.orange.opacity(0.6))
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 2)
+                            .background(Color.orange)
                             .cornerRadius(8)
-                            .offset(x: 30, y: 30)
+                            .offset(x: 20, y: 20)
                     )
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(group.info.name)
-                        .font(.headline)
+                        .font(.system(size: 16, weight: .medium))
                     
                     Text("最近更新: \(group.info.desc)")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
                 
                 Spacer()
                 
-                // 更多按钮
-                Button(action: {}) {
+                Menu {
+                    Button("分享", action: {})
+                    Button("设置", action: {})
+                } label: {
                     Image(systemName: "ellipsis")
                         .foregroundColor(.gray)
+                        .frame(width: 32, height: 32)
                 }
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, 4)
         }
         .fullScreenCover(isPresented: $showGroupDetail) {
             NavigationView {
