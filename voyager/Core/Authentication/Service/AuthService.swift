@@ -25,11 +25,11 @@ class AuthService {
     func login(withEmail email: String, password: String) async -> (Int64, Error?) {
         do {
             let result = try await APIClient.shared.Login(account: email, password: password)
-            if result.token.isEmpty {
+            if result.data.token.isEmpty {
                 return (-1, NSError(domain: "AuthService", code: -1, userInfo: [NSLocalizedDescriptionKey: "登录失败：令牌为空"]))
             }
-            self.token = result.token
-            self.currentUser = try await APIClient.shared.GetUserInfo(userId: result.userID)
+            self.token = result.data.token
+            self.currentUser = try await APIClient.shared.GetUserInfo(userId: result.data.userID)
             print("user \(String(describing: self.currentUser))")
             return (0, nil) // 成功登录
         } catch  {
@@ -99,7 +99,7 @@ class AuthService {
             let result = try await APIClient.shared.Register(account: email, password: password, name: name)
             
             print("register result:\(result.code)")
-            return result.code
+            return Int32(result.code.rawValue)
         }catch{
             print("register error")
         }

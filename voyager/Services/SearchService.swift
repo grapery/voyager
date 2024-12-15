@@ -35,9 +35,9 @@ extension APIClient {
             
             let resp = await authClient.searchGroup(request: request, headers: header)
             
-            if resp.message?.code != 0 {
+            if resp.message?.code != Common_ResponseCode.ok {
                 // If the response code is not 1, it indicates an error
-                return (nil,0,0,NSError(domain: "SearchGroups", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
+                return (nil,0,0,NSError(domain: "SearchGroups", code: Int((resp.message?.code.rawValue)!), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
             }
             var groups = [BranchGroup]()
             if let groupList = resp.message?.data.list {
@@ -69,8 +69,8 @@ extension APIClient {
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let resp = await authClient.searchRoles(request: request, headers: header)
-            if resp.message?.code != 0 {
-                return (nil,0,0,NSError(domain: "SearchStoryRoles", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
+            if resp.message?.code != Common_ResponseCode.ok {
+                return (nil,0,0,NSError(domain: "SearchStoryRoles", code: Int((resp.message?.code.rawValue)!), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
             }
             var roles = [StoryRole]()
             if let roleList = resp.message?.roles {
@@ -98,8 +98,8 @@ extension APIClient {
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let resp = await authClient.searchStories(request: request, headers: header)
-            if resp.message?.code != 0 {
-                return (nil,0,0,NSError(domain: "SearchStorys", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
+            if resp.message?.code != Common_ResponseCode.ok {
+                return (nil,0,0,NSError(domain: "SearchStorys", code: Int((resp.message?.code.rawValue)!), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
             }
             var stories = [Story]()
             if let storyList = resp.message?.stories {

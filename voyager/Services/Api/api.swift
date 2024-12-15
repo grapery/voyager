@@ -41,11 +41,11 @@ struct APIClient{
             let resp = await authClient.login(request: request, headers: [:])
             print("resp \(resp)")
             
-            guard let message = resp.message, !message.token.isEmpty else {
+            guard let message = resp.message, !message.data.token.isEmpty else {
                 throw NSError(domain: "LoginError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Login failed: Empty token"])
             }
             
-            globalUserToken = message.token
+            globalUserToken = message.data.token
             return message
         } catch {
             throw error
@@ -82,7 +82,7 @@ struct APIClient{
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             resp = await authClient.userInfo(request: request, headers:header)
-            result = resp.message!.info
+            result = resp.message!.data.info
         }
         return result
     }

@@ -29,8 +29,8 @@ extension APIClient {
             let response =  await authClient.userGroup(request: request, headers: header)
              
             if let data = response.message {
-                let groups = data.list.map { BranchGroup(info: $0) }
-                return (groups: groups, page: data.offset, offset: data.pageSize)
+                let groups = data.data.list.map { BranchGroup(info: $0) }
+                return (groups: groups, page: data.data.offset, offset: data.data.pageSize)
             } else {
                 print("Error: No data returned from getUserCreateGroups")
                 return (groups: [], page: 0, offset: 0)
@@ -57,8 +57,8 @@ extension APIClient {
             let response = await authClient.userGroup(request: request, headers: header)
             
             if let data = response.message {
-                let groups = data.list.map { BranchGroup(info: $0) }
-                return (groups: groups, page: data.offset, offset: data.pageSize)
+                let groups = data.data.list.map { BranchGroup(info: $0) }
+                return (groups: groups, page: data.data.offset, offset: data.data.pageSize)
             } else {
                 print("Error: No data returned from getUserCreateGroups")
                 return (groups: [], page: 0, offset: 0)
@@ -82,7 +82,7 @@ extension APIClient {
             let authClient = Common_TeamsApiClient(client: self.client!)
             let response = try await authClient.joinGroup(request: request, headers: header)
             
-            if response.message?.code == 0 {
+            if response.message?.code == Common_ResponseCode.ok {
                 return (true, nil)
             } else {
                 let errorMessage = response.message?.message ?? "Unknown error occurred while joining group"
@@ -106,7 +106,7 @@ extension APIClient {
             let authClient = Common_TeamsApiClient(client: self.client!)
             let response = try await authClient.leaveGroup(request: request, headers: header)
             
-            if response.message?.code == 0 {
+            if response.message?.code == Common_ResponseCode.ok {
                 return (true, nil)
             } else {
                 let errorMessage = response.message?.message ?? "Unknown error occurred while joining group"
@@ -178,7 +178,7 @@ extension APIClient {
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let authClient = Common_TeamsApiClient(client: self.client!)
             let response = await authClient.updateGroupProfile(request: request, headers: header)
-            if response.message?.code != 0{
+            if response.message?.code != Common_ResponseCode.ok{
                 return NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Update Group Profile failed"])
             }
             return nil
@@ -232,7 +232,7 @@ extension APIClient {
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.fetchGroupMembers(request: request, headers: header)
             
-            if response.message?.code != 0{
+            if response.message?.code != Common_ResponseCode.ok{
                 let users = response.message?.data.list
                 return (users, page, size,nil)
             } else {
@@ -283,7 +283,7 @@ extension APIClient {
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.searchGroup(request: request, headers: header)
-            if response.message?.code != 0{
+            if response.message?.code != Common_ResponseCode.accountDisabled{
                 let groups = response.message?.data.list.map { BranchGroup(info: $0) }
                 return (groups, page, size,nil)
             } else {

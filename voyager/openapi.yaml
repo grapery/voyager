@@ -304,7 +304,7 @@ paths:
         post:
             tags:
                 - TeamsAPI
-            description: 删除故事板
+            description: 删除故事板,1.最后一个故事板可以被删除，2.如果故事板是多分支之一的可以被删除
             operationId: TeamsAPI_DelStoryboard
             requestBody:
                 content:
@@ -813,6 +813,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/GetItemsCommentResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /common.TeamsAPI/GetNextStoryboards:
+        post:
+            tags:
+                - TeamsAPI
+            description: 根据boardId 获取 下一个 storyboard,如果是多个分叉，则返回多个，同时返回是否多分支的标记位
+            operationId: TeamsAPI_GetNextStoryboard
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GetNextStoryboardRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetNextStoryboardResponse'
                 default:
                     description: Default error response
                     content:
@@ -1823,7 +1848,7 @@ paths:
         post:
             tags:
                 - TeamsAPI
-            description: 渲染故事角色
+            description: 渲���故事角色
             operationId: TeamsAPI_RenderStoryRoles
             requestBody:
                 content:
@@ -2938,7 +2963,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 replyMessages:
@@ -3018,7 +3043,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3055,7 +3080,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3084,7 +3109,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3102,6 +3127,16 @@ components:
                 name:
                     type: string
         CreateProjectResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/CreateProjectResponse_Data'
+        CreateProjectResponse_Data:
             type: object
             properties:
                 info:
@@ -3191,7 +3226,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 chatContext:
@@ -3208,7 +3243,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
         CreateStoryboardRequest:
@@ -3260,7 +3295,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3284,7 +3319,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3306,7 +3341,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3343,6 +3378,16 @@ components:
         ExploreProjectsResponse:
             type: object
             properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/ExploreProjectsResponse_Data'
+        ExploreProjectsResponse_Data:
+            type: object
+            properties:
                 userId:
                     type: string
                 list:
@@ -3358,7 +3403,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3381,6 +3426,16 @@ components:
                 pageSize:
                     type: string
         FetchActivesResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/FetchActivesResponse_Data'
+        FetchActivesResponse_Data:
             type: object
             properties:
                 list:
@@ -3407,7 +3462,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3437,7 +3492,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3483,6 +3538,14 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Story'
+                interact:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserInteractStatus'
+                creator:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserInfo'
         FollowStoryRoleRequest:
             type: object
             properties:
@@ -3497,7 +3560,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
         ForkStoryboardRequest:
@@ -3611,7 +3674,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3641,6 +3704,16 @@ components:
         GetGroupItemsResponse:
             type: object
             properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/GetGroupItemsResponse_Data'
+        GetGroupItemsResponse_Data:
+            type: object
+            properties:
                 list:
                     type: array
                     items:
@@ -3665,7 +3738,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3691,7 +3764,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3715,6 +3788,16 @@ components:
                 userId:
                     type: string
         GetItemResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/GetItemResponse_Data'
+        GetItemResponse_Data:
             type: object
             properties:
                 info:
@@ -3750,7 +3833,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3776,6 +3859,46 @@ components:
                     format: int32
                 timestamp:
                     type: string
+        GetNextStoryboardRequest:
+            type: object
+            properties:
+                storyboardId:
+                    type: string
+                userId:
+                    type: string
+                storyId:
+                    type: string
+                isMultiBranch:
+                    type: boolean
+                offset:
+                    type: string
+                pageSize:
+                    type: string
+                total:
+                    type: string
+                orderBy:
+                    type: integer
+                    format: enum
+        GetNextStoryboardResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: enum
+                message:
+                    type: string
+                storyboards:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/StoryBoard'
+                isMultiBranch:
+                    type: boolean
+                total:
+                    type: string
+                offset:
+                    type: string
+                pageSize:
+                    type: string
         GetProjectItemsRequest:
             type: object
             properties:
@@ -3790,6 +3913,16 @@ components:
                 pageSize:
                     type: string
         GetProjectItemsResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/GetProjectItemsResponse_Data'
+        GetProjectItemsResponse_Data:
             type: object
             properties:
                 list:
@@ -3820,6 +3953,16 @@ components:
         GetProjectListResponse:
             type: object
             properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/GetProjectListResponse_Data'
+        GetProjectListResponse_Data:
+            type: object
+            properties:
                 List:
                     type: array
                     items:
@@ -3842,7 +3985,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3873,6 +4016,16 @@ components:
         GetProjectProfileResponse:
             type: object
             properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/GetProjectProfileResponse_Data'
+        GetProjectProfileResponse_Data:
+            type: object
+            properties:
                 groupId:
                     type: string
                 projectId:
@@ -3893,6 +4046,16 @@ components:
         GetProjectResponse:
             type: object
             properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/GetProjectResponse_Data'
+        GetProjectResponse_Data:
+            type: object
+            properties:
                 info:
                     $ref: '#/components/schemas/ProjectInfo'
         GetProjectWatcherRequest:
@@ -3906,7 +4069,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -3999,6 +4162,14 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/StoryRole'
+                interact:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserInteractStatus'
+                creator:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserInfo'
         GetStoryBoardSenceGenerateRequest:
             type: object
             properties:
@@ -4043,6 +4214,10 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/StoryBoardSence'
+                interact:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserInteractStatus'
         GetStoryContributorsRequest:
             type: object
             properties:
@@ -4053,7 +4228,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -4085,6 +4260,10 @@ components:
             properties:
                 info:
                     $ref: '#/components/schemas/Story'
+                creator:
+                    $ref: '#/components/schemas/UserInfo'
+                interact:
+                    $ref: '#/components/schemas/UserInteractStatus'
         GetStoryRenderRequest:
             type: object
             properties:
@@ -4125,7 +4304,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 info:
@@ -4148,7 +4327,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 stories:
@@ -4181,7 +4360,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 storyboards:
@@ -4218,10 +4397,20 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/StoryRole'
+                interact:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserInteractStatus'
+                creator:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserInfo'
         GetStoryboardRequest:
             type: object
             properties:
                 boardId:
+                    type: string
+                userId:
                     type: string
         GetStoryboardResponse:
             type: object
@@ -4238,6 +4427,10 @@ components:
             properties:
                 info:
                     $ref: '#/components/schemas/StoryBoard'
+                creator:
+                    $ref: '#/components/schemas/UserInfo'
+                interact:
+                    $ref: '#/components/schemas/UserInteractStatus'
         GetStoryboardsRequest:
             type: object
             properties:
@@ -4249,12 +4442,19 @@ components:
                     type: string
                 endTime:
                     type: string
+                userId:
+                    type: string
+                isMultiBranch:
+                    type: boolean
                 page:
                     type: integer
                     format: int32
                 pageSize:
                     type: integer
                     format: int32
+                orderBy:
+                    type: integer
+                    format: enum
         GetStoryboardsResponse:
             type: object
             properties:
@@ -4272,9 +4472,22 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/StoryBoard'
+                creator:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserInfo'
+                interact:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserInteractStatus'
+                isMultiBranch:
+                    type: boolean
                 total:
-                    type: integer
-                    format: int32
+                    type: string
+                offset:
+                    type: string
+                pageSize:
+                    type: string
         GetUserChatMessagesRequest:
             type: object
             properties:
@@ -4291,7 +4504,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 messages:
@@ -4314,7 +4527,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 messages:
@@ -4343,7 +4556,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 roles:
@@ -4376,7 +4589,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 storyboards:
@@ -4401,6 +4614,16 @@ components:
         GetUserItemsResponse:
             type: object
             properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/GetUserItemsResponse_Data'
+        GetUserItemsResponse_Data:
+            type: object
+            properties:
                 list:
                     type: array
                     items:
@@ -4421,7 +4644,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 info:
@@ -4438,7 +4661,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 chats:
@@ -4571,7 +4794,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -4591,7 +4814,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -4617,7 +4840,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -4637,7 +4860,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
         LikeStoryRoleRequest:
@@ -4654,7 +4877,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
         LikeStoryboardRequest:
@@ -4711,6 +4934,16 @@ components:
         LoginResponse:
             type: object
             properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/LoginResponse_Data'
+        LoginResponse_Data:
+            type: object
+            properties:
                 userId:
                     type: string
                 token:
@@ -4722,8 +4955,6 @@ components:
                 status:
                     type: integer
                     format: int32
-                msg:
-                    type: string
         LogoutRequest:
             type: object
             properties:
@@ -4736,7 +4967,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 msg:
                     type: string
         MusicShareDetail:
@@ -4868,7 +5099,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 msg:
                     type: string
         RenderStoryBoardSenceRequest:
@@ -5010,7 +5241,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
         RenderStoryRolesRequest:
@@ -5154,7 +5385,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 store:
@@ -5171,6 +5402,16 @@ components:
                 pageSize:
                     type: string
         SearchAllProjectResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/SearchAllProjectResponse_Data'
+        SearchAllProjectResponse_Data:
             type: object
             properties:
                 userId:
@@ -5206,7 +5447,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -5234,6 +5475,16 @@ components:
                 pageSize:
                     type: string
         SearchProjectResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/SearchProjectResponse_Data'
+        SearchProjectResponse_Data:
             type: object
             properties:
                 groupId:
@@ -5269,7 +5520,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 roles:
@@ -5301,7 +5552,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 stories:
@@ -5324,6 +5575,16 @@ components:
                 pageSize:
                     type: string
         SearchUserResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/SearchUserResponse_Data'
+        SearchUserResponse_Data:
             type: object
             properties:
                 list:
@@ -5448,7 +5709,9 @@ components:
                 prevBoardId:
                     type: string
                 nextBoardId:
-                    type: string
+                    type: array
+                    items:
+                        type: string
                 creator:
                     type: string
                 storyBoardId:
@@ -5679,7 +5942,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -5705,7 +5968,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
         UnLikeStoryRequest:
@@ -5720,7 +5983,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
         UnLikeStoryRoleRequest:
@@ -5737,7 +6000,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
         UnLikeStoryboardRequest:
@@ -5771,7 +6034,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -5791,7 +6054,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -5815,7 +6078,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
         UpdateItemRequest:
@@ -5836,7 +6099,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -5862,7 +6125,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -5957,7 +6220,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
         UpdateStoryRoleRequest:
@@ -6013,6 +6276,16 @@ components:
         UpdateUserAvatorResponse:
             type: object
             properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/UpdateUserAvatorResponse_Data'
+        UpdateUserAvatorResponse_Data:
+            type: object
+            properties:
                 info:
                     $ref: '#/components/schemas/UserInfo'
                 status:
@@ -6030,7 +6303,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
         UploadImageRequest:
@@ -6048,7 +6321,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -6072,6 +6345,16 @@ components:
                     type: integer
                     format: int32
         UserFollowingGroupResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/UserFollowingGroupResponse_Data'
+        UserFollowingGroupResponse_Data:
             type: object
             properties:
                 userId:
@@ -6099,6 +6382,16 @@ components:
                     type: integer
                     format: int32
         UserGroupResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/UserGroupResponse_Data'
+        UserGroupResponse_Data:
             type: object
             properties:
                 list:
@@ -6141,8 +6434,20 @@ components:
         UserInfoResponse:
             type: object
             properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/UserInfoResponse_Data'
+        UserInfoResponse_Data:
+            type: object
+            properties:
                 info:
                     $ref: '#/components/schemas/UserInfo'
+                profile:
+                    $ref: '#/components/schemas/UserProfileInfo'
         UserInitRequest:
             type: object
             properties:
@@ -6153,12 +6458,53 @@ components:
         UserInitResponse:
             type: object
             properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/UserInitResponse_Data'
+        UserInitResponse_Data:
+            type: object
+            properties:
                 userId:
                     type: string
                 list:
                     type: array
                     items:
                         $ref: '#/components/schemas/GroupInfo'
+        UserInteractStatus:
+            type: object
+            properties:
+                userId:
+                    type: string
+                storyId:
+                    type: string
+                roleId:
+                    type: string
+                groupId:
+                    type: string
+                boardId:
+                    type: string
+                timelineId:
+                    type: string
+                isLike:
+                    type: boolean
+                isFollow:
+                    type: boolean
+                isWatch:
+                    type: boolean
+                isContribute:
+                    type: boolean
+                isComment:
+                    type: boolean
+                isShare:
+                    type: boolean
+                isStar:
+                    type: boolean
+                isCreator:
+                    type: boolean
         UserProfileInfo:
             type: object
             properties:
@@ -6227,7 +6573,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -6251,6 +6597,16 @@ components:
         UserWatchingResponse:
             type: object
             properties:
+                code:
+                    type: integer
+                    format: enum
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/UserWatchingResponse_Data'
+        UserWatchingResponse_Data:
+            type: object
+            properties:
                 list:
                     type: array
                     items:
@@ -6266,7 +6622,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:
@@ -6333,7 +6689,7 @@ components:
             properties:
                 code:
                     type: integer
-                    format: int32
+                    format: enum
                 message:
                     type: string
                 data:

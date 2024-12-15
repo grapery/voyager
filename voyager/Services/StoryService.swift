@@ -146,7 +146,7 @@ extension APIClient {
                 $0.board = Common_StoryBoard.with {
                     $0.storyID = storyId
                     $0.prevBoardID = prevBoardId
-                    $0.nextBoardID = nextBoardId
+                    $0.nextBoardID = [Int64]()
                     $0.creator = creator
                     $0.title = title
                     $0.content = content
@@ -923,9 +923,9 @@ extension APIClient {
             
             let resp = await authClient.likeStory(request: request, headers: header)
             
-            if resp.message?.code != 0 {
+            if resp.message?.code != Common_ResponseCode.ok {
                 // If the response code is not 1, it indicates an error
-                return NSError(domain: "LikeStory", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+                return NSError(domain: "LikeStory", code: -1, userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
             }
             
             // If successful, return nil (no error)
@@ -948,9 +948,9 @@ extension APIClient {
             
             let resp = await authClient.unLikeStory(request: request, headers: header)
             
-            if resp.message?.code != 0 {
+            if resp.message?.code != Common_ResponseCode.ok {
                 // If the response code is not 1, it indicates an error
-                return NSError(domain: "UnLikeStory", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+                return NSError(domain: "UnLikeStory", code: -1, userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
             }
             
             // If successful, return nil (no error)
@@ -973,7 +973,7 @@ extension APIClient {
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.searchRoles(request: request, headers: header)
-            if response.message?.code != 0{
+            if response.message?.code != Common_ResponseCode.ok{
                 let roles = response.message?.roles.map { StoryRole(Id:$0.roleID,role: $0) }
                 return (roles, page, size,nil)
             } else {
@@ -996,7 +996,7 @@ extension APIClient {
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.followStoryRole(request: request, headers: header)
-            if response.message?.code != 0{
+            if response.message?.code != Common_ResponseCode.ok{
                 return (true,nil)
             } else {
                 return (false,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Follow story role failed"]))
@@ -1017,7 +1017,7 @@ extension APIClient {
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.likeStoryRole(request: request, headers: header)
-            if response.message?.code != 0{
+            if response.message?.code != Common_ResponseCode.ok{
                 return (true,nil)
             } else {
                 return (false,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Like story role failed"]))
@@ -1037,7 +1037,7 @@ extension APIClient {
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.unLikeStoryRole(request: request, headers: header)
-            if response.message?.code != 0{
+            if response.message?.code != Common_ResponseCode.ok{
                 return (true,nil)
             } else {
                 return (false,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Unlike story role failed"]))
@@ -1058,7 +1058,7 @@ extension APIClient {
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.unFollowStoryRole(request: request, headers: header)
-            if response.message?.code != 0{ 
+            if response.message?.code != Common_ResponseCode.ok{
                 return (true,nil)
             } else {
                 return (false,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Unfollow story role failed"]))
@@ -1079,7 +1079,7 @@ extension APIClient {
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let apiClient = Common_TeamsApiClient(client: self.client!)
             let response = await apiClient.searchStories(request: request, headers: header)
-            if response.message?.code != 0{ 
+            if response.message?.code != Common_ResponseCode.ok{
                 let stories = response.message?.stories.map { Story(Id: $0.id, storyInfo: $0) }
                 return (stories, page, size,nil)
             } else {
@@ -1104,7 +1104,7 @@ extension APIClient {
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let response = await apiClient.getUserCreatedStoryboards(request: request, headers: header)
-            if response.message?.code != 0{
+            if response.message?.code != Common_ResponseCode.ok{
                 print("fetchUserCreatedStoryBoards response: ",response.message as Any)
                 return ([StoryBoard](),0,0,nil)
             }
@@ -1130,7 +1130,7 @@ extension APIClient {
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let response = await apiClient.getUserCreatedRoles(request: request, headers: header)
-            if response.message?.code != 0{
+            if response.message?.code != Common_ResponseCode.ok {
                 print("fetchUserCreatedStoryRoles response: ",response.message as Any)
                 return ([StoryRole](),0,0,nil)
             }
@@ -1195,7 +1195,7 @@ extension APIClient {
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let response = await apiClient.createStoryRole(request: request, headers: header)
-            if response.message?.code != 0{
+            if response.message?.code != Common_ResponseCode.ok{
                 print("createStoryRole response: ",response.message as Any)
                 return (nil)
             }
@@ -1257,7 +1257,7 @@ extension APIClient {
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let response = await apiClient.getStoryContributors(request: request, headers: header)
-            if response.message?.code != 0{
+            if response.message?.code != Common_ResponseCode.ok{
                 return ([],nil)
             }
             let users = response.message?.data.list.map { User(userID: $0.userID, name: $0.username,avatar : $0.avatar) }
@@ -1277,7 +1277,7 @@ extension APIClient {
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             let response = await apiClient.getStoryRoleDetail(request: request, headers: header)
-            if response.message?.code != 0{
+            if response.message?.code != Common_ResponseCode.ok{
                 print("getStoryRoleDetail response: ",response.message as Any)
                 return (nil,nil)
             }
@@ -1300,7 +1300,7 @@ extension APIClient {
         var header = Connect.Headers()
         header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
         let response = await apiClient.renderStoryRole(request: request, headers: header)
-        if response.message?.code != 0{
+        if response.message?.code != Common_ResponseCode.ok{
             print("RenderStoryRole response: ",response.message as Any)
             return NSError(domain: "RenderStoryRole", code: 0, userInfo: [NSLocalizedDescriptionKey: "render story role failed"])
         }
@@ -1316,7 +1316,7 @@ extension APIClient {
         var header = Connect.Headers()
         header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
         let response = await apiClient.getUserChatWithRole(request: request, headers: header)
-        if response.message?.code != 0{
+        if response.message?.code != Common_ResponseCode.ok{
             return (nil,NSError(domain: "getUserChatWithRole", code: 0, userInfo: [NSLocalizedDescriptionKey: "get user chat with role failed"]))
         }
         return (response.message?.chatContext,nil)
@@ -1332,7 +1332,7 @@ extension APIClient {
         var header = Connect.Headers()
         header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
         let response = await apiClient.createStoryRoleChat(request: request, headers: header)
-        if response.message?.code != 0{
+        if response.message?.code != Common_ResponseCode.ok{
             return (nil,NSError(domain: "createChatWithRoleContext", code: 0, userInfo: [NSLocalizedDescriptionKey: "create chat with role context failed"]))
         }
         return (response.message?.chatContext,nil)
@@ -1350,7 +1350,7 @@ extension APIClient {
         var header = Connect.Headers()
         header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
         let response = await apiClient.getUserWithRoleChatList(request: request, headers: header)
-        if response.message?.code != 0{
+        if response.message?.code != Common_ResponseCode.ok {
             return (nil,NSError(domain: "getUserWithRoleChatList", code: 0, userInfo: [NSLocalizedDescriptionKey: "get user chat list failed"]))
         }
         return (response.message?.chats,nil)
@@ -1366,7 +1366,7 @@ extension APIClient {
         var header = Connect.Headers()
         header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
         let response = await apiClient.chatWithStoryRole(request: request, headers: header)
-        if response.message?.code != 0{
+        if response.message?.code != Common_ResponseCode.ok {
             return (nil,NSError(domain: "chatWithStoryRole", code: 0, userInfo: [NSLocalizedDescriptionKey: "chat with story role failed"]))
         }
         print("reply: ",response.message?.replyMessages as Any)
@@ -1385,7 +1385,7 @@ extension APIClient {
         var header = Connect.Headers()
         header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
         let response = await apiClient.getUserChatMessages(request: request, headers: header)
-        if response.message?.code != 0{
+        if response.message?.code != Common_ResponseCode.ok{
             return (nil,0,NSError(domain: "getUserChatMessages", code: 0, userInfo: [NSLocalizedDescriptionKey: "get user chat messages failed"]))
         }
         return (response.message?.messages,response.message!.timestamp,nil)

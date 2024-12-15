@@ -25,7 +25,7 @@ extension APIClient {
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             resp = await authClient.userInfo(request: request, headers:header)
-            result = resp.message!.info
+            result = resp.message!.data.info
         }
         return result
     }
