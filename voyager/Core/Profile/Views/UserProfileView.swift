@@ -10,11 +10,15 @@ import SwiftUI
 
 struct UserProfileView: View {
     @State private var selectedFilter: UserProfileFilterViewModel = .storyboards
-    @State private var showingEditProfile = false
+    
     @Namespace var animation
     var user: User
     @StateObject var viewModel: ProfileViewModel
     @GestureState private var dragOffset: CGFloat = 0
+    @State private var showingImagePicker = false
+    @State private var showingEditProfile = false
+    @State private var showingSubView = false
+    @State private var backgroundImage: UIImage?
     
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
@@ -25,43 +29,74 @@ struct UserProfileView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    // 头部个人信息区域
-                    VStack(spacing: 16) {
-                        // 头像和用户名
-                        HStack(spacing: 12) {
-                            CircularProfileImageView(avatarUrl: user.avatar, size: .InProfile)
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(user.name)
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                
-                                Text(user.desc.isEmpty ? "神秘的人物，没有简介！" : user.desc)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                    .lineLimit(2)
-                            }
-                            Spacer()
+                    // 背景图片和个人信息的整体容器
+                    ZStack(alignment: .bottom) {
+                        // 背景图片层
+                        if let image = backgroundImage {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(height: 280) // 增加高度以容纳更多内容
+                                .clipped()
+                        } else {
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(height: 280)
                         }
                         
-                        // 统计数据
-                        HStack(spacing: 32) {
-                            StatView(
-                                icon: "mountain.2",
-                                count: Int64(viewModel.profile.createdStoryNum),
-                                title: "个故事"
-                            )
+                        // 渐变遮罩层
+                        LinearGradient(
+                            gradient: Gradient(colors: [.clear, .black.opacity(0.6)]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(height: 280)
+                        
+                        // 个人信息层
+                        VStack(spacing: 16) {
+                            // 头像和用户名
+                            HStack(spacing: 12) {
+                                CircularProfileImageView(avatarUrl: user.avatar, size: .InProfile)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.white, lineWidth: 2)
+                                    )
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(user.name)
+                                        .font(.title3)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                    
+                                    Text(user.desc.isEmpty ? "神秘的人物，没有简介！" : user.desc)
+                                        .font(.subheadline)
+                                        .foregroundColor(.white.opacity(0.9))
+                                        .lineLimit(2)
+                                }
+                                Spacer()
+                            }
                             
-                            StatView(
-                                icon: "person",
-                                count: Int64(viewModel.profile.createdRoleNum),
-                                title: "个故事角色"
-                            )
+                            // 统计数据
+                            HStack(spacing: 32) {
+                                StatView(
+                                    icon: "mountain.2",
+                                    count: Int64(viewModel.profile.createdStoryNum),
+                                    title: "个故事"
+                                )
+                                
+                                StatView(
+                                    icon: "person",
+                                    count: Int64(viewModel.profile.createdRoleNum),
+                                    title: "个故事角色"
+                                )
+                            }
                         }
+                        .padding(16)
                     }
-                    .padding(16)
-                    
-                    Divider()
+                    .onLongPressGesture {
+                        showingSubView = true
+                        showingImagePicker = true
+                    }
                     
                     // 分类标签栏
                     HStack(spacing: 0) {
@@ -106,6 +141,28 @@ struct UserProfileView: View {
                         )
                     }
                     .frame(height: UIScreen.main.bounds.height * 0.7)
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingSubView = true
+                        showingEditProfile = true
+                    } label: {
+                        Image(systemName: "gearshape.fill")
+                            .foregroundColor(.white)
+                    }
+                }
+            }
+            .sheet(isPresented: $showingSubView) {
+                if showingEditProfile {
+                    EditUserProfileView(user: user)
+                    self.$showingSubView = false
+                    self.showingEditProfile = false
+                } else if showingImagePicker{
+                    SingleImagePicker(image: $backgroundImage)
+                    self.$showingSubView = false
+                    self.showingImagePicker = false
                 }
             }
             .background(Color(.systemBackground))
@@ -213,12 +270,12 @@ struct StatView: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: icon)
-                .foregroundColor(.blue)
+                .foregroundColor(.white)
                 .font(.system(size: 16))
             
             Text("\(count) \(title)")
                 .font(.system(size: 14))
-                .foregroundColor(.secondary)
+                .foregroundColor(.white.opacity(0.9))
         }
     }
 }
