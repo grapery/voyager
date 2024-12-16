@@ -27,25 +27,41 @@ extension APIClient {
             $0.imageData = imageData
         }
         
+        
+        // 假设我们有一个gRPC客户端实例
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.uploadImageFile(request: request, headers: header)
+        if response.code.rawValue != 0 {
+            return ""
+        }
+        let imageUrl = (response.message?.data.url)!
+        print("upload image : ",response.message?.data as Any)
+        return imageUrl
+        
+    }
+    
+    func downloadImage(url: String) async throws -> UIImage? {
+        guard let imageURL = URL(string: url) else {
+            return nil
+        }
+        
         do {
-            // 假设我们有一个gRPC客户端实例
-            let apiClient = Common_TeamsApiClient(client: self.client!)
-            var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
-            let response = await apiClient.uploadImageFile(request: request, headers: header)
-            if response.code.rawValue != 0 {
-                return ""
+            let (data, response) = try await URLSession.shared.data(from: imageURL)
+            
+            guard let httpResponse = response as? HTTPURLResponse,
+                  (200...299).contains(httpResponse.statusCode) else {
+                throw ImageUploadError.invalidResponse
             }
-            let imageUrl = (response.message?.data.url)!
-            print("upload image : ",response.message?.data as Any)
-            return imageUrl
+            
+            guard let image = UIImage(data: data) else {
+                throw ImageUploadError.invalidImage
+            }
+            
+            return image
         } catch {
             throw ImageUploadError.rpcError(error)
         }
-        return ""
-    }
-    
-    func downloadImage(url: String) async throws -> UIImage?{
-        return nil
     }
 }
