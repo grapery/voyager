@@ -176,15 +176,21 @@ struct NewStoryView: View {
         self.viewModel.story?.storyInfo.groupID = self.groupId
         self.viewModel.story?.storyInfo.creatorID = self.viewModel.userId
         //self.viewModel.story?.storyInfo.params.refImage = self.refImages?.map({$0.description}).joined(separator: ",")
-        Task{@MainActor in
-            await self.viewModel.CreateStory(groupId: self.groupId)
+        
+        Task {@MainActor in
+            do {
+                await self.viewModel.CreateStory(groupId: self.groupId)
+                
+                if self.viewModel.isCreateOk {
+                    presentationMode.wrappedValue.dismiss()
+                    print("create new story success \(self.viewModel.story?.storyInfo.title ?? self.title)")
+                } else if let error = self.viewModel.err {
+                    showAlert(message: error.localizedDescription)
+                }
+            } catch {
+                showAlert(message: error.localizedDescription)
+            }
         }
-        if self.viewModel.isCreateOk{
-            presentationMode.wrappedValue.dismiss()
-            print("create new story success \(self.viewModel.story?.storyInfo.title ?? self.title)")
-            return
-        }
-        //showAlert(message: self.viewModel.err!.localizedDescription)
     }
     
     private func showAlert(message: String) {

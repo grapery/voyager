@@ -640,8 +640,10 @@ struct FeedContentView: View {
             .padding(.top, 8)
         }
         .refreshable {
-            // 添加下拉刷新功能
-            // await refreshData()
+            await refreshData()
+        }
+        .onAppear {
+            await refreshData()
         }
     }
 }
@@ -697,19 +699,31 @@ struct GroupFeedCell: View {
                 InteractionButton(
                     icon: "bell",
                     count: 20,
-                    isActive: false
+                    isActive: false,
+                    action: { 
+                        // 在这里处理点击事件
+                        print("Bell button tapped")
+                    }
                 )
                 
                 InteractionButton(
                     icon: "bubble.left",
                     count: 20,
-                    isActive: false
+                    isActive: false,
+                    action: { 
+                        // 在这里处理点击事件
+                        print("Bubble left button tapped")
+                    }
                 )
                 
                 InteractionButton(
                     icon: "heart",
                     count: 20,
-                    isActive: false
+                    isActive: false,
+                    action: { 
+                        // 在这里处理点击事件
+                        print("Heart button tapped")
+                    }
                 )
                 
                 Spacer()
@@ -789,24 +803,38 @@ struct StoryFeedCell: View {
                 InteractionButton(
                     icon: "bookmark",
                     count: 10,
-                    isActive: false
+                    isActive: false,
+                    action: { 
+                        // 在这里处理点击事件
+                        print("Bookmark button tapped")
+                    }
                 )
                 
                 InteractionButton(
                     icon: "bubble.left",
                     count: 10,
-                    isActive: false
+                    isActive: false,
+                    action: { 
+                        // 在这里处理点击事件
+                        print("Bubble left button tapped")
+                    }
                 )
                 
                 InteractionButton(
                     icon: "heart",
                     count: 10,
-                    isActive: false
+                    isActive: false,
+                    action: { 
+                        // 在这里处理点击事件
+                        print("Heart button tapped")
+                    }
                 )
                 
                 Spacer()
                 
-                Button(action: {}) {
+                Button(action: {
+                    print("Square and arrow up button tapped")
+                }) {
                     Image(systemName: "square.and.arrow.up")
                         .foregroundColor(.gray)
                 }
@@ -847,7 +875,10 @@ struct RoleFeedCell: View {
                 
                 Spacer()
                 
-                Button(action: { isFollowing.toggle() }) {
+                Button(action: { 
+                    isFollowing.toggle() 
+                    print("isFollowing: \(isFollowing)")
+                }) {
                     Text(isFollowing ? "已关注" : "关注")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(isFollowing ? .gray : .white)
@@ -872,19 +903,31 @@ struct RoleFeedCell: View {
                 InteractionButton(
                     icon: "bell",
                     count: 30,
-                    isActive: false
+                    isActive: false,
+                    action: { 
+                        // 在这里处理点击事件
+                        print("Bell button tapped")
+                    }
                 )
                 
                 InteractionButton(
                     icon: "bubble.left",
                     count: 30,
-                    isActive: false
+                    isActive: false,
+                    action: { 
+                        // 在这里处理点击事件
+                        print("Bubble left button tapped")
+                    }
                 )
                 
                 InteractionButton(
                     icon: "heart",
                     count: 30,
-                    isActive: false
+                    isActive: false,
+                    action: { 
+                        // 在这里处理点击事件
+                        print("Heart button tapped")
+                    }
                 )
                 
                 Spacer()
@@ -908,9 +951,10 @@ struct InteractionButton: View {
     let icon: String
     let count: Int
     let isActive: Bool
+    let action: () -> Void
     
     var body: some View {
-        Button(action: {}) {
+        Button(action: action) {
             HStack(spacing: 4) {
                 Image(systemName: icon)
                     .font(.system(size: 16))
@@ -945,7 +989,7 @@ struct DiscoverTabButton: View {
     }
 }
 
-// AI���手头部
+// AI手头部
 struct AIAssistantHeader: View {
     var body: some View {
         HStack(spacing: 16) {

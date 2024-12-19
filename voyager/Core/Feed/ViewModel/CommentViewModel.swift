@@ -25,13 +25,8 @@ class CommentsViewModel: ObservableObject {
         return nil
     }
     
-    
-    func fetchCommentsUserInfo() async {
-        for i in 0..<comments.count {
-            let comment = comments[i]
-            let user = await APIClient.shared.fetchUser(withUid: comment.realComment.userID)
-            comments[i].commentUser = user
-        }
+    func submitCommentForStoryRole(commentText: String,storyId:Int64,roleId: Int64,userId:Int64) async -> Error?{
+        return nil
     }
     
     func fetchStoryComments() async {
@@ -43,6 +38,14 @@ class CommentsViewModel: ObservableObject {
     }
     
     func fetchStoryboardComments() async {
+        for i in 0..<comments.count {
+            let comment = comments[i]
+            let user = await APIClient.shared.fetchUser(withUid: comment.realComment.userID)
+            comments[i].commentUser = user
+        }
+    }
+    
+    func fetchStoryRoleComments() async {
         for i in 0..<comments.count {
             let comment = comments[i]
             let user = await APIClient.shared.fetchUser(withUid: comment.realComment.userID)

@@ -17,6 +17,7 @@ struct MessageContextView: View {
     @State private var showErrorAlert: Bool = false
     @State private var errorMessage: String = ""
     var currentUserId: Int64
+    var currentRoleId: Int64
     @State private var isShowingMediaPicker = false
     @State private var selectedImage: UIImage?
 
@@ -26,6 +27,7 @@ struct MessageContextView: View {
     init(userId: Int64, roleId: Int64, role: StoryRole) {
         self.role = role
         self.currentUserId = userId
+        self.currentRoleId = roleId
         self.viewModel = MessageContextViewModel(userId: userId, roleId: roleId,role: role)
     }
     
@@ -36,6 +38,7 @@ struct MessageContextView: View {
             ChatMessageList(
                 messages: viewModel.messages,
                 currentUserId: self.currentUserId,
+                currentRoleId: self.currentRoleId,
                 onLoadMore: loadMoreMessages
             )
             
@@ -209,6 +212,7 @@ struct MessageContextView: View {
     private struct ChatMessageList: View {
         let messages: [ChatMessage]?
         let currentUserId: Int64
+        let currentRoleId: Int64
         @State private var isLoading = false
         let onLoadMore: () async -> Void
 
@@ -232,7 +236,7 @@ struct MessageContextView: View {
                         
                         if let messages = messages {
                             ForEach(messages) { message in
-                                MessageCellView(currentUserId: currentUserId, message: message)
+                                MessageCellView(currentUserId: currentUserId, currentRoleId: currentRoleId, message: message)
                                     .id(message.id)
                             }
                         }
@@ -361,11 +365,13 @@ struct MessageContextView: View {
 
 struct MessageCellView: View {
     let currentUserId: Int64
+    let currentRoleId: Int64
     let message: ChatMessage
     
     @State private var isAnimating = false
-    init(currentUserId: Int64, message: ChatMessage) {
+    init(currentUserId: Int64, currentRoleId: Int64, message: ChatMessage) {
         self.currentUserId = currentUserId
+        self.currentRoleId = currentRoleId
         self.message = message
     }
     private var isFromCurrentUser: Bool {
@@ -375,7 +381,7 @@ struct MessageCellView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
             if !isFromCurrentUser {
-                AvatarView(userId: currentUserId,roleId: message.msg.roleID)
+                AvatarView(userId: self.currentUserId,roleId: self.currentRoleId)
                     .frame(width: 40, height: 40)
             } else {
                 Spacer()
@@ -392,7 +398,7 @@ struct MessageCellView: View {
             }
             
             if isFromCurrentUser {
-                AvatarView(userId: currentUserId,roleId: message.msg.roleID)
+                AvatarView(userId: self.currentUserId,roleId: self.currentRoleId)
                     .frame(width: 40, height: 40)
             } else {
                 Spacer()
@@ -527,6 +533,7 @@ struct AvatarView: View {
     var roleId: Int64? = nil
     @State private var navigateToRoleDetail = false
     init(userId: Int64? = nil, roleId: Int64? = nil) {
+        print("AvatarView init: userId: \(userId), roleId: \(roleId)")
         self.userId = userId
         self.roleId = roleId
     }

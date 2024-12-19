@@ -22,11 +22,14 @@ class FeedViewModel: ObservableObject {
     @Published var trendingFilters = [String]()
     @Published var trendingGroups: [BranchGroup]
     
+    @Published var feedActives: [Common_ActiveInfo]
+    
     @Published var page: Int64
     @Published var size: Int64
     @Published var timeStamp: Int64
     @Published var tags: [String]
     @Published @MainActor var searchText: String = ""
+    @Published @MainActor var activeFlowType: Common_ActiveFlowType = Common_ActiveFlowType(rawValue: 1)!
    
     @MainActor
     func performSearch() async {
@@ -50,8 +53,23 @@ class FeedViewModel: ObservableObject {
         self.trendingRoles = [StoryRole]()
         self.trendingBoards = [StoryBoard]()
         
+        self.feedActives = [Common_ActiveInfo]()
+        
         self.page = 0
         self.size = 0
+    }
+
+    @MainActor
+    func fetchActives() async -> Void{
+        let result = await APIClient.shared.fetchActives(userId: self.userId, offset: self.page, size: self.size, timestamp: self.timeStamp, activeType: self.activeFlowType, filter: [String]())
+        if result.3 != nil {
+            print("fetchTrendingGroups failed: ",result.3!)
+            return
+        }
+        self.feedActives = result.0!
+        self.page = result.1
+        self.size = result.2
+        return
     }
     
     @MainActor

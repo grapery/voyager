@@ -63,7 +63,7 @@ struct GroupView: View {
                         .padding(.horizontal)
                     }
                     
-                    // 分类标签
+                    // 分类标���
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 20) {
                             ForEach(tabs, id: \.self) { tab in
@@ -78,7 +78,7 @@ struct GroupView: View {
                     }
                     
                     // 小组列表
-                    LazyVStack(spacing: 12) {
+                    LazyVStack(spacing: 8) {
                         ForEach(viewModel.groups) { group in
                             GroupDiscussionCell(group: group, viewModel: viewModel)
                         }
@@ -178,13 +178,13 @@ struct GroupDiscussionCell: View {
     
     var body: some View {
         Button(action: { showGroupDetail = true }) {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 12) {
                 // 头部信息
-                HStack(spacing: 10) {
+                HStack(spacing: 12) {
                     KFImage(URL(string: group.info.avatar))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 48, height: 48)
                         .clipShape(Circle())
                         .overlay(Circle().stroke(Color.gray.opacity(0.1), lineWidth: 0.5))
                     
@@ -207,20 +207,50 @@ struct GroupDiscussionCell: View {
                         .foregroundColor(.secondary)
                 }
                 
-                // 互动栏
-                HStack(spacing: 20) {
-                    InteractionButton(icon: "bell", count: 20, isActive: false)
-                    InteractionButton(icon: "bubble.left", count: 30, isActive: false)
-                    InteractionButton(icon: "heart", count: 40, isActive: false)
+                // 更新互动栏实现
+                HStack(spacing: 24) {
+                    InteractionButton(
+                        icon: "bell",
+                        count: 20,
+                        isActive: false,
+                        action: { 
+                            // 处理通知按钮点击
+                            print("Bell tapped")
+                        }
+                    )
+                    
+                    InteractionButton(
+                        icon: "bubble.left",
+                        count: 30,
+                        isActive: false,
+                        action: { 
+                            // 处理评论按钮点击
+                            print("Comment tapped")
+                        }
+                    )
+                    
+                    InteractionButton(
+                        icon: "heart",
+                        count: 40,
+                        isActive: false,
+                        action: { 
+                            // 处理喜欢按钮点击
+                            print("Heart tapped")
+                        }
+                    )
+                    
                     Spacer()
+                    
                     Button(action: {}) {
                         Image(systemName: "square.and.arrow.up")
                             .foregroundColor(.gray)
                             .font(.system(size: 14))
                     }
                 }
+                .padding(.top, 4)
             }
-            .padding(12)
+            .padding(.vertical, 16)
+            .padding(.horizontal, 16)
             .background(Color(.systemBackground))
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.03), radius: 6, y: 2)
@@ -241,3 +271,5 @@ struct GroupDiscussionCell: View {
         }
     }
 }
+
+

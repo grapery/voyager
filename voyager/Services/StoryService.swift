@@ -1184,6 +1184,7 @@ extension APIClient {
         return (roles,0,0,nil)
     }
     
+    
     func createStoryRole(userId: Int64,role:Common_StoryRole) async -> Error?{
         do {
             print("createStoryRole " ,userId)
@@ -1389,5 +1390,31 @@ extension APIClient {
             return (nil,0,NSError(domain: "getUserChatMessages", code: 0, userInfo: [NSLocalizedDescriptionKey: "get user chat messages failed"]))
         }
         return (response.message?.messages,response.message!.timestamp,nil)
+    }
+
+    func fetchActives(userId:Int64,offset: Int64,size: Int64,timestamp: Int64,activeType: Common_ActiveFlowType,filter: [String]) async -> ([Common_ActiveInfo]?,Int64,Int64,Error?){
+        print("get user actives")
+        var actives: [Common_ActiveInfo] = []
+        var size = size
+        var offset = offset
+        do {
+             let apiClient = Common_TeamsApiClient(client: self.client!)
+             let request = Common_FetchActivesRequest.with {
+                 $0.userID = userId
+                 $0.timestamp = timestamp
+                 $0.atype = activeType
+                 $0.offset = offset
+                 $0.pageSize = size
+             }
+             var header = Connect.Headers()
+             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+             let response = await apiClient.fetchActives(request: request, headers: header)
+             if response.message?.code != Common_ResponseCode.ok{
+                 return (nil,0,0,NSError(domain: "fetchActives", code: 0, userInfo: [NSLocalizedDescriptionKey: "fetchActives failed"]))
+             }
+            size = (response.message?.data.pageSize)!
+            offset = (response.message?.data.offset)!
+         }
+         return (actives,offset,size,nil)
     }
 }

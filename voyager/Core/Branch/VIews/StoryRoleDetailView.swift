@@ -110,6 +110,9 @@ struct StoryRoleDetailView: View {
     @State private var showingEditView = false
     @State private var showingChatView = false
     @State private var showingPosterView = false
+    @State private var showingDescriptionEditor = false
+    @State private var showingPromptEditor = false
+    @State private var showingInfoEditor = false
     
     init(storyId: Int64, roleId: Int64, userId: Int64,role: StoryRole? = nil){
         self.storyId = storyId
@@ -143,10 +146,7 @@ struct StoryRoleDetailView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
-                    // 顶部操作栏
-                    topActionBar
-                    
+                VStack(spacing: 12) {
                     // 角色基本信息卡片
                     profileCard
                     
@@ -163,7 +163,7 @@ struct StoryRoleDetailView: View {
                     // 底部操作按钮
                     bottomActionButtons
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 12)
             }
             .fullScreenCover(isPresented: $showingEditView) {
                 NavigationStack {
@@ -200,48 +200,32 @@ struct StoryRoleDetailView: View {
         }
     }
     
-    // 顶部操作栏
-    private var topActionBar: some View {
-        HStack {
-            Spacer()
-            Button(action: { showingEditView = true }) {
-                Label("编辑", systemImage: "pencil.circle")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.orange)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(Color.orange.opacity(0.1))
-                    .clipShape(Capsule())
-            }
-        }
-    }
-    
     // 角色基本信息卡片
     private var profileCard: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             if let role = role {
                 // 头像
                 KFImage(URL(string: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar))
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 120, height: 120)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .frame(width: 100, height: 100)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
+                        RoundedRectangle(cornerRadius: 12)
                             .stroke(Color.gray.opacity(0.2), lineWidth: 1)
                     )
                 
                 // 名称
                 Text(role.role.characterName)
-                    .font(.system(size: 24, weight: .bold))
+                    .font(.system(size: 20, weight: .bold))
             } else {
                 ProgressView()
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(20)
+        .padding(16)
         .background(Color.white)
-        .cornerRadius(16)
+        .cornerRadius(12)
         .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
     }
     
@@ -277,41 +261,60 @@ struct StoryRoleDetailView: View {
     
     // 详细信息卡片
     private func detailsCard(role: StoryRole) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            DetailSection(
-                title: "角色描述",
-                content: role.role.characterDescription,
-                placeholder: "角色比较神秘，没有介绍！"
-            )
+        VStack(alignment: .leading, spacing: 12) {
+            // 角色描述部分
+            Button(action: { showingDescriptionEditor = true }) {
+                DetailSection(
+                    title: "角色描述",
+                    content: role.role.characterDescription,
+                    placeholder: "角色比较神秘，没有介绍！", showIcon: false,
+                    fontSize: 14
+                )
+            }
+            .sheet(isPresented: $showingDescriptionEditor) {
+                EditDescriptionView(role: role, onSave: { /* 保存逻辑 */ })
+            }
             
             Divider()
             
-            DetailSection(
-                title: "角色提示词",
-                content: role.role.characterPrompt,
-                placeholder: "提示词为空",
-                showIcon: true
-            )
+            // 角色提示词部分
+            Button(action: { showingPromptEditor = true }) {
+                DetailSection(
+                    title: "角色提示词",
+                    content: role.role.characterPrompt,
+                    placeholder: "提示词为空",
+                    showIcon: true,
+                    fontSize: 14
+                )
+            }
+            .sheet(isPresented: $showingPromptEditor) {
+                EditPromptView(role: role, onSave: { /* 保存逻辑 */ })
+            }
             
             Divider()
             
-            // 其他信息
-            VStack(alignment: .leading, spacing: 8) {
-                Text("其他信息")
-                    .font(.headline)
-                
-                HStack {
-                    Label(formatDate(timestamp: role.role.ctime), systemImage: "clock")
-                    Spacer()
-                    Label("ID: \(role.role.creatorID)", systemImage: "person.circle")
+            // 其他信息部分
+            Button(action: { showingInfoEditor = true }) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("其他信息")
+                        .font(.system(size: 14, weight: .medium))
+                    
+                    HStack {
+                        Label(formatDate(timestamp: role.role.ctime), systemImage: "clock")
+                        Spacer()
+                        Label("ID: \(role.role.creatorID)", systemImage: "person.circle")
+                    }
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
                 }
-                .font(.system(size: 14))
-                .foregroundColor(.secondary)
+            }
+            .sheet(isPresented: $showingInfoEditor) {
+                EditInfoView(role: role, onSave: { /* 保存逻辑 */ })
             }
         }
-        .padding(20)
+        .padding(16)
         .background(Color.white)
-        .cornerRadius(16)
+        .cornerRadius(12)
         .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
     }
     
@@ -373,24 +376,31 @@ struct DetailSection: View {
     let content: String
     let placeholder: String
     var showIcon: Bool = false
+    let fontSize: CGFloat
+    init(title: String, content: String, placeholder: String,showIcon: Bool, fontSize: CGFloat) {
+        self.title = title
+        self.content = content
+        self.placeholder = placeholder
+        self.fontSize = fontSize
+        self.showIcon = showIcon
+    }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.headline)
+                .font(.system(size: fontSize, weight: .medium))
             
-            if !content.isEmpty {
-                Text(content)
-                    .font(.body)
-                    .foregroundColor(.primary)
-            } else {
+            Text(content.isEmpty ? placeholder : content)
+                .font(.system(size: fontSize))
+                .foregroundColor(content.isEmpty ? .secondary : .primary)
+                .multilineTextAlignment(.leading)
+            
+            if showIcon {
                 HStack {
-                    Text(placeholder)
+                    Spacer()
+                    Image(systemName: "pencil")
+                        .font(.system(size: 12))
                         .foregroundColor(.secondary)
-                    if showIcon {
-                        Image(systemName: "rectangle.dashed.and.paperclip")
-                            .foregroundColor(.red)
-                    }
                 }
             }
         }
@@ -417,4 +427,186 @@ struct RoleActionButton: View {
         }
     }
 }
+
+// MARK: - Edit Description View
+struct EditDescriptionView: View {
+    let role: StoryRole
+    let onSave: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var description: String
+    
+    init(role: StoryRole, onSave: @escaping () -> Void) {
+        self.role = role
+        self.onSave = onSave
+        _description = State(initialValue: role.role.characterDescription)
+    }
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 12) {
+                Text("编辑角色描述")
+                    .font(.system(size: 16, weight: .medium))
+                    .padding(.top)
+                
+                TextEditor(text: $description)
+                    .font(.system(size: 14))
+                    .padding(8)
+                    .frame(maxHeight: 200)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
+                
+                Spacer()
+            }
+            .padding()
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("取消") { dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("保存") {
+                        // TODO: 实现保存逻辑
+                        onSave()
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Edit Prompt View
+struct EditPromptView: View {
+    let role: StoryRole
+    let onSave: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var prompt: String
+    
+    init(role: StoryRole, onSave: @escaping () -> Void) {
+        self.role = role
+        self.onSave = onSave
+        _prompt = State(initialValue: role.role.characterPrompt)
+    }
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 12) {
+                Text("编辑角色提示词")
+                    .font(.system(size: 16, weight: .medium))
+                    .padding(.top)
+                
+                Text("提示词将用于AI对话中塑造角色性格")
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+                
+                TextEditor(text: $prompt)
+                    .font(.system(size: 14))
+                    .padding(8)
+                    .frame(maxHeight: 300)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
+                
+                Spacer()
+            }
+            .padding()
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("取消") { dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("保存") {
+                        // TODO: 实现保存逻辑
+                        onSave()
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Edit Info View
+struct EditInfoView: View {
+    let role: StoryRole
+    let onSave: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var name: String
+    @State private var showImagePicker = false
+    @State private var selectedImage: UIImage?
+    
+    init(role: StoryRole, onSave: @escaping () -> Void) {
+        self.role = role
+        self.onSave = onSave
+        _name = State(initialValue: role.role.characterName)
+    }
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("基本信息")) {
+                    HStack {
+                        Text("角色名称")
+                        Spacer()
+                        TextField("输入角色名称", text: $name)
+                            .multilineTextAlignment(.trailing)
+                    }
+                    
+                    Button(action: { showImagePicker = true }) {
+                        HStack {
+                            Text("更换头像")
+                            Spacer()
+                            if let image = selectedImage {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(Circle())
+                            } else {
+                                KFImage(URL(string: role.role.characterAvatar))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(Circle())
+                            }
+                        }
+                    }
+                }
+                
+                Section(header: Text("其他信息")) {
+                    HStack {
+                        Text("创建时间")
+                        Spacer()
+                        Text(formatDate(timestamp: role.role.ctime))
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    HStack {
+                        Text("角色ID")
+                        Spacer()
+                        Text("\(role.role.roleID)")
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("取消") { dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("保存") {
+                        // TODO: 实现保存逻辑
+                        onSave()
+                        dismiss()
+                    }
+                }
+            }
+            .sheet(isPresented: $showImagePicker) {
+                SingleImagePicker(image: $selectedImage)
+            }
+        }
+    }
+}
+
 

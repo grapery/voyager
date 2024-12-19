@@ -4,7 +4,7 @@ class CoreDataManager {
     static let shared = CoreDataManager()
     
     private let containerName = "voyager"
-    private let messageEntityName = "LocalChatMessages"
+    private let messageEntityName = "LocalChatMessage"
     
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: containerName)
