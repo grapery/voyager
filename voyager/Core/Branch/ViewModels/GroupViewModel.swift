@@ -58,6 +58,39 @@ class GroupViewModel: ObservableObject {
         }
         return (result!,nil)
     }
+    
+    
+    func followGroup(userId:Int64,groupId:Int64)async -> Error?{
+        let err = await APIClient.shared.followGroup(userId: userId, groupID: groupId)
+        if err != nil {
+            return err
+        }
+        return nil
+    }
+    
+    func unollowGroup(userId:Int64,groupId:Int64)async -> Error?{
+        let err = await APIClient.shared.unfollowGroup(userId: userId, groupId: groupId)
+        if err != nil {
+            return err
+        }
+        return nil
+    }
+    
+    func likeGroup(userId:Int64,groupId:Int64)async -> Error?{
+        let err = await APIClient.shared.followGroup(userId: userId, groupID: groupId)
+        if err != nil {
+            return err
+        }
+        return nil
+    }
+    
+    func unlikeGroup(userId:Int64,groupId:Int64)async -> Error?{
+        let err = await APIClient.shared.unfollowGroup(userId: userId, groupId: groupId)
+        if err != nil {
+            return errs
+        }
+        return nil
+    }
 }
 
 class GroupDetailViewModel: ObservableObject {
@@ -141,13 +174,13 @@ class GroupDetailViewModel: ObservableObject {
         print("JoinGroup success")
     }
     
-    func LeaveGroup(groupdId: Int64) async  {
+    func LeaveGroup(groupdId: Int64) async -> Error?{
         var err: Error?
         var leaved: Bool = false
         (leaved,err) = await APIClient.shared.LeaveGroup(userId: self.user.userID, groupId: self.groupId)
         if err != nil {
             print("fleaveGroup err",err!)
-            return
+            return err
         }
         if leaved {
             joinedGroup = false
@@ -155,6 +188,29 @@ class GroupDetailViewModel: ObservableObject {
             joinedGroup = true
         }
         print("LeaveGroup success")
+        return nil
+    }
+    
+    func followGroup(userId: Int64,groupId: Int64) async -> Error?{
+        var err: Error?
+        (err) = await APIClient.shared.followGroup(userId: self.user.userID, groupID: self.groupId)
+        if err != nil {
+            print("followGroup err",err!)
+            return err
+        }
+        print("followGroup success")
+        return nil
+    }
+    
+    func unFollowGroup(userId: Int64,groupId: Int64) async -> Error?{
+        var err: Error?
+        (err) = await APIClient.shared.unfollowGroup(userId: self.user.userID, groupId: self.groupId)
+        if err != nil {
+            print("unfollowGroup err",err!)
+            return err
+        }
+        print("unfollowGroup success")
+        return nil
     }
     
 }

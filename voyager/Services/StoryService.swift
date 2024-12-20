@@ -839,8 +839,18 @@ extension APIClient {
     
     func LikeStoryRole(roleId: Int64, storyId: Int64, userId: Int64) async -> (Error?) {
         do {
-           
-            
+           let request = Common_LikeStoryRoleRequest.with {
+                $0.roleID = roleId
+                $0.storyID = storyId
+                $0.userID = userId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let response = await apiClient.likeStoryRole(request: request, headers: header)
+            if response.message?.code != Common_ResponseCode.ok{
+                return NSError(domain: "StoryService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Like story role failed"])
+            }
             // If successful, return nil (no error)
             return nil
         } catch {
@@ -849,8 +859,20 @@ extension APIClient {
         }
     }
     
-    func UnLikeStoryRole(boardId: Int64, storyId: Int64, userId: Int64) async -> (Error?) {
+    func UnLikeStoryRole(roleId: Int64, storyId: Int64, userId: Int64) async -> (Error?) {
         do {
+            let request = Common_UnLikeStoryRoleRequest.with {
+                $0.roleID = roleId
+                $0.storyID = storyId
+                $0.userID = userId
+            }
+            var header = Connect.Headers()
+            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+            let apiClient = Common_TeamsApiClient(client: self.client!)
+            let response = await apiClient.unLikeStoryRole(request: request, headers: header)
+            if response.message?.code != Common_ResponseCode.ok{
+                return NSError(domain: "StoryService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Unlike story role failed"])
+            }
             // If successful, return nil (no error)
             return nil
         } catch {

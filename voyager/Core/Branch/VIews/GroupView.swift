@@ -216,6 +216,13 @@ struct GroupDiscussionCell: View {
                         action: { 
                             // 处理通知按钮点击
                             print("Bell tapped")
+                            Task{
+                                if false{
+                                    await self.viewModel.unlikeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
+                                }else{
+                                    await self.viewModel.likeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
+                                }
+                            }
                         }
                     )
                     
@@ -236,6 +243,13 @@ struct GroupDiscussionCell: View {
                         action: { 
                             // 处理喜欢按钮点击
                             print("Heart tapped")
+                            Task{
+                                if false{
+                                    await self.viewModel.unlikeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
+                                }else{
+                                    await self.viewModel.likeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
+                                }
+                            }
                         }
                     )
                     

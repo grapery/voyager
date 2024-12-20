@@ -294,4 +294,21 @@ extension APIClient {
             return ([], 0,  0,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Search groups failed"]))
         }
     }
+    
+    
+    func followGroup(userId:Int64,groupID:Int64) async -> Error?{
+        do {
+            return nil
+        } catch {
+            return error
+        }
+    }
+    
+    func unfollowGroup(userId: Int64,groupId:Int64) async -> Error?{
+        do {
+            return nil
+        } catch {
+            return error
+        }
+    }
 }

@@ -143,7 +143,8 @@ struct FeedView: View {
                         type: tab.type,
                         groups: filteredGroups,
                         stories: filteredStories,
-                        roles: filteredRoles
+                        roles: filteredRoles,
+                        viewModel: viewModel
                     )
                     .tag(tab.type)
                 }
@@ -617,34 +618,107 @@ struct FeedContentView: View {
     let groups: [BranchGroup]
     let stories: [Story]
     let roles: [StoryRole]
+    @ObservedObject var viewModel: FeedViewModel
     
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
-                switch type {
-                case .Groups:
-                    ForEach(groups, id: \.id) { group in
-                        GroupFeedCell(group: group)
-                    }
-                case .Story:
-                    ForEach(stories, id: \.id) { story in
-                        StoryFeedCell(story: story)
-                    }
-                case .StoryRole:
-                    ForEach(roles, id: \.id) { role in
-                        RoleFeedCell(role: role)
-                    }
+                ForEach(viewModel.feedActives) { active in
+                    FeedActiveCell(active: active)
                 }
             }
             .padding(.horizontal)
             .padding(.top, 8)
         }
         .refreshable {
+            // 重置分页参数
+            viewModel.resetPagination()
+            // 获取新数据
             await refreshData()
         }
         .onAppear {
-            await refreshData()
+            // 设置当前类型对应的 activeFlowType
+            viewModel.setActiveFlowType(for: type)
+            Task {
+               // await refreshData()
+            }
         }
+        .onChange(of: type) { newType in
+            // 当类型改变时更新 activeFlowType
+            viewModel.setActiveFlowType(for: newType)
+            Task {
+                await refreshData()
+            }
+        }
+    }
+    
+    private func refreshData() async {
+        await viewModel.fetchActives()
+    }
+}
+
+// 新增 FeedActiveCell 用于显示动态
+struct FeedActiveCell: View {
+    let active: ActiveFeed
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // 头部信息
+            HStack(spacing: 12) {
+                // 用户头像
+                KFImage(URL(string: defaultAvator))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 48, height: 48)
+                    .clipShape(Circle())
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    // 用户名
+                    Text("蓝雀")
+                        .font(.system(size: 16, weight: .semibold))
+                    
+                    // 时间
+                    Text(Date.now.timeAgoDisplay())
+                        .font(.system(size: 13))
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+            }
+            
+            // 动态内容
+            if !active.active.content.isEmpty {
+                Text(active.active.content)
+                    .font(.system(size: 15))
+                    .lineLimit(3)
+            }
+            
+            // 互动栏
+            HStack(spacing: 24) {
+                InteractionButton(
+                    icon: "bubble.left",
+                    count: Int(10),
+                    isActive: false
+                ) {
+                    // 处理评论点击
+                }
+                
+                InteractionButton(
+                    icon: "heart",
+                    count: Int(10),
+                    isActive: true
+                ) {
+                    // 处理点赞点击
+                }
+                
+                Spacer()
+            }
+            .padding(.top, 8)
+        }
+        .padding(16)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
     }
 }
 
@@ -1075,7 +1149,7 @@ extension Date {
             return years == 1 ? "1年前" : "\(years)年前"
         }
         if let months = components.month, months > 0 {
-            return months == 1 ? "1个月前" : "\(months)个月前"
+            return months == 1 ? "1个月前" : "\(months)月前"
         }
         if let days = components.day, days > 0 {
             return days == 1 ? "1天前" : "\(days)天前"

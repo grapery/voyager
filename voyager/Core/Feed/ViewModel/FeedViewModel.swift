@@ -22,7 +22,7 @@ class FeedViewModel: ObservableObject {
     @Published var trendingFilters = [String]()
     @Published var trendingGroups: [BranchGroup]
     
-    @Published var feedActives: [Common_ActiveInfo]
+    @Published var feedActives: [ActiveFeed]
     
     @Published var page: Int64
     @Published var size: Int64
@@ -53,20 +53,21 @@ class FeedViewModel: ObservableObject {
         self.trendingRoles = [StoryRole]()
         self.trendingBoards = [StoryBoard]()
         
-        self.feedActives = [Common_ActiveInfo]()
+        self.feedActives = [ActiveFeed]()
         
         self.page = 0
-        self.size = 0
+        self.size = 10
     }
 
     @MainActor
     func fetchActives() async -> Void{
         let result = await APIClient.shared.fetchActives(userId: self.userId, offset: self.page, size: self.size, timestamp: self.timeStamp, activeType: self.activeFlowType, filter: [String]())
         if result.3 != nil {
-            print("fetchTrendingGroups failed: ",result.3!)
             return
         }
-        self.feedActives = result.0!
+        self.feedActives = result.0!.map { activeInfo in
+            ActiveFeed(active: activeInfo)
+        }
         self.page = result.1
         self.size = result.2
         return
@@ -163,4 +164,22 @@ class FeedViewModel: ObservableObject {
         return
     }
     
+    // 重置分页参数
+    func resetPagination() {
+        self.page = 0
+        self.size = 20  // 或其他默认值
+        self.timeStamp = 0
+    }
+    
+    // 根据 FeedType 设置对应的 activeFlowType
+    @MainActor func setActiveFlowType(for type: FeedType) {
+        switch type {
+        case .Groups:
+            self.activeFlowType = Common_ActiveFlowType.groupFlowType
+        case .Story:
+            self.activeFlowType = Common_ActiveFlowType.storyFlowType
+        case .StoryRole:
+            self.activeFlowType = Common_ActiveFlowType.roleFlowType
+        }
+    }
 }

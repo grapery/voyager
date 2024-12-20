@@ -44,3 +44,21 @@ class GroupProfile: Identifiable, Hashable, Equatable {
         return lhs.profile.groupID == rhs.profile.groupID  // 假设 Common_GroupProfileInfo 有 id 属性
     }
 }
+
+class ActiveFeed: Identifiable,Hashable,Equatable {
+    var active: Common_ActiveInfo
+    init(active: Common_ActiveInfo) {
+        self.active = active
+    }
+    
+    // Hashable 协议要求
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(active.activeID)  // 假设 Common_GroupProfileInfo 有 id 属性
+    }
+    
+    // Equatable 协议要求
+    static func == (lhs: ActiveFeed, rhs: ActiveFeed) -> Bool {
+        return lhs.active.activeID == rhs.active.activeID  // 假设 Common_GroupProfileInfo 有 id 属性
+    }
+}
+

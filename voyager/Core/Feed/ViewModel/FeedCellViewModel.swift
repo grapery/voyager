@@ -71,26 +71,35 @@ class FeedCellViewModel: ObservableObject {
     }
     
     func likeStoryRole() async{
-        let err = await APIClient.shared.LikeStoryboard(boardId: self.storyboardId, storyId: self.storyId, userId: self.user!.userID)
+        let err = await APIClient.shared.LikeStoryRole(roleId: self.roleId, storyId: self.storyId, userId: self.user!.userID)
         if err != nil{
             print("likeStoryboard failed: ",err!)
         }
     }
     
     func unlikeStoryRole() async{
-        let err = await APIClient.shared.LikeStoryboard(boardId: self.storyboardId, storyId: self.storyId, userId: self.user!.userID)
+        let err = await APIClient.shared.UnLikeStoryRole(roleId: self.roleId, storyId: self.storyId, userId: self.user!.userID)
         if err != nil{
             print("likeStoryboard failed: ",err!)
         }
     }
     
-    func fetchStoryboardComments() async -> [Comment] {
+    func fetchStoryboardComments(storyId:Int64,boardId:Int64,userId:Int64) async -> [Comment] {
         return [Comment]()
     }
     
-    func addCommentForStoryboard(comment:Comment) async -> Void{
+    func addCommentForStoryboard(comment:Comment,userId:Int64) async -> Void{
         return
     }
+    
+    func delCommentForStoryboard(comment:Comment,userId:Int64) async -> Void{
+        return
+    }
+    
+    func upvoteCommentForStoryboard(comment:Comment,userId:Int64)async -> Void{
+        return
+    }
+        
 }
 
 
