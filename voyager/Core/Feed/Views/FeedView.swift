@@ -628,12 +628,13 @@ struct FeedContentView: View {
             // 设置当前类型对应的 activeFlowType
             viewModel.setActiveFlowType(for: type)
             Task {
-               // await refreshData()
+               await refreshData()
             }
         }
         .onChange(of: type) { newType in
             // 当类型改变时更新 activeFlowType
             viewModel.setActiveFlowType(for: newType)
+            viewModel.resetPagination()
             Task {
                 await refreshData()
             }

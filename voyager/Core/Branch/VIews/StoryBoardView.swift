@@ -158,6 +158,19 @@ private struct ScenePageView: View {
                     }
                 }
                 .tabViewStyle(PageTabViewStyle())
+                // 添加页面指示器
+                .overlay(
+                    HStack(spacing: 4) {
+                        ForEach(0..<urls.count, id: \.self) { index in
+                            Capsule()
+                                .fill(Color.white)
+                                .frame(width: 16, height: 3)
+                                .opacity(0.5)
+                        }
+                    }
+                    .padding(.bottom, 8),
+                    alignment: .bottom
+                )
             }
         }
     }

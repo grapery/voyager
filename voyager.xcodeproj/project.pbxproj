@@ -32,7 +32,6 @@
 		0F2363A82BC75EA900907E75 /* DeleteGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2363A72BC75EA900907E75 /* DeleteGroupView.swift */; };
 		0F2480292BB1C32C0012C1F5 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2480282BB1C32C0012C1F5 /* Comment.swift */; };
 		0F254DBC2CCD0F8B00367804 /* StoryRoleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F254DBB2CCD0F7C00367804 /* StoryRoleViewModel.swift */; };
-		0F27158D2CC22B8400B1A0FC /* CommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F27158C2CC22B8400B1A0FC /* CommentView.swift */; };
 		0F2715912CC22E8600B1A0FC /* CommentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2715902CC22E7C00B1A0FC /* CommentDetailView.swift */; };
 		0F2916312CB0DF62002366BE /* StoryboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2916302CB0DF56002366BE /* StoryboardViewModel.swift */; };
 		0F2916342CB124FC002366BE /* NewStoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2916332CB124F5002366BE /* NewStoryView.swift */; };
@@ -162,7 +161,6 @@
 		0F2363A72BC75EA900907E75 /* DeleteGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteGroupView.swift; sourceTree = "<group>"; };
 		0F2480282BB1C32C0012C1F5 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		0F254DBB2CCD0F7C00367804 /* StoryRoleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryRoleViewModel.swift; sourceTree = "<group>"; };
-		0F27158C2CC22B8400B1A0FC /* CommentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentView.swift; sourceTree = "<group>"; };
 		0F2715902CC22E7C00B1A0FC /* CommentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentDetailView.swift; sourceTree = "<group>"; };
 		0F2916302CB0DF56002366BE /* StoryboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryboardViewModel.swift; sourceTree = "<group>"; };
 		0F2916332CB124F5002366BE /* NewStoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewStoryView.swift; sourceTree = "<group>"; };
@@ -397,7 +395,6 @@
 				0F1D0CF92CC4EC6600D12E0B /* NewStoryRole.swift */,
 				0F1D0D012CC5CBEF00D12E0B /* UpdateStoryRole.swift */,
 				0F1D0CFE2CC4ECA700D12E0B /* StoryRoleDetailView.swift */,
-				0F27158C2CC22B8400B1A0FC /* CommentView.swift */,
 				0F29163E2CB27780002366BE /* StoryDetailView.swift */,
 				0F2916362CB12504002366BE /* NewStoryBoardView.swift */,
 				0FF591B52CBE3065002F60C0 /* UpdateStoryboardView.swift */,
@@ -851,7 +848,6 @@
 				0F7602B52BB992E400F8D900 /* GroupViewModel.swift in Sources */,
 				0F980A272CAA959400510E5A /* GroupDetail.swift in Sources */,
 				0F0F1A212BB64373009494FC /* FeedCellViewModel.swift in Sources */,
-				0F27158D2CC22B8400B1A0FC /* CommentView.swift in Sources */,
 				0F59E7B52B065409007C2B74 /* colors.swift in Sources */,
 				0FFA50942B0857DA00D3A4CF /* FeedView.swift in Sources */,
 				0F0C66442BC193C5008F1FBD /* AboutInfoView.swift in Sources */,
