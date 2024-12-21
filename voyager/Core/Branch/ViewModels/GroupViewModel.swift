@@ -87,7 +87,7 @@ class GroupViewModel: ObservableObject {
     func unlikeGroup(userId:Int64,groupId:Int64)async -> Error?{
         let err = await APIClient.shared.unfollowGroup(userId: userId, groupId: groupId)
         if err != nil {
-            return errs
+            return err
         }
         return nil
     }
@@ -213,4 +213,35 @@ class GroupDetailViewModel: ObservableObject {
         return nil
     }
     
+    func watchStory(storyId: Int64,userId: Int64) async -> Error?{
+        let (_,err) = await APIClient.shared.WatchStory(storyId: storyId, userId: userId)
+        if err != nil {
+            return err
+        }
+        return nil
+    }
+
+    func unWatchStory(storyId: Int64,userId: Int64) async -> Error?{
+        let (_,err) = await APIClient.shared.WatchStory(storyId: storyId, userId: userId)
+        if err != nil {
+            return err
+        }
+        return nil
+    }
+    
+    func likeStory(userId: Int64,storyId:Int64) async -> Error?{
+        let (err) = await APIClient.shared.LikeStory(storyId: storyId, userId: userId)
+        if err != nil {
+            return err
+        }
+        return nil
+    }
+    
+    func unlikeStory(userId: Int64,storyId:Int64) async -> Error?{
+        let (err) = await APIClient.shared.UnLikeStory(storyId: storyId, userId: userId)
+        if err != nil {
+            return err
+        }
+        return nil
+    }
 }

@@ -108,7 +108,7 @@ struct GroupDetailView: View {
                         LazyVStack(spacing: 0) {
                             ForEach(viewModel.storys) { story in
                                 NavigationLink(destination: StoryView(story: story, userId: self.user.userID)) {
-                                    StoryCellView(story: story, userId: self.user.userID)
+                                    StoryCellView(story: story, userId: self.user.userID, viewModel: viewModel)
                                 }
                                 .buttonStyle(PlainButtonStyle())
                             }
@@ -137,7 +137,7 @@ struct GroupDetailView: View {
                         LazyVStack(spacing: 0) {
                             ForEach(viewModel.storys.sorted { $0.storyInfo.ctime > $1.storyInfo.ctime }) { story in
                                 NavigationLink(destination: StoryView(story: story, userId: self.user.userID)) {
-                                    StoryCellView(story: story, userId: self.user.userID)
+                                    StoryCellView(story: story, userId: self.user.userID, viewModel: viewModel)
                                 }
                                 .buttonStyle(PlainButtonStyle())
                             }
@@ -243,12 +243,15 @@ struct StoryCellView: View {
     let story: Story
     var userId: Int64
     var currentUserId: Int64
-    init(story: Story,userId:Int64) {
+    var viewModel: GroupDetailViewModel
+    
+    init(story: Story, userId: Int64, viewModel: GroupDetailViewModel) {
         self.story = story
         self.userId = userId
         self.currentUserId = userId
-        
+        self.viewModel = viewModel
     }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
@@ -283,7 +286,11 @@ struct StoryCellView: View {
             
             HStack {
                 Spacer()
-                Button(action: {}) {
+                Button(action: {
+                    Task {
+                        await viewModel.watchStory(storyId: self.story.storyInfo.id, userId: self.currentUserId)
+                    }
+                }) {
                     HStack {
                         Image(systemName: "bell.circle")
                             .font(.headline)
@@ -293,7 +300,11 @@ struct StoryCellView: View {
                     .scaledToFill()
                 }
                 Spacer()
-                Button(action: {}) {
+                Button(action: {
+                    Task {
+                        await viewModel.likeStory(userId: self.currentUserId, storyId: story.storyInfo.id)
+                    }
+                }) {
                     HStack {
                         Image(systemName: "heart.circle")
                             .font(.headline)
@@ -303,7 +314,9 @@ struct StoryCellView: View {
                     .scaledToFill()
                 }
                 Spacer()
-                Button(action: {}) {
+                Button(action: {
+                    print("share story")
+                }) {
                     HStack {
                         Image(systemName: "square.and.arrow.up.circle")
                             .font(.headline)

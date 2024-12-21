@@ -174,10 +174,6 @@ class StoryViewModel: ObservableObject {
         return (newStoryboard,nil)
     }
     
-    func createStoryRole() async{
-        
-    }
-    
     func deleteStoryBoard(storyId: Int64, boardId: Int64, userId: Int64) async -> Error? {
         self.err = nil
         do {
