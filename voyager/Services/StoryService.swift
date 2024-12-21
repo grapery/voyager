@@ -1415,7 +1415,6 @@ extension APIClient {
     }
 
     func fetchActives(userId:Int64,offset: Int64,size: Int64,timestamp: Int64,activeType: Common_ActiveFlowType,filter: [String]) async -> ([Common_ActiveInfo]?,Int64,Int64,Error?){
-        print("get user actives")
         var actives: [Common_ActiveInfo] = []
         var size = size
         var offset = offset
@@ -1425,18 +1424,22 @@ extension APIClient {
                  $0.userID = userId
                  $0.timestamp = timestamp
                  $0.atype = activeType
-                 $0.offset = offset
-                 $0.pageSize = size
+                 $0.offset = 0
+                 $0.pageSize = 10
              }
+             print("fetchActives request: ",request)
              var header = Connect.Headers()
              header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
              let response = await apiClient.fetchActives(request: request, headers: header)
-             if response.message?.code != Common_ResponseCode.ok{
+            print("fetchActives response: ",response as Any )
+            if response.message?.code != Common_ResponseCode.ok{
                  return (nil,0,0,NSError(domain: "fetchActives", code: 0, userInfo: [NSLocalizedDescriptionKey: "fetchActives failed"]))
              }
+            actives = (response.message?.data.list)!
             size = (response.message?.data.pageSize)!
             offset = (response.message?.data.offset)!
          }
+        print("actives: ",actives)
          return (actives,offset,size,nil)
     }
 }

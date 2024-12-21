@@ -102,18 +102,6 @@ struct FeedView: View {
                         action: { withAnimation { isShowingFollowing = false } }
                     )
                 }
-                
-                Spacer()
-                
-                // 右侧按钮
-                Button(action: { showNewItemView = true }) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.primary)
-                        .frame(width: 36, height: 36)
-                        .background(Color(.systemGray6))
-                        .clipShape(Circle())
-                }
             }
             .padding(.horizontal)
             .padding(.vertical, 12)
@@ -653,7 +641,9 @@ struct FeedContentView: View {
     }
     
     private func refreshData() async {
-        await viewModel.fetchActives()
+        Task{
+            await viewModel.fetchActives()
+        }
     }
 }
 

@@ -29,7 +29,7 @@ class FeedViewModel: ObservableObject {
     @Published var timeStamp: Int64
     @Published var tags: [String]
     @Published @MainActor var searchText: String = ""
-    @Published @MainActor var activeFlowType: Common_ActiveFlowType = Common_ActiveFlowType(rawValue: 1)!
+    @Published @MainActor var activeFlowType: Common_ActiveFlowType = Common_ActiveFlowType(rawValue: 3)!
    
     @MainActor
     func performSearch() async {
@@ -63,11 +63,13 @@ class FeedViewModel: ObservableObject {
     func fetchActives() async -> Void{
         let result = await APIClient.shared.fetchActives(userId: self.userId, offset: self.page, size: self.size, timestamp: self.timeStamp, activeType: self.activeFlowType, filter: [String]())
         if result.3 != nil {
+            print("fetchActives error: ",result.3 as Any)
             return
         }
         self.feedActives = result.0!.map { activeInfo in
             ActiveFeed(active: activeInfo)
         }
+        print("self.feedActives: ",result.0 as Any)
         self.page = result.1
         self.size = result.2
         return
