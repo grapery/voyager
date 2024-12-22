@@ -101,7 +101,7 @@ class CoreDataManager {
             let realMsg = convertToMessage(message)
             print("""
                 updateMessageStatusByUUID message:
-                - ID: \(realMsg.id)
+                - ID: \(id)
                 - Chat ID: \(realMsg.msg.chatID)
                 - User ID: \(realMsg.msg.userID)
                 - Role ID: \(realMsg.msg.roleID)
@@ -197,6 +197,7 @@ class CoreDataManager {
             msg: chatMsg,
             status: .MessageSendSuccess
         )
+        chatMsg.id = msgItem.id
         msgItem.type = MessageType(rawValue: Int64(managedObject.value(forKey: "messageType") as! Int)) ?? .MessageTypeText
         if let mediaURL = managedObject.value(forKey: "mediaURL") as? String {
             msgItem.mediaURL = mediaURL

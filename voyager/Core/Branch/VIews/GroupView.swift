@@ -125,10 +125,9 @@ struct CategoryTabButton: View {
     }
 }
 
-// 优化后的网项视图
+// 优化后的网格项视图
 struct GroupGridItemView: View {
     @State public var group: BranchGroup
-    @State private var groupProfile: GroupProfile?
     @ObservedObject private var viewModel: GroupViewModel
     
     init(group: BranchGroup, viewModel: GroupViewModel) {
@@ -138,33 +137,47 @@ struct GroupGridItemView: View {
     
     var body: some View {
         NavigationLink(destination: GroupDetailView(user: self.viewModel.user, group: self.group)) {
-            VStack(alignment: .center, spacing: 8) {
-                KFImage(URL(string: group.info.avatar))
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 64, height: 64)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
+            VStack(alignment: .leading, spacing: 12) {
+                // 头部区域
+                HStack(spacing: 12) {
+                    // 头像
+                    KFImage(URL(string: group.info.avatar))
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 48, height: 48)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.gray.opacity(0.1), lineWidth: 0.5))
+                    
+                    // 名称和成员数
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(group.info.name)
+                            .font(.system(size: 15, weight: .medium))
+                            .lineLimit(1)
+                        
+                        Text("\(999) 成员")
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray)
+                    }
+                }
                 
-                Text(group.info.name)
-                    .font(.system(size: 13))
-                    .lineLimit(1)
-                    .multilineTextAlignment(.center)
-                
-                Text("\(999)成员")
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
+                // 描述文本
+                if !group.info.desc.isEmpty {
+                    Text(group.info.desc)
+                        .font(.system(size: 13))
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                }
             }
-            .frame(width: 90)
-            .padding(.vertical, 12)
-            .padding(.horizontal, 8)
+            .frame(width: 240)
+            .padding(16)
             .background(Color(.systemBackground))
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    .stroke(Color.gray.opacity(0.1), lineWidth: 1)
             )
-            .shadow(color: Color.black.opacity(0.03), radius: 4, y: 2)
+            .shadow(color: Color.black.opacity(0.05), radius: 4, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
     }

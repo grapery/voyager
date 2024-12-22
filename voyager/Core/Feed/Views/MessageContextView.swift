@@ -29,6 +29,7 @@ struct MessageContextView: View {
         self.currentUserId = userId
         self.currentRoleId = roleId
         self.viewModel = MessageContextViewModel(userId: userId, roleId: roleId,role: role)
+        print("MessageContextView :",userId,roleId)
     }
     
     var body: some View {
@@ -36,7 +37,7 @@ struct MessageContextView: View {
             ChatNavigationBar(title: role?.role.characterName ?? "", onDismiss: { dismiss() })
             
             ChatMessageList(
-                messages: viewModel.messages,
+                messages: $viewModel.messages,
                 currentUserId: self.currentUserId,
                 currentRoleId: self.currentRoleId,
                 onLoadMore: loadMoreMessages
@@ -77,7 +78,7 @@ struct MessageContextView: View {
         chatMsg.sender = Int32(viewModel.userId)
         
         let tempMessage = ChatMessage(
-            id: Int64(Date().timeIntervalSince1970 * 1000),
+            id: Int64(Date().timeIntervalSince1970),
             msg: chatMsg,
             status: .MessageSending
         )
@@ -95,7 +96,7 @@ struct MessageContextView: View {
             try CoreDataManager.shared.savePendingMessage(tempMessage)
             // 发送消息
             let (relpyMsg, error) = await viewModel.sendMessage(msg: chatMsg)
-            
+            print("relpyMsg : ",relpyMsg as Any)
             if let error = error {
                 // 更新消息状态为失败
                 try CoreDataManager.shared.updateMessageStatusByUUID(uuid: tempMessage.uuid!.uuidString, id:-1, status: .MessageSendFailed)
@@ -103,6 +104,7 @@ struct MessageContextView: View {
                 DispatchQueue.main.async {
                     if let index = self.viewModel.messages.firstIndex(where: { $0.uuid == tempMessage.uuid }) {
                         self.viewModel.messages[index].status = .MessageSendFailed
+                        print(self.viewModel.messages[index].msg.message)
                     }
                     self.errorMessage = error.localizedDescription
                     self.showErrorAlert = true
@@ -114,9 +116,13 @@ struct MessageContextView: View {
                     id: relpyMsg![0].id,
                     status: .MessageSendSuccess
                 )
-                self.viewModel.messages.last?.status = .MessageSendSuccess
-                self.viewModel.messages.last?.msg.id = relpyMsg![0].id
-
+                DispatchQueue.main.async {
+                    if let index = self.viewModel.messages.firstIndex(where: { $0.uuid == tempMessage.uuid }) {
+                        self.viewModel.messages[index].status = .MessageSendSuccess
+                        self.viewModel.messages[index].msg.id = relpyMsg![0].id
+                        print("消息更新成功: ID=\(relpyMsg![0].id), 内容=\(self.viewModel.messages[index].msg.message)")
+                    }
+                }
                 // 添加服务器返回的其他消息
                 if relpyMsg!.count > 1 {
                     for i in 1..<relpyMsg!.count {
@@ -131,6 +137,7 @@ struct MessageContextView: View {
                         
                         DispatchQueue.main.async {
                             self.viewModel.messages.append(newChatMessage)
+                            print("newChatMessage : ",newChatMessage.msg.message)
                         }
                     }
                 }
@@ -145,16 +152,18 @@ struct MessageContextView: View {
             }
         }
     }
+    
+    
     private func loadMoreMessages() async {
         guard !isLoadingHistory && hasMoreMessages else { return }
         isLoadingHistory = true
         defer { isLoadingHistory = false }
-        
+        print("loadMoreMessages ")
         do {
             // 获取最早的消息ID作为分页标记
             let earliestMessageTimestamp = viewModel.messages.first?.msg.timestamp ?? 0
             
-            // 从本地数据库加载历史消息
+            // 从本地数据库加历史消息
             let localMessages =  try CoreDataManager.shared.fetchRecentMessagesByTimestamp(
                 chatId: viewModel.msgContext.chatID,
                 timestamp: earliestMessageTimestamp
@@ -210,53 +219,41 @@ struct MessageContextView: View {
     
     // 消息列表组件
     private struct ChatMessageList: View {
-        let messages: [ChatMessage]?
+        @Binding var messages: [ChatMessage]
         let currentUserId: Int64
         let currentRoleId: Int64
         @State private var isLoading = false
         let onLoadMore: () async -> Void
-
+        @State var isinit: Bool = false
+        
         var body: some View {
             ScrollViewReader { scrollProxy in
                 ScrollView {
                     LazyVStack(spacing: 10) {
-                        // 将加载指示器移到消息列表上方
-                        LoadingIndicator(isLoading: isLoading)
-                            .frame(height: 50)
-                            .opacity(isLoading ? 1 : 0)
-                            .onAppear {
-                                if !isLoading {
-                                    Task {
-                                        isLoading = true
-                                        await onLoadMore()
-                                        isLoading = false
-                                    }
-                                }
-                            }
-                        
-                        if let messages = messages {
-                            ForEach(messages) { message in
-                                MessageCellView(currentUserId: currentUserId, currentRoleId: currentRoleId, message: message)
-                                    .id(message.id)
-                            }
+                        ForEach(messages) { message in
+                            MessageCellView(
+                                currentUserId: currentUserId,
+                                currentRoleId: currentRoleId,
+                                message: message
+                            )
                         }
                         
-                        // 添加一个空视图作为滚动锚点
                         Color.clear
                             .frame(height: 1)
                             .id("bottom")
                     }
                     .padding()
                 }
-                .onChange(of: messages?.count) { _ in
-                    // 当新消息添加时，滚动到底部
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        scrollProxy.scrollTo("bottom", anchor: .bottom)
+                .onChange(of: messages) { _ in
+                    if isinit {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            scrollProxy.scrollTo("bottom", anchor: .bottom)
+                        }
                     }
                 }
                 .onAppear {
-                    // 初始加载时滚动到底部
                     scrollProxy.scrollTo("bottom", anchor: .bottom)
+                    isinit = true
                 }
             }
         }
@@ -366,13 +363,14 @@ struct MessageContextView: View {
 struct MessageCellView: View {
     let currentUserId: Int64
     let currentRoleId: Int64
-    let message: ChatMessage
+    @State var message: ChatMessage
     
     @State private var isAnimating = false
     init(currentUserId: Int64, currentRoleId: Int64, message: ChatMessage) {
         self.currentUserId = currentUserId
         self.currentRoleId = currentRoleId
         self.message = message
+        print("message: ",message.id,message.status ,message.msg.message)
     }
     private var isFromCurrentUser: Bool {
         currentUserId == message.msg.sender
@@ -533,7 +531,6 @@ struct AvatarView: View {
     var roleId: Int64? = nil
     @State private var navigateToRoleDetail = false
     init(userId: Int64? = nil, roleId: Int64? = nil) {
-        print("AvatarView init: userId: \(userId), roleId: \(roleId)")
         self.userId = userId
         self.roleId = roleId
     }
