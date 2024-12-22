@@ -57,23 +57,44 @@ struct StoryBoardView: View {
                 
                 // 主要内容区域
                 if let scenes = board?.boardInfo.sences.list, !scenes.isEmpty {
-                    TabView(selection: $currentSceneIndex) {
-                        ForEach(Array(scenes.enumerated()), id: \.element.content) { index, scene in
-                            ScenePageView(scene: scene)
-                                .tag(index)
+                    // 添加主容器
+                    VStack(spacing: 8) {
+                        ZStack(alignment: .bottom) {
+                            // TabView
+                            TabView(selection: $currentSceneIndex) {
+                                ForEach(Array(scenes.enumerated()), id: \.offset) { index, scene in
+                                    ScenePageView(scene: scene)
+                                        .tag(index)
+                                }
+                            }
+                            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                            
+                            // 底部进度指示器
+                            VStack(spacing: 8) {
+                                HStack(spacing: 4) {
+                                    ForEach(0..<scenes.count, id: \.self) { index in
+                                        Capsule()
+                                            .fill(Color.white)
+                                            .frame(height: 4)
+                                            .opacity(currentSceneIndex >= index ? 1.0 : 0.3)
+                                    }
+                                }
+                                .padding(.horizontal)
+                                
+                                // 场景内容文字
+                                if let scene = board?.boardInfo.sences.list[currentSceneIndex] {
+                                    Text(scene.content)
+                                        .foregroundColor(.white)
+                                        .font(.system(size: 16))
+                                        .padding(.horizontal)
+                                        .lineLimit(2)
+                                }
+                            }
+                            .padding(.bottom, 8)
                         }
                     }
-                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                    
                     // 底部信息栏
                     VStack(alignment: .leading, spacing: 8) {
-                        if let scene = board?.boardInfo.sences.list[currentSceneIndex] {
-                            Text(scene.content)
-                                .foregroundColor(.white)
-                                .font(.system(size: 16))
-                                .padding(.horizontal)
-                        }
-                        
                         // 交互按钮
                         HStack(spacing: 20) {
                             Spacer().scaledToFit()
@@ -158,19 +179,6 @@ private struct ScenePageView: View {
                     }
                 }
                 .tabViewStyle(PageTabViewStyle())
-                // 添加页面指示器
-                .overlay(
-                    HStack(spacing: 4) {
-                        ForEach(0..<urls.count, id: \.self) { index in
-                            Capsule()
-                                .fill(Color.white)
-                                .frame(width: 16, height: 3)
-                                .opacity(0.5)
-                        }
-                    }
-                    .padding(.bottom, 8),
-                    alignment: .bottom
-                )
             }
         }
     }
