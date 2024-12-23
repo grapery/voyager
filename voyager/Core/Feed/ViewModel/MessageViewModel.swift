@@ -25,7 +25,7 @@ class ChatContext: Identifiable {
 }
 
 class ChatMessage: Identifiable,Equatable {
-    let id: Int64
+    var id: Int64
     var msg: Common_ChatMessage
     var type: MessageType = .MessageTypeText
     var status: MessageStatus = .MessageSendSuccess

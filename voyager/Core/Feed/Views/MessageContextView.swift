@@ -85,15 +85,14 @@ struct MessageContextView: View {
         chatMsg.uuid = tempMessage.uuid!.uuidString
         tempMessage.msg.uuid = tempMessage.uuid!.uuidString
         
-        // 立即清空输入框并显示发送中的消息
-        DispatchQueue.main.async {
-            self.viewModel.messages.append(tempMessage)
-            self.newMessageContent = ""
-        }
-        
         do {
             // 保存待发送消息到本地
             try CoreDataManager.shared.savePendingMessage(tempMessage)
+            // 立即清空输入框并显示发送中的消息
+            DispatchQueue.main.async {
+                self.viewModel.messages.append(tempMessage)
+                self.newMessageContent = ""
+            }
             // 发送消息
             let (relpyMsg, error) = await viewModel.sendMessage(msg: chatMsg)
             print("relpyMsg : ",relpyMsg as Any)
@@ -120,6 +119,7 @@ struct MessageContextView: View {
                     if let index = self.viewModel.messages.firstIndex(where: { $0.uuid == tempMessage.uuid }) {
                         self.viewModel.messages[index].status = .MessageSendSuccess
                         self.viewModel.messages[index].msg.id = relpyMsg![0].id
+                        self.viewModel.messages[index].id = relpyMsg![0].id
                         print("消息更新成功: ID=\(relpyMsg![0].id), 内容=\(self.viewModel.messages[index].msg.message)")
                     }
                 }
@@ -370,7 +370,7 @@ struct MessageCellView: View {
         self.currentUserId = currentUserId
         self.currentRoleId = currentRoleId
         self.message = message
-        print("message: ",message.id,message.status ,message.msg.message)
+        print("message: ",message.id,message.status ,message.msg.message,message.uuid)
     }
     private var isFromCurrentUser: Bool {
         currentUserId == message.msg.sender
