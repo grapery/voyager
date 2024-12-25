@@ -86,7 +86,9 @@ struct UpdateGroupView: View {
         }
         // Upload avatar image if selected
         Task{
-            self.avatar = try await APIClient.shared.uploadImage(image: self.avatarImage!, filename: defaultAvator)
+            //self.avatar = try await APIClient.shared.uploadImage(image: self.avatarImage!, filename: defaultAvator)
+            self.avatar = try await AliyunClient.UploadImage(image: self.avatarImage!)
+            print("self.avatar: \(self.avatar)")
             if (self.avatarImage?.size.width)! > 10{
                 await self.updateGroupInfo(avatarURL: self.avatar)
             }else{
@@ -112,7 +114,6 @@ struct UpdateGroupView: View {
             showAlert = true
             return
         }
-        
         if let avatarURL = avatarURL {
             updatedGroup.info.avatar = avatarURL
         }

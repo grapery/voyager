@@ -49,8 +49,8 @@ struct MessageView: View {
                     Spacer()
                     Button(action: {}) {
                         Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(.blue)
+                        .font(.system(size: 24))
+                        .foregroundColor(.black)
                     }
                 }
                 .padding(.horizontal)

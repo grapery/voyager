@@ -137,7 +137,6 @@ struct MessageContextView: View {
                         
                         DispatchQueue.main.async {
                             self.viewModel.messages.append(newChatMessage)
-                            print("newChatMessage : ",newChatMessage.msg.message)
                         }
                     }
                 }
@@ -305,8 +304,8 @@ struct MessageContextView: View {
                         }
                     }) {
                         Image(systemName: "plus.circle")
-                            .font(.system(size: 32))
-                            .foregroundColor(.orange)
+                            .font(.system(size: 24))
+                            .foregroundColor(.black)
                             .rotationEffect(.degrees(isShowingMediaOptions ? 45 : 0))
                             .animation(.spring(), value: isShowingMediaOptions)
                     }

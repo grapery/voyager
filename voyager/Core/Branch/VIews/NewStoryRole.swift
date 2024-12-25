@@ -441,9 +441,8 @@ private struct AddImageButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: "plus.circle.fill")
-                .foregroundColor(.blue)
-                .background(Color.white)
-                .clipShape(Circle())
+                        .font(.system(size: 24))
+                        .foregroundColor(.black)
         }
     }
 }
@@ -455,6 +454,8 @@ private struct AdvancedSettingsButton: View {
         Button(action: { showAdvancedSettings.toggle() }) {
             HStack {
                 Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(.black)
                 Text("更多高级设置")
             }
             .foregroundColor(.blue)

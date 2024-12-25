@@ -89,9 +89,9 @@ struct GroupView: View {
             }
             .navigationBarItems(trailing: 
                 Button(action: { isShowingNewGroupView = true }) {
-                    Image(systemName: "plus.circle.fill")
+                    Image(systemName: "plus.circle")
                         .font(.system(size: 24))
-                        .foregroundColor(.blue)
+                        .foregroundColor(.black)
                 }
             )
             .sheet(isPresented: $isShowingNewGroupView) {

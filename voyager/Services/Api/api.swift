@@ -39,7 +39,6 @@ struct APIClient{
                 $0.password = password
             }
             let resp = await authClient.login(request: request, headers: [:])
-            print("resp \(resp)")
             
             guard let message = resp.message, !message.data.token.isEmpty else {
                 throw NSError(domain: "LoginError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Login failed: Empty token"])
@@ -65,6 +64,7 @@ struct APIClient{
             }
             resp = await authClient.register(request: request, headers: [:])
             result.code = resp.message!.code
+            result = resp.message!
         }
         return result
     }
@@ -96,6 +96,7 @@ struct APIClient{
             let request = Common_RefreshTokenRequest.with {
                 $0.token = curToken
             }
+            print("RefreshToken: ",request)
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(curToken)"]
             resp = await authClient.refreshToken(request: request, headers: header)
@@ -122,7 +123,7 @@ struct APIClient{
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             resp = await authClient.logout(request: request, headers: header)
-            print("resp \(resp)")
+            print("Logout resp \(resp)")
         }
         return result
     }
