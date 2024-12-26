@@ -27,8 +27,8 @@ open class AliyunClient {
         // 配置 OSS 参数
         let endpoint = "oss-cn-shanghai.aliyuncs.com"
         let bucketName = "grapery-dev"
-        let accessKeyId = "LTAI5t9opRTB3NKb3nBiikx5"
-        let accessKeySecret = "YxeCMpnWeY82KLnElGVNaNZ4RdMJuI"
+        let accessKeyId = ""
+        let accessKeySecret = ""
         
         // 生成唯一的文件名
         let fileName = UUID().uuidString + ".jpg"
@@ -139,8 +139,8 @@ open class AliyunClient {
     }
     
     // 配置 OSS 参数
-    let accessKeyId = "LTAI5t9opRTB3NKb3nBiikx5"
-    let accessKeySecret = "YxeCMpnWeY82KLnElGVNaNZ4RdMJuI"
+    let accessKeyId = ""
+    let accessKeySecret = ""
     
     // 准备请求头
     let formatter = DateFormatter()
