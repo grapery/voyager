@@ -13,7 +13,8 @@ struct CharacterCell: View {
     let character: StoryRole
     var viewModel: StoryDetailViewModel
     @State private var showingDetail = false
-    
+    @State private var showingAvatarPreview = false
+
     var body: some View {
         HStack(spacing: 2) {
             // 角色头像
@@ -113,6 +114,7 @@ struct StoryRoleDetailView: View {
     @State private var showingDescriptionEditor = false
     @State private var showingPromptEditor = false
     @State private var showingInfoEditor = false
+    @State private var showingAvatarPreview = false
     
     init(storyId: Int64, roleId: Int64, userId: Int64,role: StoryRole? = nil){
         self.storyId = storyId
@@ -148,8 +150,19 @@ struct StoryRoleDetailView: View {
             ScrollView {
                 VStack(spacing: 12) {
                     // 角色基本信息卡片
-                    profileCard
-                    
+                    if let role = role {
+                        profileCard
+                        // 添加全屏预览视图
+                            .fullScreenCover(isPresented: $showingAvatarPreview) {
+                                AvatarPreviewView(
+                                    imageURL: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar,
+                                    isPresented: $showingAvatarPreview
+                                )
+                            }
+                            .onTapGesture {
+                                showingAvatarPreview = true
+                            }
+                    }
                     // 统计信息卡片
                     if let role = role {
                         statsCard(role: role)
@@ -194,6 +207,7 @@ struct StoryRoleDetailView: View {
                 // 添加海报视图的导航目标
                 // PosterView() // 取决于你的海报视图现
             }
+            
         }
         .task {  // 或者使用 .onAppear
             await loadRoleDetails()
@@ -608,5 +622,6 @@ struct EditInfoView: View {
         }
     }
 }
+
 
 

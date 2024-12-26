@@ -18,6 +18,9 @@ struct UpdateGroupView: View {
     @State private var avatarImage: UIImage?
     @State private var isImagePickerPresented = false
     @State private var groupStatusStr: String = ""
+    @State private var isUpdating = false
+    @State private var groupPrivacy: Bool = false
+    @State private var groupTags: String = ""
     
     let group: BranchGroup
     let userId: Int64
@@ -30,51 +33,175 @@ struct UpdateGroupView: View {
         _groupDescription = State(initialValue: group.info.desc)
         _groupLocation = State(initialValue: group.info.location)
         _groupStatus = State(initialValue: group.info.status)
+        _groupStatusStr = State(initialValue: String(group.info.status))
         _avatarImage = State(initialValue: UIImage(systemName: "infinity.circle"))
+        _groupPrivacy = State(initialValue: group.info.status == 1)
+        //_groupTags = State(initialValue: group.info.tags ?? "")
     }
     
     var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Group Details")) {
-                    // Avatar picker
-                    Button(action: { isImagePickerPresented = true }) {
-                        if let avatarImage = avatarImage {
-                            Image(uiImage: avatarImage)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 100)
-                        } else {
-                            Text("Select Avatar")
+            VStack(spacing: 0) {
+                Form {
+                    // 小组头像部分
+                    Section(header: Text("小组头像").foregroundColor(.gray)) {
+                        Button(action: { isImagePickerPresented = true }) {
+                            HStack(spacing: 12) {
+                                if let avatarImage = avatarImage {
+                                    Image(uiImage: avatarImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 80, height: 80)
+                                        .clipShape(Circle())
+                                        .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
+                                } else {
+                                    Image(systemName: "person.circle.fill")
+                                        .resizable()
+                                        .frame(width: 80, height: 80)
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("点击更换头像")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.blue)
+                                    Text("建议使用清晰的图片")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.gray)
+                                }
+                                Spacer()
+                            }
+                            .padding(.vertical, 8)
                         }
                     }
                     
-                    TextField("小组名称", text: $groupName)
-                    TextField("小组简介", text: $groupDescription)
-                    TextField("地址（可以虚拟、可以真实）", text: $groupLocation)
-                    TextField("小组状态", text: $groupStatusStr)
-                }
-                
-                Section {
-                    Button(action: updateGroup) {
-                        Text("更新小组信息")
+                    // 基本信息部分
+                    Section(header: Text("基本信息").foregroundColor(.gray)) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("小组名称")
+                                .font(.system(size: 13))
+                                .foregroundColor(.gray)
+                            TextField("请输入小组名称", text: $groupName)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .font(.system(size: 15))
+                        }
+                        .padding(.vertical, 4)
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("小组简介")
+                                .font(.system(size: 13))
+                                .foregroundColor(.gray)
+                            TextEditor(text: $groupDescription)
+                                .frame(height: 100)
+                                .font(.system(size: 15))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                )
+                                .overlay(
+                                    Group {
+                                        if groupDescription.isEmpty {
+                                            Text("请输入小组简介...")
+                                                .foregroundColor(.gray.opacity(0.8))
+                                                .padding(.leading, 4)
+                                                .padding(.top, 8)
+                                        }
+                                    },
+                                    alignment: .topLeading
+                                )
+                        }
+                        .padding(.vertical, 4)
+                    }
+                    
+                    // 详细设置部分
+                    Section(header: Text("详细设置").foregroundColor(.gray)) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("地址")
+                                .font(.system(size: 13))
+                                .foregroundColor(.gray)
+                            TextField("请输入地址（可以虚拟、可以真实）", text: $groupLocation)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .font(.system(size: 15))
+                        }
+                        .padding(.vertical, 4)
+                        
+                        Toggle(isOn: $groupPrivacy) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("小组隐私")
+                                    .font(.system(size: 15))
+                                Text("开启后只有成员可见")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .onChange(of: groupPrivacy) { newValue in
+                            groupStatusStr = newValue ? "1" : "0"
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("小组标签")
+                                .font(.system(size: 13))
+                                .foregroundColor(.gray)
+                            TextField("请输入标签，用逗号分隔", text: $groupTags)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .font(.system(size: 15))
+                        }
+                        .padding(.vertical, 4)
                     }
                 }
+                
+                // 底部按钮
+                HStack(spacing: 20) {
+                    Button(action: {
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Text("取消")
+                            .font(.system(size: 16, weight: .medium))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.gray.opacity(0.1))
+                            .foregroundColor(.gray)
+                            .cornerRadius(10)
+                    }
+                    
+                    Button(action: {
+                        isUpdating = true
+                        updateGroup()
+                    }) {
+                        Group {
+                            if isUpdating {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            } else {
+                                Text("更新")
+                                    .font(.system(size: 16, weight: .medium))
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                    }
+                    .disabled(isUpdating)
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 16)
+                .background(Color.white)
+                .shadow(color: .black.opacity(0.05), radius: 8, y: -4)
             }
-            .navigationTitle("Update Group")
-            .navigationBarItems(leading: cancelButton)
+            .navigationTitle("更新小组信息")
+            .navigationBarTitleDisplayMode(.inline)
         }
         .alert(isPresented: $showAlert) {
-            Alert(title: Text("Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+            Alert(
+                title: Text(alertMessage.contains("失败") ? "错误" : "提示"),
+                message: Text(alertMessage),
+                dismissButton: .default(Text("确定"))
+            )
         }
         .sheet(isPresented: $isImagePickerPresented) {
             SingleImagePicker(image: $avatarImage)
-        }
-    }
-    
-    private var cancelButton: some View {
-        Button("Cancel") {
-            presentationMode.wrappedValue.dismiss()
         }
     }
     

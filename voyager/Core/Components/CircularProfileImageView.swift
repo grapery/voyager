@@ -90,3 +90,65 @@ struct RoundedShape: Shape {
     }
     
 }
+
+struct AvatarPreviewView: View {
+    let imageURL: String
+    @Binding var isPresented: Bool
+    @State private var scale: CGFloat = 1.0
+    @State private var lastScale: CGFloat = 1.0
+    
+    var body: some View {
+        NavigationView {
+            GeometryReader { geometry in
+                ZStack {
+                    Color(.systemBackground).edgesIgnoringSafeArea(.all)
+                    
+                    KFImage(URL(string: imageURL))
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: geometry.size.width)
+                        .scaleEffect(scale)
+                        .gesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    let delta = value / lastScale
+                                    lastScale = value
+                                    scale = min(max(scale * delta, 1), 4)
+                                }
+                                .onEnded { _ in
+                                    lastScale = 1.0
+                                }
+                        )
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        isPresented = false
+                    }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.primary)
+                            .font(.system(size: 17, weight: .medium))
+                            .padding(8)
+                            .background(Color(.systemGray6))
+                            .clipShape(Circle())
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    ShareLink(item: URL(string: imageURL)!) {
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundColor(.primary)
+                            .font(.system(size: 17, weight: .medium))
+                            .padding(8)
+                            .background(Color(.systemGray6))
+                            .clipShape(Circle())
+                    }
+                }
+            }
+        }
+        // 移除 .preferredColorScheme(.dark)
+    }
+}
+
