@@ -281,7 +281,7 @@ struct CommentRow: View {
                 }
                 
                 // 评论内容
-                Text(comment.content)
+                Text(comment.realComment.content)
                     .font(.body)
             }
         }
