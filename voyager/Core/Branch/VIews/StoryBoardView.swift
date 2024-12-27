@@ -18,6 +18,7 @@ struct StoryBoardView: View {
     @State private var showEditView = false
     @State var viewModel: StoryViewModel
     @Environment(\.presentationMode) var presentationMode
+    @State private var showCommentSheet = false  // 添加状态变量
     
     var body: some View {
         ZStack {
@@ -99,7 +100,11 @@ struct StoryBoardView: View {
                         HStack(spacing: 20) {
                             Spacer().scaledToFit()
                             
-                            Button(action: { /* 点赞操作 */ }) {
+                            Button(action: {
+                                Task{
+                                    let err = await viewModel.likeStoryBoard(storyId: self.storyId, boardId: (self.board?.boardInfo.storyBoardID)!, userId: self.userId)
+                                }
+                            }) {
                                 VStack {
                                     Image(systemName: "heart")
                                         .foregroundColor(.white)
@@ -110,7 +115,9 @@ struct StoryBoardView: View {
                             }
                             Spacer().scaledToFit()
                             
-                            Button(action: { /* 评论操作 */ }) {
+                            Button(action: {
+                                showCommentSheet = true
+                            }) {
                                 VStack {
                                     Image(systemName: "bubble.left")
                                         .foregroundColor(.white)
@@ -121,7 +128,11 @@ struct StoryBoardView: View {
                             }
                             Spacer().scaledToFit()
                             
-                            Button(action: { /* 收藏操作 */ }) {
+                            Button(action: {
+                                Task{
+                                    let err = await viewModel.likeStoryBoard(storyId: self.storyId, boardId: self.board?.id ?? 0, userId: self.userId)
+                                }
+                            }) {
                                 VStack {
                                     Image(systemName: "star")
                                         .foregroundColor(.white)
@@ -132,7 +143,11 @@ struct StoryBoardView: View {
                             }
                             Spacer().scaledToFit()
                             
-                            Button(action: { /* 分享操作 */ }) {
+                            Button(action: {
+                                Task{
+                                    let err = await viewModel.likeStoryBoard(storyId: self.storyId, boardId: self.board?.id ?? 0, userId: self.userId)
+                                }
+                            }) {
                                 VStack {
                                     Image(systemName: "square.and.arrow.up")
                                         .foregroundColor(.white)
@@ -151,6 +166,9 @@ struct StoryBoardView: View {
             }
         }
         .navigationBarHidden(true)
+        .sheet(isPresented: $showCommentSheet) {
+            CommentSheetView(storyId: storyId, boardId: board?.boardInfo.storyBoardID ?? 0, userId: self.userId)
+        }
         .fullScreenCover(isPresented: $showEditView) {
             EditStoryBoardView(
                 storyId: storyId,
@@ -160,6 +178,116 @@ struct StoryBoardView: View {
         }
     }
 }
+
+// 添加评论框视图
+struct CommentSheetView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @State private var commentText = ""
+    @State private var comments: [Comment] = [] // 添加评论数据模型
+    let storyId: Int64
+    let boardId: Int64
+    let userId: Int64
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // 顶部栏
+            HStack {
+                Text("评论")
+                    .font(.headline)
+                Spacer()
+                Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                    Image(systemName: "xmark")
+                        .foregroundColor(.primary)
+                }
+            }
+            .padding()
+            
+            // 评论列表
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 12) {
+                    ForEach(comments) { comment in
+                        CommentRow(comment: comment)
+                    }
+                }
+                .padding()
+            }
+            
+            // 底部评论输入区域
+            VStack {
+                Divider()
+                HStack(spacing: 8) {
+                    // 评论输入框
+                    TextField("发送友善评论", text: $commentText)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(minHeight: 36)
+                    
+                    // AI 渲染按钮
+                    Button(action: {
+                        // TODO: AI 渲染评论逻辑
+                    }) {
+                        Image(systemName: "wand.and.stars")
+                            .foregroundColor(.white)
+                            .padding(8)
+                            .background(Color.purple)
+                            .cornerRadius(8)
+                    }
+                    
+                    // 发送按钮
+                    Button(action: {
+                        // TODO: 发送评论逻辑
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Text("发送")
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Color.blue)
+                            .cornerRadius(8)
+                    }
+                }
+                .padding()
+            }
+            .background(Color(UIColor.systemBackground))
+            .shadow(radius: 2)
+        }
+    }
+}
+
+// 评论行视图
+struct CommentRow: View {
+    let comment: Comment
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            // 用户头像
+            AsyncImage(url: URL(string: comment.commentUser.avatar)) { image in
+                image.resizable()
+            } placeholder: {
+                Color.gray
+            }
+            .frame(width: 40, height: 40)
+            .clipShape(Circle())
+            
+            VStack(alignment: .leading, spacing: 4) {
+                // 用户名和时间
+                HStack {
+                    Text(comment.commentUser.name)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                    Spacer()
+                    Text("\(comment.realComment.mtime)")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+                
+                // 评论内容
+                Text(comment.content)
+                    .font(.body)
+            }
+        }
+    }
+}
+
 
 // 场景页面视图
 private struct ScenePageView: View {

@@ -33,7 +33,7 @@ struct GroupDetailView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Group Info Header
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
                 NavigationLink(destination: UpdateGroupView(group: self.group!, userId: self.user.userID)) {
                     HStack(spacing: 12) {
                         KFImage(URL(string: group!.info.avatar))
@@ -126,7 +126,7 @@ struct GroupDetailView: View {
                     if viewModel.storys.isEmpty {
                         VStack(spacing: 16) {
                             Image(systemName: "doc.text.image")
-                                .font(.system(size: 48))
+                                .font(.system(size: 64))
                                 .foregroundColor(.gray)
                             Text("暂无最新故事")
                                 .foregroundColor(.gray)
@@ -316,6 +316,9 @@ struct StoryCellView: View {
                 Spacer()
                 Button(action: {
                     print("share story")
+                    Task {
+                        await viewModel.likeStory(userId: self.currentUserId, storyId: story.storyInfo.id)
+                    }
                 }) {
                     HStack {
                         Image(systemName: "square.and.arrow.up.circle")

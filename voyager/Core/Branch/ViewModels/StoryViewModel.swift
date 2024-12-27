@@ -563,6 +563,61 @@ class StoryViewModel: ObservableObject {
         }
     }
     
+    func likeStory(storyId: Int64, userId: Int64) async -> Error? {
+        self.err = nil
+        do {
+            let result = await apiClient.LikeStory(storyId: storyId, userId: userId)
+            
+            if let error = result {
+                // 如果API返回错误，返回该错误
+                print(" \(userId) likeStory \(storyId) failed: ",error)
+                return error
+            }
+            return nil
+        } catch {
+            // 捕获并返回任何其他错误
+            print(" \(userId) likeStory \(storyId) exception: ",error)
+            self.err = error
+            return error
+        }
+    }
+    
+    func unlikeStory(storyId: Int64, userId: Int64) async -> Error? {
+        self.err = nil
+        do {
+            let result = await apiClient.UnLikeStory(storyId: storyId, userId: userId)
+            if let error = result {
+                // 如果API返回错误，返回该错误
+                print(" \(userId) unlikeStory \(storyId) failed: ",error)
+                return error
+            }
+            return nil
+        } catch {
+            // 捕获并返回任何其他错误
+            print(" \(userId) unlikeStory \(storyId) exception: ",error)
+            self.err = error
+            return error
+        }
+    }
+    func watchStory(storyId: Int64, userId: Int64) async -> Error? {
+        self.err = nil
+        do {
+            let result = await apiClient.WatchStory(storyId: storyId, userId: userId)
+            
+            if let error = result.1{
+                // 如果API返回错误，返回该错误
+                print(" \(userId) watchStory \(storyId) failed: ",error)
+                return error
+            }
+            return nil
+        } catch {
+            // 捕获并返回任何其他错误
+            print(" \(userId) watchStory \(storyId) exception: ",error)
+            self.err = error
+            return error
+        }
+    }
+    
 }
 
 

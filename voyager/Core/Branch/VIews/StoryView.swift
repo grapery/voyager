@@ -107,9 +107,41 @@ struct StoryView: View {
                 
                 // 交互按钮栏
                 HStack(spacing: 24) {
-                    StoryInteractionButton(count: "10", icon: "heart", color: .red)
-                    StoryInteractionButton(count: "1", icon: "bell", color: .blue)
-                    StoryInteractionButton(count: "分享", icon: "square.and.arrow.up", color: .green)
+                    StoryInteractionButton(
+                        count: "10",
+                        icon: "heart",
+                        color: .red
+                    ) {
+                        // 处理点赞事件
+                        print("Like button tapped")
+                        Task{
+                            let err = await self.viewModel.likeStory(storyId: self.storyId,userId: self.userId)
+                        }
+                    }
+                    
+                    StoryInteractionButton(
+                        count: "1",
+                        icon: "bell",
+                        color: .blue
+                    ) {
+                        // 处理关注事件
+                        print("Follow button tapped")
+                        Task{
+                            let err = await self.viewModel.watchStory(storyId: self.storyId,userId: self.userId)
+                        }
+                    }
+                    
+                    StoryInteractionButton(
+                        count: "分享",
+                        icon: "square.and.arrow.up",
+                        color: .green
+                    ) {
+                        // 处理分享事件
+                        print("Share button tapped")
+                        Task{
+                            let err = await self.viewModel.likeStory(storyId: self.storyId,userId: self.userId)
+                        }
+                    }
                 }
                 .padding(.top, 4)
             }
@@ -650,106 +682,35 @@ struct CommentSheet: View {
     }
 }
 
-// 媒体项目类型
-struct MediaItem: Identifiable {
-    let id: String
-    let type: MediaType
-    let url: URL
-    let thumbnail: URL?
-}
 
-enum MediaType {
-    case image
-    case video
-}
-
-// 媒体项目视图
-struct MediaItemView: View {
-    let item: MediaItem
-    @State private var isPresented = false
-    
-    var body: some View {
-        Button(action: {
-            isPresented = true
-        }) {
-            Group {
-                switch item.type {
-                case .image:
-                    RectProfileImageView(avatarUrl: item.url.description, size: .InContent)
-                case .video:
-                    ZStack {
-                        if let thumbnail = item.thumbnail {
-                            KFImage(thumbnail)
-                                .resizable()
-                                .scaledToFill()
-                        }
-                        Image(systemName: "play.circle.fill")
-                            .font(.largeTitle)
-                            .foregroundColor(.white)
-                            .shadow(radius: 2)
-                    }
-                }
-            }
-        }
-        .sheet(isPresented: $isPresented) {
-            MediaDetailView(item: item)
-        }
-    }
-}
-
-// 媒体详情视图
-struct MediaDetailView: View {
-    let item: MediaItem
-    @Environment(\.presentationMode) var presentationMode
-    
-    var body: some View {
-        NavigationView {
-            Group {
-                switch item.type {
-                case .image:
-                    KFImage(item.url)
-                        .resizable()
-                        .scaledToFit()
-                case .video:
-                    VideoPlayer(url: item.url)
-                }
-            }
-            .navigationBarItems(trailing: Button("关闭") {
-                presentationMode.wrappedValue.dismiss()
-            })
-        }
-    }
-}
-
-// 视频播放器视图
-struct VideoPlayer: UIViewControllerRepresentable {
-    let url: URL
-    
-    func makeUIViewController(context: Context) -> AVPlayerViewController {
-        let player = AVPlayer(url: url)
-        let controller = AVPlayerViewController()
-        controller.player = player
-        return controller
-    }
-    
-    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {}
-}
 
 // 新增的交互按钮组件
 struct StoryInteractionButton: View {
     let count: String
     let icon: String
     let color: Color
+    var action: () -> Void  // 添加点击回调闭包
+    @State private var isPressed = false  // 添加按压状态
     
     var body: some View {
-        Button(action: {}) {
-            HStack(spacing: 6) {
-                Image(systemName: icon)
-                    .foregroundColor(color)
-                Text(count)
-                    .foregroundColor(.secondary)
+        Button(action: {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                isPressed = true
+                // 延迟重置按压状态
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    isPressed = false
+                }
             }
-            .font(.system(size: 14, weight: .medium))
+            action()  // 执行点击回调
+        }) {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                Text(count)
+                    .font(.system(size: 14))
+            }
+            .foregroundColor(color)
+            .scaleEffect(isPressed ? 0.9 : 1.0)  // 添加按压效果
         }
     }
 }
