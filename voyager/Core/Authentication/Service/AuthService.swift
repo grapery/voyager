@@ -22,6 +22,11 @@ class AuthService {
     }
     
     @MainActor
+    func setSavedToken(savedToken: String){
+        APIClient.shared.setGlobalToken(savedToken: savedToken)
+    }
+    
+    @MainActor
     func login(withEmail email: String, password: String) async -> (Int64, Error?) {
         do {
             let result = try await APIClient.shared.Login(account: email, password: password)

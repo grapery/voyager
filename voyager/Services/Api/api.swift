@@ -30,6 +30,16 @@ struct APIClient{
             )
         }
     }
+    
+    public func setGlobalToken(savedToken: String){
+        print("globalUserToken: ",globalUserToken)
+        if globalUserToken == "" && savedToken != ""{
+            globalUserToken = savedToken
+        }else if globalUserToken != "" {
+            print("globalUserToken not empty: ",globalUserToken as Any)
+        }
+    }
+    
     public func Login(account: String, password: String) async throws -> Common_LoginResponse {
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)

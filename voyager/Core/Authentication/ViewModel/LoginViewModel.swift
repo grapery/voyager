@@ -23,11 +23,6 @@ class LoginViewModel: ObservableObject {
     private let currentUserKey = "VoyagerCurrentUser"
     
     @MainActor
-    init() {
-        loadUserToken()
-    }
-    
-    @MainActor
     func signIn() {
         Task {
             if token.isEmpty {
@@ -94,8 +89,8 @@ class LoginViewModel: ObservableObject {
                 self.email = savedEmail
                 self.currentUser = savedUser
                 self.isLogin = true
-                
-                print("Successfully loaded saved user data. Token: \(savedToken.prefix(10))..., User: \(savedUser.name)")
+                service.setSavedToken(savedToken: savedToken)
+                print("Successfully loaded saved user data. Token: \(savedToken)..., User: \(savedUser)")
                 
                 // 使用 await 直接等待刷新完成
                 Task {
@@ -117,7 +112,7 @@ class LoginViewModel: ObservableObject {
         // Save token and email
         defaults.set(token, forKey: tokenKey)
         defaults.set(email, forKey: userEmailKey)
-        
+        print("saving token: ",token)
         // Save current user data
         saveCurrentUser()
         
@@ -142,10 +137,11 @@ class LoginViewModel: ObservableObject {
     
     @MainActor
     private func refreshUserData() async {
+        print("refreshUserData: ",token)
         if !token.isEmpty {
             let result = service.refreshUserData(token: token)
             if result == nil {  // 如果没有错误
-                self.currentUser = service.currentUser  // 更新当前用户
+                //self.currentUser = service.currentUser  // 更新当前用户
                 self.token = service.token ?? ""
                 self.isLogin = true
                 saveCurrentUser()  // 保存更新后的用户数据
