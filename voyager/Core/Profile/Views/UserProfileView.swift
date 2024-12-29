@@ -7,6 +7,7 @@
 
 
 import SwiftUI
+import Kingfisher
 
 // MARK: - Main View
 struct UserProfileView: View {
@@ -29,31 +30,42 @@ struct UserProfileView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    // 用户信息头部
-                    ProfileHeaderView(user: user)
-                    
-                    // 统计信息
-                    StatisticsView(viewModel: viewModel)
+                    VStack(spacing: 0) {
+                        ZStack {
+                            // 背景图片
+                            KFImage(URL(string: defaultAvator))
+                                .resizable() // 允许调整大小
+                                .aspectRatio(contentMode: .fill) // 填充模式
+                                .frame(height: 240) // 限制高度
+                                .clipped() // 裁剪超出部分
+                                .blur(radius: 1.0)
+                            
+                            VStack(spacing: 0) {
+                                ProfileHeaderView(user: user)
+                                StatisticsView(viewModel: viewModel)
+                            }
+                        }
+                        .frame(height: 240)
+                        // ... rest of the content ...
+                    }
+                    .frame(height: 240)
                     
                     // 分段控制器
                     SegmentedControlView(
                         selectedFilter: $selectedFilter,
                         animation: animation
                     )
+                    .padding(.top, 5)    // 上方间距 4px
+                    .padding(.bottom, 10) // 下方间距 16px
                     
                     // 内容区域
-                    ContentView(
+                    ProfileContentView(
                         selectedFilter: selectedFilter,
                         viewModel: viewModel
                     )
                 }
             }
             .background(Color(hex: "1C1C1E"))
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    ProfileSettingsButton(action: handleSettingsPress)
-                }
-            }
             .sheet(isPresented: $showingSubView) {
                 ProfileSheetContent(
                     showingEditProfile: showingEditProfile,
@@ -160,108 +172,6 @@ private struct BackgroundImageView: View {
     }
 }
 
-// MARK: - User Info Header
-private struct UserInfoHeader: View {
-    let user: User
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            CircularProfileImageView(avatarUrl: user.avatar, size: .InProfile)
-                .overlay(Circle().stroke(Color.white, lineWidth: 2))
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(user.name)
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                
-                Text(user.desc.isEmpty ? "神秘的人物，没有简介！" : user.desc)
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.9))
-                    .lineLimit(2)
-            }
-            Spacer()
-        }
-    }
-}
-
-// MARK: - Profile Stats Row
-private struct ProfileStatsRow: View {
-    @ObservedObject var viewModel: ProfileViewModel
-    
-    var body: some View {
-        HStack(spacing: 32) {
-            StatView(
-                icon: "mountain.2",
-                count: Int64(viewModel.profile.createdStoryNum),
-                title: "个故事"
-            )
-            
-            StatView(
-                icon: "person",
-                count: Int64(viewModel.profile.createdRoleNum),
-                title: "个故事角色"
-            )
-        }
-    }
-}
-
-// MARK: - Filter Tab Bar
-private struct FilterTabBar: View {
-    @Binding var selectedFilter: UserProfileFilterViewModel
-    var animation: Namespace.ID
-    
-    var body: some View {
-        HStack(spacing: 0) {
-            ForEach(UserProfileFilterViewModel.allCases, id: \.self) { filter in
-                TabButton(
-                    title: filter.title,
-                    isSelected: selectedFilter == filter
-                ) {
-                    withAnimation {
-                        selectedFilter = filter
-                    }
-                }
-            }
-        }
-        .padding(.top, 8)
-    }
-}
-
-// MARK: - Profile Content View
-private struct ProfileContentView: View {
-    let selectedFilter: UserProfileFilterViewModel
-    let dragOffset: CGFloat
-    let viewModel: ProfileViewModel
-    let onFilterChange: (UserProfileFilterViewModel) -> Void
-    
-    var body: some View {
-        GeometryReader { geometry in
-            HStack(spacing: 0) {
-                StoryboardRowView(boards: viewModel.storyboards)
-                    .frame(width: geometry.size.width)
-                
-                RolesListView(roles: viewModel.storyRoles, viewModel: viewModel)
-                    .frame(width: geometry.size.width)
-            }
-            .offset(x: -CGFloat(selectedFilter.rawValue) * geometry.size.width)
-            .offset(x: dragOffset)
-            .animation(.interactiveSpring(), value: selectedFilter)
-            .gesture(
-                DragGesture()
-                    .onEnded { value in
-                        let threshold = geometry.size.width * 0.25
-                        if value.translation.width > threshold && selectedFilter != .storyboards {
-                            onFilterChange(.storyboards)
-                        } else if value.translation.width < -threshold && selectedFilter != .roles {
-                            onFilterChange(.roles)
-                        }
-                    }
-            )
-        }
-        .frame(height: UIScreen.main.bounds.height * 0.7)
-    }
-}
 
 // MARK: - Profile Sheet Content
 private struct ProfileSheetContent: View {
@@ -295,11 +205,6 @@ private struct ProfileSettingsButton: View {
     }
 }
 
-// MARK: - Existing Supporting Views
-// Keep the existing StatView, StoryCardRowView, RolesListView, etc.
-// ... (rest of the supporting view implementations remain unchanged)
-
-// MARK: - Stat View
 struct StatView: View {
     let icon: String
     let count: Int64
@@ -318,23 +223,6 @@ struct StatView: View {
     }
 }
 
-// MARK: - Storyboard Row View
-struct StoryboardRowView: View {
-    let boards: [StoryBoard]
-    
-    var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 8) {
-                ForEach(boards, id: \.id) { board in
-                    StoryboardCell(board: board)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-        }
-        .background(Color(uiColor: .systemBackground))
-    }
-}
 
 struct StoryboardCell: View {
     let board: StoryBoard
@@ -409,58 +297,132 @@ struct RolesListView: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 8) {
+            LazyVStack(spacing: 12) { // 增加卡片间距
                 ForEach(roles, id: \.id) { role in
-                    RoleCell(role: role, viewModel: viewModel)
+                    ProfileRoleCell(role: role, viewModel: viewModel)
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            .padding(.vertical, 12)
         }
-        .background(Color(uiColor: .systemBackground))
+        .background(Color(hex: "1C1C1E")) // 使用深色背景
     }
 }
 
-struct RoleCell: View {
+struct ProfileRoleCell: View {
     let role: StoryRole
     @StateObject var viewModel: ProfileViewModel
     @State private var showRoleDetail = false
     
     var body: some View {
         Button(action: { showRoleDetail = true }) {
-            HStack(spacing: 12) {
-                // 角色头像
-                RectProfileImageView(
-                    avatarUrl: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar,
-                    size: .InProfile
-                )
-                .frame(width: 56, height: 56)
-                .cornerRadius(6)
-                
-                // 角色信息
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(role.role.characterName)
-                        .font(.system(size: 16))
-                        .foregroundColor(.primary)
-                    
-                    Text(role.role.characterDescription)
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                        .lineLimit(2)
-                    
-                    // 统计信息
-                    HStack(spacing: 16) {
-                        StatLabel(icon: "doc.text", count: 22)
-                        StatLabel(icon: "bubble.left", count: 42)
+            HStack(spacing: 0) {
+                // 左侧装饰条
+                Rectangle()
+                    .fill(Color(hex: "A5D661").opacity(0.3)) // 浅绿色
+                    .frame(width: 12)
+                GeometryReader { geometry in
+                    VStack(spacing: 0) {
+                        Rectangle()
+                            .fill(Color(hex: "A5D661").opacity(0.3))
+                            .frame(width: 2)
+                            .frame(height: geometry.size.height / 7)
+                        
+                        Circle()
+                            .fill(Color(hex: "E7E7E7")) // 使用背景色作为圆孔颜色
+                            .frame(width: 6, height: 6)
+                        
+                        Rectangle()
+                            .fill(Color(hex: "A5D661").opacity(0.3))
+                            .frame(width: 2)
+                            .frame(height: geometry.size.height / 7)
+                            
+                        Circle()
+                            .fill(Color(hex: "E7E7E7"))
+                            .frame(width: 6, height: 6)
+                            
+                        Rectangle()
+                            .fill(Color(hex: "A5D661").opacity(0.3))
+                            .frame(width: 2)
+                            .frame(height: geometry.size.height / 7)
+                            
+                        Circle()
+                            .fill(Color(hex: "E7E7E7"))
+                            .frame(width: 6, height: 6)
+                            
+                        Rectangle()
+                            .fill(Color(hex: "A5D661").opacity(0.3))
+                            .frame(width: 2)
+                            .frame(height: geometry.size.height / 7)
+                        Circle()
+                            .fill(Color(hex: "E7E7E7"))
+                            .frame(width: 6, height: 6)
+                        
+                        Rectangle()
+                            .fill(Color(hex: "A5D661").opacity(0.3))
+                            .frame(width: 2)
+                            .frame(height: geometry.size.height / 7)
+                        Circle()
+                            .fill(Color(hex: "E7E7E7"))
+                            .frame(width: 6, height: 6)
+                        
+                        Rectangle()
+                            .fill(Color(hex: "A5D661").opacity(0.3))
+                            .frame(width: 2)
+                            .frame(height: geometry.size.height / 7)
                     }
                 }
-                
-                Spacer()
+                .frame(width: 6)
+                //.padding(.horizontal, 4)
+
+                // 主要内容
+                HStack(spacing: 12) {
+                    // 角色头像
+                    RectProfileImageView(
+                        avatarUrl: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar,
+                        size: .InContent
+                    )
+                    .frame(width: 128, height: 128)
+                    .cornerRadius(4) // 改为方形圆角
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        // 角色名称
+                        Text(role.role.characterName)
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white)
+                        
+                        // 角色描述
+                        Text(role.role.characterDescription)
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                        Divider()
+                        // 统计信息
+                        HStack(spacing: 20) {
+                            StatLabel(
+                                icon: "doc.text",
+                                count: 10,
+                                iconColor: .gray,
+                                countColor: .gray
+                            )
+                            StatLabel(
+                                icon: "bubble.left",
+                                count: 10,
+                                iconColor: .gray,
+                                countColor: .gray
+                            )
+                        }
+                        .padding(.top, 4)
+                    }
+                    
+                    Spacer()
+                }
+                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
             }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
-            .background(Color(uiColor: .secondarySystemBackground))
-            .cornerRadius(8)
+            .background(Color(hex: "2C2C2E")) // 深灰色背景
+            .cornerRadius(8) // 整体圆角
         }
         .buttonStyle(PlainButtonStyle())
         .sheet(isPresented: $showRoleDetail) {
@@ -474,18 +436,21 @@ struct RoleCell: View {
     }
 }
 
-// 新增辅助视图
-private struct StatLabel: View {
+// 修改统计标签组件
+struct StatLabel: View {
     let icon: String
-    let count: Int64
+    let count: Int
+    var iconColor: Color = .secondary
+    var countColor: Color = .secondary
     
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
+                .foregroundColor(iconColor)
             Text("\(count)")
+                .foregroundColor(countColor)
+                .font(.system(size: 14))
         }
-        .font(.system(size: 14))
-        .foregroundColor(.secondary)
     }
 }
 
@@ -508,7 +473,6 @@ struct ProfileInteractionButton: View {
 }
 
 
-// MARK: - Statistics View
 private struct StatisticsView: View {
     @ObservedObject var viewModel: ProfileViewModel
     
@@ -528,6 +492,7 @@ private struct StatisticsView: View {
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 16)
+        .background(Color.white.opacity(0.3)) // 添加半透明白色背景
     }
 }
 
@@ -539,10 +504,10 @@ private struct StatItem: View {
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .foregroundColor(.gray)
+                .foregroundColor(.white)
                 .font(.system(size: 14))
             Text("\(count) \(title)")
-                .foregroundColor(.gray)
+                .foregroundColor(.white)
                 .font(.system(size: 14))
         }
     }
@@ -556,32 +521,37 @@ private struct SegmentedControlView: View {
     var body: some View {
         HStack(spacing: 0) {
             ForEach(UserProfileFilterViewModel.allCases, id: \.self) { filter in
-                Button(action: { selectedFilter = filter }) {
-                    VStack(spacing: 8) {
-                        Text(filter.title)
-                            .foregroundColor(selectedFilter == filter ? .white : .gray)
-                            .font(.system(size: 16, weight: .medium))
-                        
-                        ZStack {
-                            if selectedFilter == filter {
-                                RoundedRectangle(cornerRadius: 2)
-                                    .fill(Color.green)
-                                    .frame(width: 30, height: 3)
-                                    .matchedGeometryEffect(id: "TAB", in: animation)
-                            }
-                        }
+                Button(action: { 
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        selectedFilter = filter 
                     }
+                }) {
+                    Text(filter.title)
+                        .foregroundColor(selectedFilter == filter ? .white : .gray)
+                        .font(.system(size: 16, weight: .medium))
+                        .frame(maxWidth: 128)
+                        .frame(height: 32)
+                        .background(
+                            Capsule()
+                                .fill(selectedFilter == filter ? Color(hex: "A5D661") : Color(hex: "E7E7E7"))
+                                .matchedGeometryEffect(id: selectedFilter == filter ? "TAB" : "", in: animation)
+                        )
+                        .padding(.horizontal, 4)
                 }
-                .frame(maxWidth: .infinity)
             }
         }
-        .padding(.vertical, 8)
-        .background(Color(hex: "2C2C2E"))
+        .padding(4) // 添加内边距，让按钮与外框有间隔
+        .background(
+            Capsule()
+                .fill(Color.white)
+        )
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
     }
 }
 
 // MARK: - Content View
-private struct ContentView: View {
+private struct ProfileContentView: View {
     let selectedFilter: UserProfileFilterViewModel
     let viewModel: ProfileViewModel
     

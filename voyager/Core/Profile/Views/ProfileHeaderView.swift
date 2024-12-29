@@ -4,7 +4,7 @@ struct ProfileHeaderView: View {
     let user: User
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 8) {
             // 头像和用户名
             HStack(spacing: 12) {
                 CircularProfileImageView(avatarUrl: user.avatar, size: .InProfile)
@@ -18,7 +18,7 @@ struct ProfileHeaderView: View {
                     
                     Text("欢迎大家来一起创作好玩的故事吧！")
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.white)
                 }
             }
             .padding(.horizontal)
