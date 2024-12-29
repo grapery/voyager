@@ -29,29 +29,26 @@ struct UserProfileView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    UserProfileHeaderView(
-                        user: user,
-                        backgroundImage: backgroundImage,
-                        onLongPress: handleHeaderLongPress
-                    )
+                    // 用户信息头部
+                    ProfileHeaderView(user: user)
                     
-                    FilterTabBar(
+                    // 统计信息
+                    StatisticsView(viewModel: viewModel)
+                    
+                    // 分段控制器
+                    SegmentedControlView(
                         selectedFilter: $selectedFilter,
                         animation: animation
                     )
                     
-                    ProfileContentView(
+                    // 内容区域
+                    ContentView(
                         selectedFilter: selectedFilter,
-                        dragOffset: dragOffset,
-                        viewModel: viewModel,
-                        onFilterChange: { filter in
-                            withAnimation {
-                                selectedFilter = filter
-                            }
-                        }
+                        viewModel: viewModel
                     )
                 }
             }
+            .background(Color(hex: "1C1C1E"))
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     ProfileSettingsButton(action: handleSettingsPress)
@@ -143,32 +140,6 @@ struct UserProfileView: View {
     }
 }
 
-// MARK: - Profile Header View
-private struct UserProfileHeaderView: View {
-    let user: User
-    let backgroundImage: UIImage?
-    let onLongPress: () -> Void
-    
-    var body: some View {
-        ZStack(alignment: .bottom) {
-            BackgroundImageView(image: backgroundImage)
-            
-            LinearGradient(
-                gradient: Gradient(colors: [.clear, .black.opacity(0.6)]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: 280)
-            
-            VStack(spacing: 16) {
-                UserInfoHeader(user: user)
-                ProfileStatsRow(viewModel: ProfileViewModel(user: user))
-            }
-            .padding(16)
-        }
-        .onLongPressGesture(perform: onLongPress)
-    }
-}
 
 // MARK: - Background Image View
 private struct BackgroundImageView: View {
@@ -353,70 +324,81 @@ struct StoryboardRowView: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 16) {
+            LazyVStack(spacing: 8) {
                 ForEach(boards, id: \.id) { board in
-                    StoryboardRowCellView(info: board)
+                    StoryboardCell(board: board)
                 }
             }
-            .padding()
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
         }
+        .background(Color(uiColor: .systemBackground))
     }
 }
 
-struct StoryboardRowCellView: View {
-    var info: StoryBoard
+struct StoryboardCell: View {
+    let board: StoryBoard
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Header
+        VStack(alignment: .leading, spacing: 8) {
+            // 标题行
             HStack {
-                Text(info.boardInfo.title)
-                    .font(.system(size: 16, weight: .semibold))
-                
-                if info.boardInfo.isAiGen {
-                    Image(systemName: "sparkles")
-                        .foregroundColor(.blue)
-                }
+                Text(board.boardInfo.title)
+                    .font(.system(size: 16))
+                    .foregroundColor(.primary)
                 
                 Spacer()
                 
-                Text("#\(info.boardInfo.num)")
+                Text(formatDate(board.boardInfo.ctime))
                     .font(.system(size: 14))
-                    .foregroundColor(.gray)
+                    .foregroundColor(.secondary)
             }
             
-            // Content
-            Text(info.boardInfo.content)
-                .font(.system(size: 15))
+            // 内容
+            Text(board.boardInfo.content)
+                .font(.system(size: 14))
                 .foregroundColor(.secondary)
-                .lineLimit(2)
+                .lineLimit(3)
+                .padding(.bottom, 4)
             
-            // Footer
-            if !info.boardInfo.roles.isEmpty {
-                HStack {
-                    Image(systemName: "person.2")
-                        .foregroundColor(.gray)
-                    Text("\(info.boardInfo.roles.count) 个角色")
+            // 底部统计
+            HStack {
+                HStack(spacing: 4) {
+                    Image(systemName: "bubble.left")
                         .font(.system(size: 14))
-                        .foregroundColor(.gray)
+                    Text("\(10)")
                 }
-            }
-            
-            // Interaction buttons
-            HStack(spacing: 24) {
-                ProfileInteractionButton(icon: "bubble.left", count: 0, isActive: false)
-                ProfileInteractionButton(icon: "heart", count: 0, isActive: false)
+                .foregroundColor(.secondary)
+                .font(.system(size: 14))
+                
                 Spacer()
-                Button(action: {}) {
-                    Image(systemName: "square.and.arrow.up")
-                        .foregroundColor(.gray)
+                
+                HStack(spacing: 4) {
+                    Image(systemName: "heart")
+                        .font(.system(size: 14))
+                    Text("\(20)")
                 }
+                .foregroundColor(.secondary)
+                .font(.system(size: 14))
+                
+                Spacer()
+                
+                Image(systemName: "arrow.clockwise")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
             }
         }
-        .padding(16)
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(Color(uiColor: .secondarySystemBackground))
+        .cornerRadius(8)
+    }
+    
+    private func formatDate(_ timestamp: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
     }
 }
 
@@ -427,76 +409,83 @@ struct RolesListView: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 16) {
+            LazyVStack(spacing: 8) {
                 ForEach(roles, id: \.id) { role in
-                    StoryRoleRowView(role: role, viewModel: viewModel, userId: viewModel.user!.userID)
+                    RoleCell(role: role, viewModel: viewModel)
                 }
             }
-            .padding()
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
         }
+        .background(Color(uiColor: .systemBackground))
     }
 }
 
-struct StoryRoleRowView: View {
-    var role: StoryRole
+struct RoleCell: View {
+    let role: StoryRole
+    @StateObject var viewModel: ProfileViewModel
     @State private var showRoleDetail = false
-    var viewModel: ProfileViewModel
-    let userId: Int64
     
     var body: some View {
         Button(action: { showRoleDetail = true }) {
-            HStack(alignment: .top, spacing: 5) {
-                // Avatar
-                if !role.role.characterAvatar.isEmpty {
-                    RectProfileImageView(avatarUrl: role.role.characterAvatar, size: .InProfile2)
-                } else {
-                    RectProfileImageView(avatarUrl: defaultAvator, size: .InProfile2)
-                }
+            HStack(spacing: 12) {
+                // 角色头像
+                RectProfileImageView(
+                    avatarUrl: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar,
+                    size: .InProfile
+                )
+                .frame(width: 56, height: 56)
+                .cornerRadius(6)
                 
-                // Right side content
-                VStack(alignment: .leading, spacing: 4) {
+                // 角色信息
+                VStack(alignment: .leading, spacing: 6) {
                     Text(role.role.characterName)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 16))
+                        .foregroundColor(.primary)
                     
                     Text(role.role.characterDescription)
                         .font(.system(size: 14))
-                        .foregroundColor(.gray)
-                        .lineLimit(3)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
                     
+                    // 统计信息
                     HStack(spacing: 16) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "doc.text")
-                                .foregroundColor(.gray)
-                            Text("\(10) 故事板")
-                                .font(.system(size: 14))
-                                .foregroundColor(.gray)
-                        }
-                        
-                        HStack(spacing: 4) {
-                            Image(systemName: "message")
-                                .foregroundColor(.gray)
-                            Text("\(10) 消息")
-                                .font(.system(size: 14))
-                                .foregroundColor(.gray)
-                        }
+                        StatLabel(icon: "doc.text", count: 22)
+                        StatLabel(icon: "bubble.left", count: 42)
                     }
                 }
+                
                 Spacer()
             }
-            .padding(16)
-            .background(Color.white)
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
+            .background(Color(uiColor: .secondarySystemBackground))
+            .cornerRadius(8)
         }
         .buttonStyle(PlainButtonStyle())
         .sheet(isPresented: $showRoleDetail) {
             StoryRoleDetailView(
                 storyId: role.role.storyID,
                 roleId: role.role.roleID,
-                userId: self.userId,
-                role: self.role
+                userId: viewModel.user?.userID ?? 0,
+                role: role
             )
         }
+    }
+}
+
+// 新增辅助视图
+private struct StatLabel: View {
+    let icon: String
+    let count: Int64
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+            Text("\(count)")
+        }
+        .font(.system(size: 14))
+        .foregroundColor(.secondary)
     }
 }
 
@@ -515,5 +504,126 @@ struct ProfileInteractionButton: View {
             }
             .foregroundColor(isActive ? .blue : .gray)
         }
+    }
+}
+
+
+// MARK: - Statistics View
+private struct StatisticsView: View {
+    @ObservedObject var viewModel: ProfileViewModel
+    
+    var body: some View {
+        HStack(spacing: 40) {
+            StatItem(
+                count: 9,
+                title: "个故事",
+                icon: "mountain.2"
+            )
+            
+            StatItem(
+                count: 8,
+                title: "个角色",
+                icon: "person"
+            )
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+    }
+}
+
+private struct StatItem: View {
+    let count: Int
+    let title: String
+    let icon: String
+    
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .foregroundColor(.gray)
+                .font(.system(size: 14))
+            Text("\(count) \(title)")
+                .foregroundColor(.gray)
+                .font(.system(size: 14))
+        }
+    }
+}
+
+// MARK: - Segmented Control View
+private struct SegmentedControlView: View {
+    @Binding var selectedFilter: UserProfileFilterViewModel
+    var animation: Namespace.ID
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(UserProfileFilterViewModel.allCases, id: \.self) { filter in
+                Button(action: { selectedFilter = filter }) {
+                    VStack(spacing: 8) {
+                        Text(filter.title)
+                            .foregroundColor(selectedFilter == filter ? .white : .gray)
+                            .font(.system(size: 16, weight: .medium))
+                        
+                        ZStack {
+                            if selectedFilter == filter {
+                                RoundedRectangle(cornerRadius: 2)
+                                    .fill(Color.green)
+                                    .frame(width: 30, height: 3)
+                                    .matchedGeometryEffect(id: "TAB", in: animation)
+                            }
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(.vertical, 8)
+        .background(Color(hex: "2C2C2E"))
+    }
+}
+
+// MARK: - Content View
+private struct ContentView: View {
+    let selectedFilter: UserProfileFilterViewModel
+    let viewModel: ProfileViewModel
+    
+    var body: some View {
+        VStack {
+            switch selectedFilter {
+            case .storyboards:
+                StoryboardsListView(boards: viewModel.storyboards)
+            case .roles:
+                RolesListView(roles: viewModel.storyRoles, viewModel: viewModel)
+            }
+        }
+    }
+}
+
+// MARK: - Storyboards List View
+private struct StoryboardsListView: View {
+    let boards: [StoryBoard]
+    
+    var body: some View {
+        LazyVStack(spacing: 1) {
+            ForEach(boards, id: \.id) { board in
+                StoryboardCell(board: board)
+            }
+        }
+        .background(Color(hex: "1C1C1E"))
+    }
+}
+
+
+private struct StatInfoItem: View {
+    let icon: String
+    let count: Int
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .foregroundColor(.gray)
+            Text("\(count)")
+                .foregroundColor(.gray)
+                .font(.system(size: 14))
+        }
+        .padding(.trailing, 16)
     }
 }

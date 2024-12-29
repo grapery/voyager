@@ -4,14 +4,25 @@ struct ProfileHeaderView: View {
     let user: User
     
     var body: some View {
-        HStack(spacing: 4) {
-            CircularProfileImageView(avatarUrl: user.avatar.isEmpty ? defaultAvator : user.avatar, size: .InProfile)
-            VStack(alignment: .leading) {
-                Text(user.name)
-                    .foregroundColor(.primary)
-                    .font(.title)
-                    .bold()
+        VStack(alignment: .leading, spacing: 16) {
+            // 头像和用户名
+            HStack(spacing: 12) {
+                CircularProfileImageView(avatarUrl: user.avatar, size: .InProfile)
+                    .frame(width: 80, height: 80)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(user.name)
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                    
+                    Text("欢迎大家来一起创作好玩的故事吧！")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
             }
+            .padding(.horizontal)
+            .padding(.top)
         }
     }
-} 
+}
