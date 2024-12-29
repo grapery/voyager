@@ -228,58 +228,97 @@ struct StoryboardCell: View {
     let board: StoryBoard
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // 标题行
-            HStack {
-                Text(board.boardInfo.title)
-                    .font(.system(size: 16))
-                    .foregroundColor(.primary)
-                
-                Spacer()
-                
-                Text(formatDate(board.boardInfo.ctime))
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
-            }
+        HStack(spacing: 0) {
+            // 左侧装饰条
+            Rectangle()
+                .fill(Color(hex: "A5D661").opacity(0.3))
+                .frame(width: 12)
             
-            // 内容
-            Text(board.boardInfo.content)
-                .font(.system(size: 14))
-                .foregroundColor(.secondary)
-                .lineLimit(3)
-                .padding(.bottom, 4)
-            
-            // 底部统计
-            HStack {
-                HStack(spacing: 4) {
-                    Image(systemName: "bubble.left")
-                        .font(.system(size: 14))
-                    Text("\(10)")
+            // 虚线分隔带圆孔
+            GeometryReader { geometry in
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .fill(Color(hex: "A5D661").opacity(0.3))
+                        .frame(width: 2)
+                        .frame(height: geometry.size.height / 4)
+                    
+                    Circle()
+                        .fill(Color(hex: "E7E7E7"))
+                        .frame(width: 6, height: 6)
+                    
+                    Rectangle()
+                        .fill(Color(hex: "A5D661").opacity(0.3))
+                        .frame(width: 2)
+                        .frame(height: geometry.size.height / 2)
+                        
+                    Circle()
+                        .fill(Color(hex: "E7E7E7"))
+                        .frame(width: 6, height: 6)
+                        
+                    Rectangle()
+                        .fill(Color(hex: "A5D661").opacity(0.3))
+                        .frame(width: 2)
+                        .frame(height: geometry.size.height / 4)
                 }
-                .foregroundColor(.secondary)
-                .font(.system(size: 14))
-                
-                Spacer()
-                
-                HStack(spacing: 4) {
-                    Image(systemName: "heart")
-                        .font(.system(size: 14))
-                    Text("\(20)")
-                }
-                .foregroundColor(.secondary)
-                .font(.system(size: 14))
-                
-                Spacer()
-                
-                Image(systemName: "arrow.clockwise")
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
             }
+            .frame(width: 6)
+            
+            // 主要内容
+            VStack(alignment: .leading, spacing: 8) {
+                // 标题行
+                HStack {
+                    Text(board.boardInfo.title)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                    
+                    Text(formatDate(board.boardInfo.ctime))
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                }
+                
+                // 内容
+                Text(board.boardInfo.content)
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
+                
+                Divider()
+                    .background(Color.gray.opacity(0.3))
+                
+                // 底部统计
+                HStack {
+                    StatLabel(
+                        icon: "bubble.left",
+                        count: 10,
+                        iconColor: .gray,
+                        countColor: .gray
+                    )
+                    
+                    Spacer()
+                    
+                    StatLabel(
+                        icon: "heart",
+                        count: 10,
+                        iconColor: .gray,
+                        countColor: .gray
+                    )
+                    
+                    Spacer()
+                    
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                }
+                .padding(.top, 4)
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 16)
-        .background(Color(uiColor: .secondarySystemBackground))
-        .cornerRadius(8)
+        .background(Color(hex: "2C2C2E")) // 深灰色背景
+        .cornerRadius(8) // 整体圆角
     }
     
     private func formatDate(_ timestamp: Int64) -> String {
@@ -572,12 +611,16 @@ private struct StoryboardsListView: View {
     let boards: [StoryBoard]
     
     var body: some View {
-        LazyVStack(spacing: 1) {
-            ForEach(boards, id: \.id) { board in
-                StoryboardCell(board: board)
+        ScrollView {
+            LazyVStack(spacing: 12) { // 增加卡片间距
+                ForEach(boards, id: \.id) { board in
+                    StoryboardCell(board: board)
+                }
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
         }
-        .background(Color(hex: "1C1C1E"))
+        .background(Color(hex: "1C1C1E")) // 使用深色背景
     }
 }
 

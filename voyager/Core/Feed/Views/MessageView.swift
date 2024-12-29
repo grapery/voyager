@@ -77,7 +77,6 @@ struct MessageView: View {
                     }
                 }
             }
-            .background(Color(hex: "1C1C1E")) // 深色背景
             .onAppear {
                 Task {
                     await self.viewModel.initUserChatContext()

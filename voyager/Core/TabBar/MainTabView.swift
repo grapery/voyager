@@ -15,6 +15,16 @@ struct MainTabView: View {
         self.user = user
         self.selectedItem = 1
         self.oldSelectedItem = 1
+        
+        // 设置 UITabBar 的外观
+        let appearance = UITabBarAppearance()
+        appearance.configureWithDefaultBackground()
+        appearance.backgroundColor = UIColor(named: "2C2C2E")
+        
+        // 调整 TabBar 的高度
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+        UITabBar.appearance().frame.size.height = 49 // 设置标准高度
     }
     var body: some View {
         TabView (selection: $selectedItem){
