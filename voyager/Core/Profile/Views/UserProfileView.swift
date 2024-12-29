@@ -540,13 +540,13 @@ private struct SegmentedControlView: View {
                 }
             }
         }
-        .padding(4) // 添加内边距，让按钮与外框有间隔
+        .padding(2) // 添加内边距，让按钮与外框有间隔
         .background(
             Capsule()
                 .fill(Color.white)
         )
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .padding(.horizontal, 4)
+        .padding(.vertical, 2)
     }
 }
 
