@@ -42,28 +42,27 @@ struct MessageView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // 减小顶部导航栏的尺寸
+                // 顶部导航栏
                 HStack {
                     Text("消息")
-                        .font(.system(size: 20, weight: .bold))
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.white)
                     Spacer()
                     Button(action: {}) {
                         Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 24))
-                        .foregroundColor(.black)
+                            .font(.system(size: 24))
+                            .foregroundColor(.green)
                     }
                 }
                 .padding(.horizontal)
-                .padding(.vertical, 8)
-                .background(Color.white)
-                .shadow(color: Color.black.opacity(0.05), radius: 4, y: 2)
+                .padding(.vertical, 12)
                 
-                // 减小搜索栏的padding
+                // 搜索栏
                 SearchBar(text: $searchText, isSearching: $isSearching)
                     .padding(.horizontal)
-                    .padding(.vertical, 4)
+                    .padding(.bottom, 8)
                 
-                // 优化消息列表
+                // 消息列表
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(viewModel.msgCtxs, id: \.id) { msgCtx in
@@ -74,13 +73,11 @@ struct MessageView: View {
                                 role: StoryRole(Id: msgCtx.chatinfo.role.roleID, role: msgCtx.chatinfo.role),
                                 lastMessage: msgCtx.chatinfo.lastMessage
                             )
-                            .background(Color.white)
-                            Divider().padding(.horizontal)
                         }
                     }
                 }
-                .background(Color(.systemGray6))
             }
+            .background(Color(hex: "1C1C1E")) // 深色背景
             .onAppear {
                 Task {
                     await self.viewModel.initUserChatContext()
@@ -97,22 +94,52 @@ struct SearchBar: View {
     
     var body: some View {
         HStack {
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.gray)
-                TextField("搜索聊天记录", text: $text)
-                    .font(.system(size: 14))
-                if !text.isEmpty {
-                    Button(action: { text = "" }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.gray)
-                    }
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.gray)
+                .padding(.leading, 8)
+            
+            TextField("请输入您的问题...", text: $text)
+                .font(.system(size: 16))
+                .foregroundColor(.white)
+            
+            if !text.isEmpty {
+                Button(action: { text = "" }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.gray)
+                        .padding(.trailing, 8)
                 }
             }
-            .padding(8)
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
         }
+        .frame(height: 36)
+        .background(Color(hex: "2C2C2E"))
+        .cornerRadius(18)
+    }
+}
+
+// 添加颜色扩展
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let a, r, g, b: UInt64
+        switch hex.count {
+        case 3: // RGB (12-bit)
+            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+        case 6: // RGB (24-bit)
+            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        case 8: // ARGB (32-bit)
+            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+        default:
+            (a, r, g, b) = (255, 0, 0, 0)
+        }
+        self.init(
+            .sRGB,
+            red: Double(r) / 255,
+            green: Double(g) / 255,
+            blue:  Double(b) / 255,
+            opacity: Double(a) / 255
+        )
     }
 }
 
@@ -150,7 +177,7 @@ struct MessageContextCellView: View {
         return formatter.localizedString(for: date, relativeTo: Date())
     }
     
-    var body: some View { 
+    var body: some View {
         NavigationLink(destination: MessageContextView(
             userId: userId,
             roleId: role?.Id ?? 0,
@@ -158,15 +185,18 @@ struct MessageContextCellView: View {
         )
             .toolbar(.visible, for: .tabBar)
         ) {
-            HStack(spacing: 10) {
-                // 减小头像尺寸 (需要在RectProfileImageView中调整InChat的尺寸)
+            HStack(spacing: 12) {
+                // 头像
                 RectProfileImageView(avatarUrl: avatarURL, size: .InChat)
-                    .overlay(Circle().stroke(Color.gray.opacity(0.1), lineWidth: 0.5))
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
                 
-                VStack(alignment: .leading, spacing: 2) {
+                // 消息内容
+                VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         Text(isFromUser ? (user?.name ?? "Me") : (role?.role.characterName ?? "Unknown"))
-                            .font(.system(size: 15, weight: .medium))
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white)
                         Spacer()
                         Text(formatTime(lastMessage?.timestamp ?? 0))
                             .font(.system(size: 12))
@@ -174,13 +204,14 @@ struct MessageContextCellView: View {
                     }
                     
                     Text(lastMessage?.message ?? "")
-                        .font(.system(size: 13))
+                        .font(.system(size: 14))
                         .foregroundColor(.gray)
                         .lineLimit(1)
                 }
             }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 12)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
+            .background(Color(hex: "1C1C1E"))
         }
         .buttonStyle(PlainButtonStyle())
     }
