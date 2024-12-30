@@ -19,6 +19,8 @@ struct FeedView: View {
     @StateObject var viewModel: FeedViewModel
     @State private var selectedTab: FeedType = .Groups
     @State private var searchText = ""
+    @State private var selectedIndex: Int = 0
+    
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: FeedViewModel(user: user))
     }
@@ -34,28 +36,27 @@ struct FeedView: View {
         NavigationView {
             VStack(spacing: 0) {
                 // 顶部导航栏
-                TopNavigationBar()
+                TopNavigationBar(selectedIndex: $selectedIndex)
                 
-                // 搜索栏
-                FeedSearchBar(text: $searchText)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                
-                // 分类标签
-                CategoryTabs(selectedTab: $selectedTab, tabs: tabs)
-                    .padding(.vertical, 8)
-                
-                // 内容列表
-                ScrollView {
-                    LazyVStack(spacing: 12) {
-                        ForEach(0..<10) { _ in
-                            FeedItemCard()
-                        }
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                // 页面内容
+                TabView(selection: $selectedIndex) {
+                    // 最新动态页面
+                    LatestUpdatesView(
+                        searchText: $searchText,
+                        selectedTab: $selectedTab,
+                        tabs: tabs
+                    )
+                    .tag(0)
+                    
+                    // 发现页面
+                    DiscoveryView(
+                        searchText: $searchText,
+                        selectedTab: $selectedTab,
+                        tabs: tabs
+                    )
+                    .tag(1)
                 }
-                .background(Color(hex: "1C1C1E"))
+                .tabViewStyle(.page(indexDisplayMode: .never))
             }
             .background(Color(hex: "1C1C1E"))
             .navigationBarHidden(true)
@@ -65,15 +66,29 @@ struct FeedView: View {
 
 // 顶部导航栏
 private struct TopNavigationBar: View {
+    @Binding var selectedIndex: Int
+    
     var body: some View {
         HStack(spacing: 20) {
-            Text("最新动态")
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(.white)
+            Button(action: { 
+                withAnimation {
+                    selectedIndex = 0
+                }
+            }) {
+                Text("最新动态")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(selectedIndex == 0 ? .white : .gray)
+            }
             
-            Text("发现")
-                .font(.system(size: 17))
-                .foregroundColor(.gray)
+            Button(action: { 
+                withAnimation {
+                    selectedIndex = 1
+                }
+            }) {
+                Text("发现")
+                    .font(.system(size: 17))
+                    .foregroundColor(selectedIndex == 1 ? .white : .gray)
+            }
             
             Spacer()
         }
@@ -200,5 +215,99 @@ private struct FeedItemCard: View {
         }
         .background(Color(hex: "2C2C2E"))
         .cornerRadius(8)
+    }
+}
+
+
+// 优化搜索栏组件
+struct SearchBar: View {
+    @Binding var text: String
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.gray)
+                .padding(.leading, 8)
+            
+            TextField("请输入您的问题...", text: $text)
+                .font(.system(size: 16))
+                .foregroundColor(.white)
+            
+            if !text.isEmpty {
+                Button(action: { text = "" }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.gray)
+                        .padding(.trailing, 8)
+                }
+            }
+        }
+        .frame(height: 36)
+        .background(Color(hex: "2C2C2E"))
+        .cornerRadius(18)
+    }
+}
+
+
+// 最新动态视图
+private struct LatestUpdatesView: View {
+    @Binding var searchText: String
+    @Binding var selectedTab: FeedType
+    let tabs: [(type: FeedType, title: String)]
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // 搜索栏
+            SearchBar(text: $searchText)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+            
+            // 分类标签
+            CategoryTabs(selectedTab: $selectedTab, tabs: tabs)
+                .padding(.vertical, 8)
+            
+            // 内容列表
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(0..<10) { _ in
+                        FeedItemCard()
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+            }
+        }
+        .background(Color(hex: "1C1C1E"))
+    }
+}
+
+// 发现视图
+private struct DiscoveryView: View {
+    @Binding var searchText: String
+    @Binding var selectedTab: FeedType
+    let tabs: [(type: FeedType, title: String)]
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // 搜索栏
+            SearchBar(text: $searchText)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+            
+            // 分类标签
+            CategoryTabs(selectedTab: $selectedTab, tabs: tabs)
+                .padding(.vertical, 8)
+            
+            // 发现页面的内容列表
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(0..<10) { _ in
+                        FeedItemCard()
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+            }
+        }
+        .background(Color(hex: "1C1C1E"))
     }
 }

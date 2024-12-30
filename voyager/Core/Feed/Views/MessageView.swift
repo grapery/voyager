@@ -58,7 +58,7 @@ struct MessageView: View {
                 .padding(.vertical, 12)
                 
                 // 搜索栏
-                SearchBar(text: $searchText, isSearching: $isSearching)
+                SearchBar(text: $searchText)
                     .padding(.horizontal)
                     .padding(.bottom, 8)
                 
@@ -83,35 +83,6 @@ struct MessageView: View {
                 }
             }
         }
-    }
-}
-
-// 优化搜索栏组件
-struct SearchBar: View {
-    @Binding var text: String
-    @Binding var isSearching: Bool
-    
-    var body: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
-                .padding(.leading, 8)
-            
-            TextField("请输入您的问题...", text: $text)
-                .font(.system(size: 16))
-                .foregroundColor(.white)
-            
-            if !text.isEmpty {
-                Button(action: { text = "" }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
-                        .padding(.trailing, 8)
-                }
-            }
-        }
-        .frame(height: 36)
-        .background(Color(hex: "2C2C2E"))
-        .cornerRadius(18)
     }
 }
 

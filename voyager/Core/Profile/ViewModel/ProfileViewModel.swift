@@ -68,7 +68,7 @@ class ProfileViewModel: ObservableObject {
             print("user profile is load")
         }else{
             Task{
-                await fetchUserProfile()
+                self.profile = await fetchUserProfile()
             }
         }
         
@@ -77,10 +77,12 @@ class ProfileViewModel: ObservableObject {
         let profile = await APIClient.shared.fetchUserProfile(userId: self.user?.userID ?? -1)
         return profile
     }
+    
     @MainActor
     public func signOut() async {
         await AuthService.shared.signout()
     }
+    
     @MainActor
     public func updateProfile() async {
         let newProfile = await APIClient.shared.updateUserProfile(userId: self.user!.userID,profile: self.profile)

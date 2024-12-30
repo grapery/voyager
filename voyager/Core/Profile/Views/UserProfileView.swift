@@ -76,8 +76,12 @@ struct UserProfileView: View {
                 )
             }
             .background(Color(.systemBackground))
-            .refreshable { await refreshData() }
-            .task { await loadUserData() }
+            .refreshable {
+                await refreshData()
+            }
+            .task {
+                await loadUserData()
+            }
             .onChange(of: selectedFilter) { newValue in
                 Task {
                     await loadFilteredContent(for: newValue)
