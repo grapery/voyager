@@ -28,7 +28,7 @@ struct MainTabView: View {
     }
     var body: some View {
         TabView (selection: $selectedItem){
-            FeedView(userId: self.user.userID)
+            FeedView(user: self.user)
                 .onTapGesture {
                     self.selectedItem = 1
                 }

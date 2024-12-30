@@ -12,6 +12,7 @@ class FeedViewModel: ObservableObject {
     @Published var timeline: Int64
     @Published var storys: [Story]
     @Published var userId: Int64
+    @Published var user: User
     @Published var roles: [StoryRole]
     @Published var boards: [StoryBoard]
     @Published var filters = [String]()
@@ -36,13 +37,13 @@ class FeedViewModel: ObservableObject {
        // Implement search logic here based on the selected tab and searchText
     }
     
-    init(userId: Int64) {
+    init(user: User) {
         self.groups = [BranchGroup]()
         self.timeline = 0
         self.storys = [Story]()
         self.filters = [String]()
         self.timeStamp = 0
-        self.userId = userId
+        self.userId = user.userID
         self.tags = [String]()
         self.roles = [StoryRole]()
         self.boards = [StoryBoard]()
@@ -57,6 +58,7 @@ class FeedViewModel: ObservableObject {
         
         self.page = 0
         self.size = 10
+        self.user = user
     }
 
     @MainActor

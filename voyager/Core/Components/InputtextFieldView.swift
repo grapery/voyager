@@ -45,3 +45,23 @@ struct InputPasswordView: View {
 #Preview {
     InputPasswordView(text: .constant(""), placeholder: "Password")
 }
+
+
+struct InteractionButton: View {
+    let icon: String
+    let count: Int
+    let isActive: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                Text("\(count)")
+                    .font(.system(size: 14))
+            }
+            .foregroundColor(isActive ? .blue : .gray)
+        }
+    }
+}

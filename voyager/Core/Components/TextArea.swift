@@ -33,3 +33,11 @@ struct TextArea: View {
         .font(.body)
     }
 }
+
+extension Date{
+    var timeStamp: String{
+        let formatter = DateFormatter()
+        formatter.dateFormat = "s"
+        return formatter.string(from: self)
+    }
+}
