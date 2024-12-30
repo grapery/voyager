@@ -116,6 +116,9 @@ struct StoryRoleDetailView: View {
     @State private var showingInfoEditor = false
     @State private var showingAvatarPreview = false
     
+    @Environment(\.dismiss) private var dismiss  // 用于关闭视图
+    
+    
     init(storyId: Int64, roleId: Int64, userId: Int64,role: StoryRole? = nil){
         self.storyId = storyId
         self.roleId = roleId
@@ -178,6 +181,13 @@ struct StoryRoleDetailView: View {
                 }
                 .padding(.horizontal, 12)
             }
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(leading: Button(action: {
+                dismiss()
+            }) {
+                Image(systemName: "chevron.left")
+                    .foregroundColor(.white)
+            })
             .fullScreenCover(isPresented: $showingEditView) {
                 NavigationStack {
                     EditStoryRoleDetailView(role: role, userId: self.userId, viewModel: self.$viewModel)
