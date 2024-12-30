@@ -49,11 +49,7 @@ struct FeedView: View {
                     .tag(0)
                     
                     // 发现页面
-                    DiscoveryView(
-                        searchText: $searchText,
-                        selectedTab: $selectedTab,
-                        tabs: tabs
-                    )
+                    DiscoveryView(viewModel: self.viewModel, messageText: "")
                     .tag(1)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
@@ -280,34 +276,155 @@ private struct LatestUpdatesView: View {
     }
 }
 
+
 // 发现视图
 private struct DiscoveryView: View {
-    @Binding var searchText: String
-    @Binding var selectedTab: FeedType
-    let tabs: [(type: FeedType, title: String)]
+    @ObservedObject var viewModel: FeedViewModel
+    @State private var messageText: String = ""
+    @State private var messages: [ChatMessage]
     
+    init(viewModel: FeedViewModel, messageText: String) {
+        self.viewModel = viewModel
+        self.messageText = ""
+        self.messages = [ChatMessage]()
+    }
     var body: some View {
         VStack(spacing: 0) {
-            // 搜索栏
-            SearchBar(text: $searchText)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-            
-            // 分类标签
-            CategoryTabs(selectedTab: $selectedTab, tabs: tabs)
-                .padding(.vertical, 8)
-            
-            // 发现页面的内容列表
+            // 聊天内容区域
             ScrollView {
-                LazyVStack(spacing: 12) {
-                    ForEach(0..<10) { _ in
-                        FeedItemCard()
+                LazyVStack(spacing: 16) {
+                    // AI助手头部信息
+                    AIChatHeader()
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                    
+                    // 聊天消息列表
+                    ForEach(messages) { message in
+                        ChatBubble(message: message)
+                            .padding(.horizontal, 16)
                     }
                 }
-                .padding(.horizontal, 16)
                 .padding(.vertical, 12)
             }
+            
+            // 底部输入框
+            ChatInputBar(text: $messageText) {
+                sendMessage()
+            }
+        }
+        .onAppear(){
+            var msg1 = Common_ChatMessage()
+            msg1.message = "欢迎您来到AI世界，请问您有什么想要了解的事情呢？"
+            msg1.sender = 42
+            msg1.roleID = 42
+            msg1.userID = 1
+            var msg2 = Common_ChatMessage()
+            msg2.message = "你叫什么名字？"
+            msg2.sender = 1
+            msg2.roleID = 42
+            msg2.userID = 1
+            self.messages.append(ChatMessage(id: 1, msg: msg1,status: .MessageSendSuccess))
+            self.messages.append(ChatMessage(id: 1, msg: msg2,status: .MessageSendSuccess))
         }
         .background(Color(hex: "1C1C1E"))
+    }
+    
+    private func sendMessage() {
+        guard !messageText.isEmpty else { return }
+        messageText = ""
+    }
+
+    private func getChatHistory(){
+        // 获取聊天历史
+    }
+}
+
+// AI助手头部信息
+private struct AIChatHeader: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            // 左侧绿色装饰条
+            Rectangle()
+                .fill(Color(hex: "A5D661").opacity(0.3))
+                .frame(width: 4)
+            
+            // AI头像
+            Image("ai_avatar")
+                .resizable()
+                .frame(width: 40, height: 40)
+                .clipShape(Circle())
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("AI故事助手")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.primary)
+                
+                Text("欢迎大家来一起创作好玩的故事吧！")
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
+            }
+        }
+        .padding(12)
+        .background(Color(hex: "FAFDF2"))
+        .cornerRadius(8)
+    }
+}
+
+// 聊天气泡
+private struct ChatBubble: View {
+    let message: ChatMessage
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            if message.msg.sender == message.msg.roleID{
+                KFImage(URL(string: defaultAvator))
+                    .resizable()
+                    .frame(width: 32, height: 32)
+                    .clipShape(Circle())
+                
+                Text(message.msg.message)
+                    .padding(12)
+                    .background(Color(hex: "2C2C2E"))
+                    .cornerRadius(16)
+                    .foregroundColor(.white)
+                
+                Spacer()
+            } else {
+                Spacer()
+                
+                Text(message.msg.message)
+                    .padding(12)
+                    .background(Color(hex: "A5D661"))
+                    .cornerRadius(16)
+                    .foregroundColor(.black)
+            }
+        }
+    }
+}
+
+// 底部输入框
+private struct ChatInputBar: View {
+    @Binding var text: String
+    let onSend: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // 输入框
+            TextField("请输入您的问题...", text: $text)
+                .padding(12)
+                .background(Color.white)
+                .cornerRadius(20)
+            
+            // 发送按钮
+            Button(action: onSend) {
+                Image(systemName: "arrow.up.circle.fill")
+                    .resizable()
+                    .frame(width: 32, height: 32)
+                    .foregroundColor(Color(hex: "A5D661"))
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color(hex: "2C2C2E"))
     }
 }
