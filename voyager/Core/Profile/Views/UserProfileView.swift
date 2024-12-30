@@ -468,13 +468,21 @@ struct ProfileRoleCell: View {
             .cornerRadius(8) // 整体圆角
         }
         .buttonStyle(PlainButtonStyle())
-        .sheet(isPresented: $showRoleDetail) {
-            StoryRoleDetailView(
-                storyId: role.role.storyID,
-                roleId: role.role.roleID,
-                userId: viewModel.user?.userID ?? 0,
-                role: role
-            )
+        .fullScreenCover(isPresented: $showRoleDetail) {  // 将 sheet 改为 fullScreenCover
+            NavigationStack {
+                StoryRoleDetailView(
+                    storyId: role.role.storyID,
+                    roleId: role.role.roleID,
+                    userId: viewModel.user?.userID ?? 0,
+                    role: role
+                )
+                .navigationBarItems(leading: Button(action: {
+                    showRoleDetail = false
+                }) {
+                    Image(systemName: "xmark")
+                        .foregroundColor(.black)
+                })
+            }
         }
     }
 }
