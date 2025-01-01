@@ -306,7 +306,6 @@ struct StoryBoardCellView: View {
     @State var viewModel: StoryViewModel
     @State private var isShowingBoardDetail = false
     
-    @State var isPressed = false
     @State var isShowingNewStoryBoard = false
     @State var isShowingCommentView = false
     @State var isForkingStory = false
@@ -458,18 +457,15 @@ struct StoryBoardCellView: View {
                 
                 // Action buttons
                 HStack(spacing: 32) {
-                    ActionButton(icon: "pencil.circle", action: {
-                        self.isPressed = true
+                    StoryActionButton(icon: "pencil.circle", action: {
                         self.isShowingNewStoryBoard = true
                     })
                     
-                    ActionButton(icon: "signpost.right.and.left.circle", action: {
-                        self.isPressed = true
+                    StoryActionButton(icon: "signpost.right.and.left.circle", action: {
                         self.isForkingStory = true
                     })
                     
-                    ActionButton(icon: "heart.circle", action: {
-                        self.isPressed = true
+                    StoryActionButton(icon: "heart.circle", action: {
                         self.isLiked = true
                         Task {
                             await self.viewModel.likeStoryBoard(storyId: self.storyId, boardId: (self.board?.boardInfo.storyBoardID)!, userId: self.userId)
@@ -477,7 +473,7 @@ struct StoryBoardCellView: View {
                     })
                     
                     if self.board?.boardInfo.creator == self.userId {
-                        ActionButton(icon: "trash.circle", action: {
+                        StoryActionButton(icon: "trash.circle", action: {
                             print("delete: ")
                             showingDeleteAlert = true
                         })
@@ -505,21 +501,43 @@ struct StoryBoardCellView: View {
             .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
-        .sheet(isPresented: $isPressed) {
-            if self.$isShowingNewStoryBoard.wrappedValue {
+        .fullScreenCover(isPresented: $isShowingNewStoryBoard) {
+            
+            NavigationStack {
                 NewStoryBoardView(
-                    storyId: self.viewModel.storyId,
-                    boardId: (self.board?.boardInfo.storyBoardID)!,
-                    prevBoardId: (self.board?.boardInfo.prevBoardID)!,
-                    viewModel: self.$viewModel,
-                    roles: [StoryRole](), isForkingStory: false  )
-            }else if self.$isForkingStory.wrappedValue {
+                    storyId: viewModel.storyId,
+                    boardId: (board?.boardInfo.storyBoardID)!,
+                    prevBoardId: (board?.boardInfo.prevBoardID)!,
+                    viewModel: $viewModel,
+                    roles: [StoryRole](),
+                    isForkingStory: false,
+                    isPresented: $isShowingNewStoryBoard  // 新增
+                )
+                .navigationBarItems(leading: Button(action: {
+                    isShowingNewStoryBoard = false
+                }) {
+                    Image(systemName: "xmark")
+                        .foregroundColor(.black)
+                })
+            }
+        }
+        .fullScreenCover(isPresented: $isForkingStory) {
+            NavigationStack {
                 NewStoryBoardView(
-                    storyId: self.viewModel.storyId,
-                    boardId: (self.board?.boardInfo.storyBoardID)!,
-                    prevBoardId: (self.board?.boardInfo.prevBoardID)!,
-                    viewModel: self.$viewModel,
-                    roles: [StoryRole](),isForkingStory: true)
+                    storyId: viewModel.storyId,
+                    boardId: (board?.boardInfo.storyBoardID)!,
+                    prevBoardId: (board?.boardInfo.prevBoardID)!,
+                    viewModel: $viewModel,
+                    roles: [StoryRole](),
+                    isForkingStory: true,
+                    isPresented: $isForkingStory  // 新增
+                )
+                .navigationBarItems(leading: Button(action: {
+                    isForkingStory = false
+                }) {
+                    Image(systemName: "xmark")
+                        .foregroundColor(.black)
+                })
             }
         }
     }
@@ -716,15 +734,31 @@ struct StoryInteractionButton: View {
 }
 
 // 新增的操作按钮组件
-struct ActionButton: View {
+struct StoryActionButton: View {
     let icon: String
     let action: () -> Void
+    @State private var isPressed = false
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isPressed = true
+            }
+            // 添加轻微延迟以展示按压效果
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                action()
+                withAnimation {
+                    isPressed = false
+                }
+            }
+        }) {
             Image(systemName: icon)
-                .font(.system(size: 22))
-                .foregroundColor(.secondary)
+                .font(.system(size: 24))
+                .foregroundColor(.blue)
+                .frame(width: 44, height: 44)
+                .background(Color(.systemGray6))
+                .cornerRadius(22)
+                .scaleEffect(isPressed ? 0.95 : 1.0)
         }
     }
 }

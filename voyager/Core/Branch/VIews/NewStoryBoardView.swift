@@ -9,6 +9,10 @@ import SwiftUI
 
 struct NewStoryBoardView: View {
     @Environment(\.presentationMode) var presentationMode
+    @State private var showingValidationAlert = false
+    @State private var validationMessage = ""
+    
+    
     // params
     @State public var storyId: Int64
     @State public var boardId: Int64
@@ -34,7 +38,6 @@ struct NewStoryBoardView: View {
     @State public var showImagePicker: Bool = false
     @State var err: Error?
     
-    let isForkingStory: Bool
 
     // Add states for tracking completion status
     @State private var isInputCompleted: Bool = false
@@ -69,87 +72,212 @@ struct NewStoryBoardView: View {
     @State private var isRegenerating: Bool = false
     @State private var showError: Bool = false
     @State private var errorMessage: String = ""
-
-    // Add new property for segment count
-    private let progressSegments = TimelineStep.allCases.count
-    private let progressBarHeight: CGFloat = 8 // Increased height
-    private let segmentSpacing: CGFloat = 4 // Spacing between segments
     
-    // Helper function to calculate segment progress
-    private func isSegmentCompleted(_ index: Int) -> Bool {
-        let steps = [isInputCompleted, isStoryGenerated, isImageGenerated, isNarrationCompleted]
-        return index < steps.count && steps[index]
-    }
-    
-    // Modified progress bar view
-    private func progressBar(in geometry: GeometryProxy) -> some View {
-        let segmentWidth = (geometry.size.width - (segmentSpacing * CGFloat(progressSegments - 1))) / CGFloat(progressSegments)
-        
-        return HStack(spacing: segmentSpacing) {
-            ForEach(0..<progressSegments, id: \.self) { index in
-                Rectangle()
-                    .fill(isSegmentCompleted(index) ? Color.green : Color.gray.opacity(0.2))
-                    .frame(width: segmentWidth, height: progressBarHeight)
-                    .cornerRadius(progressBarHeight / 2)
-            }
-        }
-        .frame(height: progressBarHeight)
-    }
+    @State public var isForkingStory = false
+    @Binding var isPresented: Bool
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        NavigationView {
             VStack(spacing: 0) {
-                // Progress bar and timeline buttons container
-                VStack(spacing: 0) {
-                    // Timeline buttons with improved visual feedback
-                    HStack(spacing: segmentSpacing) {
-                        ForEach(TimelineStep.allCases, id: \.self) { step in
-                            TimelineButton(
-                                title: step.title,
-                                icon: step.icon,
-                                isCompleted: step.isCompleted(
-                                    isInputCompleted: isInputCompleted,
-                                    isStoryGenerated: isStoryGenerated,
-                                    isImageGenerated: isImageGenerated,
-                                    isNarrationCompleted: isNarrationCompleted
-                                ),
-                                isActive: currentStep == step,
-                                action: {
-                                    withAnimation(.spring()) {
-                                        handleTimelineAction(step)
-                                    }
-                                }
-                            )
-                            .frame(maxWidth: .infinity)
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                }
-                .background(
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                        .shadow(color: .black.opacity(0.1), radius: 5, y: 2)
+                StepNavigationView(
+                    currentStep: TimelineStep.allCases.firstIndex(of: currentStep) ?? 0,
+                    totalSteps: TimelineStep.allCases.count,
+                    titles: TimelineStep.allCases.map { $0.title }
                 )
+                .padding(.vertical, 2)
+                .background(Color(.systemBackground))
                 
                 Divider()
-                    .padding(.vertical, 16)
-
-                Text(isForkingStory ? "故事分支" : "新的故事板")
-                    .font(.largeTitle)
-                    .padding()
                 
-                // Content sections with TabView
-                contentSections
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // Content area
+                TabView(selection: $currentStep) {
+                    StoryInputView(
+                        title: $title,
+                        description: $description,
+                        background: $background,
+                        roles: $roles
+                    )
+                    .tag(TimelineStep.write)
+                    
+                    StoryContentView(
+                        generatedStoryTitle: $generatedStoryTitle,
+                        generatedStoryContent: $generatedStoryContent
+                    )
+                    .tag(TimelineStep.complete)
+                    
+                    SceneGenerationView(
+                        viewModel: $viewModel,
+                        onGenerateScene: generateStoryboardPrompt,
+                        onApplyScene: handleApplyAction,
+                        onGenerateImage: handleGenerateImageAction
+                    )
+                    .tag(TimelineStep.draw)
+                    
+                    StoryPublishView(
+                        generatedImage: $generatedImage,
+                        sceneDescription: $sceneDescription,
+                        sceneCharacters: $sceneCharacters
+                    )
+                    .tag(TimelineStep.narrate)
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .animation(.easeInOut, value: currentStep)
+                
+                Divider()
+                
+                // Bottom navigation buttons
+                HStack(spacing: 16) {
+                    // Back button
+                    Button(action: handlePreviousStep) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "chevron.left")
+                            Text("上一步")
+                        }
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                    }
+                    .opacity(canGoBack ? 1 : 0.5)
+                    .disabled(!canGoBack)
+                    
+                    // Next button
+                    Button(action: handleNextStep) {
+                        HStack(spacing: 8) {
+                            Text("下一步")
+                            Image(systemName: "chevron.right")
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(Color.blue)
+                        .cornerRadius(8)
+                    }
+                    .opacity(canGoForward ? 1 : 0.5)
+                    .disabled(!canGoForward)
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 12)
+                .background(Color(.systemBackground))
             }
         }
-        .overlay(loadingOverlay)
-        .overlay(notificationOverlay)
-        .sheet(isPresented: $showImagePicker) {
-            ImagePicker(image: $images)
+        .navigationViewStyle(.stack)
+        .background(Color(.systemBackground))
+        .edgesIgnoringSafeArea(.bottom)
+    }
+
+    private var canGoBack: Bool {
+        currentStep != TimelineStep.allCases.first
+    }
+    
+    private var canGoForward: Bool {
+        currentStep != TimelineStep.allCases.last
+    }
+    
+    private func handlePreviousStep() {
+        if let currentIndex = TimelineStep.allCases.firstIndex(of: currentStep),
+           currentIndex > 0 {
+            withAnimation {
+                currentStep = TimelineStep.allCases[currentIndex - 1]
+            }
         }
     }
+
+    private func handleNextStep() {
+        // 验证当前步骤
+        if !validateCurrentStep() {
+            return
+        }
+        
+        // 获取当前步骤索引
+        if let currentIndex = TimelineStep.allCases.firstIndex(of: currentStep),
+           currentIndex < TimelineStep.allCases.count - 1 {
+            
+            // 处理特殊步骤的逻辑
+            switch currentStep {
+            case .write:
+                // 如果是写作步骤，可能需要保存或处理输入内容
+                saveStoryContent()
+            case .complete:
+                // 如果是完成步骤，可能需要生成或处理内容
+                generateStoryContent()
+            case .draw:
+                // 如果是绘画步骤，可能需要处理场景生成
+                handleSceneGeneration()
+            default:
+                break
+            }
+            
+            // 切换到下一步
+            withAnimation {
+                currentStep = TimelineStep.allCases[currentIndex + 1]
+            }
+        }
+    }
+    
+    private func validateCurrentStep() -> Bool {
+        switch currentStep {
+        case .write:
+            // 验证写作步骤的输入
+            if title.isEmpty {
+                showValidationAlert("请输入标题")
+                return false
+            }
+            if description.isEmpty {
+                showValidationAlert("请输入描述")
+                return false
+            }
+            if background.isEmpty {
+                showValidationAlert("请输入背景设定")
+                return false
+            }
+            
+        case .complete:
+            // 验证完成步骤
+            if generatedStoryContent.isEmpty {
+                showValidationAlert("请等待故事生成完成")
+                return false
+            }
+            
+        case .draw:
+            // 验证绘画步骤
+            if viewModel.storyScenes.isEmpty {
+                showValidationAlert("请先生成场景")
+                return false
+            }
+            
+        case .narrate:
+            // 验证发布步骤
+            if generatedImage == nil {
+                showValidationAlert("请先生成图片")
+                return false
+            }
+        }
+        
+        return true
+    }
+    
+    private func showValidationAlert(_ message: String) {
+        validationMessage = message
+        showingValidationAlert = true
+    }
+    
+    private func saveStoryContent() {
+        // 保存故事内容的逻辑
+        // 这里可以调用 ViewModel 或 Service 的相关方法
+    }
+    
+    private func generateStoryContent() {
+        // 生成故事内容的逻辑
+        // 这里可以调用 ViewModel 或 Service 的相关方法
+    }
+    
+    private func handleSceneGeneration() {
+        // 处理场景生成的逻辑
+        // 这里可以调用 ViewModel 或 Service 的相关方法
+    }
+
     
     // Enhanced loading overlay with consistent style
     private var loadingOverlay: some View {
@@ -423,29 +551,6 @@ struct NewStoryBoardView: View {
         .padding(.bottom, 16)
     }
 
-    // 3. 添加通用按钮组件
-    private struct ActionButton: View {
-        let title: String
-        let icon: String
-        let color: Color
-        let action: () -> Void
-        
-        var body: some View {
-            Button(action: action) {
-                HStack(spacing: 6) {
-                    Image(systemName: icon)
-                        .font(.system(size: 14))
-                    Text(title)
-                        .font(.system(size: 14, weight: .medium))
-                }
-                .foregroundColor(.white)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(color)
-                .cornerRadius(20)
-            }
-        }
-    }
 
     // 3. 修改 SenceGenListView
     private var SenceGenListView: some View {
@@ -527,71 +632,7 @@ struct NewStoryBoardView: View {
         .animation(.easeInOut, value: currentStep)
     }
     
-    private var timelineButtons: some View {
-        VStack(spacing: 0) {
-            // Progress bar
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    // Background bar
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(height: 4)
-                    
-                    // Progress bar
-                    Rectangle()
-                        .fill(Color.green.opacity(0.6))
-                        .frame(width: calculateProgress(totalWidth: geometry.size.width), height: 4)
-                        .animation(.easeInOut, value: calculateProgressValue())
-                }
-            }
-            .frame(height: 4)
-            .padding(.top, 8)
-            .padding(.horizontal)
-            
-            Divider()
-                .padding(.vertical, 8)
-            
-            // Timeline buttons
-            HStack(spacing: 20) {
-                ForEach(TimelineStep.allCases, id: \.self) { step in
-                    TimelineButton(
-                        title: step.title,
-                        icon: step.icon,
-                        isCompleted: step.isCompleted(
-                            isInputCompleted: isInputCompleted,
-                            isStoryGenerated: isStoryGenerated,
-                            isImageGenerated: isImageGenerated,
-                            isNarrationCompleted: isNarrationCompleted
-                        ),
-                        isActive: currentStep == step,
-                        action: {
-                            handleTimelineAction(step)
-                        }
-                    )
-                }
-            }
-            .padding(.horizontal)
-            .padding(.bottom, 10)
-        }
-    }
     
-    // Helper function to calculate progress bar width
-    private func calculateProgress(totalWidth: CGFloat) -> CGFloat {
-        let progressValue = calculateProgressValue()
-        return totalWidth * progressValue
-    }
-    
-    // Helper function to calculate progress value (0.0 to 1.0)
-    private func calculateProgressValue() -> CGFloat {
-        var completedSteps = 0
-        
-        if isInputCompleted { completedSteps += 1 }
-        if isStoryGenerated { completedSteps += 1 }
-        if isImageGenerated { completedSteps += 1 }
-        if isNarrationCompleted { completedSteps += 1 }
-        
-        return CGFloat(completedSteps) / CGFloat(TimelineStep.allCases.count)
-    }
     
     private func handleTimelineAction(_ step: TimelineStep) {
         withAnimation {
@@ -894,9 +935,6 @@ extension NewStoryBoardView {
                 self.generatedStoryTitle = firstResult.data["章节题目"]?.text ?? ""
                 self.generatedStoryContent = firstResult.data["章节内容"]?.text ?? ""
                 hideLoading()
-                print(" value.first : ",ret.0.result.values.first!)
-                print("self.generatedStoryTitle ",self.generatedStoryTitle)
-                print("self.generatedStoryContent ",self.generatedStoryContent)
                 if self.generatedStoryTitle.count == 0 || self.generatedStoryContent.count == 0 {
                     throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "生成故事失败"])
                 }else{
@@ -1022,6 +1060,9 @@ extension NewStoryBoardView {
             if ret != nil {
                 self.err = ret as? any Error
             }
+            DispatchQueue.main.async {
+                isPresented = false
+            }
         } catch {
             throw error
         }
@@ -1107,3 +1148,457 @@ extension NewStoryBoardView {
         }
     }
 }
+
+struct StepProgressView: View {
+    let currentStep: Int
+    let totalSteps: Int
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            ForEach(0..<totalSteps, id: \.self) { index in
+                HStack(spacing: 4) {
+                    // Step circle
+                    Circle()
+                        .fill(index == currentStep ? Color.blue : Color.gray.opacity(0.3))
+                        .frame(width: 24, height: 24)
+                        .overlay(
+                            Text("\(index + 1)")
+                                .foregroundColor(index == currentStep ? .white : .gray)
+                                .font(.system(size: 14, weight: .medium))
+                        )
+                    
+                    // Connecting line
+                    if index < totalSteps - 1 {
+                        Rectangle()
+                            .fill(index < currentStep ? Color.blue : Color.gray.opacity(0.3))
+                            .frame(height: 1)
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+}
+
+
+struct StoryPublishView: View {
+    @Binding var generatedImage: UIImage?
+    @Binding var sceneDescription: String
+    @Binding var sceneCharacters: String
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 25) {
+                if let image = generatedImage {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("生成的场景")
+                            .font(.headline)
+                        
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 300)
+                            .cornerRadius(12)
+                            .shadow(radius: 4)
+                        
+                        InfoSection(title: "场景描述", content: sceneDescription)
+                        InfoSection(title: "参与人物", content: sceneCharacters)
+                    }
+                } else {
+                    // Empty state
+                    VStack(spacing: 20) {
+                        Image(systemName: "photo")
+                            .font(.system(size: 48))
+                            .foregroundColor(.gray)
+                        Text("等待生成场景图片")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding()
+                }
+            }
+            .padding()
+        }
+    }
+}
+
+struct InfoSection: View {
+    let title: String
+    let content: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+            Text(content)
+                .padding(8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+        }
+    }
+}
+
+
+struct SceneGenerationView: View {
+    @Binding var viewModel: StoryViewModel
+    let onGenerateScene: () async -> Void
+    let onApplyScene: (Int) async -> Void
+    let onGenerateImage: (Int) async -> Void
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                if viewModel.storyScenes.isEmpty {
+                    // Empty state
+                    VStack(spacing: 20) {
+                        Image(systemName: "doc.text.image")
+                            .font(.system(size: 48))
+                            .foregroundColor(.gray.opacity(0.5))
+                        
+                        Text("暂无场景数据")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(.primary)
+                        
+                        Text("点击下方按钮生成故事场景")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                        
+                        Button(action: {
+                            Task {
+                                await onGenerateScene()
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "wand.and.stars")
+                                Text("生成场景")
+                            }
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Color.blue)
+                            .cornerRadius(8)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(24)
+                } else {
+                    // Scene list
+                    ForEach(Array(viewModel.storyScenes.enumerated()), id: \.element.senceIndex) { index, scene in
+                        VStack(spacing: 12) {
+                            // Scene card
+                            SceneCard(scene: scene)
+                            
+                            // Control buttons
+                            HStack(spacing: 12) {
+                                ActionButton(
+                                    title: "应用",
+                                    icon: "checkmark.circle.fill",
+                                    color: .blue
+                                ) {
+                                    Task {
+                                        await onApplyScene(index)
+                                    }
+                                }
+                                
+                                ActionButton(
+                                    title: "生成图片",
+                                    icon: "photo.fill",
+                                    color: .green
+                                ) {
+                                    Task {
+                                        await onGenerateImage(index)
+                                    }
+                                }
+                                
+                                Spacer()
+                            }
+                            .padding(.horizontal)
+                        }
+                        .padding(.bottom, 16)
+                    }
+                }
+            }
+            .padding()
+        }
+    }
+}
+
+struct SceneCard: View {
+    let scene: StoryBoardSence
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Scene header
+            HStack {
+                Text("场景 \(scene.senceIndex)")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.primary)
+                Spacer()
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .background(Color.blue.opacity(0.1))
+            .cornerRadius(8)
+            
+            // Content sections
+            VStack(alignment: .leading, spacing: 16) {
+                contentSection("场景故事", content: scene.content)
+                contentSection("参与人物", content: scene.characters)
+                contentSection("图片提示词", content: scene.imagePrompt)
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemBackground))
+                .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+        )
+    }
+    
+    private func contentSection(_ title: String, content: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.secondary)
+            
+            Text(content)
+                .font(.system(size: 15))
+                .foregroundColor(.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+        }
+    }
+}
+
+struct StoryContentView: View {
+    @Binding var generatedStoryTitle: String
+    @Binding var generatedStoryContent: String
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                if !generatedStoryTitle.isEmpty || !generatedStoryContent.isEmpty {
+                    Text("生成的故事内容")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        // Title section
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("标题")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            Text(generatedStoryTitle)
+                                .font(.title2)
+                                .padding(.vertical, 4)
+                        }
+                        
+                        Divider()
+                        
+                        // Content section
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("内容")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            Text(generatedStoryContent)
+                                .font(.body)
+                        }
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
+                } else {
+                    // Empty state
+                    VStack(spacing: 16) {
+                        Image(systemName: "doc.text")
+                            .font(.system(size: 48))
+                            .foregroundColor(.gray)
+                        Text("等待生成故事内容")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding()
+                }
+            }
+            .padding()
+        }
+    }
+}
+
+struct StoryInputView: View {
+    @Binding var title: String
+    @Binding var description: String
+    @Binding var background: String
+    @Binding var roles: [StoryRole]
+    
+    var body: some View {
+        ScrollView {
+            Section{
+                VStack(spacing: 24) {
+                    InputField(
+                        title: "标题",
+                        placeholder: "请输入标题",
+                        text: $title
+                    )
+                    
+                    InputField(
+                        title: "描述",
+                        placeholder: "请输入描述",
+                        text: $description,
+                        isMultiline: true
+                    )
+                    
+                    InputField(
+                        title: "背景设定",
+                        placeholder: "请输入背景设定",
+                        text: $background,
+                        isMultiline: true
+                    )
+                }
+            }
+            .padding(20)
+            Section{
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("角色设定")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    VStack(alignment: .leading, spacing: 16) {
+                        ScrollView {
+                            Button(action: {
+                                // 添加新角色的操作
+                            }) {
+                                VStack {
+                                    Image(systemName: "plus")
+                                        .frame(width: 50, height: 50)
+                                        .background(Color.gray.opacity(0.2))
+                                        .clipShape(Circle())
+                                    Text("添加角色")
+                                        .font(.caption)
+                                }
+                            }
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(8)
+                    }
+                }
+                .padding()
+                .background(Color(.systemBackground))
+                .cornerRadius(12)
+                .shadow(radius: 1)
+            }
+        }
+        .background(Color(.systemBackground))
+    }
+}
+
+struct InputField: View {
+    let title: String
+    let placeholder: String
+    @Binding var text: String
+    var isMultiline: Bool = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.secondary)
+            
+            if isMultiline {
+                TextEditor(text: $text)
+                    .frame(minHeight: 120)
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    )
+            } else {
+                TextField(placeholder, text: $text)
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    )
+            }
+        }
+    }
+}
+
+struct StepNavigationView: View {
+    let currentStep: Int
+    let totalSteps: Int
+    let titles: [String]
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            // Steps with connecting lines
+            HStack(spacing: 0) {
+                ForEach(0..<totalSteps, id: \.self) { index in
+                    HStack(spacing: 0) {
+                        // Step circle
+                        ZStack {
+                            Circle()
+                                .fill(index <= currentStep ? Color.blue : Color.gray.opacity(0.15))
+                                .frame(width: 28, height: 28)
+                            
+                            Text("\(index + 1)")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(index <= currentStep ? .white : .gray)
+                        }
+                        
+                        // Connecting line
+                        if index < totalSteps - 1 {
+                            Rectangle()
+                                .fill(index < currentStep ? Color.blue : Color.gray.opacity(0.15))
+                                .frame(height: 1)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 24)
+            
+            // Step titles
+            HStack(spacing: 0) {
+                ForEach(0..<totalSteps, id: \.self) { index in
+                    Text(titles[index])
+                        .font(.system(size: 12))
+                        .foregroundColor(index <= currentStep ? .blue : .gray)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .padding(.horizontal, 24)
+        }
+    }
+}
+
+// 3. 添加通用按钮组件
+struct ActionButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 14))
+                Text(title)
+                    .font(.system(size: 14, weight: .medium))
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(color)
+            .cornerRadius(20)
+        }
+    }
+}
+
