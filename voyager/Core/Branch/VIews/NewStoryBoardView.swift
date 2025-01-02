@@ -95,13 +95,25 @@ struct NewStoryBoardView: View {
                         title: $title,
                         description: $description,
                         background: $background,
-                        roles: $roles
+                        roles: $roles,
+                        onGenerate: {
+                            // 处理生成逻辑
+                        },
+                        onSave: {
+                            // 处理保存逻辑
+                        }
                     )
                     .tag(TimelineStep.write)
                     
                     StoryContentView(
                         generatedStoryTitle: $generatedStoryTitle,
-                        generatedStoryContent: $generatedStoryContent
+                        generatedStoryContent: $generatedStoryContent,
+                        onGenerate: {
+                            // 处理生成逻辑
+                        },
+                        onSave: {
+                            // 处理保存逻辑
+                        }
                     )
                     .tag(TimelineStep.complete)
                     
@@ -116,7 +128,13 @@ struct NewStoryBoardView: View {
                     StoryPublishView(
                         generatedImage: $generatedImage,
                         sceneDescription: $sceneDescription,
-                        sceneCharacters: $sceneCharacters
+                        sceneCharacters: $sceneCharacters,
+                        onSaveOnly:{
+                            // 仅保存
+                        },
+                        onPublish: {
+                            // 发布
+                        }
                     )
                     .tag(TimelineStep.narrate)
                 }
@@ -131,13 +149,12 @@ struct NewStoryBoardView: View {
                     Button(action: handlePreviousStep) {
                         HStack(spacing: 8) {
                             Image(systemName: "chevron.left")
-                            Text("上一步")
                         }
                         .foregroundColor(.primary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                         .background(Color(.systemGray6))
-                        .cornerRadius(8)
+                        .clipShape(.circle)
                     }
                     .opacity(canGoBack ? 1 : 0.5)
                     .disabled(!canGoBack)
@@ -145,14 +162,13 @@ struct NewStoryBoardView: View {
                     // Next button
                     Button(action: handleNextStep) {
                         HStack(spacing: 8) {
-                            Text("下一步")
                             Image(systemName: "chevron.right")
                         }
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                         .background(Color.blue)
-                        .cornerRadius(8)
+                        .clipShape(.circle)
                     }
                     .opacity(canGoForward ? 1 : 0.5)
                     .disabled(!canGoForward)
@@ -1185,6 +1201,8 @@ struct StoryPublishView: View {
     @Binding var generatedImage: UIImage?
     @Binding var sceneDescription: String
     @Binding var sceneCharacters: String
+    let onSaveOnly: () async -> Void
+    let onPublish: () async -> Void
     
     var body: some View {
         ScrollView {
@@ -1378,6 +1396,10 @@ struct StoryContentView: View {
     @Binding var generatedStoryTitle: String
     @Binding var generatedStoryContent: String
     
+    // 添加回调函数
+    var onGenerate: () -> Void = {}
+    var onSave: () -> Void = {}
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -1407,6 +1429,34 @@ struct StoryContentView: View {
                             Text(generatedStoryContent)
                                 .font(.body)
                         }
+                        
+                        // 添加按钮组
+                        HStack(spacing: 16) {
+                            Button(action: onGenerate) {
+                                HStack {
+                                    Image(systemName: "wand.and.stars")
+                                    Text("生成场景")
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                            }
+                            
+                            Button(action: onSave) {
+                                HStack {
+                                    Image(systemName: "square.and.arrow.down")
+                                    Text("保存")
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(Color.green)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                            }
+                        }
+                        .padding(.top, 16)
                     }
                     .padding()
                     .background(Color(.systemGray6))
@@ -1436,6 +1486,10 @@ struct StoryInputView: View {
     @Binding var background: String
     @Binding var roles: [StoryRole]
     
+    // 添加回调函数
+    var onGenerate: () -> Void
+    var onSave: () -> Void
+    
     var body: some View {
         ScrollView {
             Section{
@@ -1459,6 +1513,34 @@ struct StoryInputView: View {
                         text: $background,
                         isMultiline: true
                     )
+                    
+                    // 添加按钮组
+                    HStack(spacing: 16) {
+                        Button(action: onGenerate) {
+                            HStack {
+                                Image(systemName: "wand.and.stars")
+                                Text("生成")
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                        }
+                        
+                        Button(action: onSave) {
+                            HStack {
+                                Image(systemName: "square.and.arrow.down")
+                                Text("保存")
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                        }
+                    }
+                    .padding(.top, 8)
                 }
             }
             .padding(20)
