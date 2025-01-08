@@ -493,6 +493,7 @@ class StoryViewModel: ObservableObject {
                 print("getStoryBoardSencesGenStatus: \(String(describing: err))")
                 return err
             }
+            print("getStoryBoardSencesGenStatus \(resp as Any)")
         }
         print("getStoryBoardSencesGenStatus: \(boardId)")
         return nil
@@ -505,6 +506,7 @@ class StoryViewModel: ObservableObject {
                 print("getStoryBoardSpecSenceGenStatus: \(String(describing: err))")
                 return err
             }
+            print("getStoryBoardSpecSenceGenStatus \(resp as Any)")
         }
         print("getStoryBoardSpecSenceGenStatus: \(senceId)")
         return nil

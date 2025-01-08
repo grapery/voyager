@@ -96,11 +96,22 @@ struct NewStoryBoardView: View {
                         description: $description,
                         background: $background,
                         roles: $roles,
+                        generatedStoryTitle: $generatedStoryTitle,
+                        generatedStoryContent: $generatedStoryContent,
+                        isGenerated:$isStoryGenerated,
                         onGenerate: {
                             // 处理生成逻辑
+                            Task{
+                                print("StoryInputView onGenerate")
+                                await generateStory()
+                            }
                         },
                         onSave: {
                             // 处理保存逻辑
+                            Task{
+                                print("StoryInputView onSave")
+                                await saveStoryBoard()
+                            }
                         }
                     )
                     .tag(TimelineStep.write)
@@ -110,18 +121,25 @@ struct NewStoryBoardView: View {
                         generatedStoryContent: $generatedStoryContent,
                         onGenerate: {
                             // 处理生成逻辑
+                            Task{
+                                print("StoryContentView generateStoryboardPrompt")
+                                await generateStoryboardPrompt()
+                            }
                         },
                         onSave: {
                             // 处理保存逻辑
+                            Task{
+                                print("StoryContentView apply all sences")
+                                await ApplyAllsences()
+                            }
                         }
                     )
                     .tag(TimelineStep.complete)
                     
                     SceneGenerationView(
                         viewModel: $viewModel,
-                        onGenerateScene: generateStoryboardPrompt,
-                        onApplyScene: handleApplyAction,
-                        onGenerateImage: handleGenerateImageAction
+                        onGenerateImage: handleGenerateImageAction,
+                        onGenerateAllImage: GenerateAllSenseImageAction
                     )
                     .tag(TimelineStep.draw)
                     
@@ -295,47 +313,6 @@ struct NewStoryBoardView: View {
     }
 
     
-    // Enhanced loading overlay with consistent style
-    private var loadingOverlay: some View {
-        Group {
-            if isLoading {
-                VStack(spacing: 20) {
-                    // Loading icon with rotation animation
-                    Image(systemName: "hourglass.circle.fill")
-                        .font(.system(size: 40))
-                        .foregroundColor(.indigo)
-                        .rotationEffect(.degrees(isLoading ? 360 : 0))
-                        .animation(
-                            Animation.linear(duration: 1)
-                                .repeatForever(autoreverses: false),
-                            value: isLoading
-                        )
-                    
-                    // Title
-                    Text("加载中")
-                        .font(.headline)
-                        .foregroundColor(.black)
-                    
-                    // Loading message
-                    Text(loadingMessage)
-                        .font(.subheadline)
-                        .foregroundColor(.black.opacity(0.7))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                }
-                .padding(.vertical, 30)
-                .padding(.horizontal, 20)
-                .frame(width: 300)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.white)
-                        .shadow(color: .black.opacity(0.1), radius: 10)
-                )
-                .transition(.opacity.combined(with: .scale))
-                .animation(.spring(), value: isLoading)
-            }
-        }
-    }
     
     // Notification overlay for success/error messages
     private var notificationOverlay: some View {
@@ -933,10 +910,9 @@ extension NewStoryBoardView {
         }
     }
     
-    // Example usage in async operations
     private func generateStory() async {
         do {
-            showLoading(message: "正在生成故事内容...")
+            print("正在生成故事内容...")
             let ret = await self.viewModel.conintueGenStory(
                 storyId: self.viewModel.storyId,
                 userId: self.viewModel.userId,
@@ -950,18 +926,19 @@ extension NewStoryBoardView {
             if let firstResult = ret.0.result.values.first {
                 self.generatedStoryTitle = firstResult.data["章节题目"]?.text ?? ""
                 self.generatedStoryContent = firstResult.data["章节内容"]?.text ?? ""
-                hideLoading()
+                //hideLoading()
                 if self.generatedStoryTitle.count == 0 || self.generatedStoryContent.count == 0 {
                     throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "生成故事失败"])
                 }else{
                     showNotification(message: "故事生成成功", type: .success)
+                    print("故事生成成功")
                 }
             } else {
                 throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "生成故事失败"])
             }
         } catch {
-            hideLoading()
-            // 传入重试操作
+//            hideLoading()
+//            // 传入重试操作
             showNotification(
                 message: "操作失败: \(error.localizedDescription)", 
                 type: .error,
@@ -974,7 +951,6 @@ extension NewStoryBoardView {
     
     private func saveStoryBoard() async {
         do {
-            showLoading(message: "正在创建故事板...")
             let ret = await self.viewModel.createStoryBoard(
                 prevBoardId: self.boardId,
                 nextBoardId: 0,
@@ -988,7 +964,6 @@ extension NewStoryBoardView {
             if let error = ret.1 {
                 throw error
             } else {
-                hideLoading()
                 showNotification(message: "故事板创建成功", type: .success)
             }
         } catch {
@@ -998,8 +973,6 @@ extension NewStoryBoardView {
     
     private func generateStoryboardPrompt() async {
         do {
-            showLoading(message: "正在生成故事提示词...")
-            // Add your image generation logic here
             let ret = await self.viewModel.genStoryBoardPrompt(
                 storyId: self.storyId, 
                 boardId: self.boardId, 
@@ -1008,7 +981,6 @@ extension NewStoryBoardView {
             if let err = ret{
                 throw err
             }else{
-                hideLoading()
                 showNotification(message: "故事图片提示词生成成功", type: .success)
             }
             print("generateStoryboardPrompt ")
@@ -1019,13 +991,11 @@ extension NewStoryBoardView {
     
     private func generateStoryboardImage() async {
         do {
-            showLoading(message: "正在生成故事图片...")
             // Add your image generation logic here
             let ret = await self.viewModel.genStoryBoardImages(storyId: self.storyId, boardId: self.boardId, userId: self.viewModel.userId, renderType: Common_RenderType(rawValue: 1)!)
             if let err = ret{
                 throw err
             }else{
-                hideLoading()
                 showNotification(message: "故事图片生成成功", type: .success)
             }
         } catch {
@@ -1122,7 +1092,6 @@ extension NewStoryBoardView {
 // 添加操作处理方法
 extension NewStoryBoardView {
     private func handleApplyAction(idx: Int) async {
-        showLoading(message: "正在创建场景信息...")
         do {
             let (senceId, err) = await viewModel.createStoryboardSence(
                 idx: idx,
@@ -1133,10 +1102,33 @@ extension NewStoryBoardView {
             if let err = err {
                 throw err
             }
-            
             viewModel.storyScenes[idx].senceId = senceId
-            showNotification(message: "场景信息创建成功", type: .success)
         } catch {
+            handleError(error)
+        }
+    }
+    
+    private func ApplyAllsences() async {
+        do {
+            // 使用普通的 for 循环
+            for (index, scene) in viewModel.storyScenes.enumerated() {
+                let (senceId, err) = await viewModel.createStoryboardSence(
+                    idx: index,
+                    boardId: boardId
+                )
+                
+                if let err = err {
+                    throw err
+                }
+                
+                // 更新场景ID
+                viewModel.storyScenes[index].senceId = senceId
+            } 
+            hideLoading()
+            showNotification(message: "所有场景应用成功", type: .success)
+            
+        } catch {
+            hideLoading()
             handleError(error)
         }
     }
@@ -1158,6 +1150,29 @@ extension NewStoryBoardView {
                 throw err
             }
             
+            showNotification(message: "场景图片生成成功", type: .success)
+        } catch {
+            handleError(error)
+        }
+    }
+    
+    private func GenerateAllSenseImageAction() async {
+        showLoading(message: "正在生成场景图片...")
+        do {
+            for (index, scene) in viewModel.storyScenes.enumerated() {
+                let err = await viewModel.genStoryBoardSpecSence(
+                    storyId: storyId,
+                    boardId: boardId,
+                    userId: viewModel.userId,
+                    senceId: viewModel.storyScenes[index].senceId,
+                    renderType: Common_RenderType(rawValue: 1)!
+                )
+                if let err = err {
+                    throw err
+                }
+            }
+            
+            hideLoading()
             showNotification(message: "场景图片生成成功", type: .success)
         } catch {
             handleError(error)
@@ -1204,6 +1219,11 @@ struct StoryPublishView: View {
     let onSaveOnly: () async -> Void
     let onPublish: () async -> Void
     
+    @State private var isSaving = false
+    @State private var isPublishing = false
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 25) {
@@ -1221,9 +1241,34 @@ struct StoryPublishView: View {
                         
                         InfoSection(title: "场景描述", content: sceneDescription)
                         InfoSection(title: "参与人物", content: sceneCharacters)
+                        
+                        // 添加操作按钮
+                        HStack(spacing: 16) {
+                            ActionButton(
+                                title: "保存",
+                                icon: "square.and.arrow.down",
+                                color: .blue,
+                                action: {
+                                    Task {
+                                        await handleSave()
+                                    }
+                                }
+                            )
+                            
+                            ActionButton(
+                                title: "发布",
+                                icon: "paperplane.fill",
+                                color: .green,
+                                action: {
+                                    Task {
+                                        await handlePublish()
+                                    }
+                                }
+                            )
+                        }
+                        .padding(.top, 16)
                     }
                 } else {
-                    // Empty state
                     VStack(spacing: 20) {
                         Image(systemName: "photo")
                             .font(.system(size: 48))
@@ -1237,7 +1282,41 @@ struct StoryPublishView: View {
                 }
             }
             .padding()
+            .alert("提示", isPresented: $showAlert) {
+                Button("确定", role: .cancel) {}
+            } message: {
+                Text(alertMessage)
+            }
         }
+    }
+    
+    private func handleSave() async {
+        isSaving = true
+        do {
+            await onSaveOnly()
+            alertMessage = "保存成功"
+            showAlert = true
+        } catch {
+            alertMessage = "保存失败：\(error.localizedDescription)"
+            showAlert = true
+        }
+        isSaving = false
+    }
+    
+    private func handlePublish() async {
+        isPublishing = true
+        do {
+            // 如果未保存，先保存
+            await onSaveOnly()
+            // 然后发布
+            await onPublish()
+            alertMessage = "发布成功"
+            showAlert = true
+        } catch {
+            alertMessage = "发布失败：\(error.localizedDescription)"
+            showAlert = true
+        }
+        isPublishing = false
     }
 }
 
@@ -1261,82 +1340,47 @@ struct InfoSection: View {
 
 struct SceneGenerationView: View {
     @Binding var viewModel: StoryViewModel
-    let onGenerateScene: () async -> Void
-    let onApplyScene: (Int) async -> Void
     let onGenerateImage: (Int) async -> Void
+    let onGenerateAllImage: () async -> Void
     
     var body: some View {
+        ActionButton(
+            title: "生成所有",
+            icon: "photo.fill",
+            color: .green
+        ) {
+            Task {
+                await onGenerateAllImage()
+            }
+        }
         ScrollView {
             VStack(spacing: 20) {
-                if viewModel.storyScenes.isEmpty {
-                    // Empty state
-                    VStack(spacing: 20) {
-                        Image(systemName: "doc.text.image")
-                            .font(.system(size: 48))
-                            .foregroundColor(.gray.opacity(0.5))
+                // Scene list
+                ForEach(Array(viewModel.storyScenes.enumerated()), id: \.element.senceIndex) { index, scene in
+                    VStack(spacing: 12) {
+                        // Scene card
+                        SceneCard(scene: scene)
                         
-                        Text("暂无场景数据")
-                            .font(.system(size: 18, weight: .medium))
-                            .foregroundColor(.primary)
-                        
-                        Text("点击下方按钮生成故事场景")
-                            .font(.system(size: 14))
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                        
-                        Button(action: {
-                            Task {
-                                await onGenerateScene()
-                            }
-                        }) {
-                            HStack {
-                                Image(systemName: "wand.and.stars")
-                                Text("生成场景")
-                            }
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(Color.blue)
-                            .cornerRadius(8)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(24)
-                } else {
-                    // Scene list
-                    ForEach(Array(viewModel.storyScenes.enumerated()), id: \.element.senceIndex) { index, scene in
-                        VStack(spacing: 12) {
-                            // Scene card
-                            SceneCard(scene: scene)
+                        // Control buttons
+                        HStack(spacing: 12) {
                             
-                            // Control buttons
-                            HStack(spacing: 12) {
-                                ActionButton(
-                                    title: "应用",
-                                    icon: "checkmark.circle.fill",
-                                    color: .blue
-                                ) {
-                                    Task {
-                                        await onApplyScene(index)
-                                    }
+                            ActionButton(
+                                title: "生成图片",
+                                icon: "photo.fill",
+                                color: .green
+                            ) {
+                                Task {
+                                    await onGenerateImage(index)
                                 }
-                                
-                                ActionButton(
-                                    title: "生成图片",
-                                    icon: "photo.fill",
-                                    color: .green
-                                ) {
-                                    Task {
-                                        await onGenerateImage(index)
-                                    }
-                                }
-                                
-                                Spacer()
                             }
-                            .padding(.horizontal)
+                            
+                            Spacer()
                         }
-                        .padding(.bottom, 16)
+                        .padding(.horizontal)
                     }
+                    .padding(.bottom, 16)
                 }
+
             }
             .padding()
         }
@@ -1486,98 +1530,114 @@ struct StoryInputView: View {
     @Binding var background: String
     @Binding var roles: [StoryRole]
     
+    // 添加生成内容的状态
+    @Binding var generatedStoryTitle: String
+    @Binding var generatedStoryContent: String
+    @Binding var isGenerated: Bool
+    
     // 添加回调函数
-    var onGenerate: () -> Void
-    var onSave: () -> Void
+    var onGenerate: () async -> Void// 返回生成的标题和内容
+    var onSave: () async -> Void // 保存编辑后的标题和内容
     
     var body: some View {
         ScrollView {
-            Section{
-                VStack(spacing: 24) {
-                    InputField(
-                        title: "标题",
-                        placeholder: "请输入标题",
-                        text: $title
-                    )
-                    
-                    InputField(
-                        title: "描述",
-                        placeholder: "请输入描述",
-                        text: $description,
-                        isMultiline: true
-                    )
-                    
-                    InputField(
-                        title: "背景设定",
-                        placeholder: "请输入背景设定",
-                        text: $background,
-                        isMultiline: true
-                    )
-                    
-                    // 添加按钮组
-                    HStack(spacing: 16) {
-                        Button(action: onGenerate) {
-                            HStack {
-                                Image(systemName: "wand.and.stars")
-                                Text("生成")
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
-                        }
-                        
-                        Button(action: onSave) {
-                            HStack {
-                                Image(systemName: "square.and.arrow.down")
-                                Text("保存")
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
-                        }
-                    }
-                    .padding(.top, 8)
-                }
+            VStack(spacing: 20) {
+                inputSection
             }
             .padding(20)
-            Section{
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("角色设定")
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    
-                    VStack(alignment: .leading, spacing: 16) {
-                        ScrollView {
-                            Button(action: {
-                                // 添加新角色的操作
-                            }) {
-                                VStack {
-                                    Image(systemName: "plus")
-                                        .frame(width: 50, height: 50)
-                                        .background(Color.gray.opacity(0.2))
-                                        .clipShape(Circle())
-                                    Text("添加角色")
-                                        .font(.caption)
-                                }
-                            }
-                        }
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue.opacity(0.1))
-                        .cornerRadius(8)
-                    }
-                }
-                .padding()
-                .background(Color(.systemBackground))
-                .cornerRadius(12)
-                .shadow(radius: 1)
-            }
         }
         .background(Color(.systemBackground))
+        .ignoresSafeArea(.keyboard)
+    }
+    
+    // 输入部分视图
+    private var inputSection: some View {
+        VStack(spacing: 24) {
+            InputField(
+                title: "标题",
+                placeholder: "请输入标题",
+                text: $title
+            )
+            
+            InputField(
+                title: "描述",
+                placeholder: "请输入描述",
+                text: $description,
+                isMultiline: true
+            )
+            
+            InputField(
+                title: "背景设定",
+                placeholder: "请输入背景设定",
+                text: $background,
+                isMultiline: true
+            )
+            
+            roleSection
+            // 生成按钮
+            VStack{
+                Button(action: {
+                    Task {
+                        await onGenerate()
+                        isGenerated = true
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: "wand.and.stars")
+                        Text("生成故事")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
+                
+                Button(action: {
+                    Task {
+                        await onSave()
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: "square.and.arrow.down")
+                        Text("保存")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.green)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
+            }
+            
+        }
+    }
+    
+    
+    // 角色设定部分
+    private var roleSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("角色设定")
+                .font(.headline)
+                .foregroundColor(.primary)
+            
+            Button(action: {
+                // 添加新角色的操作
+            }) {
+                VStack {
+                    Image(systemName: "plus")
+                        .frame(width: 50, height: 50)
+                        .background(Color.gray.opacity(0.2))
+                        .clipShape(Circle())
+                    Text("添加角色")
+                        .font(.caption)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color.blue.opacity(0.1))
+            .cornerRadius(8)
+        }
     }
 }
 
@@ -1618,8 +1678,13 @@ struct StepNavigationView: View {
     let totalSteps: Int
     let titles: [String]
     
+    // 定义颜色常量
+    private let activeColor = Color.blue
+    private let inactiveColor = Color.gray.opacity(0.15)
+    private let backgroundColor = Color(.systemGray6) // 浅灰色背景
+    
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 8) {
             // Steps with connecting lines
             HStack(spacing: 0) {
                 ForEach(0..<totalSteps, id: \.self) { index in
@@ -1627,35 +1692,61 @@ struct StepNavigationView: View {
                         // Step circle
                         ZStack {
                             Circle()
-                                .fill(index <= currentStep ? Color.blue : Color.gray.opacity(0.15))
-                                .frame(width: 28, height: 28)
+                                .fill(getStepColor(for: index))
+                                .frame(width: 24, height: 24)
                             
                             Text("\(index + 1)")
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(index <= currentStep ? .white : .gray)
                         }
                         
                         // Connecting line
                         if index < totalSteps - 1 {
                             Rectangle()
-                                .fill(index < currentStep ? Color.blue : Color.gray.opacity(0.15))
+                                .fill(index < currentStep ? getStepColor(for: index) : inactiveColor)
                                 .frame(height: 1)
                         }
                     }
                 }
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, 20)
             
             // Step titles
             HStack(spacing: 0) {
                 ForEach(0..<totalSteps, id: \.self) { index in
                     Text(titles[index])
-                        .font(.system(size: 12))
-                        .foregroundColor(index <= currentStep ? .blue : .gray)
+                        .font(.system(size: 11))
+                        .foregroundColor(getTextColor(for: index))
                         .frame(maxWidth: .infinity)
                 }
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, 20)
+        }
+        .padding(.vertical, 12)
+        .background(backgroundColor)
+    }
+    
+    // 获取步骤颜色
+    private func getStepColor(for index: Int) -> Color {
+        switch index {
+            case _ where index < currentStep:
+                return .green // 已完成的步骤显示为绿色
+            case currentStep:
+                return activeColor // 当前步骤显示为蓝色
+            default:
+                return inactiveColor // 未完成的步骤显示为灰色
+        }
+    }
+    
+    // 获取文字颜色
+    private func getTextColor(for index: Int) -> Color {
+        switch index {
+            case _ where index < currentStep:
+                return .green // 已完成的步骤文字显示为绿色
+            case currentStep:
+                return activeColor // 当前步骤文字显示为蓝色
+            default:
+                return .gray // 未完成的步骤文字显示为灰色
         }
     }
 }
