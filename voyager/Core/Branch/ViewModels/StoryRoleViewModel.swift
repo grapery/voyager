@@ -136,9 +136,8 @@ class StoryDetailViewModel: ObservableObject {
         }
         
         // 2. 调用上传 API
-        //        let imageUrl = try await apiClient.uploadImage(imageData)
-        //        return imageUrl
-        return ""
+        let imageUrl = try AliyunClient.UploadImage(image: image)
+        return imageUrl
     }
     
     func getTopStoryRoles(

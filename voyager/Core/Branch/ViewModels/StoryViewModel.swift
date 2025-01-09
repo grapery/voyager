@@ -367,17 +367,17 @@ class StoryViewModel: ObservableObject {
             // 解析响应数据
             DispatchQueue.main.async {
                 if resp.result.count > 1 {
-                var scenes: [StoryBoardSence] = []
-                
-                // 遍历所有详细情节
+                    var scenes: [StoryBoardSence] = []
+                    
+                    // 遍历所有详细情节
                     for i in 1...(resp.result.count-1) {
-                    let key = "详细情节-\(i)"
-                    if let sceneData = resp.result[key]{
-                        let scene = StoryBoardSence.fromResponse(sceneData, index: i)
-                        scenes.append(scene!)
+                        let key = "详细情节-\(i)"
+                        if let sceneData = resp.result[key]{
+                            let scene = StoryBoardSence.fromResponse(sceneData, index: i)
+                            scenes.append(scene!)
+                        }
                     }
-                }
-                self.storyScenes = scenes
+                    self.storyScenes = scenes
                 }
             }
             
@@ -419,7 +419,6 @@ class StoryViewModel: ObservableObject {
         do{
             self.isGenerate = true
             let (resp,err) = await apiClient.CreateStoryBoardSence(storyId: self.storyId, boardId: boardId, userId: self.userId, originContent: self.storyScenes[idx].content, characterIds: ["\(self.storyScenes[idx].characters)"], imagePrompts: self.storyScenes[idx].imagePrompt, videoPrompts: "")
-            print("createStoryboardSence resp: ",resp)
             self.isGenerate = false
             if err != nil{
                 print("createStoryboardSence: \(String(describing: err))")
@@ -468,7 +467,6 @@ class StoryViewModel: ObservableObject {
                 return err
             }
         }
-        print("genStoryBoardSences: \(boardId)")
         return nil
     }
     
