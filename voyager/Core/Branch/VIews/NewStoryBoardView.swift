@@ -230,11 +230,11 @@ struct NewStoryBoardView: View {
             
             // 处理特殊步骤的逻辑
             switch currentStep {
-            case .write:
+            case .write: break
                 // 如果是写作步骤，可能需要保存或处理输入内容
-            case .complete:
+            case .complete: break
                 // 如果是完成步骤，可能需要生成或处理内容
-            case .draw:
+            case .draw: break
                 // 如果是绘画步骤，可能需要处理场景生成
             default:
                 break

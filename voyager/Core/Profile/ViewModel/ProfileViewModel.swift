@@ -27,7 +27,7 @@ enum UserProfileFilterViewModel: Int, CaseIterable {
 
 class ProfileViewModel: ObservableObject {
     @Published var user: User?
-    @Published var profile: UserProfile
+    @State var profile: UserProfile
     @Published var selectedImage: PhotosPickerItem? {
         didSet {
             Task {

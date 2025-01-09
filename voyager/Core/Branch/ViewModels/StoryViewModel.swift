@@ -618,6 +618,13 @@ class StoryViewModel: ObservableObject {
         }
     }
     
+    func publishStoryBoard(srotyId: Int64,userId: Int64,storyboardId: Int64) async -> Error?{
+        return nil
+    }
+    
+    func cancelPublishStoryBoard(srotyId: Int64,userId: Int64,storyboardId: Int64) async -> Error?{
+        return nil
+    }
 }
 
 

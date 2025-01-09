@@ -1441,4 +1441,35 @@ extension APIClient {
         print("actives: ",actives)
          return (actives,offset,size,nil)
     }
+
+    func publishStoryBoard(userId: Int64,storyBoardId: Int64) async -> Error? {
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_PublishStoryboardRequest.with {
+            $0.userID = userId
+            $0.storyboardID = storyBoardId
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.publishStoryboard(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return NSError(domain: "publishStoryBoard", code: 0, userInfo: [NSLocalizedDescriptionKey: "publish story board failed"])
+        }
+        return nil
+    }
+
+    func cancelStoryBoard(userId: Int64,storyBoardId: Int64) async -> Error? {
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_CancelStoryboardRequest.with {
+            $0.userID = userId
+            $0.storyboardID = storyBoardId
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.cancelStoryboard(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return NSError(domain: "cancelStoryBoard", code: 0, userInfo: [NSLocalizedDescriptionKey: "cancel story board failed"])
+        }
+        return nil
+    }
 }
+
