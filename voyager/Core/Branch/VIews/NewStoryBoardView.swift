@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct NewStoryBoardView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -139,21 +140,19 @@ struct NewStoryBoardView: View {
                     SceneGenerationView(
                         viewModel: $viewModel,
                         onGenerateImage: handleGenerateImageAction,
-                        onGenerateAllImage: GenerateAllSenseImageAction
+                        onGenerateAllImage: GenerateAllSenseImageAction,
+                        moreSenseDetail: moreSenseDetailAction
                     )
                     .tag(TimelineStep.draw)
                     
                     StoryPublishView(
-                        generatedImage: $generatedImage,
-                        sceneDescription: $sceneDescription,
-                        sceneCharacters: $sceneCharacters,
+                        viewModel: $viewModel,
                         onSaveOnly:{
-                            // 仅保存
+                        // 仅保存
                         },
                         onPublish: {
                             // 发布
-                        }
-                    )
+                        })
                     .tag(TimelineStep.narrate)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
@@ -496,7 +495,7 @@ struct NewStoryBoardView: View {
                 color: .green
             ) {
                 Task {
-                    await handleGenerateImageAction(idx: idx)
+                    await handleGenerateImageAction(idx: Int(senceId))
                 }
             }
             
@@ -760,7 +759,7 @@ extension NewStoryBoardView {
                 storyId: storyId,
                 boardId: boardId,
                 userId: viewModel.userId,
-                senceId: viewModel.storyScenes[idx].senceId,
+                senceId: Int64(idx),
                 renderType: Common_RenderType(rawValue: 1)!
             )
             
@@ -794,6 +793,17 @@ extension NewStoryBoardView {
             
             hideLoading()
             showNotification(message: "场景图片生成成功", type: .success)
+        } catch {
+            handleError(error)
+        }
+    }
+    
+    private func moreSenseDetailAction(idx: Int) async {
+        showLoading(message: "正在增加场景细节...")
+        do {
+            
+            hideLoading()
+            showNotification(message: "场景细节添加成功", type: .success)
         } catch {
             handleError(error)
         }
@@ -833,9 +843,7 @@ struct StepProgressView: View {
 
 
 struct StoryPublishView: View {
-    @Binding var generatedImage: UIImage?
-    @Binding var sceneDescription: String
-    @Binding var sceneCharacters: String
+    @Binding var viewModel: StoryViewModel
     let onSaveOnly: () async -> Void
     let onPublish: () async -> Void
     
@@ -847,66 +855,59 @@ struct StoryPublishView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 25) {
-                if let image = generatedImage {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("生成的场景")
-                            .font(.headline)
-                        
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 300)
-                            .cornerRadius(12)
-                            .shadow(radius: 4)
-                        
-                        InfoSection(title: "场景描述", content: sceneDescription)
-                        InfoSection(title: "参与人物", content: sceneCharacters)
-                        
-                        // 添加操作按钮
-                        HStack(spacing: 16) {
-                            ActionButton(
-                                title: "保存",
-                                icon: "square.and.arrow.down",
-                                color: .blue,
-                                action: {
-                                    Task {
-                                        await handleSave()
-                                    }
-                                }
-                            )
-                            
-                            ActionButton(
-                                title: "发布",
-                                icon: "paperplane.fill",
-                                color: .green,
-                                action: {
-                                    Task {
-                                        await handlePublish()
-                                    }
-                                }
-                            )
-                        }
-                        .padding(.top, 16)
-                    }
-                } else {
-                    VStack(spacing: 20) {
-                        Image(systemName: "photo")
-                            .font(.system(size: 48))
-                            .foregroundColor(.gray)
-                        Text("等待生成场景图片")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding()
+                // 故事标题
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("")
+                        .font(.headline)
+                    Text("")
+                        .font(.title2)
+                        .padding(.horizontal)
                 }
+                
+                // 场景列表
+                VStack(alignment: .leading, spacing: 20) {
+                    Text("故事场景")
+                        .font(.headline)
+                    
+                    if viewModel.storyScenes.isEmpty {
+                        EmptyStateView()
+                    } else {
+                        ForEach(viewModel.storyScenes, id: \.senceId) { scene in
+                            ScenePreviewCard(scene: scene)
+                        }
+                    }
+                }
+                
+                // 操作按钮
+                HStack(spacing: 16) {
+                    ActionButton(
+                        title: "保存草稿",
+                        icon: "square.and.arrow.down",
+                        color: .blue
+                    ) {
+                        Task {
+                            await handleSave()
+                        }
+                    }
+                    
+                    ActionButton(
+                        title: "发布故事",
+                        icon: "paperplane.fill",
+                        color: .green
+                    ) {
+                        Task {
+                            await handlePublish()
+                        }
+                    }
+                }
+                .padding(.top, 16)
             }
             .padding()
-            .alert("提示", isPresented: $showAlert) {
-                Button("确定", role: .cancel) {}
-            } message: {
-                Text(alertMessage)
-            }
+        }
+        .alert("提示", isPresented: $showAlert) {
+            Button("确定", role: .cancel) {}
+        } message: {
+            Text(alertMessage)
         }
     }
     
@@ -926,9 +927,7 @@ struct StoryPublishView: View {
     private func handlePublish() async {
         isPublishing = true
         do {
-            // 如果未保存，先保存
             await onSaveOnly()
-            // 然后发布
             await onPublish()
             alertMessage = "发布成功"
             showAlert = true
@@ -940,16 +939,68 @@ struct StoryPublishView: View {
     }
 }
 
-struct InfoSection: View {
+// 场景预览卡片
+private struct ScenePreviewCard: View {
+    let scene: StoryBoardSence
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // 场景标题
+            HStack {
+                Text("场景 \(scene.senceIndex)")
+                    .font(.headline)
+                Spacer()
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .background(Color.blue.opacity(0.1))
+            .cornerRadius(8)
+            
+            // 场景图片
+            if let url = URL(string: scene.imageUrl) {
+                AsyncImage(url: url) { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 200)
+                        .cornerRadius(12)
+                } placeholder: {
+                    ProgressView()
+                        .frame(height: 200)
+                }
+            }
+            
+            // 场景信息
+            VStack(alignment: .leading, spacing: 12) {
+                InfoSection(title: "场景描述", content: scene.content)
+                InfoSection(title: "参与人物", content: scene.characters)
+                if !scene.imagePrompt.isEmpty {
+                    InfoSection(title: "图片提示词", content: scene.imagePrompt)
+                }
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemBackground))
+                .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+        )
+    }
+}
+
+// 信息展示组件
+private struct InfoSection: View {
     let title: String
     let content: String
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.headline)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
             Text(content)
-                .padding(8)
+                .font(.body)
+                .padding(12)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color(.systemGray6))
                 .cornerRadius(8)
@@ -962,6 +1013,7 @@ struct SceneGenerationView: View {
     @Binding var viewModel: StoryViewModel
     let onGenerateImage: (Int) async -> Void
     let onGenerateAllImage: () async -> Void
+    let moreSenseDetail: (Int) async -> Void
     
     var body: some View {
         VStack(spacing: 16) {
@@ -981,10 +1033,10 @@ struct SceneGenerationView: View {
             if viewModel.storyScenes.isEmpty {
                 EmptyStateView()
             } else {
-                
                 SceneListView(
                     scenes: viewModel.storyScenes,
-                    onGenerateImage: onGenerateImage
+                    onGenerateImage: onGenerateImage,
+                    moreSenseDetail: moreSenseDetail
                 )
             }
         }
@@ -1010,6 +1062,7 @@ private struct EmptyStateView: View {
 private struct SceneListView: View {
     let scenes: [StoryBoardSence]
     let onGenerateImage: (Int) async -> Void
+    let moreSenseDetail: (Int) async -> Void
     
     var body: some View {
         ScrollView {
@@ -1019,7 +1072,8 @@ private struct SceneListView: View {
                     NewSceneItemView(
                         scene: scenes[index],
                         index: index,
-                        onGenerateImage: onGenerateImage
+                        onGenerateImage: onGenerateImage,
+                        moreDetail: moreSenseDetail
                     )
                 }
             }
@@ -1033,6 +1087,7 @@ private struct NewSceneItemView: View {
     let scene: StoryBoardSence
     let index: Int
     let onGenerateImage: (Int) async -> Void
+    let moreDetail: (Int) async -> Void
     
     var body: some View {
         VStack(spacing: 12) {
@@ -1040,12 +1095,22 @@ private struct NewSceneItemView: View {
             
             HStack(spacing: 12) {
                 ActionButton(
+                    title: "场景渲染",
+                    icon: "hand.draw",
+                    color: .green
+                ) {
+                    Task {
+                        await moreDetail(Int(scene.senceId))
+                    }
+                }
+                Spacer()
+                ActionButton(
                     title: "生成图片",
                     icon: "photo.fill",
                     color: .green
                 ) {
                     Task {
-                        await onGenerateImage(index)
+                        await onGenerateImage(Int(scene.senceId))
                     }
                 }
                 Spacer()
@@ -1079,6 +1144,15 @@ struct SceneCard: View {
                 contentSection("参与人物", content: scene.characters)
                 contentSection("图片提示词", content: scene.imagePrompt)
             }
+            if !scene.imageUrl.isEmpty{
+                VStack(alignment: .leading, spacing: 16){
+                    KFImage(URL(string: scene.imageUrl))
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+                .cornerRadius(8)
+            }
+            
         }
         .padding(16)
         .background(

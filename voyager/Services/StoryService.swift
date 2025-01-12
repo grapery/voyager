@@ -730,7 +730,7 @@ extension APIClient {
         }
     }
     
-    func GenStoryBoardSpecSence(storyId: Int64,boardId: Int64,userId: Int64,senceId:Int64,render_type: Common_RenderType) async -> Error?{
+    func GenStoryBoardSpecSence(storyId: Int64,boardId: Int64,userId: Int64,senceId:Int64,render_type: Common_RenderType) async -> (Common_StoryBoardSence?,Error?){
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)
             let request = Common_RenderStoryBoardSenceRequest.with {
@@ -745,13 +745,14 @@ extension APIClient {
             
             if resp.message?.code != 0 {
                 let error = NSError(domain: "GenStoryBoardSpecSence", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
-                return error
+                return (nil,error)
             }
             let renderCode = resp.message?.code
             if renderCode==0 || renderCode==1{
-                return nil
+                return (resp.message?.data ,nil)
             } else {
-                return NSError(domain: "GenStoryBoardSpecSence", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"])
+                let error = NSError(domain: "GenStoryBoardSpecSence", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data received"])
+                return (nil,error)
             }
         }
     }

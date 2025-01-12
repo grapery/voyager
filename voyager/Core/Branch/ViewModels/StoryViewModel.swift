@@ -473,11 +473,25 @@ class StoryViewModel: ObservableObject {
     func genStoryBoardSpecSence(storyId: Int64,boardId: Int64,userId: Int64,senceId:Int64,renderType: Common_RenderType) async ->Error?{
         do{
             self.isGenerate = true
-            let err = await apiClient.GenStoryBoardSpecSence(storyId: self.storyId, boardId: boardId, userId: self.userId,senceId:senceId, render_type: Common_RenderType(rawValue: 1)!)
+            let (sense,err) = await apiClient.GenStoryBoardSpecSence(storyId: self.storyId, boardId: boardId, userId: self.userId,senceId:senceId, render_type: Common_RenderType(rawValue: 1)!)
             self.isGenerate = false
             if err != nil{
                 print("genStoryBoardSpecSence: \(String(describing: err))")
                 return err
+            }
+            
+            if let urls = try? JSONDecoder().decode([String].self, from: sense!.genResult.data(using: .utf8) ?? Data()) {
+                for targetSense in storyScenes {
+                    if targetSense.senceId == senceId {
+                        for url in urls {
+                            if !url.isEmpty {
+                                targetSense.imageUrl = url
+                                print("Updated scene \(senceId) with image URL: \(url)")
+                                break
+                            }
+                        }
+                    }
+                }
             }
         }
         print("genStoryBoardSpecSence: \(senceId)")

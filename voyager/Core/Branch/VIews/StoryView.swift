@@ -23,7 +23,6 @@ struct StoryView: View {
     @State private var generatedStory: Common_RenderStoryDetail?
     @State private var isGenerating = false
     @State private var errorMessage: String?
-    @State private var buttonMsg: String = "生成故事"
     
     @State private var isShowingNewStoryBoard = false
     @State private var isShowingCommentView = false
@@ -33,25 +32,11 @@ struct StoryView: View {
     @State private var selectedBoard: StoryBoard?
     @State private var isShowingBoardDetail = false
     
-    
-    private func setButtonMsg() {
-        if isGenerating {
-            buttonMsg = "正在生成..."
-        } else if generatedStory != nil {
-            buttonMsg = "生成"
-        } else if errorMessage != nil {
-            buttonMsg = "重试"
-        } else {
-            buttonMsg = "生成故事"
-        }
-    }
-    
     init(story: Story, userId: Int64) {
         self.story = story
         self.userId = userId
         self.storyId = story.storyInfo.id
         _viewModel = StateObject(wrappedValue: StoryViewModel(story: story, userId: userId))
-        setButtonMsg()
     }
     
     
@@ -92,17 +77,6 @@ struct StoryView: View {
                         .font(.system(size: 15))
                         .foregroundColor(.primary)
                         .lineLimit(3)
-                    
-                    Button(action: { generateStory() }) {
-                        Text(buttonMsg)
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(Color.blue)
-                            .cornerRadius(20)
-                    }
-                    .disabled(isGenerating)
                 }
                 
                 // 交互按钮栏
