@@ -223,24 +223,19 @@ struct StoryView: View {
     private func generateStory() {
         isGenerating = true
         errorMessage = nil
-        setButtonMsg()
-        // 模拟生成故事的过程
-        //DispatchQueue.global().asyncAfter(deadline: .now() + 30) {
-            Task { @MainActor in
-                let result = await self.viewModel.genStory(storyId: self.storyId, userId: self.userId)
-                
-                if let error = result.1 {
-                    self.errorMessage = error.localizedDescription
-                    self.generatedStory = nil
-                } else {
-                    self.generatedStory = result.0
-                    self.errorMessage = nil
-                }
-                
-                self.isGenerating = false
-                self.setButtonMsg()
+        Task { @MainActor in
+            let result = await self.viewModel.genStory(storyId: self.storyId, userId: self.userId)
+            
+            if let error = result.1 {
+                self.errorMessage = error.localizedDescription
+                self.generatedStory = nil
+            } else {
+                self.generatedStory = result.0
+                self.errorMessage = nil
             }
-        //}
+            
+            self.isGenerating = false
+        }
     }
     
     private func getGenerateStory() {
