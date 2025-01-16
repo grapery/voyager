@@ -639,6 +639,19 @@ class StoryViewModel: ObservableObject {
     func cancelPublishStoryBoard(srotyId: Int64,userId: Int64,storyboardId: Int64) async -> Error?{
         return nil
     }
+    
+    func reloadStoryboard(storyId: Int64, storyboardId: Int64, userId: Int64) async -> Error?{
+        do {
+            let (resp,err) = await apiClient.restoreStoryboard(storyId: storyId, userId: storyboardId, boardId: storyboardId)
+            if err != nil {
+                self.err = err
+                return err
+            }
+            print("reloadStoryboard resp: ",resp as Any)
+            
+        }
+        return nil
+    }
 }
 
 

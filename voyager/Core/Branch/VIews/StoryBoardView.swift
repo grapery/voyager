@@ -173,8 +173,9 @@ struct StoryBoardView: View {
             EditStoryBoardView(
                 storyId: storyId,
                 boardId: (board?.boardInfo.storyBoardID)!,
+                userId: self.userId,
                 viewModel: self.viewModel
-            )
+                )
         }
     }
 }

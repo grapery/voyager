@@ -11,8 +11,9 @@ struct EditStoryBoardView: View {
     @Environment(\.presentationMode) var presentationMode
     public var storyId: Int64
     public var boardId: Int64
-    @StateObject var viewModel: StoryViewModel
+    public var userId: Int64
     
+    @State var viewModel: StoryViewModel
     // 步骤状态控制
     @State private var currentStep = 0
     @State private var isLoading = false
@@ -23,7 +24,7 @@ struct EditStoryBoardView: View {
     @State private var scenes: [StoryboardScene] = []
     @State private var generatedImages: [String] = []
     
-    var steps = ["编辑故事板", "创建场景", "发布"]
+    var steps = ["编辑故事板", "创建场景", "编辑场景图片", "发布"]
     
     var body: some View {
         NavigationView {
@@ -122,6 +123,11 @@ struct EditStoryBoardView: View {
             }
         }
         .navigationBarHidden(true)
+        .onAppear{
+            Task{
+                //self.$viewModel.restoreStoryboard(self.storyId,self.userId,self.boardId)
+            }
+        }
     }
     
     private func handleFinish() {

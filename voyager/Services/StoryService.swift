@@ -1472,5 +1472,24 @@ extension APIClient {
         }
         return nil
     }
+    
+    func restoreStoryboard(storyId: Int64,userId: Int64,boardId: Int64) async -> (Common_StoryboardStageStore?,Error?){
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_RestoreStoryboardRequest.with {
+            $0.userID = userId
+            $0.storyboardID = boardId
+            $0.storyID = storyId
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.restoreStoryboard(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return (nil,NSError(domain: "restoreStoryboard", code: 0, userInfo: [NSLocalizedDescriptionKey: "restore story board failed"]))
+        }
+        let boardInfo = response.message?.store
+        print("storyboard statu: ",boardInfo?.stage as Any)
+        return (boardInfo,nil)
+    }
+    
 }
 

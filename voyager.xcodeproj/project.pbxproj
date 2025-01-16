@@ -479,8 +479,8 @@
 		0FFA505C2B0857DA00D3A4CF /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				0F12463A2D340CA6001C7922 /* Colors.swift */,
 				0F6D23E12D1DAAFA005AEE55 /* MediaPlay.swift */,
+				0F12463A2D340CA6001C7922 /* Colors.swift */,
 				0F6D23DF2D1CE002005AEE55 /* ImagePicker.swift */,
 				0FFA505D2B0857DA00D3A4CF /* CircularProfileImageView.swift */,
 				0F7602A82BB92ACD00F8D900 /* TextArea.swift */,
