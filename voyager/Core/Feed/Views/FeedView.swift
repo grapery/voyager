@@ -90,7 +90,7 @@ private struct TopNavigationBar: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(primaryBackgroud)
+        .background(Color.primaryBackgroud)
     }
 }
 
@@ -108,7 +108,7 @@ private struct FeedSearchBar: View {
                 .foregroundColor(.gray)
                 .padding(.trailing, 8)
         }
-        .background(primaryBackgroud)
+        .background(Color.primaryBackgroud)
         .cornerRadius(20)
     }
 }
@@ -130,7 +130,7 @@ private struct CategoryTabs: View {
                             .padding(.vertical, 8)
                             .background(
                                 Capsule()
-                                    .fill(selectedTab == tab.type ? primaryGreenBackgroud : primaryBackgroud)
+                                    .fill(selectedTab == tab.type ? Color.primaryGreenBackgroud : Color.primaryBackgroud)
                             )
                     }
                 }
@@ -147,7 +147,7 @@ private struct FeedItemCard: View {
             // 左侧绿色装饰条
             HStack(spacing: 0) {
                 Rectangle()
-                    .fill(primaryGreenBackgroud.opacity(0.3))
+                    .fill(Color.primaryGreenBackgroud.opacity(0.3))
                     .frame(width: 4)
                 
                 VStack(alignment: .leading, spacing: 8) {
@@ -198,7 +198,7 @@ private struct FeedItemCard: View {
                                     .clipShape(Circle())
                                     .overlay(
                                         Circle()
-                                            .stroke(primaryBackgroud, lineWidth: 2)
+                                            .stroke(Color.primaryBackgroud, lineWidth: 2)
                                     )
                             }
                         }
@@ -209,7 +209,7 @@ private struct FeedItemCard: View {
                 .padding(12)
             }
         }
-        .background(primaryBackgroud)
+        .background(Color.primaryBackgroud)
         .cornerRadius(8)
     }
 }
@@ -238,7 +238,7 @@ struct SearchBar: View {
             }
         }
         .frame(height: 36)
-        .background(primaryBackgroud)
+        .background(Color.primaryBackgroud)
         .cornerRadius(18)
     }
 }
@@ -345,7 +345,7 @@ private struct AIChatHeader: View {
         HStack(spacing: 12) {
             // 左侧绿色装饰条
             Rectangle()
-                .fill(primaryGreenBackgroud.opacity(0.3))
+                .fill(Color.primaryGreenBackgroud.opacity(0.3))
                 .frame(width: 4)
             
             // AI头像
@@ -384,7 +384,7 @@ private struct ChatBubble: View {
                 
                 Text(message.msg.message)
                     .padding(12)
-                    .background(primaryBackgroud)
+                    .background(Color.primaryBackgroud)
                     .cornerRadius(16)
                     .foregroundColor(.white)
                 
@@ -394,7 +394,7 @@ private struct ChatBubble: View {
                 
                 Text(message.msg.message)
                     .padding(12)
-                    .background(primaryGreenBackgroud)
+                    .background(Color.primaryGreenBackgroud)
                     .cornerRadius(16)
                     .foregroundColor(.black)
             }
@@ -420,11 +420,11 @@ private struct ChatInputBar: View {
                 Image(systemName: "arrow.up.circle.fill")
                     .resizable()
                     .frame(width: 32, height: 32)
-                    .foregroundColor(primaryGreenBackgroud)
+                    .foregroundColor(Color.primaryGreenBackgroud)
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(primaryBackgroud)
+        .background(Color.primaryBackgroud)
     }
 }
