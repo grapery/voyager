@@ -9,25 +9,13 @@ import Foundation
 import SwiftUI
 import UIKit
 
+
 extension Color {
-    static let theme = ColorTheme()
-    static let launch = LaunchTheme()
+    static let primaryBackgroud = Color(hex: "2C2C2E") //深灰色背景
+    static let primaryGreenBackgroud = Color(hex: "A5D661") //绿色背景
+    static let primaryGrayBackgroud = Color(hex: "F2F2F2") //灰色背景
 }
 
-struct ColorTheme {
-    let accent = Color("AccentColor")
-    let background = Color("BackgroundColor")
-    let green = Color("GreenColor")
-    let red = Color("RedColor")
-    let secondaryText = Color("SecondaryTextColor")
-    let primaryButtonBackgroundColor = Color("PrimaryButtonBackgroundColor")
-    let primaryButtonForegroundColor = Color("PrimaryButtonForegroundColor")
-}
-
-struct LaunchTheme {
-    let accent = Color("LaunchAccentColor")
-    let background = Color("LaunchBackgroundColor")
-}
 
 extension String {
     

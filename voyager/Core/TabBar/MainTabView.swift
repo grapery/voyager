@@ -34,13 +34,13 @@ struct MainTabView: View {
                 }
                 .tabItem {
                     Circle()
-                        .fill(selectedItem == 1 ? Color(hex: "A5D661") : Color.clear)
+                        .fill(selectedItem == 1 ? primaryGreenBackgroud : Color.clear)
                         .overlay(
                             Image(systemName: "target")
                                 .foregroundColor(selectedItem == 1 ? .white : .gray)
                         )
                     Text("发现")
-                        .foregroundColor(selectedItem == 1 ? Color(hex: "A5D661") : .gray)
+                        .foregroundColor(selectedItem == 1 ? primaryGreenBackgroud : .gray)
                 }
                 .tag(1)
             GroupView(user: self.user)
@@ -49,13 +49,13 @@ struct MainTabView: View {
                 }
                 .tabItem {
                     Circle()
-                        .fill(selectedItem == 2 ? Color(hex: "A5D661") : Color.clear)
+                        .fill(selectedItem == 2 ? primaryGreenBackgroud : Color.clear)
                         .overlay(
                             Image(systemName: "circle.hexagonpath")
                                 .foregroundColor(selectedItem == 2 ? .white : .gray)
                         )
                     Text("小组")
-                        .foregroundColor(selectedItem == 2 ? Color(hex: "A5D661") : .gray)
+                        .foregroundColor(selectedItem == 2 ? primaryGreenBackgroud : .gray)
                 }
                 .tag(2)
             MessageView(user: self.user)
@@ -64,13 +64,13 @@ struct MainTabView: View {
                 }
                 .tabItem {
                     Circle()
-                        .fill(selectedItem == 3 ? Color(hex: "A5D661") : Color.clear)
+                        .fill(selectedItem == 3 ? primaryGreenBackgroud : Color.clear)
                         .overlay(
                             Image(systemName: "message")
                                 .foregroundColor(selectedItem == 3 ? .white : .gray)
                         )
                     Text("消息")
-                        .foregroundColor(selectedItem == 3 ? Color(hex: "A5D661") : .gray)
+                        .foregroundColor(selectedItem == 3 ? primaryGreenBackgroud : .gray)
                 }
                 .tag(3)
             UserProfileView(user: self.user)
@@ -79,17 +79,17 @@ struct MainTabView: View {
                 }
                 .tabItem {
                     Circle()
-                        .fill(selectedItem == 4 ? Color(hex: "A5D661") : Color.clear)
+                        .fill(selectedItem == 4 ? primaryGreenBackgroud : Color.clear)
                         .overlay(
                             Image(systemName: "person")
                                 .foregroundColor(selectedItem == 4 ? .white : .gray)
                         )
                     Text("个人")
-                        .foregroundColor(selectedItem == 4 ? Color(hex: "A5D661") : .gray)
+                        .foregroundColor(selectedItem == 4 ? primaryGreenBackgroud : .gray)
                 }
                 .tag(4)
         }
-        .background(Color(hex: "2C2C2E"))
+        .background(primaryBackgroud)
         .accentColor(.primary)
     }
 }

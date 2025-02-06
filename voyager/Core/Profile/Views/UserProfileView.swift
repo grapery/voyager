@@ -235,14 +235,14 @@ struct StoryboardCell: View {
         HStack(spacing: 0) {
             // 左侧装饰条
             Rectangle()
-                .fill(Color(hex: "A5D661").opacity(0.3))
+                .fill(primaryGreenBackgroud.opacity(0.3))
                 .frame(width: 12)
             
             // 虚线分隔带圆孔
             GeometryReader { geometry in
                 VStack(spacing: 0) {
                     Rectangle()
-                        .fill(Color(hex: "A5D661").opacity(0.3))
+                        .fill(primaryGreenBackgroud.opacity(0.3))
                         .frame(width: 2)
                         .frame(height: geometry.size.height / 4)
                     
@@ -251,7 +251,7 @@ struct StoryboardCell: View {
                         .frame(width: 6, height: 6)
                     
                     Rectangle()
-                        .fill(Color(hex: "A5D661").opacity(0.3))
+                        .fill(primaryGreenBackgroud.opacity(0.3))
                         .frame(width: 2)
                         .frame(height: geometry.size.height / 2)
                         
@@ -260,7 +260,7 @@ struct StoryboardCell: View {
                         .frame(width: 6, height: 6)
                         
                     Rectangle()
-                        .fill(Color(hex: "A5D661").opacity(0.3))
+                        .fill(primaryGreenBackgroud.opacity(0.3))
                         .frame(width: 2)
                         .frame(height: geometry.size.height / 4)
                 }
@@ -321,7 +321,7 @@ struct StoryboardCell: View {
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
         }
-        .background(Color(hex: "2C2C2E")) // 深灰色背景
+        .background(primaryBackgroud) // 深灰色背景
         .cornerRadius(8) // 整体圆角
     }
     
@@ -362,12 +362,12 @@ struct ProfileRoleCell: View {
             HStack(spacing: 0) {
                 // 左侧装饰条
                 Rectangle()
-                    .fill(Color(hex: "A5D661").opacity(0.3)) // 浅绿色
+                    .fill(primaryGreenBackgroud.opacity(0.3)) // 浅绿色
                     .frame(width: 12)
                 GeometryReader { geometry in
                     VStack(spacing: 0) {
                         Rectangle()
-                            .fill(Color(hex: "A5D661").opacity(0.3))
+                            .fill(primaryGreenBackgroud.opacity(0.3))
                             .frame(width: 2)
                             .frame(height: geometry.size.height / 7)
                         
@@ -376,7 +376,7 @@ struct ProfileRoleCell: View {
                             .frame(width: 6, height: 6)
                         
                         Rectangle()
-                            .fill(Color(hex: "A5D661").opacity(0.3))
+                            .fill(primaryGreenBackgroud.opacity(0.3))
                             .frame(width: 2)
                             .frame(height: geometry.size.height / 7)
                             
@@ -385,7 +385,7 @@ struct ProfileRoleCell: View {
                             .frame(width: 6, height: 6)
                             
                         Rectangle()
-                            .fill(Color(hex: "A5D661").opacity(0.3))
+                            .fill(primaryGreenBackgroud.opacity(0.3))
                             .frame(width: 2)
                             .frame(height: geometry.size.height / 7)
                             
@@ -394,15 +394,7 @@ struct ProfileRoleCell: View {
                             .frame(width: 6, height: 6)
                             
                         Rectangle()
-                            .fill(Color(hex: "A5D661").opacity(0.3))
-                            .frame(width: 2)
-                            .frame(height: geometry.size.height / 7)
-                        Circle()
-                            .fill(Color(hex: "E7E7E7"))
-                            .frame(width: 6, height: 6)
-                        
-                        Rectangle()
-                            .fill(Color(hex: "A5D661").opacity(0.3))
+                            .fill(primaryGreenBackgroud.opacity(0.3))
                             .frame(width: 2)
                             .frame(height: geometry.size.height / 7)
                         Circle()
@@ -410,7 +402,15 @@ struct ProfileRoleCell: View {
                             .frame(width: 6, height: 6)
                         
                         Rectangle()
-                            .fill(Color(hex: "A5D661").opacity(0.3))
+                            .fill(primaryGreenBackgroud.opacity(0.3))
+                            .frame(width: 2)
+                            .frame(height: geometry.size.height / 7)
+                        Circle()
+                            .fill(Color(hex: "E7E7E7"))
+                            .frame(width: 6, height: 6)
+                        
+                        Rectangle()
+                            .fill(primaryGreenBackgroud.opacity(0.3))
                             .frame(width: 2)
                             .frame(height: geometry.size.height / 7)
                     }
@@ -464,7 +464,7 @@ struct ProfileRoleCell: View {
                 .padding(.vertical, 12)
                 .padding(.horizontal, 16)
             }
-            .background(Color(hex: "2C2C2E")) // 深灰色背景
+            .background(primaryBackgroud) // 深灰色背景
             .cornerRadius(8) // 整体圆角
         }
         .buttonStyle(PlainButtonStyle())
@@ -584,7 +584,7 @@ private struct SegmentedControlView: View {
                         .frame(height: 32)
                         .background(
                             Capsule()
-                                .fill(selectedFilter == filter ? Color(hex: "A5D661") : Color(hex: "E7E7E7"))
+                                .fill(selectedFilter == filter ? primaryGreenBackgroud : Color(hex: "E7E7E7"))
                                 .matchedGeometryEffect(id: selectedFilter == filter ? "TAB" : "", in: animation)
                         )
                         .padding(.horizontal, 4)
