@@ -339,16 +339,12 @@ struct RolesListView: View {
     var viewModel: ProfileViewModel
     
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 12) { // 增加卡片间距
-                ForEach(roles, id: \.id) { role in
-                    ProfileRoleCell(role: role, viewModel: viewModel)
-                }
+        LazyVStack(spacing: 12) {
+            ForEach(roles, id: \.id) { role in
+                ProfileRoleCell(role: role, viewModel: viewModel)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
         }
-        .background(Color(hex: "1C1C1E")) // 使用深色背景
+        .padding(.horizontal, 16)
     }
 }
 
@@ -359,116 +355,42 @@ struct ProfileRoleCell: View {
     
     var body: some View {
         Button(action: { showRoleDetail = true }) {
-            HStack(spacing: 0) {
-                // 左侧装饰条
-                Rectangle()
-                    .fill(Color.primaryGreenBackgroud.opacity(0.3)) // 浅绿色
-                    .frame(width: 12)
-                GeometryReader { geometry in
-                    VStack(spacing: 0) {
-                        Rectangle()
-                            .fill(Color.primaryGreenBackgroud.opacity(0.3))
-                            .frame(width: 2)
-                            .frame(height: geometry.size.height / 7)
-                        
-                        Circle()
-                            .fill(Color(hex: "E7E7E7")) // 使用背景色作为圆孔颜色
-                            .frame(width: 6, height: 6)
-                        
-                        Rectangle()
-                            .fill(Color.primaryGreenBackgroud.opacity(0.3))
-                            .frame(width: 2)
-                            .frame(height: geometry.size.height / 7)
-                            
-                        Circle()
-                            .fill(Color(hex: "E7E7E7"))
-                            .frame(width: 6, height: 6)
-                            
-                        Rectangle()
-                            .fill(Color.primaryGreenBackgroud.opacity(0.3))
-                            .frame(width: 2)
-                            .frame(height: geometry.size.height / 7)
-                            
-                        Circle()
-                            .fill(Color(hex: "E7E7E7"))
-                            .frame(width: 6, height: 6)
-                            
-                        Rectangle()
-                            .fill(Color.primaryGreenBackgroud.opacity(0.3))
-                            .frame(width: 2)
-                            .frame(height: geometry.size.height / 7)
-                        Circle()
-                            .fill(Color(hex: "E7E7E7"))
-                            .frame(width: 6, height: 6)
-                        
-                        Rectangle()
-                            .fill(Color.primaryGreenBackgroud.opacity(0.3))
-                            .frame(width: 2)
-                            .frame(height: geometry.size.height / 7)
-                        Circle()
-                            .fill(Color(hex: "E7E7E7"))
-                            .frame(width: 6, height: 6)
-                        
-                        Rectangle()
-                            .fill(Color.primaryGreenBackgroud.opacity(0.3))
-                            .frame(width: 2)
-                            .frame(height: geometry.size.height / 7)
-                    }
-                }
-                .frame(width: 6)
-                //.padding(.horizontal, 4)
-
-                // 主要内容
-                HStack(spacing: 12) {
-                    // 角色头像
-                    RectProfileImageView(
-                        avatarUrl: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar,
-                        size: .InContent
-                    )
-                    .frame(width: 128, height: 128)
-                    .cornerRadius(4) // 改为方形圆角
+            HStack(spacing: 12) {
+                // 角色头像
+                RectProfileImageView(
+                    avatarUrl: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar,
+                    size: .InContent
+                )
+                .frame(width: 64, height: 64)
+                .cornerRadius(32) // 圆形头像
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    // 角色名称
+                    Text(role.role.characterName)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
                     
-                    VStack(alignment: .leading, spacing: 4) {
-                        // 角色名称
-                        Text(role.role.characterName)
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
-                        
-                        // 角色描述
-                        Text(role.role.characterDescription)
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.leading)
-                        Divider()
-                        // 统计信息
-                        HStack(spacing: 20) {
-                            StatLabel(
-                                icon: "doc.text",
-                                count: 10,
-                                iconColor: .gray,
-                                countColor: .gray
-                            )
-                            StatLabel(
-                                icon: "bubble.left",
-                                count: 10,
-                                iconColor: .gray,
-                                countColor: .gray
-                            )
-                        }
-                        .padding(.top, 4)
-                    }
-                    
-                    Spacer()
+                    // 角色描述
+                    Text(role.role.characterDescription)
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
                 }
-                .padding(.vertical, 12)
-                .padding(.horizontal, 16)
+                
+                Spacer()
+                
+                // 右侧箭头
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
+                    .font(.system(size: 14))
             }
-            .background(Color.primaryBackgroud) // 深灰色背景
-            .cornerRadius(8) // 整体圆角
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
+            .background(Color.primaryBackgroud.opacity(0.3))
         }
         .buttonStyle(PlainButtonStyle())
-        .fullScreenCover(isPresented: $showRoleDetail) {  // 将 sheet 改为 fullScreenCover
+        .fullScreenCover(isPresented: $showRoleDetail) {
             NavigationStack {
                 StoryRoleDetailView(
                     storyId: role.role.storyID,

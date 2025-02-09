@@ -53,9 +53,14 @@ extension APIClient {
         }
         return (nil,0,0,NSError(domain: "SearchGroups error", code: -1))
     }
+
+
+    // 搜索用户
     public func SearchUsers() async -> ([User],Int64,Int64){
         return ([User](),0,0)
     }
+
+    // 搜索故事角色
     public func SearchStoryRoles(name: String,userId: Int64,offset:Int64,pageSize: Int64,storyId:Int64) async ->([StoryRole]?,Int64,Int64,Error?){
         do{
             let authClient = Common_TeamsApiClient(client: self.client!)
@@ -114,16 +119,22 @@ extension APIClient {
         return (nil,0,0,NSError(domain: "SearchStorys error", code: -1))
     }
 
+    // 搜索热门群组
     public func TrendingGroups() async -> ([BranchGroup],Int64,Int64){
         return ([BranchGroup](),0,0)
     }
+
+    // 搜索热门用户
     public func TrendingUsers() async -> ([User],Int64,Int64){
         return ([User](),0,0)
     }
-    
+
+    // 搜索热门故事
     public func TrendingStorys() async -> ([Story],Int64,Int64){
         return ([Story](),0,0)
     }
+
+    // 搜索热门故事角色
     public func TrendingStoryRole() async -> ([StoryRole],Int64,Int64){
         return ([StoryRole](),0,0)
     }
