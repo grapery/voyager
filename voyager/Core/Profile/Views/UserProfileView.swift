@@ -20,6 +20,7 @@ struct UserProfileView: View {
     @State private var showingEditProfile = false
     @State private var showingSubView = false
     @State private var backgroundImage: UIImage?
+    @State private var showSettings = false
     
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
@@ -41,7 +42,9 @@ struct UserProfileView: View {
                                 .foregroundColor(.black)
                         }
                         // 设置按钮
-                        Button(action: {}) {
+                        Button(action: {
+                            showSettings = true
+                        }) {
                             Image(systemName: "gear")
                                 .foregroundColor(.black)
                         }
@@ -95,6 +98,9 @@ struct UserProfileView: View {
                     backgroundImage: $backgroundImage,
                     onDismiss: handleSheetDismiss
                 )
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
             }
             .refreshable {
                 await refreshData()
