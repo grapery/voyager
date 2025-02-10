@@ -15,11 +15,13 @@ import SwiftUI
 enum UserProfileFilterViewModel: Int, CaseIterable {
     case storyboards
     case roles
+    case waitPublish
     
     var title: String {
         switch self {
         case .storyboards: return "创建的故事板"
         case .roles: return  "创建的角色"
+        case .waitPublish: return "待发布"
         }
     }
 }

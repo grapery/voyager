@@ -86,9 +86,6 @@
 		0F980A312CACC9CB00510E5A /* StoryProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F980A302CACC9C300510E5A /* StoryProfileViewModel.swift */; };
 		0F980A332CACCAB000510E5A /* UserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F980A322CACCA9E00510E5A /* UserProfileView.swift */; };
 		0FA8EAD82B08CA8D00FFE00C /* api.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA8EAD72B08CA8D00FFE00C /* api.swift */; };
-		0FCCA8202CFC274300495ADF /* ProfileFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA81D2CFC274300495ADF /* ProfileFilterView.swift */; };
-		0FCCA8222CFC274300495ADF /* ProfileDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA81C2CFC274300495ADF /* ProfileDescriptionView.swift */; };
-		0FCCA8232CFC274300495ADF /* ProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA81E2CFC274300495ADF /* ProfileHeaderView.swift */; };
 		0FCCA8422CFF386A00495ADF /* MessageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA8412CFF385900495ADF /* MessageViewModel.swift */; };
 		0FCCA8702D03FD1B00495ADF /* MessageContextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA86F2D03FD1700495ADF /* MessageContextView.swift */; };
 		0FCCA8782D040EF700495ADF /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FCCA8762D040EF700495ADF /* CoreDataManager.swift */; };
@@ -212,9 +209,6 @@
 		0F980A302CACC9C300510E5A /* StoryProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryProfileViewModel.swift; sourceTree = "<group>"; };
 		0F980A322CACCA9E00510E5A /* UserProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileView.swift; sourceTree = "<group>"; };
 		0FA8EAD72B08CA8D00FFE00C /* api.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = api.swift; sourceTree = "<group>"; };
-		0FCCA81C2CFC274300495ADF /* ProfileDescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDescriptionView.swift; sourceTree = "<group>"; };
-		0FCCA81D2CFC274300495ADF /* ProfileFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFilterView.swift; sourceTree = "<group>"; };
-		0FCCA81E2CFC274300495ADF /* ProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderView.swift; sourceTree = "<group>"; };
 		0FCCA8412CFF385900495ADF /* MessageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageViewModel.swift; sourceTree = "<group>"; };
 		0FCCA86F2D03FD1700495ADF /* MessageContextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageContextView.swift; sourceTree = "<group>"; };
 		0FCCA8762D040EF700495ADF /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
@@ -509,9 +503,6 @@
 		0FFA50642B0857DA00D3A4CF /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				0FCCA81C2CFC274300495ADF /* ProfileDescriptionView.swift */,
-				0FCCA81D2CFC274300495ADF /* ProfileFilterView.swift */,
-				0FCCA81E2CFC274300495ADF /* ProfileHeaderView.swift */,
 				0F980A322CACCA9E00510E5A /* UserProfileView.swift */,
 				0FFA50652B0857DA00D3A4CF /* EditProfileView.swift */,
 			);
@@ -862,9 +853,6 @@
 				0FFA508F2B0857DA00D3A4CF /* ProfileViewModel.swift in Sources */,
 				0F980A332CACCAB000510E5A /* UserProfileView.swift in Sources */,
 				0FFA509F2B0857DA00D3A4CF /* ImageUploader.swift in Sources */,
-				0FCCA8202CFC274300495ADF /* ProfileFilterView.swift in Sources */,
-				0FCCA8222CFC274300495ADF /* ProfileDescriptionView.swift in Sources */,
-				0FCCA8232CFC274300495ADF /* ProfileHeaderView.swift in Sources */,
 				0FF591B72CBE3073002F60C0 /* UpdateStoryboardView.swift in Sources */,
 				0FFA50902B0857DA00D3A4CF /* EditProfileView.swift in Sources */,
 				0F88555F2B3B10BE002AD7E4 /* item.pb.swift in Sources */,

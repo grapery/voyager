@@ -11,7 +11,7 @@ import Kingfisher
 
 // MARK: - Main View
 struct UserProfileView: View {
-    @State private var selectedFilter: UserProfileFilterViewModel = .storyboards
+    @State private var selectedTab: Int = 0
     @Namespace var animation
     var user: User
     @StateObject var viewModel: ProfileViewModel
@@ -27,43 +27,64 @@ struct UserProfileView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 0) {
-                    VStack(spacing: 0) {
-                        ZStack {
-                            // 背景图片
-                            KFImage(URL(string: defaultAvator))
-                                .resizable() // 允许调整大小
-                                .aspectRatio(contentMode: .fill) // 填充模式
-                                .frame(height: 240) // 限制高度
-                                .clipped() // 裁剪超出部分
-                                .blur(radius: 1.0)
-                            
-                            VStack(spacing: 0) {
-                                ProfileHeaderView(user: user)
-                                StatisticsView(viewModel: viewModel)
-                            }
+        ScrollView {
+            
+            VStack(spacing: 0) {
+                // 顶部个人信息区域
+                VStack(spacing: 16) {
+                    HStack {
+                        Spacer()
+                        // 编辑资料按钮
+                        Button(action: {}) {
+                            Text("编辑资料")
+                                .font(.system(size: 14))
+                                .foregroundColor(.black)
                         }
-                        .frame(height: 240)
-                        // ... rest of the content ...
+                        // 设置按钮
+                        Button(action: {}) {
+                            Image(systemName: "gear")
+                                .foregroundColor(.black)
+                        }
                     }
-                    .frame(height: 240)
+                    .padding(.horizontal)
                     
-                    // 分段控制器
-                    SegmentedControlView(
-                        selectedFilter: $selectedFilter,
-                        animation: animation
-                    )
-                    .padding(.top, 5)    // 上方间距 4px
-                    .padding(.bottom, 10) // 下方间距 16px
-                    
-                    // 内容区域
-                    ProfileContentView(
-                        selectedFilter: selectedFilter,
-                        viewModel: viewModel
-                    )
+                    // 头像和用户信息
+                    VStack(spacing: 8) {
+                        // 头像
+                        RectProfileImageView(
+                            avatarUrl: user.avatar,
+                            size: .InProfile2
+                        )
+                        .frame(width: 80, height: 80)
+                        .clipShape(Circle())
+                        
+                        // 用户名
+                        Text(user.name)
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(.white)
+                        
+                        // 统计数据
+                        HStack(spacing: 32) {
+                            StatItem(count: 8, title: "关注",icon: "bell")
+                            StatItem(count: 3, title: "粉丝",icon: "person")
+                            StatItem(count: 2, title: "获赞",icon: "heart")
+                        }
+                    }
                 }
+                .padding(.vertical)
+                // 分段控制器
+                CustomSegmentedControl(
+                    selectedIndex: $selectedTab,
+                    titles: ["故事", "角色", "待发布"]
+                )
+                .padding(.top, 8)
+                
+                // 内容区域
+                ProfileContentView(
+                    selectedTab: $selectedTab,
+                    viewModel: viewModel
+                )
+                
             }
             .background(Color(hex: "1C1C1E"))
             .sheet(isPresented: $showingSubView) {
@@ -75,14 +96,13 @@ struct UserProfileView: View {
                     onDismiss: handleSheetDismiss
                 )
             }
-            .background(Color(.systemBackground))
             .refreshable {
                 await refreshData()
             }
             .task {
                 await loadUserData()
             }
-            .onChange(of: selectedFilter) { newValue in
+            .onChange(of: selectedTab) { newValue in
                 Task {
                     await loadFilteredContent(for: newValue)
                 }
@@ -109,20 +129,20 @@ struct UserProfileView: View {
     
     // MARK: - Data Loading Methods
     private func refreshData() async {
-        await loadFilteredContent(for: selectedFilter, forceRefresh: true)
+        await loadFilteredContent(for: selectedTab, forceRefresh: true)
     }
     
     private func loadUserData() async {
         if viewModel.profile.userID == 0 {
             viewModel.profile = await viewModel.fetchUserProfile()
         }
-        await loadFilteredContent(for: selectedFilter)
+        await loadFilteredContent(for: selectedTab)
     }
     
-    private func loadFilteredContent(for filter: UserProfileFilterViewModel, forceRefresh: Bool = false) async {
+    private func loadFilteredContent(for filter: Int, forceRefresh: Bool = false) async {
         do {
             switch filter {
-            case .storyboards:
+            case 0:
                 if viewModel.storyboards.isEmpty || forceRefresh {
                     let (boards, _) = try await viewModel.fetchUserCreatedStoryboards(
                         userId: user.userID,
@@ -136,7 +156,7 @@ struct UserProfileView: View {
                     }
                 }
                 
-            case .roles:
+            case 1:
                 if viewModel.storyRoles.isEmpty || forceRefresh {
                     let (roles, _) = try await viewModel.fetchUserCreatedStoryRoles(
                         userId: user.userID,
@@ -149,9 +169,52 @@ struct UserProfileView: View {
                         }
                     }
                 }
+            default:
+                if viewModel.storyboards.isEmpty || forceRefresh {
+                    let (boards, _) = try await viewModel.fetchUserCreatedStoryboards(
+                        userId: user.userID,
+                        groupId: 0,
+                        storyId: 0
+                    )
+                    if let boards = boards {
+                        await MainActor.run {
+                            viewModel.storyboards = boards
+                        }
+                    }
+                }
             }
         } catch {
             print("Error loading filtered content: \(error)")
+        }
+    }
+}
+
+struct CustomSegmentedControl: View {
+    @Binding var selectedIndex: Int
+    let titles: [String]
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 24) {
+                ForEach(0..<titles.count, id: \.self) { index in
+                    VStack(spacing: 10) {
+                        Text(titles[index])
+                            .font(.system(size: 14))
+                            .foregroundColor(selectedIndex == index ? .white : .gray)
+                        
+                        // 下划线
+                        Rectangle()
+                            .fill(selectedIndex == index ? Color.orange : Color.clear)
+                            .frame(height: 2)
+                    }
+                    .onTapGesture {
+                        withAnimation {
+                            selectedIndex = index
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal)
         }
     }
 }
@@ -232,41 +295,7 @@ struct StoryboardCell: View {
     let board: StoryBoard
     
     var body: some View {
-        HStack(spacing: 0) {
-            // 左侧装饰条
-            Rectangle()
-                .fill(Color.primaryGreenBackgroud.opacity(0.3))
-                .frame(width: 12)
-            
-            // 虚线分隔带圆孔
-            GeometryReader { geometry in
-                VStack(spacing: 0) {
-                    Rectangle()
-                        .fill(Color.primaryGreenBackgroud.opacity(0.3))
-                        .frame(width: 2)
-                        .frame(height: geometry.size.height / 4)
-                    
-                    Circle()
-                        .fill(Color(hex: "E7E7E7"))
-                        .frame(width: 6, height: 6)
-                    
-                    Rectangle()
-                        .fill(Color.primaryGreenBackgroud.opacity(0.3))
-                        .frame(width: 2)
-                        .frame(height: geometry.size.height / 2)
-                        
-                    Circle()
-                        .fill(Color(hex: "E7E7E7"))
-                        .frame(width: 6, height: 6)
-                        
-                    Rectangle()
-                        .fill(Color.primaryGreenBackgroud.opacity(0.3))
-                        .frame(width: 2)
-                        .frame(height: geometry.size.height / 4)
-                }
-            }
-            .frame(width: 6)
-            
+        HStack(spacing: 0) {    
             // 主要内容
             VStack(alignment: .leading, spacing: 8) {
                 // 标题行
@@ -427,47 +456,7 @@ struct StatLabel: View {
     }
 }
 
-// MARK: - Interaction Button
-struct ProfileInteractionButton: View {
-    let icon: String
-    let count: Int
-    let isActive: Bool
-    
-    var body: some View {
-        Button(action: {}) {
-            HStack(spacing: 4) {
-                Image(systemName: icon)
-                Text("\(count)")
-                    .font(.system(size: 14))
-            }
-            .foregroundColor(isActive ? .blue : .gray)
-        }
-    }
-}
 
-
-private struct StatisticsView: View {
-    @ObservedObject var viewModel: ProfileViewModel
-    
-    var body: some View {
-        HStack(spacing: 40) {
-            StatItem(
-                count: 9,
-                title: "个故事",
-                icon: "mountain.2"
-            )
-            
-            StatItem(
-                count: 8,
-                title: "个角色",
-                icon: "person"
-            )
-        }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 16)
-        .background(Color.white.opacity(0.3)) // 添加半透明白色背景
-    }
-}
 
 private struct StatItem: View {
     let count: Int
@@ -488,54 +477,50 @@ private struct StatItem: View {
 
 // MARK: - Segmented Control View
 private struct SegmentedControlView: View {
-    @Binding var selectedFilter: UserProfileFilterViewModel
-    var animation: Namespace.ID
+    @Binding var selectedIndex: Int
+    let titles: [String]
     
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(UserProfileFilterViewModel.allCases, id: \.self) { filter in
-                Button(action: { 
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        selectedFilter = filter 
+        VStack(spacing: 0) {
+            HStack(spacing: 24) {
+                ForEach(0..<titles.count, id: \.self) { index in
+                    VStack(spacing: 8) {
+                        Text(titles[index])
+                            .font(.system(size: 14))
+                            .foregroundColor(selectedIndex == index ? .white : .gray)
+                        
+                        // 下划线
+                        Rectangle()
+                            .fill(selectedIndex == index ? Color.orange : Color.clear)
+                            .frame(height: 2)
                     }
-                }) {
-                    Text(filter.title)
-                        .foregroundColor(selectedFilter == filter ? .white : .gray)
-                        .font(.system(size: 16, weight: .medium))
-                        .frame(maxWidth: 128)
-                        .frame(height: 32)
-                        .background(
-                            Capsule()
-                                .fill(selectedFilter == filter ? Color.primaryGreenBackgroud : Color(hex: "E7E7E7"))
-                                .matchedGeometryEffect(id: selectedFilter == filter ? "TAB" : "", in: animation)
-                        )
-                        .padding(.horizontal, 4)
+                    .onTapGesture {
+                        withAnimation {
+                            selectedIndex = index
+                        }
+                    }
                 }
             }
+            .padding(.horizontal)
         }
-        .padding(2) // 添加内边距，让按钮与外框有间隔
-        .background(
-            Capsule()
-                .fill(Color.white)
-        )
-        .padding(.horizontal, 4)
-        .padding(.vertical, 2)
     }
 }
 
 // MARK: - Content View
 private struct ProfileContentView: View {
-    let selectedFilter: UserProfileFilterViewModel
+    @Binding var selectedTab: Int
     let viewModel: ProfileViewModel
-    
     var body: some View {
         VStack {
-            switch selectedFilter {
-            case .storyboards:
+            TabView(selection: $selectedTab) {
                 StoryboardsListView(boards: viewModel.storyboards)
-            case .roles:
+                    .tag(0)
                 RolesListView(roles: viewModel.storyRoles, viewModel: viewModel)
+                    .tag(1)
+                PendingTab()
+                    .tag(2)
             }
+            .tabViewStyle(.page(indexDisplayMode: .never))
         }
     }
 }
@@ -572,5 +557,37 @@ private struct StatInfoItem: View {
                 .font(.system(size: 14))
         }
         .padding(.trailing, 16)
+    }
+}
+
+struct PendingTab: View {
+    var body: some View {
+        VStack {
+            Spacer()
+            Image("raccoon_waiting") 
+                .resizable()
+                .frame(width: 100, height: 100)
+            
+            Text("改写故事")
+                .font(.system(size: 14))
+                .foregroundColor(.gray)
+                .padding(.top, 16)
+            
+            Button(action: {
+                
+            }) {
+                Text("去创作")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 12)
+                    .background(Color.orange)
+                    .cornerRadius(22)
+            }
+            .padding(.top, 24)
+            
+            Spacer()
+        }
+        .background(Color.black)
     }
 }
