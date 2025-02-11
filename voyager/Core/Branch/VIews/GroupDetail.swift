@@ -105,15 +105,19 @@ struct GroupDetailView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding(.top, 100)
                     } else {
-                        LazyVStack(spacing: 0) {
-                            ForEach(viewModel.storys) { story in
-                                NavigationLink(destination: StoryView(story: story, userId: self.user.userID)) {
-                                    StoryCellView(story: story, userId: self.user.userID, viewModel: viewModel)
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                            }
-                        }
-                        .padding(.horizontal)
+//                        LazyVStack(spacing: 0) {
+//                            ForEach(viewModel.storys) { story in
+//                                NavigationLink(destination: StoryView(story: story, userId: self.user.userID)) {
+//                                    StoryCellView(story: story, userId: self.user.userID, viewModel: viewModel)
+//                                }
+//                                .buttonStyle(PlainButtonStyle())
+//                            }
+//                        }
+//                        .padding(.horizontal)
+                        StoryGridView(
+                            stories: selectedTab == 0 ? viewModel.storys : viewModel.storys.sorted { $0.storyInfo.ctime > $1.storyInfo.ctime },
+                            userId: user.userID
+                        ).padding(.horizontal)
                     }
                 }
             } else if selectedTab == 1 {

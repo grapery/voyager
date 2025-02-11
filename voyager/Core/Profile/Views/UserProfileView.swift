@@ -18,7 +18,6 @@ struct UserProfileView: View {
     @GestureState private var dragOffset: CGFloat = 0
     @State private var showingImagePicker = false
     @State private var showingEditProfile = false
-    @State private var showingSubView = false
     @State private var backgroundImage: UIImage?
     @State private var showSettings = false
     
@@ -36,7 +35,9 @@ struct UserProfileView: View {
                     HStack {
                         Spacer()
                         // 编辑资料按钮
-                        Button(action: {}) {
+                        Button(action: {
+                            showingEditProfile = true
+                        }) {
                             Text("编辑资料")
                                 .font(.system(size: 14))
                                 .foregroundColor(.black)
@@ -54,12 +55,19 @@ struct UserProfileView: View {
                     // 头像和用户信息
                     VStack(spacing: 8) {
                         // 头像
-                        RectProfileImageView(
-                            avatarUrl: user.avatar,
-                            size: .InProfile2
-                        )
-                        .frame(width: 80, height: 80)
-                        .clipShape(Circle())
+                        VStack{
+                            RectProfileImageView(
+                                avatarUrl: user.avatar,
+                                size: .InProfile2
+                            )
+                            .frame(width: 80, height: 80)
+                            .clipShape(Circle())
+                        }
+                        .onTapGesture {
+                            showingImagePicker = true
+                            
+                        }
+                        
                         
                         // 用户名
                         Text(user.name)
@@ -89,15 +97,12 @@ struct UserProfileView: View {
                 )
                 
             }
-            .background(Color(hex: "1C1C1E"))
-            .sheet(isPresented: $showingSubView) {
-                ProfileSheetContent(
-                    showingEditProfile: showingEditProfile,
-                    showingImagePicker: showingImagePicker,
-                    user: user,
-                    backgroundImage: $backgroundImage,
-                    onDismiss: handleSheetDismiss
-                )
+            .background(Color.orange)
+            .sheet(isPresented: $showingEditProfile) {
+                EditUserProfileView(user: user)
+            }
+            .sheet(isPresented: $showingImagePicker) {
+                SingleImagePicker(image: $backgroundImage)
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
@@ -118,17 +123,14 @@ struct UserProfileView: View {
     
     // MARK: - Action Handlers
     private func handleHeaderLongPress() {
-        showingSubView = true
         showingImagePicker = true
     }
     
     private func handleSettingsPress() {
-        showingSubView = true
         showingEditProfile = true
     }
     
     private func handleSheetDismiss() {
-        showingSubView = false
         showingEditProfile = false
         showingImagePicker = false
     }
@@ -245,26 +247,6 @@ private struct BackgroundImageView: View {
     }
 }
 
-
-// MARK: - Profile Sheet Content
-private struct ProfileSheetContent: View {
-    let showingEditProfile: Bool
-    let showingImagePicker: Bool
-    let user: User
-    @Binding var backgroundImage: UIImage?
-    let onDismiss: () -> Void
-    
-    var body: some View {
-        Group {
-            if showingEditProfile {
-                EditUserProfileView(user: user)
-            } else if showingImagePicker {
-                SingleImagePicker(image: $backgroundImage)
-            }
-        }
-        .onDisappear(perform: onDismiss)
-    }
-}
 
 // MARK: - Profile Settings Button
 private struct ProfileSettingsButton: View {

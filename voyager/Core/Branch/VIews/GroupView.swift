@@ -53,17 +53,17 @@ struct GroupView: View {
                     }
                     .padding(.horizontal)
                     
-                    // 小组网格
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        LazyHGrid(rows: [GridItem(.fixed(120))], spacing: 16) {
-                            ForEach(viewModel.groups) { group in
-                                GroupGridItemView(group: group, viewModel: self.viewModel)
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-                    
-                    // 分类标���
+//                    // 小组网格
+//                    ScrollView(.horizontal, showsIndicators: false) {
+//                        LazyHGrid(rows: [GridItem(.fixed(120))], spacing: 16) {
+//                            ForEach(viewModel.groups) { group in
+//                                GroupGridItemView(group: group, viewModel: self.viewModel)
+//                            }
+//                        }
+//                        .padding(.horizontal)
+//                    }
+//                    
+//                    // 分类标���
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 20) {
                             ForEach(tabs, id: \.self) { tab in

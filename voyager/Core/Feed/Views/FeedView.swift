@@ -27,7 +27,6 @@ struct FeedView: View {
     
     // 定义标签页数组
     let tabs: [(type: FeedType, title: String)] = [
-        (.Groups, "小组"),
         (.Story, "故事"),
         (.StoryRole, "角色")
     ]
