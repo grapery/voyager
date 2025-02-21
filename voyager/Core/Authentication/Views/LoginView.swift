@@ -9,6 +9,7 @@ import SwiftUI
 
 struct LoginView: View {
     @ObservedObject public var viewModel:LoginViewModel
+    @EnvironmentObject var globalEnv: LoginViewModel
     init(viewModel: LoginViewModel) {
         self.viewModel = viewModel
     }

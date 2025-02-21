@@ -177,7 +177,7 @@ struct MessageContextView: View {
                 }
             } else {
                 // 如果本地没有更多消息，从服务器获取
-                let err = try await viewModel.fetchRemoteHistoryMessages(
+                let err = await viewModel.fetchRemoteHistoryMessages(
                     chatCtxId: viewModel.msgContext.chatID,
                     timestamp: earliestMessageTimestamp
                 )
@@ -369,7 +369,6 @@ struct MessageCellView: View {
         self.currentUserId = currentUserId
         self.currentRoleId = currentRoleId
         self.message = message
-        print("message: ",message.id,message.status ,message.msg.message,message.uuid)
     }
     private var isFromCurrentUser: Bool {
         currentUserId == message.msg.sender

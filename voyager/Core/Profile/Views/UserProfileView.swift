@@ -108,14 +108,17 @@ struct UserProfileView: View {
                 SettingsView()
             }
             .refreshable {
+                print("refreshable selectedTab: ",selectedTab)
                 await refreshData()
             }
             .task {
+                print("task selectedTab: ",selectedTab)
                 await loadUserData()
             }
             .onChange(of: selectedTab) { newValue in
                 Task {
-                    await loadFilteredContent(for: newValue)
+                    print("onChange selectedTab: ",selectedTab)
+                    await loadFilteredContent(for: selectedTab)
                 }
             }
         }
@@ -149,6 +152,7 @@ struct UserProfileView: View {
     
     private func loadFilteredContent(for filter: Int, forceRefresh: Bool = false) async {
         do {
+            print("loadFilteredContent : ",filter,"forceRefresh: ",forceRefresh)
             switch filter {
             case 0:
                 if viewModel.storyboards.isEmpty || forceRefresh {
@@ -497,85 +501,127 @@ private struct SegmentedControlView: View {
 // MARK: - Content View
 private struct ProfileContentView: View {
     @Binding var selectedTab: Int
-    let viewModel: ProfileViewModel
+    @ObservedObject var viewModel: ProfileViewModel
+    
     var body: some View {
-        VStack {
-            TabView(selection: $selectedTab) {
+        TabView(selection: $selectedTab) {
+            // 故事标签页
+            StoriesTab(viewModel: viewModel)
+                .tag(0)
+            
+            // 角色标签页
+            RolesTab(viewModel: viewModel)
+                .tag(1)
+            
+            // 待发布标签页
+            PendingTab()
+                .tag(2)
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .frame(minHeight: UIScreen.main.bounds.height * 0.7)
+    }
+}
+
+// 故事标签页
+private struct StoriesTab: View {
+    @ObservedObject var viewModel: ProfileViewModel
+    
+    var body: some View {
+        Group {
+            if viewModel.storyboards.isEmpty {
+                EmptyStateView(
+                    image: "doc.text",
+                    title: "还没有故事",
+                    message: "开始创作你的第一个故事吧"
+                )
+            } else {
                 StoryboardsListView(boards: viewModel.storyboards)
-                    .tag(0)
-                RolesListView(roles: viewModel.storyRoles, viewModel: viewModel)
-                    .tag(1)
-                PendingTab()
-                    .tag(2)
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
         }
     }
 }
 
-// MARK: - Storyboards List View
+// 角色标签页
+private struct RolesTab: View {
+    @ObservedObject var viewModel: ProfileViewModel
+    
+    var body: some View {
+        Group {
+            if viewModel.storyRoles.isEmpty {
+                EmptyStateView(
+                    image: "person.circle",
+                    title: "还没有角色",
+                    message: "创建你的第一个角色吧"
+                )
+            } else {
+                RolesListView(roles: viewModel.storyRoles, viewModel: viewModel)
+            }
+        }
+    }
+}
+
+// 空状态视图
+private struct EmptyStateView: View {
+    let image: String
+    let title: String
+    let message: String
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            Image(systemName: image)
+                .font(.system(size: 48))
+                .foregroundColor(.gray)
+            Text(title)
+                .font(.system(size: 16))
+                .foregroundColor(.gray)
+            Text(message)
+                .font(.system(size: 14))
+                .foregroundColor(.gray.opacity(0.8))
+            Spacer()
+        }
+    }
+}
+
+// 修改 StoryboardsListView
 private struct StoryboardsListView: View {
     let boards: [StoryBoard]
     
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 12) { // 增加卡片间距
-                ForEach(boards, id: \.id) { board in
-                    StoryboardCell(board: board)
-                }
+        LazyVStack(spacing: 12) {
+            ForEach(boards, id: \.id) { board in
+                StoryboardCell(board: board)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
         }
-        .background(Color(hex: "1C1C1E")) // 使用深色背景
-    }
-}
-
-
-private struct StatInfoItem: View {
-    let icon: String
-    let count: Int
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .foregroundColor(.gray)
-            Text("\(count)")
-                .foregroundColor(.gray)
-                .font(.system(size: 14))
-        }
-        .padding(.trailing, 16)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 }
 
 struct PendingTab: View {
     var body: some View {
-        VStack {
+        VStack(spacing: 16) {
             Spacer()
-            Image("raccoon_waiting") 
-                .resizable()
-                .frame(width: 100, height: 100)
             
             Text("改写故事")
-                .font(.system(size: 14))
+                .font(.system(size: 16))
                 .foregroundColor(.gray)
-                .padding(.top, 16)
             
             Button(action: {
-                
+                // TODO: 实现创作功能
             }) {
                 Text("去创作")
                     .font(.system(size: 16))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 32)
+                    .foregroundColor(.black)
+                    .frame(width: 120)
                     .padding(.vertical, 12)
                     .background(Color.orange)
                     .cornerRadius(22)
             }
-            .padding(.top, 24)
             
             Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black)
     }
 }
