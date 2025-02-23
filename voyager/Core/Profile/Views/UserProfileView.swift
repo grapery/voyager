@@ -410,6 +410,8 @@ struct ProfileRoleCell: View {
             .padding(.horizontal, 16)
             .background(Color.primaryBackgroud.opacity(0.3))
         }
+        .background(Color.primaryBackgroud) // 深灰色背景
+        .cornerRadius(8) 
         .buttonStyle(PlainButtonStyle())
         .fullScreenCover(isPresented: $showRoleDetail) {
             NavigationStack {
@@ -428,6 +430,7 @@ struct ProfileRoleCell: View {
             }
         }
     }
+    // 整体圆角
 }
 
 // 修改统计标签组件

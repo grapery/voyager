@@ -21,79 +21,63 @@ struct GroupView: View {
     }
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
-                    // 搜索栏
-                    HStack {
-                        HStack(spacing: 8) {
-                            Image(systemName: "magnifyingglass")
-                                .foregroundColor(.gray)
-                            
-                            TextField("搜索小组", text: $searchText)
-                                .font(.system(size: 15))
-                        }
-                        .padding(10)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
+            VStack(spacing: 0) {
+                // 使用通用导航栏
+                CommonNavigationBar(
+                    title: "小组",
+                    onAddTapped: {
+                        isShowingNewGroupView = true
                     }
-                    .padding(.horizontal)
-                    
-                    // 我的小组标题
-                    HStack {
-                        Text("我的小组")
-                            .font(.system(size: 20, weight: .semibold))
-                        Spacer()
-                        NavigationLink {
-                            AllGroupsView(viewModel: viewModel)
-                        } label: {
-                            Text("查看全部")
-                                .font(.system(size: 14))
-                                .foregroundColor(.blue)
-                        }
-                    }
-                    .padding(.horizontal)
-                    
-//                    // 小组网格
-//                    ScrollView(.horizontal, showsIndicators: false) {
-//                        LazyHGrid(rows: [GridItem(.fixed(120))], spacing: 16) {
-//                            ForEach(viewModel.groups) { group in
-//                                GroupGridItemView(group: group, viewModel: self.viewModel)
-//                            }
-//                        }
-//                        .padding(.horizontal)
-//                    }
-//                    
-//                    // 分类标���
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 20) {
-                            ForEach(tabs, id: \.self) { tab in
-                                CategoryTabButton(
-                                    title: tab,
-                                    isSelected: selectedTab == tab,
-                                    action: { selectedTab = tab }
-                                )
+                )
+                
+                // 使用通用搜索栏
+                CommonSearchBar(
+                    searchText: $searchText,
+                    placeholder: "搜索小组"
+                )
+                
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // 我的小组标题
+                        HStack {
+                            Text("我的小组")
+                                .font(.system(size: 20, weight: .semibold))
+                            Spacer()
+                            NavigationLink {
+                                AllGroupsView(viewModel: viewModel)
+                            } label: {
+                                Text("查看全部")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.blue)
                             }
                         }
                         .padding(.horizontal)
-                    }
-                    
-                    // 小组列表
-                    LazyVStack(spacing: 8) {
-                        ForEach(viewModel.groups) { group in
-                            GroupDiscussionCell(group: group, viewModel: viewModel)
+                        
+                        // 分类标签
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 20) {
+                                ForEach(tabs, id: \.self) { tab in
+                                    CategoryTabButton(
+                                        title: tab,
+                                        isSelected: selectedTab == tab,
+                                        action: { selectedTab = tab }
+                                    )
+                                }
+                            }
+                            .padding(.horizontal)
                         }
+                        
+                        // 小组列表
+                        LazyVStack(spacing: 8) {
+                            ForEach(viewModel.groups) { group in
+                                GroupDiscussionCell(group: group, viewModel: viewModel)
+                            }
+                        }
+                        .padding(.top, 8)
                     }
-                    .padding(.top, 8)
+                    .padding(.vertical)
                 }
-                .padding(.vertical)
             }
-            .navigationBarItems(trailing: 
-                Button(action: { isShowingNewGroupView = true }) {
-                    Image(systemName: "plus.circle")
-                        .font(.system(size: 24))
-                        .foregroundColor(.black)
-                }
-            )
             .sheet(isPresented: $isShowingNewGroupView) {
                 NewGroupView(userId: viewModel.user.userID, viewModel: viewModel)
             }

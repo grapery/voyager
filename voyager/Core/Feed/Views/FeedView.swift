@@ -32,10 +32,21 @@ struct FeedView: View {
     ]
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 0) {
-                // 顶部导航栏
-                TopNavigationBar(selectedIndex: $selectedIndex)
+                // 使用通用导航栏
+                CommonNavigationBar(
+                    title: "动态",
+                    onAddTapped: {
+                        // 处理添加操作
+                    }
+                )
+                
+                // 使用通用搜索栏
+                CommonSearchBar(
+                    searchText: $searchText,
+                    placeholder: "搜索动态"
+                )
                 
                 // 页面内容
                 TabView(selection: $selectedIndex) {
@@ -54,7 +65,6 @@ struct FeedView: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
             .background(Color(hex: "1C1C1E"))
-            .navigationBarHidden(true)
         }
     }
 }

@@ -18,8 +18,6 @@ enum MessageType: Int64 {
     case MessageTypeVideo = 3
     case MessageTypeAudio = 4
 }
-
-// 添加消息状态枚举
 enum MessageStatus: Int64 {
     case MessageSending = 1
     case MessageSendSuccess = 2
@@ -29,10 +27,9 @@ enum MessageStatus: Int64 {
 
 struct MessageView: View {
     @ObservedObject var viewModel: MessageViewModel
-    @State private var newMessageContent: String = ""
-    @State var user: User?
     @State private var searchText = ""
     @State private var isSearching = false
+    @State var user: User?
     
     init(user: User? = nil) {
         self.user = user
@@ -40,27 +37,21 @@ struct MessageView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 0) {
-                // 顶部导航栏
-                HStack {
-                    Text("消息")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(.white)
-                    Spacer()
-                    Button(action: {}) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(.green)
+                // 使用通用导航栏
+                CommonNavigationBar(
+                    title: "消息",
+                    onAddTapped: {
+                        // 处理添加新消息操作
                     }
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 12)
+                )
                 
-                // 搜索栏
-                SearchBar(text: $searchText)
-                    .padding(.horizontal)
-                    .padding(.bottom, 8)
+                // 使用通用搜索栏
+                CommonSearchBar(
+                    searchText: $searchText,
+                    placeholder: "搜索消息"
+                )
                 
                 // 消息列表
                 ScrollView {
@@ -82,6 +73,7 @@ struct MessageView: View {
                     await self.viewModel.initUserChatContext()
                 }
             }
+            .background(Color(hex: "1C1C1E"))
         }
     }
 }
