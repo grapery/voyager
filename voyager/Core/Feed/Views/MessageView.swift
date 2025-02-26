@@ -52,10 +52,12 @@ struct MessageView: View {
                     searchText: $searchText,
                     placeholder: "搜索消息"
                 )
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
                 
                 // 消息列表
                 ScrollView {
-                    LazyVStack(spacing: 0) {
+                    LazyVStack(spacing: 1) { // 调整间距为1
                         ForEach(viewModel.msgCtxs, id: \.id) { msgCtx in
                             MessageContextCellView(
                                 msgCtxId: msgCtx.chatinfo.chatID,
@@ -67,13 +69,14 @@ struct MessageView: View {
                         }
                     }
                 }
+                .background(Color(hex: "1C1C1E")) // 深色背景
             }
             .onAppear {
                 Task {
                     await self.viewModel.initUserChatContext()
                 }
             }
-            .background(Color(hex: "1C1C1E"))
+            .background(Color(hex: "1C1C1E")) // 整体深色背景
         }
     }
 }
@@ -105,6 +108,7 @@ extension Color {
     }
 }
 
+
 // 优化消息单元格视图
 struct MessageContextCellView: View {
     var msgCtxId: Int64
@@ -112,7 +116,8 @@ struct MessageContextCellView: View {
     var userId: Int64
     var role: StoryRole?
     var lastMessage: Common_ChatMessage?
-    init(msgCtxId: Int64, userId: Int64,user: User,role: StoryRole,lastMessage: Common_ChatMessage) {
+    
+    init(msgCtxId: Int64, userId: Int64, user: User, role: StoryRole, lastMessage: Common_ChatMessage) {
         self.msgCtxId = msgCtxId
         self.userId = userId
         self.lastMessage = lastMessage
@@ -134,9 +139,28 @@ struct MessageContextCellView: View {
     
     private func formatTime(_ timestamp: Int64) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .short
-        return formatter.localizedString(for: date, relativeTo: Date())
+        let now = Date()
+        let calendar = Calendar.current
+        
+        if calendar.isDateInToday(date) {
+            // 今天的消息显示具体时间
+            let formatter = DateFormatter()
+            formatter.dateFormat = "HH:mm"
+            return formatter.string(from: date)
+        } else if calendar.isDateInYesterday(date) {
+            return "昨天"
+        } else if calendar.dateComponents([.day], from: date, to: now).day! < 7 {
+            // 一周内显示星期几
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE"
+            formatter.locale = Locale(identifier: "zh_CN")
+            return formatter.string(from: date)
+        } else {
+            // 超过一周显示具体日期
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MM-dd"
+            return formatter.string(from: date)
+        }
     }
     
     var body: some View {
@@ -147,33 +171,45 @@ struct MessageContextCellView: View {
         )
             .toolbar(.visible, for: .tabBar)
         ) {
-            HStack(spacing: 12) {
-                // 头像
-                RectProfileImageView(avatarUrl: avatarURL, size: .InChat)
-                    .frame(width: 50, height: 50)
-                    .clipShape(Circle())
+            HStack(spacing: 0) {
+                // 左侧绿色指示条
+                Rectangle()
+                    .fill(Color.green)
+                    .frame(width: 3)
                 
-                // 消息内容
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text(isFromUser ? (user?.name ?? "Me") : (role?.role.characterName ?? "Unknown"))
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
-                        Spacer()
-                        Text(formatTime(lastMessage?.timestamp ?? 0))
-                            .font(.system(size: 12))
-                            .foregroundColor(.gray)
-                    }
+                // 主要内容
+                HStack(spacing: 12) {
+                    // 头像
+                    RectProfileImageView(avatarUrl: avatarURL, size: .InChat)
+                        .frame(width: 40, height: 40) // 调整头像大小
+                        .clipShape(Circle())
                     
-                    Text(lastMessage?.message ?? "")
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
-                        .lineLimit(1)
+                    // 消息内容
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(alignment: .center) {
+                            Text(isFromUser ? (user?.name ?? "Me") : (role?.role.characterName ?? "Unknown"))
+                                .font(.system(size: 15))
+                                .foregroundColor(.white)
+                            
+                            Spacer()
+                            
+                            Text(formatTime(lastMessage?.timestamp ?? 0))
+                                .font(.system(size: 12))
+                                .foregroundColor(.gray.opacity(0.8))
+                        }
+                        
+                        Text(lastMessage?.message ?? "")
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray.opacity(0.9))
+                            .lineLimit(1)
+                    }
                 }
+                .padding(.vertical, 10)
+                .padding(.horizontal, 12)
             }
-            .padding(.vertical, 12)
+            .background(Color(hex: "2C2C2E").opacity(0.95))
+            .cornerRadius(8)
             .padding(.horizontal, 16)
-            .background(Color(hex: "1C1C1E"))
         }
         .buttonStyle(PlainButtonStyle())
     }
