@@ -52,8 +52,6 @@ struct MessageView: View {
                     searchText: $searchText,
                     placeholder: "搜索消息"
                 )
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
                 
                 // 消息列表
                 ScrollView {

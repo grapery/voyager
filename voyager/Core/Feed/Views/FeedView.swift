@@ -261,10 +261,6 @@ private struct LatestUpdatesView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // 搜索栏
-            SearchBar(text: $searchText)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
             
             // 分类标签
             CategoryTabs(selectedTab: $selectedTab, tabs: tabs)
