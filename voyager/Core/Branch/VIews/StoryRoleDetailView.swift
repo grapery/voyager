@@ -214,8 +214,19 @@ struct StoryRoleDetailView: View {
                 }
             }
             .fullScreenCover(isPresented: $showingPosterView) {
-                // 添加海报视图的导航目标
-                // PosterView() // 取决于你的海报视图现
+//                // 添加海报视图的导航目标
+                NavigationStack {
+                    PosterView(role: self.role!, isImageLoaded: false)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button("返回") {
+                                    showingPosterView = false
+                                }
+                            }
+                        }
+                        .navigationBarHidden(true)
+                    
+                }
             }
             
         }
@@ -633,5 +644,104 @@ struct EditInfoView: View {
     }
 }
 
-
+struct PosterView: View {
+    let role: StoryRole?
+    @Environment(\.dismiss) private var dismiss
+    let defaultPosterImage = "https://grapery-1301865260.cos.ap-shanghai.myqcloud.com/poster/default_role_poster.png"
+    @State private var isImageLoaded = false
+    init(role: StoryRole?, isImageLoaded: Bool = false) {
+        self.role = role
+        self.isImageLoaded = isImageLoaded
+    }
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                // 背景渐变
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(hex: "1C1C1E"),
+                        Color(hex: "2C2C2E")
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                
+                // 海报图片
+                KFImage(URL(string: defaultPosterImage))
+                    .placeholder { // 加载占位
+                        Rectangle()
+                            .fill(Color(hex: "2C2C2E"))
+                            .overlay(
+                                Image(systemName: "photo")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.gray)
+                            )
+                    }
+                    .loadDiskFileSynchronously()
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
+                    .onSuccess { _ in
+                        isImageLoaded = true
+                    }
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .clipped()
+                
+                // 渐变遮罩
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        .clear,
+                        Color.black.opacity(0.3),
+                        Color.black.opacity(0.7)
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                
+                // 角色信息叠加层
+                VStack(spacing: 0) {
+                    HStack {
+                        // 返回按钮
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 18, weight: .medium))
+                                Text("返回")
+                                    .font(.system(size: 17))
+                            }
+                            .foregroundColor(.white)
+                            .padding(8)
+                            .background(Color.black.opacity(0.3))
+                            .cornerRadius(8)
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.top, 48)
+                    .padding(.horizontal, 16)
+                    Spacer()
+                    VStack(alignment: .leading, spacing: 8) {
+                        // 角色名称和描述
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(role?.role.characterName ?? "未知角色")
+                                .font(.system(size: 24, weight: .medium))
+                                .foregroundColor(.white)
+                            
+                            Text(role?.role.characterDescription ?? "暂无描述")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white.opacity(0.8))
+                                .lineLimit(2)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 16)
+                    }
+                }
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
 

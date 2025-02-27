@@ -55,7 +55,7 @@ struct MessageView: View {
                 
                 // 消息列表
                 ScrollView {
-                    LazyVStack(spacing: 1) { // 调整间距为1
+                    LazyVStack(spacing: 4) { // 调整间距为1
                         ForEach(viewModel.msgCtxs, id: \.id) { msgCtx in
                             MessageContextCellView(
                                 msgCtxId: msgCtx.chatinfo.chatID,

@@ -398,13 +398,6 @@ struct ProfileRoleCell: View {
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
                 }
-                
-                Spacer()
-                
-                // 右侧箭头
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.gray)
-                    .font(.system(size: 14))
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
