@@ -9,6 +9,7 @@ import SwiftUI
 
 struct NewGroupView: View {
     @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
     public var viewModel: GroupViewModel
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
@@ -40,11 +41,11 @@ struct NewGroupView: View {
                                 .frame(width: 80, height: 80)
                                 .clipShape(Circle())
                         } else {
-                            Image(systemName: "person.circle")
+                            Image(systemName: "infinity.circle")
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: 80, height: 80)
-                                .foregroundColor(.gray)
+                                .frame(maxWidth: 80, maxHeight: 80)
+                                .foregroundColor(.blue)
                         }
                     }
                     .padding(.bottom, 20)
@@ -72,17 +73,34 @@ struct NewGroupView: View {
                 Spacer()
                     .frame(maxWidth: .infinity, maxHeight: 80)
                 
-                Button(action: createGroup) {
-                    Text("创建小组")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .fontWeight(.bold)
-                        .frame(width: 330, height: 50)
-                        .background(Color.black)
-                        .clipShape(RoundedRectangle(cornerRadius: 22))
+                VStack(spacing: 16) {
+                    Button(action: createGroup) {
+                        Text("创建小组")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .fontWeight(.bold)
+                            .frame(width: 330, height: 50)
+                            .background(Color.black)
+                            .clipShape(RoundedRectangle(cornerRadius: 22))
+                    }
+                    
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Text("取消")
+                            .font(.headline)
+                            .foregroundColor(.gray)
+                            .fontWeight(.medium)
+                            .frame(width: 330, height: 50)
+                            .background(Color.white)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 22)
+                                    .stroke(Color.gray, lineWidth: 1)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 22))
+                    }
                 }
-                
-                Spacer()
+                .padding(.bottom, 32)
             }
             .padding(.top, 50)
         }
