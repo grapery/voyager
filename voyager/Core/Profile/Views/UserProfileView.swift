@@ -28,10 +28,10 @@ struct UserProfileView: View {
     
     var body: some View {
         ScrollView {
-            
             VStack(spacing: 0) {
                 // 顶部个人信息区域
                 VStack(spacing: 16) {
+                    // 操作按钮行
                     HStack {
                         Spacer()
                         // 编辑资料按钮
@@ -40,22 +40,23 @@ struct UserProfileView: View {
                         }) {
                             Text("编辑资料")
                                 .font(.system(size: 14))
-                                .foregroundColor(.black)
+                                .foregroundColor(.white)
                         }
                         // 设置按钮
                         Button(action: {
                             showSettings = true
                         }) {
                             Image(systemName: "gear")
-                                .foregroundColor(.black)
+                                .foregroundColor(.white)
                         }
                     }
                     .padding(.horizontal)
+                    .padding(.top, 8) // 调整顶部按钮的间距
                     
                     // 头像和用户信息
                     VStack(spacing: 8) {
                         // 头像
-                        VStack{
+                        VStack {
                             RectProfileImageView(
                                 avatarUrl: user.avatar,
                                 size: .InProfile2
@@ -65,9 +66,7 @@ struct UserProfileView: View {
                         }
                         .onTapGesture {
                             showingImagePicker = true
-                            
                         }
-                        
                         
                         // 用户名
                         Text(user.name)
@@ -76,50 +75,59 @@ struct UserProfileView: View {
                         
                         // 统计数据
                         HStack(spacing: 32) {
-                            StatItem(count: 8, title: "关注",icon: "bell")
-                            StatItem(count: 3, title: "粉丝",icon: "person")
-                            StatItem(count: 2, title: "获赞",icon: "heart")
+                            StatItem(count: 8, title: "关注", icon: "bell")
+                            StatItem(count: 3, title: "粉丝", icon: "person")
+                            StatItem(count: 2, title: "获赞", icon: "heart")
                         }
                     }
                 }
                 .padding(.vertical)
+                .background(Color(hex: "1C1C1E")) // 添加背景色
+                
                 // 分段控制器
                 CustomSegmentedControl(
                     selectedIndex: $selectedTab,
                     titles: ["故事", "角色", "待发布"]
                 )
                 .padding(.top, 8)
+                .background(Color(hex: "1C1C1E")) // 添加背景色
                 
                 // 内容区域
                 ProfileContentView(
                     selectedTab: $selectedTab,
                     viewModel: viewModel
                 )
-                
             }
-            .background(Color.orange)
-            .sheet(isPresented: $showingEditProfile) {
-                EditUserProfileView(user: user)
+            .background(Color(hex: "1C1C1E")) // 内容背景色
+        }
+        .background(Color(hex: "1C1C1E")) // ScrollView 背景色
+        .ignoresSafeArea(.all, edges: .top) // 忽略顶部安全区域
+        .overlay(
+            // 添加顶部安全区域背景色
+            GeometryReader { geometry in
+                Color(hex: "1C1C1E")
+                    .frame(height: geometry.safeAreaInsets.top)
+                    .ignoresSafeArea(.all, edges: .top)
             }
-            .sheet(isPresented: $showingImagePicker) {
-                SingleImagePicker(image: $backgroundImage)
-            }
-            .sheet(isPresented: $showSettings) {
-                SettingsView()
-            }
-            .refreshable {
-                print("refreshable selectedTab: ",selectedTab)
-                await refreshData()
-            }
-            .task {
-                print("task selectedTab: ",selectedTab)
-                await loadUserData()
-            }
-            .onChange(of: selectedTab) { newValue in
-                Task {
-                    print("onChange selectedTab: ",selectedTab)
-                    await loadFilteredContent(for: selectedTab)
-                }
+        )
+        .sheet(isPresented: $showingEditProfile) {
+            EditUserProfileView(user: user)
+        }
+        .sheet(isPresented: $showingImagePicker) {
+            SingleImagePicker(image: $backgroundImage)
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+        }
+        .refreshable {
+            await refreshData()
+        }
+        .task {
+            await loadUserData()
+        }
+        .onChange(of: selectedTab) { newValue in
+            Task {
+                await loadFilteredContent(for: selectedTab)
             }
         }
     }
@@ -201,6 +209,7 @@ struct UserProfileView: View {
     }
 }
 
+// 更新分段控制器样式
 struct CustomSegmentedControl: View {
     @Binding var selectedIndex: Int
     let titles: [String]
@@ -216,7 +225,7 @@ struct CustomSegmentedControl: View {
                         
                         // 下划线
                         Rectangle()
-                            .fill(selectedIndex == index ? Color.orange : Color.clear)
+                            .fill(selectedIndex == index ? Color.green : Color.clear)
                             .frame(height: 2)
                     }
                     .onTapGesture {
@@ -228,6 +237,7 @@ struct CustomSegmentedControl: View {
             }
             .padding(.horizontal)
         }
+        .background(Color(hex: "1C1C1E"))
     }
 }
 
