@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 
-
 class GroupViewModel: ObservableObject {
     @State public var user: User
     @Published public var groups: [BranchGroup]
@@ -16,23 +15,65 @@ class GroupViewModel: ObservableObject {
     
     @State var groupPage: Int32 = 0
     @State var groupPageSize: Int32 = 10
-    
+    @Published var hasMorePages: Bool = true // 添加是否有更多页的标志
     
     init(user: User) {
         self.user = user
         self.groups = [BranchGroup]()
         self.groupsProfile = Dictionary<Int64,GroupProfile>()
     }
+    
+    // 重置分页
+    func resetPagination() {
+        groupPage = 0
+        hasMorePages = true
+        groups.removeAll()
+    }
+    
     @MainActor
     func fetchGroups() async {
         var fetchedGroups: [BranchGroup]
-        (fetchedGroups, self.groupPage, self.groupPageSize) = await APIClient.shared.getUserCreateGroups(userId: user.userID, groupType: Common_GroupType(rawValue: 0)!, page: self.groupPage, size: self.groupPageSize)
+        (fetchedGroups, self.groupPage, self.groupPageSize) = await APIClient.shared.getUserCreateGroups(
+            userId: user.userID,
+            groupType: Common_GroupType(rawValue: 0)!,
+            page: self.groupPage,
+            size: self.groupPageSize
+        )
+        
         self.groups = fetchedGroups
-    
+        self.hasMorePages = !fetchedGroups.isEmpty && fetchedGroups.count == self.groupPageSize
+        
         for group in fetchedGroups {
             await self.fetchGroupProfile(groupdId: group.info.groupID)
         }
     }
+    
+    @MainActor
+    func fetchMoreGroups() async {
+        guard hasMorePages else { return }
+        
+        let nextPage = groupPage + 1
+        var fetchedGroups: [BranchGroup]
+        (fetchedGroups, _, _) = await APIClient.shared.getUserCreateGroups(
+            userId: user.userID,
+            groupType: Common_GroupType(rawValue: 0)!,
+            page: nextPage,
+            size: self.groupPageSize
+        )
+        
+        if !fetchedGroups.isEmpty {
+            self.groupPage = nextPage
+            self.groups.append(contentsOf: fetchedGroups)
+            self.hasMorePages = fetchedGroups.count == self.groupPageSize
+            
+            for group in fetchedGroups {
+                await self.fetchGroupProfile(groupdId: group.info.groupID)
+            }
+        } else {
+            self.hasMorePages = false
+        }
+    }
+    
     @MainActor
     func fetchGroupProfile(groupdId: Int64) async {
         var err: Error?
@@ -58,7 +99,6 @@ class GroupViewModel: ObservableObject {
         }
         return (result!,nil)
     }
-    
     
     func followGroup(userId:Int64,groupId:Int64)async -> Error?{
         let err = await APIClient.shared.followGroup(userId: userId, groupID: groupId)

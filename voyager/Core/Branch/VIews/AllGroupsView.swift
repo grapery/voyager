@@ -7,6 +7,7 @@ struct AllGroupsView: View {
     @State private var selectedTab = "关注的小组"
     @State private var searchText = ""
     private let tabs = ["关注的小组","创建的小组"]
+    @State private var isLoading = false // 添加加载状态
     
     var body: some View {
         VStack(spacing: 0) {
@@ -60,8 +61,22 @@ struct AllGroupsView: View {
                             ForEach(viewModel.groups) { group in
                                 GroupListItemView(group: group, viewModel: viewModel)
                             }
+                            
+                            // 添加加载更多视图
+                            if !viewModel.groups.isEmpty {
+                                LoadMoreView(isLoading: $isLoading)
+                                    .onAppear {
+                                        Task {
+                                            await loadMoreGroups()
+                                        }
+                                    }
+                            }
                         }
                         .padding(.vertical, 12)
+                    }
+                    .refreshable {
+                        // 下拉刷新
+                        await refreshGroups()
                     }
                     .tag(tab)
                 }
@@ -70,6 +85,25 @@ struct AllGroupsView: View {
             .background(Color(hex: "1C1C1E"))
         }
         .navigationBarHidden(true)
+        .task {
+            // 首次加载
+            await refreshGroups()
+        }
+    }
+    
+    // 刷新数据
+    private func refreshGroups() async {
+        viewModel.resetPagination() // 重置分页
+        await viewModel.fetchGroups()
+    }
+    
+    // 加载更多数据
+    private func loadMoreGroups() async {
+        guard !isLoading && viewModel.hasMorePages else { return }
+        
+        isLoading = true
+        await viewModel.fetchMoreGroups()
+        isLoading = false
     }
 }
 
@@ -274,5 +308,23 @@ struct TabBarView: View {
             
             Divider()
         }
+    }
+}
+
+// 加载更多视图组件
+struct LoadMoreView: View {
+    @Binding var isLoading: Bool
+    
+    var body: some View {
+        HStack {
+            if isLoading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                Text("加载中...")
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
+            }
+        }
+        .frame(height: 50)
     }
 }
