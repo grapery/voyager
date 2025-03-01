@@ -15,7 +15,6 @@ struct StoryBoardView: View {
     @State var groupId: Int64
     @State var storyId: Int64
     @State private var currentSceneIndex = 0
-    @State private var showEditView = false
     @State var viewModel: StoryViewModel
     @Environment(\.presentationMode) var presentationMode
     @State private var showCommentSheet = false  // 添加状态变量
@@ -41,9 +40,9 @@ struct StoryBoardView: View {
                     Spacer()
                     
                     Button(action: {
-                        showEditView = true
+                        
                     }) {
-                        Image(systemName: "pencil")
+                        Image(systemName: "square.and.arrow.up")
                             .foregroundColor(.white)
                             .imageScale(.large)
                     }
@@ -141,22 +140,6 @@ struct StoryBoardView: View {
                                         .font(.caption)
                                 }
                             }
-                            Spacer().scaledToFit()
-                            
-                            Button(action: {
-                                Task{
-                                    let err = await viewModel.likeStoryBoard(storyId: self.storyId, boardId: self.board?.id ?? 0, userId: self.userId)
-                                }
-                            }) {
-                                VStack {
-                                    Image(systemName: "square.and.arrow.up")
-                                        .foregroundColor(.white)
-                                    Text("296")
-                                        .foregroundColor(.white)
-                                        .font(.caption)
-                                }
-                            }
-                            
                             Spacer().scaledToFit()
                         }
                         .padding(.vertical)

@@ -32,6 +32,10 @@ struct StoryView: View {
     @State private var selectedBoard: StoryBoard?
     @State private var isShowingBoardDetail = false
     
+    // 添加错误处理相关状态
+    @State private var showingErrorToast = false
+    @State private var showingErrorAlert = false
+    
     init(story: Story, userId: Int64) {
         self.story = story
         self.userId = userId
@@ -88,8 +92,18 @@ struct StoryView: View {
                     ) {
                         // 处理点赞事件
                         print("Like button tapped")
-                        Task{
-                            let err = await self.viewModel.likeStory(storyId: self.storyId,userId: self.userId)
+                        Task {
+                            let err = await self.viewModel.likeStory(storyId: self.storyId, userId: self.userId)
+                            if let error = err {
+                                DispatchQueue.main.async {
+                                    self.errorMessage = error.localizedDescription
+                                    self.showingErrorToast = true
+                                    // 2秒后自动隐藏
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                        self.showingErrorToast = false
+                                    }
+                                }
+                            }
                         }
                     }
                     
@@ -100,8 +114,18 @@ struct StoryView: View {
                     ) {
                         // 处理关注事件
                         print("Follow button tapped")
-                        Task{
-                            let err = await self.viewModel.watchStory(storyId: self.storyId,userId: self.userId)
+                        Task {
+                            let err = await self.viewModel.watchStory(storyId: self.storyId, userId: self.userId)
+                            if let error = err {
+                                DispatchQueue.main.async {
+                                    self.errorMessage = error.localizedDescription
+                                    self.showingErrorToast = true
+                                    // 2秒后自动隐藏
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                        self.showingErrorToast = false
+                                    }
+                                }
+                            }
                         }
                     }
                     
@@ -112,8 +136,14 @@ struct StoryView: View {
                     ) {
                         // 处理分享事件
                         print("Share button tapped")
-                        Task{
-                            let err = await self.viewModel.likeStory(storyId: self.storyId,userId: self.userId)
+                        Task {
+                            let err = await self.viewModel.likeStory(storyId: self.storyId, userId: self.userId)
+                            if let error = err {
+                                DispatchQueue.main.async {
+                                    self.errorMessage = error.localizedDescription
+                                    self.showingErrorAlert = true
+                                }
+                            }
                         }
                     }
                 }
@@ -155,6 +185,22 @@ struct StoryView: View {
                 await viewModel.fetchStory(withBoards: true)
                 print("task fetchStory :",viewModel.storyboards as Any)
             }
+        }
+        .overlay(
+            Group {
+                if showingErrorToast {
+                    ToastView(message: errorMessage ?? "")
+                        .animation(.easeInOut)
+                        .transition(.move(edge: .top))
+                }
+            }
+        )
+        .alert("操作失败", isPresented: $showingErrorAlert) {
+            Button("确定", role: .cancel) {
+                showingErrorAlert = false
+            }
+        } message: {
+            Text(errorMessage ?? "")
         }
     }
 
@@ -257,6 +303,18 @@ struct StoryView: View {
     private func formatDate(timestamp: Int64) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
         return DateFormatter.shortDate.string(from: date)
+    }
+    
+    // 添加 Toast 视图
+    private func ToastView(message: String) -> some View {
+        VStack {
+            Text(message)
+                .foregroundColor(.white)
+                .padding()
+                .background(Color.black.opacity(0.7))
+                .cornerRadius(10)
+        }
+        .padding(.top, 20)
     }
 }
 

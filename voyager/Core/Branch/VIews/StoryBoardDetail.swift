@@ -41,6 +41,11 @@ struct StoryBoardCellView: View {
     @State var isLiked = false
     @State var showingDeleteAlert = false
     
+    // 添加错误处理相关状态
+    @State private var errorMessage: String = ""
+    @State private var showingErrorToast = false
+    @State private var showingErrorAlert = false
+    
     // 添加评论相关状态
     @State private var commentText: String = ""
     @State var commentViewModel = CommentsViewModel()
@@ -54,7 +59,8 @@ struct StoryBoardCellView: View {
     let sceneMediaContents: [SceneMediaContent]
     
     
-    init(board: StoryBoard? = nil, userId: Int64, groupId: Int64, storyId: Int64, isShowingBoardDetail: Bool = false, viewModel: StoryViewModel) {
+    init(board: StoryBoard? = nil, userId: Int64, groupId: Int64, storyId: Int64,
+         isShowingBoardDetail: Bool = false, viewModel: StoryViewModel) {
         self.board = board
         self.userId = userId
         self.groupId = groupId
@@ -177,6 +183,18 @@ struct StoryBoardCellView: View {
         }
     }
     
+    // 添加 Toast 视图
+    private func ToastView(message: String) -> some View {
+        VStack {
+            Text(message)
+                .foregroundColor(.white)
+                .padding()
+                .background(Color.black.opacity(0.7))
+                .cornerRadius(10)
+        }
+        .padding(.top, 20)
+    }
+    
     var body: some View {
         NavigationLink(destination: StoryBoardView(board: board!, userId: userId, groupId: self.groupId, storyId: self.storyId, viewModel: self.viewModel)) {
             VStack(alignment: .leading, spacing: 8) {
@@ -209,7 +227,17 @@ struct StoryBoardCellView: View {
                     StoryActionButton(icon: "heart.circle", action: {
                         self.isLiked = true
                         Task {
-                            await self.viewModel.likeStoryBoard(storyId: self.storyId, boardId: (self.board?.boardInfo.storyBoardID)!, userId: self.userId)
+                            let err = await self.viewModel.likeStoryBoard(storyId: self.storyId, boardId: (self.board?.boardInfo.storyBoardID)!, userId: self.userId)
+                            if let error = err {
+                                DispatchQueue.main.async {
+                                    self.errorMessage = error.localizedDescription
+                                    self.showingErrorToast = true
+                                    // 2秒后自动隐藏
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                        self.showingErrorToast = false
+                                    }
+                                }
+                            }
                         }
                     })
                     .frame(width: 32, height: 32)
@@ -223,11 +251,17 @@ struct StoryBoardCellView: View {
                             Button("取消", role: .cancel) { }
                             Button("删除", role: .destructive) {
                                 Task {
-                                    await self.viewModel.deleteStoryBoard(
+                                    let err = await self.viewModel.deleteStoryBoard(
                                         storyId: self.storyId,
                                         boardId: (self.board?.boardInfo.storyBoardID)!,
                                         userId: self.userId
                                     )
+                                    if let error = err {
+                                        DispatchQueue.main.async {
+                                            self.errorMessage = error.localizedDescription
+                                            self.showingErrorAlert = true
+                                        }
+                                    }
                                 }
                             }
                         } message: {
@@ -237,7 +271,7 @@ struct StoryBoardCellView: View {
                 }
                 .padding(.top, 8)
             }
-            .padding(4)
+            .padding(2)
             .background(Color(.systemBackground))
             .cornerRadius(12)
             .overlay(
@@ -247,8 +281,24 @@ struct StoryBoardCellView: View {
             .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
-        .padding(.horizontal, 4)
+        .padding(.horizontal, 2)
         .padding(.vertical, 4)
+        .overlay(
+            Group {
+                if showingErrorToast {
+                    ToastView(message: errorMessage)
+                        .animation(.easeInOut)
+                        .transition(.move(edge: .top))
+                }
+            }
+        )
+        .alert("操作失败", isPresented: $showingErrorAlert) {
+            Button("确定", role: .cancel) {
+                showingErrorAlert = false
+            }
+        } message: {
+            Text(errorMessage)
+        }
         .fullScreenCover(isPresented: $isShowingNewStoryBoard) {
             
             NavigationStack {
@@ -343,7 +393,7 @@ struct StoryActionButton: View {
                 .font(.system(size: 18))
                 .foregroundColor(.gray)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(.systemGray6))
+                //.background(Color(.systemGray6))
                 .cornerRadius(16)
                 .scaleEffect(isPressed ? 0.95 : 1.0)
         }
