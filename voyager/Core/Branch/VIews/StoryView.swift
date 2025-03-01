@@ -420,35 +420,6 @@ struct StoryInteractionButton: View {
     }
 }
 
-// 新增的操作按钮组件
-struct StoryActionButton: View {
-    let icon: String
-    let action: () -> Void
-    @State private var isPressed = false
-    
-    var body: some View {
-        Button(action: {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                isPressed = true
-            }
-            // 添加轻微延迟以展示按压效果
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                action()
-                withAnimation {
-                    isPressed = false
-                }
-            }
-        }) {
-            Image(systemName: icon)
-                .font(.system(size: 24))
-                .foregroundColor(.blue)
-                .frame(width: 44, height: 44)
-                .background(Color(.systemGray6))
-                .cornerRadius(22)
-                .scaleEffect(isPressed ? 0.95 : 1.0)
-        }
-    }
-}
 
 // 角色卡片视图
 struct RoleCard: View {

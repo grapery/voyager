@@ -119,56 +119,67 @@ struct StoryBoardCellView: View {
             content.mediaItems
         }
         
-        return VStack(alignment: .leading, spacing: 12) {
+        return VStack(alignment: .leading, spacing: 8) {
             // 文字描述
             if let content = board?.boardInfo.content {
                 Text(content)
                     .font(.system(size: 15))
                     .foregroundColor(.primary)
                     .lineLimit(3)
+                    .padding(.bottom, 4)
             }
             
-            // 场景图片网格
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 50), count: 3), spacing: 4) {
-                ForEach(Array(allMediaItems.prefix(9).enumerated()), id: \.element.id) { index, item in
-                    KFImage(item.url)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: (UIScreen.main.bounds.width - 32 - 16) / 3,
-                               height: (UIScreen.main.bounds.width - 32 - 16) / 3)
-                        .clipped()
-                        .clipShape(Rectangle())
-                        .cornerRadius(4)
-                        .overlay(
-                            index == 8 && allMediaItems.count > 9 ?
-                            ZStack {
-                                Color.black.opacity(0.4)
-                                Text("+\(allMediaItems.count - 9)")
-                                    .foregroundColor(.white)
-                                    .font(.title2)
-                            }
-                                .cornerRadius(4)
-                            : nil
-                        )
+            // 场景图片网格 - 最多显示4张图片
+            LazyVGrid(columns: [
+                GridItem(.flexible(), spacing: 4),
+                GridItem(.flexible(), spacing: 4)
+            ], spacing: 4) {
+                ForEach(Array(allMediaItems.prefix(min(4, allMediaItems.count)).enumerated()), id: \.element.id) { index, item in
+                    if index == 3 && allMediaItems.count > 4 {
+                        // 如果是第4个位置且有更多图片，显示+N
+                        ZStack {
+                            KFImage(item.url)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(height: (UIScreen.main.bounds.width - 48) / 2)
+                                .clipped()
+                            
+                            Rectangle()
+                                .fill(Color.black.opacity(0.6))
+                            
+                            Text("+\(allMediaItems.count - 3)")
+                                .font(.system(size: 24, weight: .semibold))
+                                .foregroundColor(.white)
+                        }
+                        .cornerRadius(8)
+                    } else {
+                        KFImage(item.url)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: (UIScreen.main.bounds.width - 48) / 2)
+                            .clipped()
+                            .cornerRadius(8)
+                    }
                 }
             }
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 2)
             
             // 场景数量提示
             HStack {
                 Image(systemName: "photo.stack")
                     .foregroundColor(.secondary)
+                    .font(.system(size: 12))
                 Text("共\(sceneMediaContents.count)个场景")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
+            .padding(.top, 4)
         }
-        .padding(.vertical, 8)
     }
     
     var body: some View {
-        NavigationLink(destination: StoryBoardView(board: board!, userId: userId,groupId: self.groupId,storyId: self.storyId, viewModel: self.viewModel)) {
-            VStack(alignment: .leading, spacing: 12) {
+        NavigationLink(destination: StoryBoardView(board: board!, userId: userId, groupId: self.groupId, storyId: self.storyId, viewModel: self.viewModel)) {
+            VStack(alignment: .leading, spacing: 8) {
                 storyboardCellHeader
                 
                 // Content
@@ -182,17 +193,18 @@ struct StoryBoardCellView: View {
                         senceDetails
                     }
                 }
-                .padding(.vertical, 8)
                 
                 // Action buttons
-                HStack(spacing: 32) {
+                HStack(spacing: 24) {
                     StoryActionButton(icon: "pencil.circle", action: {
                         self.isShowingNewStoryBoard = true
                     })
+                    .frame(width: 32, height: 32)
                     
                     StoryActionButton(icon: "signpost.right.and.left.circle", action: {
                         self.isForkingStory = true
                     })
+                    .frame(width: 32, height: 32)
                     
                     StoryActionButton(icon: "heart.circle", action: {
                         self.isLiked = true
@@ -200,12 +212,13 @@ struct StoryBoardCellView: View {
                             await self.viewModel.likeStoryBoard(storyId: self.storyId, boardId: (self.board?.boardInfo.storyBoardID)!, userId: self.userId)
                         }
                     })
+                    .frame(width: 32, height: 32)
                     
                     if self.board?.boardInfo.creator == self.userId {
                         StoryActionButton(icon: "trash.circle", action: {
-                            print("delete: ")
                             showingDeleteAlert = true
                         })
+                        .frame(width: 32, height: 32)
                         .alert("确认删除", isPresented: $showingDeleteAlert) {
                             Button("取消", role: .cancel) { }
                             Button("删除", role: .destructive) {
@@ -224,12 +237,18 @@ struct StoryBoardCellView: View {
                 }
                 .padding(.top, 8)
             }
-            .padding(16)
+            .padding(4)
             .background(Color(.systemBackground))
             .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
+        .padding(.horizontal, 4)
+        .padding(.vertical, 4)
         .fullScreenCover(isPresented: $isShowingNewStoryBoard) {
             
             NavigationStack {
@@ -301,4 +320,32 @@ struct StoryBoardCellView: View {
         }
     }
     
+}
+
+struct StoryActionButton: View {
+    let icon: String
+    let action: () -> Void
+    @State private var isPressed = false
+    
+    var body: some View {
+        Button(action: {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isPressed = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                action()
+                withAnimation {
+                    isPressed = false
+                }
+            }
+        }) {
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundColor(.gray)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemGray6))
+                .cornerRadius(16)
+                .scaleEffect(isPressed ? 0.95 : 1.0)
+        }
+    }
 }
