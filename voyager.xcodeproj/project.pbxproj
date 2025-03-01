@@ -122,6 +122,7 @@
 		0FFA50A22B0857DA00D3A4CF /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA50862B0857DA00D3A4CF /* User.swift */; };
 		0FFA50AD2B086C0B00D3A4CF /* AlibabacloudNAS20170626 in Frameworks */ = {isa = PBXBuildFile; productRef = 0FFA50AC2B086C0B00D3A4CF /* AlibabacloudNAS20170626 */; };
 		0FFA50AF2B086D4100D3A4CF /* aliyun.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA50AE2B086D4100D3A4CF /* aliyun.swift */; };
+		0FFE24342D7330D9000A8389 /* StoryBoardDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFE24332D7330C1000A8389 /* StoryBoardDetail.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -242,6 +243,7 @@
 		0FFA50832B0857DA00D3A4CF /* UserService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
 		0FFA50862B0857DA00D3A4CF /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		0FFA50AE2B086D4100D3A4CF /* aliyun.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = aliyun.swift; sourceTree = "<group>"; };
+		0FFE24332D7330C1000A8389 /* StoryBoardDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryBoardDetail.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -393,6 +395,7 @@
 		0F7602AE2BB98E1C00F8D900 /* VIews */ = {
 			isa = PBXGroup;
 			children = (
+				0FFE24332D7330C1000A8389 /* StoryBoardDetail.swift */,
 				0FA52E232D5A4E3A0078AE65 /* StoryCardView.swift */,
 				0F62EF672CE822BD00BED6A7 /* AllGroupsView.swift */,
 				0F1D0CF92CC4EC6600D12E0B /* NewStoryRole.swift */,
@@ -852,6 +855,7 @@
 				0F980A272CAA959400510E5A /* GroupDetail.swift in Sources */,
 				0F0F1A212BB64373009494FC /* FeedCellViewModel.swift in Sources */,
 				0F59E7B52B065409007C2B74 /* colors.swift in Sources */,
+				0FFE24342D7330D9000A8389 /* StoryBoardDetail.swift in Sources */,
 				0FFA50942B0857DA00D3A4CF /* FeedView.swift in Sources */,
 				0F0C66442BC193C5008F1FBD /* AboutInfoView.swift in Sources */,
 				0F29163F2CB277A9002366BE /* StoryDetailView.swift in Sources */,

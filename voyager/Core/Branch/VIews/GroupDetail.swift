@@ -97,7 +97,7 @@ struct GroupDetailView: View {
                     if viewModel.storys.isEmpty {
                         VStack(spacing: 16) {
                             Image(systemName: "doc.text.image")
-                                .font(.system(size: 48))
+                                .font(.system(size: 64))
                                 .foregroundColor(.gray)
                             Text("暂无关注的故事")
                                 .foregroundColor(.gray)
@@ -105,19 +105,15 @@ struct GroupDetailView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding(.top, 100)
                     } else {
-//                        LazyVStack(spacing: 0) {
-//                            ForEach(viewModel.storys) { story in
-//                                NavigationLink(destination: StoryView(story: story, userId: self.user.userID)) {
-//                                    StoryCellView(story: story, userId: self.user.userID, viewModel: viewModel)
-//                                }
-//                                .buttonStyle(PlainButtonStyle())
-//                            }
-//                        }
-//                        .padding(.horizontal)
-                        StoryGridView(
-                            stories: selectedTab == 0 ? viewModel.storys : viewModel.storys.sorted { $0.storyInfo.ctime > $1.storyInfo.ctime },
-                            userId: user.userID
-                        ).padding(.horizontal)
+                        LazyVStack(spacing: 0) {
+                            ForEach(viewModel.storys) { story in
+                                NavigationLink(destination: StoryView(story: story, userId: self.user.userID)) {
+                                    StoryCellView(story: story, userId: self.user.userID, viewModel: viewModel)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                        }
+                        .padding(.horizontal, 0)
                     }
                 }
             } else if selectedTab == 1 {
@@ -146,7 +142,7 @@ struct GroupDetailView: View {
                                 .buttonStyle(PlainButtonStyle())
                             }
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal, 0)
                     }
                 }
             }
@@ -220,7 +216,7 @@ struct CustomTabView: View {
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 20) {
+            HStack(spacing: 16) {
                 ForEach(0..<tabs.count) { index in
                     Button(action: {
                         withAnimation { selectedTab = index }
@@ -257,12 +253,12 @@ struct StoryCellView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 KFImage(URL(string: story.storyInfo.avatar))
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 40, height: 40)
+                    .frame(width: 36, height: 36)
                     .clipShape(Circle())
                 
                 HStack {
@@ -295,13 +291,12 @@ struct StoryCellView: View {
                         await viewModel.watchStory(storyId: self.story.storyInfo.id, userId: self.currentUserId)
                     }
                 }) {
-                    HStack {
+                    HStack(spacing: 4) {
                         Image(systemName: "bell.circle")
-                            .font(.headline)
+                            .font(.system(size: 14))
                         Text("订阅")
-                            .font(.headline)
+                            .font(.system(size: 14))
                     }
-                    .scaledToFill()
                 }
                 Spacer()
                 Button(action: {
@@ -309,34 +304,32 @@ struct StoryCellView: View {
                         await viewModel.likeStory(userId: self.currentUserId, storyId: story.storyInfo.id)
                     }
                 }) {
-                    HStack {
+                    HStack(spacing: 4) {
                         Image(systemName: "heart.circle")
-                            .font(.headline)
+                            .font(.system(size: 14))
                         Text("点赞")
-                            .font(.headline)
+                            .font(.system(size: 14))
                     }
-                    .scaledToFill()
                 }
                 Spacer()
                 Button(action: {
-                    print("share story")
                     Task {
                         await viewModel.likeStory(userId: self.currentUserId, storyId: story.storyInfo.id)
                     }
                 }) {
-                    HStack {
+                    HStack(spacing: 4) {
                         Image(systemName: "square.and.arrow.up.circle")
-                            .font(.headline)
+                            .font(.system(size: 14))
                         Text("分享")
-                            .font(.headline)
+                            .font(.system(size: 14))
                     }
-                    .scaledToFill()
                 }
                 Spacer()
             }
             .foregroundColor(.secondary)
         }
-        .padding()
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
         .background(Color.white)
     }
 }

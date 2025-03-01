@@ -9,13 +9,7 @@ import SwiftUI
 import Kingfisher
 import Combine
 import AVKit
-// 媒体项目类型
-struct MediaItem: Identifiable {
-    let id: String
-    let type: MediaType
-    let url: URL
-    let thumbnail: URL?
-}
+
 
 enum MediaType {
     case image
