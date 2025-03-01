@@ -169,14 +169,6 @@ struct StoryBoardView: View {
         .sheet(isPresented: $showCommentSheet) {
             CommentSheetView(storyId: storyId, boardId: board?.boardInfo.storyBoardID ?? 0, userId: self.userId)
         }
-        .fullScreenCover(isPresented: $showEditView) {
-            EditStoryBoardView(
-                storyId: storyId,
-                boardId: (board?.boardInfo.storyBoardID)!,
-                userId: self.userId,
-                viewModel: self.viewModel
-                )
-        }
     }
 }
 

@@ -127,85 +127,77 @@ class ProfileViewModel: ObservableObject {
     }
     
     func SearchStories(userId: Int64,groupId:Int64) async throws -> ([Story]?,Error?){
-        do{
-            let result = await APIClient.shared.SearchStories(keyword: self.query, userId: userId, page: Int64(self.StoriesPage), size: Int64(self.StoriesSize))
-            if result.3 != nil {
-                self.StoriesPage = 0
-                self.StoriesSize = 10
-                return (nil,result.3)
-            }
-            self.StoriesPage = Int(result.1)
-            self.StoriesSize = Int(result.2)
-            return (result.0,nil)
-        }catch{
-            return (nil,error)
+        let result = await APIClient.shared.SearchStories(keyword: self.query, userId: userId, page: Int64(self.StoriesPage), size: Int64(self.StoriesSize))
+        if result.3 != nil {
+            self.StoriesPage = 0
+            self.StoriesSize = 10
+            return (nil,result.3)
         }
+        self.StoriesPage = Int(result.1)
+        self.StoriesSize = Int(result.2)
+        return (result.0,nil)
     }
     
     
     
     func SearchGroups(userId: Int64) async throws -> ([BranchGroup]?,Error?){
-        do{
-            let result = await APIClient.shared.SearchGroups(name: self.query, userId: userId, offset: Int64(self.GroupsPage), pageSize: Int64(self.GroupsSize))
-            if result.3 != nil {
-                self.GroupsPage = 0
-                self.GroupsSize = 10
-                return (nil,result.3)
-            }
-            self.GroupsPage = Int(result.1)
-            self.GroupsSize = Int(result.2)
-            return (result.0,nil)
-        }catch{
-            return (nil,error)
+        let result = await APIClient.shared.SearchGroups(name: self.query, userId: userId, offset: Int64(self.GroupsPage), pageSize: Int64(self.GroupsSize))
+        if result.3 != nil {
+            self.GroupsPage = 0
+            self.GroupsSize = 10
+            return (nil,result.3)
         }
+        self.GroupsPage = Int(result.1)
+        self.GroupsSize = Int(result.2)
+        return (result.0,nil)
     }
     
     func SearchStoryRoles(userId: Int64,groupId:Int64) async throws -> ([StoryRole]?,Error?){
-        do{
-            let result = await APIClient.shared.SearchStoryRoles(keyword: self.query, userId: userId, page: Int64(self.StoryRolePage), size: Int64(self.StoryRoleSize))
-            if result.3 != nil {
-                self.StoryRolePage = 0
-                self.StoryRoleSize = 10
-                return (nil,result.3)
-            }
-            self.StoryRolePage = Int(result.1)
-            self.StoryRoleSize = Int(result.2)
-            return (result.0,nil)
-        }catch{
-            return (nil,error)
+        let result = await APIClient.shared.SearchStoryRoles(keyword: self.query, userId: userId, page: Int64(self.StoryRolePage), size: Int64(self.StoryRoleSize))
+        if result.3 != nil {
+            self.StoryRolePage = 0
+            self.StoryRoleSize = 10
+            return (nil,result.3)
         }
+        self.StoryRolePage = Int(result.1)
+        self.StoryRoleSize = Int(result.2)
+        return (result.0,nil)
     }
     
     func fetchUserCreatedStoryboards(userId: Int64,groupId:Int64,storyId:Int64) async throws -> ([StoryBoard]?,Error?){
-        do{
-            let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryboardsSize), storyId: storyId)
-            if result.3 != nil {
-                self.StoryboardsPage = 0
-                self.StoryboardsSize = 10
-                return (nil,result.3)
-            }
-            self.StoryboardsPage = Int(result.1)
-            self.StoryboardsSize = Int(result.2)
-            return (result.0,nil)
-        }catch{
-            return (nil,error)
+        let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryboardsSize), storyId: storyId)
+        if result.3 != nil {
+            self.StoryboardsPage = 0
+            self.StoryboardsSize = 10
+            return (nil,result.3)
         }
+        self.StoryboardsPage = Int(result.1)
+        self.StoryboardsSize = Int(result.2)
+        return (result.0,nil)
     }
     
     func fetchUserCreatedStoryRoles(userId: Int64,groupId:Int64,storyId:Int64) async throws -> ([StoryRole]?,Error?){
-        do{
-            let result = await APIClient.shared.fetchUserCreatedStoryRoles(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryRoleSize), storyid: storyId)
-            if result.3 != nil {
-                self.StoryRolePage = 0
-                self.StoryRoleSize = 10
-                return (nil,result.3)
-            }
-            self.StoryRolePage = Int(result.1)
-            self.StoryRoleSize = Int(result.2)
-            print("fetchUserCreatedStoryRoles result: ",result)
-            return (result.0,nil)
-        }catch{
-            return (nil,error)
+        let result = await APIClient.shared.fetchUserCreatedStoryRoles(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryRoleSize), storyid: storyId)
+        if result.3 != nil {
+            self.StoryRolePage = 0
+            self.StoryRoleSize = 10
+            return (nil,result.3)
         }
+        self.StoryRolePage = Int(result.1)
+        self.StoryRoleSize = Int(result.2)
+        print("fetchUserCreatedStoryRoles result: ",result)
+        return (result.0,nil)
+    }
+    
+    func fetchUserUnPublishedStoryboards(userId: Int64,groupId:Int64,storyId:Int64,status: Int64) async throws -> ([StoryBoard]?,Error?){
+        let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryboardsSize), storyId: storyId)
+        if result.3 != nil {
+            self.StoryboardsPage = 0
+            self.StoryboardsSize = 10
+            return (nil,result.3)
+        }
+        self.StoryboardsPage = Int(result.1)
+        self.StoryboardsSize = Int(result.2)
+        return (result.0,nil)
     }
 }

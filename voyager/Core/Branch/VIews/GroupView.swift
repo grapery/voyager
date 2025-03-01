@@ -13,9 +13,7 @@ struct GroupView: View {
     @StateObject var viewModel: GroupViewModel
     @State private var isShowingNewGroupView = false
     @State private var searchText = ""
-    @State private var selectedTab = "全部"
     
-    let tabs = ["全部", "都市", "传说", "鬼神", "冒险", "历史架空", "模拟live", "ACG"]
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: GroupViewModel(user: user))
     }
@@ -38,7 +36,6 @@ struct GroupView: View {
                 
                 ScrollView {
                     VStack(spacing: 16) {
-                        // 我的小组标题
                         HStack {
                             Text("我的小组")
                                 .font(.system(size: 20, weight: .semibold))
@@ -53,21 +50,6 @@ struct GroupView: View {
                         }
                         .padding(.horizontal)
                         
-                        // 分类标签
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 20) {
-                                ForEach(tabs, id: \.self) { tab in
-                                    CategoryTabButton(
-                                        title: tab,
-                                        isSelected: selectedTab == tab,
-                                        action: { selectedTab = tab }
-                                    )
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                        
-                        // 小组列表
                         LazyVStack(spacing: 8) {
                             ForEach(viewModel.groups) { group in
                                 GroupDiscussionCell(group: group, viewModel: viewModel)
@@ -167,14 +149,15 @@ struct GroupGridItemView: View {
     }
 }
 
-// 优化后的讨论单元格
 struct GroupDiscussionCell: View {
     let group: BranchGroup
     @ObservedObject var viewModel: GroupViewModel
     @State private var showGroupDetail = false
     
     var body: some View {
-        Button(action: { showGroupDetail = true }) {
+        Button(action: {
+            showGroupDetail = true
+        }) {
             VStack(alignment: .leading, spacing: 12) {
                 // 头部信息
                 HStack(spacing: 12) {
@@ -210,9 +193,7 @@ struct GroupDiscussionCell: View {
                         icon: "bell",
                         count: 20,
                         isActive: false,
-                        action: { 
-                            // 处理通知按钮点击
-                            print("Bell tapped")
+                        action: {
                             Task{
                                 if false{
                                     await self.viewModel.unlikeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)

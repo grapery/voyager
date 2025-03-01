@@ -130,6 +130,14 @@ struct UserProfileView: View {
                 await loadFilteredContent(for: selectedTab)
             }
         }
+//        .fullScreenCover(isPresented: $showEditView) {
+//            EditStoryBoardView(
+//                storyId: storyId,
+//                boardId: (board?.boardInfo.storyBoardID)!,
+//                userId: self.userId,
+//                viewModel: self.viewModel
+//            )
+//        }
     }
     
     // MARK: - Action Handlers
@@ -238,6 +246,7 @@ struct CustomSegmentedControl: View {
             .padding(.horizontal)
         }
         .background(Color(hex: "1C1C1E"))
+        .padding(.bottom, 1) // 添加底部最小间距
     }
 }
 
@@ -370,12 +379,11 @@ struct RolesListView: View {
     var viewModel: ProfileViewModel
     
     var body: some View {
-        LazyVStack(spacing: 12) {
+        LazyVStack(spacing: 1) {
             ForEach(roles, id: \.id) { role in
                 ProfileRoleCell(role: role, viewModel: viewModel)
             }
         }
-        .padding(.horizontal, 16)
     }
 }
 
@@ -386,36 +394,68 @@ struct ProfileRoleCell: View {
     
     var body: some View {
         Button(action: { showRoleDetail = true }) {
-            HStack(spacing: 12) {
-                // 角色头像
-                RectProfileImageView(
-                    avatarUrl: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar,
-                    size: .InContent
-                )
-                .frame(width: 64, height: 64)
-                .cornerRadius(32) // 圆形头像
+            HStack(spacing: 0) {
+                // 左侧绿色指示条
+                Rectangle()
+                    .fill(Color.green)
+                    .frame(width: 3)
                 
-                VStack(alignment: .leading, spacing: 4) {
-                    // 角色名称
-                    Text(role.role.characterName)
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
+                // 主要内容
+                HStack(spacing: 12) {
+                    // 角色头像
+                    RectProfileImageView(
+                        avatarUrl: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar,
+                        size: .InContent
+                    )
+                    .frame(width: 48, height: 48)
+                    .clipShape(Circle())
                     
-                    // 角色描述
-                    Text(role.role.characterDescription)
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.leading)
+                    // 角色信息
+                    VStack(alignment: .leading, spacing: 4) {
+                        // 角色名称
+                        Text(role.role.characterName)
+                            .font(.system(size: 16))
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                        
+                        // 角色描述
+                        Text(role.role.characterDescription)
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray)
+                            .lineLimit(2)
+                        
+                        // 统计信息
+                        HStack(spacing: 16) {
+                            // 故事数
+                            HStack(spacing: 4) {
+                                Image(systemName: "doc.text.fill")
+                                    .font(.system(size: 14))
+                                Text("\(9)")
+                                    .font(.system(size: 14))
+                            }
+                            .foregroundColor(.gray)
+                            
+                            // 消息数
+                            HStack(spacing: 4) {
+                                Image(systemName: "message.fill")
+                                    .font(.system(size: 14))
+                                Text("\(88)")
+                                    .font(.system(size: 14))
+                            }
+                            .foregroundColor(.gray)
+                        }
+                        .padding(.top, 4)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
             }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
-            .background(Color.primaryBackgroud.opacity(0.3))
+            .background(Color.white.opacity(0.95))
         }
-        .background(Color.primaryBackgroud) // 深灰色背景
-        .cornerRadius(8) 
         .buttonStyle(PlainButtonStyle())
+        .cornerRadius(8)
+        .padding(.horizontal, 16)
         .fullScreenCover(isPresented: $showRoleDetail) {
             NavigationStack {
                 StoryRoleDetailView(
@@ -433,7 +473,6 @@ struct ProfileRoleCell: View {
             }
         }
     }
-    // 整体圆角
 }
 
 // 修改统计标签组件
@@ -525,6 +564,7 @@ private struct ProfileContentView: View {
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
         .frame(minHeight: UIScreen.main.bounds.height * 0.7)
+        .background(Color(hex: "1C1C1E"))
     }
 }
 
@@ -561,8 +601,10 @@ private struct RolesTab: View {
                 )
             } else {
                 RolesListView(roles: viewModel.storyRoles, viewModel: viewModel)
+                    .padding(.top, 0) // 移除顶部间距
             }
         }
+        .background(Color(hex: "1C1C1E"))
     }
 }
 

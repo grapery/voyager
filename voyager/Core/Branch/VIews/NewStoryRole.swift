@@ -84,27 +84,19 @@ struct NewStoryRole: View {
         isLoading = true
         
         Task {
-            do {
-                await viewModel.createStoryRole(
-                    storyId: self.storyId,
-                    name: self.roleName,
-                    description: self.roleDescription,
-                    avatar: self.roleAvatar,
-                    characterPrompt: self.rolePrompt,
-                    userId: self.userId,
-                    characterRefImages: self.roleRefs
-                )
-                
-                await MainActor.run {
-                    isLoading = false
-                    dismiss()
-                }
-            } catch {
-                print("Error creating role: \(error)")
-                await MainActor.run {
-                    isLoading = false
-                    // 这里可以添加错误提示
-                }
+            await viewModel.createStoryRole(
+                storyId: self.storyId,
+                name: self.roleName,
+                description: self.roleDescription,
+                avatar: self.roleAvatar,
+                characterPrompt: self.rolePrompt,
+                userId: self.userId,
+                characterRefImages: self.roleRefs
+            )
+            
+            await MainActor.run {
+                isLoading = false
+                dismiss()
             }
         }
     }
@@ -112,7 +104,9 @@ struct NewStoryRole: View {
     // 添加图片上传方法
     private func uploadImage(_ image: UIImage) async -> String? {
         await MainActor.run { isLoading = true }
-        defer { Task { @MainActor in isLoading = false } }
+        defer {
+            Task { @MainActor in isLoading = false }
+        }
         
         do {
             let imageUrl = try await viewModel.uploadImage(image)
