@@ -11,7 +11,6 @@ import SwiftUI
 class GroupViewModel: ObservableObject {
     @State public var user: User
     @Published public var groups: [BranchGroup]
-    @Published public var groupsProfile: Dictionary<Int64,GroupProfile>
     
     @State var groupPage: Int32 = 0
     @State var groupPageSize: Int32 = 10
@@ -20,7 +19,6 @@ class GroupViewModel: ObservableObject {
     init(user: User) {
         self.user = user
         self.groups = [BranchGroup]()
-        self.groupsProfile = Dictionary<Int64,GroupProfile>()
     }
     
     // 重置分页
@@ -39,13 +37,9 @@ class GroupViewModel: ObservableObject {
             page: self.groupPage,
             size: self.groupPageSize
         )
-        
+        print("fetchGroups: \(fetchedGroups.count)")
         self.groups = fetchedGroups
         self.hasMorePages = !fetchedGroups.isEmpty && fetchedGroups.count == self.groupPageSize
-        
-        for group in fetchedGroups {
-            await self.fetchGroupProfile(groupdId: group.info.groupID)
-        }
     }
     
     @MainActor
@@ -60,30 +54,26 @@ class GroupViewModel: ObservableObject {
             page: nextPage,
             size: self.groupPageSize
         )
-        
+        print("fetchMoreGroups: \(fetchedGroups.count)")
         if !fetchedGroups.isEmpty {
             self.groupPage = nextPage
             self.groups.append(contentsOf: fetchedGroups)
             self.hasMorePages = fetchedGroups.count == self.groupPageSize
-            
-            for group in fetchedGroups {
-                await self.fetchGroupProfile(groupdId: group.info.groupID)
-            }
         } else {
             self.hasMorePages = false
         }
     }
     
     @MainActor
-    func fetchGroupProfile(groupdId: Int64) async {
+    func fetchGroupProfile(groupdId: Int64) async ->(Common_GroupProfileInfo?,Error?){
         var err: Error?
         var profileInfo: Common_GroupProfileInfo?
         (profileInfo,err) = await APIClient.shared.GetGroupProfile(groupId: groupdId, userId: self.user.userID)
         if err != nil {
             print("fetchGroupProfile err",err!)
-            return
+            return (nil,err)
         }
-        groupsProfile[groupdId] = GroupProfile(profile: profileInfo!)
+        return (profileInfo,nil)
     }
     
     @MainActor

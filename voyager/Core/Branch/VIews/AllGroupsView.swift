@@ -85,10 +85,6 @@ struct AllGroupsView: View {
             .background(Color(hex: "1C1C1E"))
         }
         .navigationBarHidden(true)
-        .task {
-            // 首次加载
-            await refreshGroups()
-        }
     }
     
     // 刷新数据

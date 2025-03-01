@@ -52,10 +52,11 @@ struct MessageView: View {
                     searchText: $searchText,
                     placeholder: "搜索消息"
                 )
+                .padding(.bottom, 8) // 搜索栏底部添加间距
                 
                 // 消息列表
                 ScrollView {
-                    LazyVStack(spacing: 4) { // 调整间距为1
+                    LazyVStack(spacing: 12) { // 增加列表项之间的间距
                         ForEach(viewModel.msgCtxs, id: \.id) { msgCtx in
                             MessageContextCellView(
                                 msgCtxId: msgCtx.chatinfo.chatID,
@@ -66,15 +67,16 @@ struct MessageView: View {
                             )
                         }
                     }
+                    .padding(.top, 12) // 列表顶部添加间距
                 }
-                .background(Color(hex: "1C1C1E")) // 深色背景
+                .background(Color(hex: "1C1C1E"))
             }
             .onAppear {
                 Task {
                     await self.viewModel.initUserChatContext()
                 }
             }
-            .background(Color(hex: "1C1C1E")) // 整体深色背景
+            .background(Color(hex: "1C1C1E"))
         }
     }
 }
@@ -107,7 +109,7 @@ extension Color {
 }
 
 
-// 优化消息单元格视图
+// 修改消息单元格视图
 struct MessageContextCellView: View {
     var msgCtxId: Int64
     var user: User?
@@ -169,42 +171,37 @@ struct MessageContextCellView: View {
         )
             .toolbar(.visible, for: .tabBar)
         ) {
+            // 主要内容
             HStack(spacing: 0) {
-                // 左侧绿色指示条
-                Rectangle()
-                    .fill(Color.green)
-                    .frame(width: 3)
+                // 头像
+                RectProfileImageView(avatarUrl: avatarURL, size: .InChat)
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
                 
-                // 主要内容
-                HStack(spacing: 12) {
-                    // 头像
-                    RectProfileImageView(avatarUrl: avatarURL, size: .InChat)
-                        .frame(width: 40, height: 40) // 调整头像大小
-                        .clipShape(Circle())
-                    
-                    // 消息内容
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(alignment: .center) {
-                            Text(isFromUser ? (user?.name ?? "Me") : (role?.role.characterName ?? "Unknown"))
-                                .font(.system(size: 15))
-                                .foregroundColor(.white)
-                            
-                            Spacer()
-                            
-                            Text(formatTime(lastMessage?.timestamp ?? 0))
-                                .font(.system(size: 12))
-                                .foregroundColor(.gray.opacity(0.8))
-                        }
+                // 消息内容
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(alignment: .center) {
+                        Text(isFromUser ? (user?.name ?? "Me") : (role?.role.characterName ?? "Unknown"))
+                            .font(.system(size: 15))
+                            .foregroundColor(.white)
                         
-                        Text(lastMessage?.message ?? "")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray.opacity(0.9))
-                            .lineLimit(1)
+                        Spacer()
+                        
+                        Text(formatTime(lastMessage?.timestamp ?? 0))
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray.opacity(0.8))
                     }
+                    
+                    Text(lastMessage?.message ?? "")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray.opacity(0.9))
+                        .lineLimit(1)
                 }
-                .padding(.vertical, 10)
-                .padding(.horizontal, 12)
+                .padding(.leading, 12)
             }
+            .padding(.vertical, 10)
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color(hex: "2C2C2E").opacity(0.95))
             .cornerRadius(8)
             .padding(.horizontal, 16)
