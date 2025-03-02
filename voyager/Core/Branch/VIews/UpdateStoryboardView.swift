@@ -13,7 +13,7 @@ struct EditStoryBoardView: View {
     public var boardId: Int64
     public var userId: Int64
     
-    @State var viewModel: StoryViewModel
+    @State var viewModel: UnpublishedStoryViewModel
     // 步骤状态控制
     @State private var currentStep = 0
     @State private var isLoading = false

@@ -559,7 +559,7 @@ private struct ProfileContentView: View {
                 .tag(1)
             
             // 待发布标签页
-            PendingTab()
+            PendingTab(userId: viewModel.user?.userID ?? 0)
                 .tag(2)
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
@@ -647,25 +647,331 @@ private struct StoryboardsListView: View {
 }
 
 struct PendingTab: View {
+    @StateObject private var viewModel: UnpublishedStoryViewModel
+    @State private var isRefreshing = false
+    
+    init(userId: Int64) {
+        _viewModel = StateObject(wrappedValue: UnpublishedStoryViewModel(userId: userId))
+    }
+    
     var body: some View {
-        VStack(spacing: 16) {
+        ScrollView {
+            RefreshableScrollView(
+                isRefreshing: $isRefreshing,
+                onRefresh: {
+                    Task {
+                        await viewModel.refreshData()
+                        isRefreshing = false
+                    }
+                }
+            ) {
+                if viewModel.unpublishedStoryboards.isEmpty && !viewModel.isLoading {
+                    emptyStateView
+                } else {
+                    storyBoardsListView
+                }
+            }
+        }
+        .task {
+            if viewModel.unpublishedStoryboards.isEmpty {
+                await viewModel.fetchUnpublishedStoryboards()
+            }
+        }
+        .alert("加载失败", isPresented: $viewModel.hasError) {
+            Button("确定", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage)
+        }
+    }
+    
+    private var emptyStateView: some View {
+        VStack {
             Spacer()
+            Text("暂无待发布的故事")
+                .font(.system(size: 16))
+                .foregroundColor(.secondary)
             
             Button(action: {
                 // TODO: 实现创作功能
             }) {
                 Text("去创作")
                     .font(.system(size: 16))
-                    .foregroundColor(.black)
+                    .foregroundColor(.white)
                     .frame(width: 120)
                     .padding(.vertical, 12)
-                    .background(Color.orange)
+                    .background(Color.blue)
                     .cornerRadius(22)
             }
-            
+            .padding(.top, 16)
             Spacer()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black)
+        .frame(minHeight: 300)
+    }
+    
+    private var storyBoardsListView: some View {
+        LazyVStack(spacing: 16) {
+            ForEach(viewModel.unpublishedStoryboards) { board in
+                UnpublishedStoryBoardCellView(
+                    board: board,
+                    userId: viewModel.userId,
+                    viewModel: viewModel
+                )
+                .onAppear {
+                    if board.id == viewModel.unpublishedStoryboards.last?.id {
+                        Task {
+                            await viewModel.fetchUnpublishedStoryboards()
+                        }
+                    }
+                }
+            }
+            
+            if viewModel.isLoading {
+                ProgressView()
+                    .padding()
+            }
+        }
+        .padding(.vertical, 8)
     }
 }
+
+struct UnpublishedStoryBoardCellView: View {
+    var board: StoryBoard
+    var userId: Int64
+    @ObservedObject var viewModel: UnpublishedStoryViewModel
+    @State private var showingPublishAlert = false
+    @State private var showingDeleteAlert = false
+    @State private var showingEditView = false
+    @State private var errorMessage: String = ""
+    @State private var showingErrorToast = false
+    @State private var showingErrorAlert = false
+    
+    private var headerView: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Text(board.boardInfo.title)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.white)
+                .padding(.vertical, 4)
+            
+            Spacer()
+            
+            Text(formatDate(timestamp: board.boardInfo.ctime))
+                .font(.system(size: 13))
+                .foregroundColor(.gray)
+        }
+    }
+    
+    private var contentView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(board.boardInfo.content)
+                .font(.system(size: 15))
+                .foregroundColor(.white)
+                .lineLimit(3)
+                .padding(.vertical, 4)
+            
+            let scenes = board.boardInfo.sences.list
+            if !scenes.isEmpty {
+                HStack {
+                    Image(systemName: "photo.stack")
+                        .foregroundColor(.gray)
+                        .font(.system(size: 12))
+                    Text("共\(scenes.count)个场景")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+                .padding(.top, 2)
+            }
+        }
+    }
+    
+    private var actionButtons: some View {
+        HStack(spacing: 24) {
+            // 编辑按钮
+            Button(action: {
+                showingEditView = true
+            }) {
+                Image(systemName: "pencil.circle")
+                    .font(.system(size: 24))
+                    .foregroundColor(.gray)
+            }
+            
+            // 发布按钮
+            Button(action: {
+                showingPublishAlert = true
+            }) {
+                Image(systemName: "arrow.up.circle")
+                    .font(.system(size: 24))
+                    .foregroundColor(.blue)
+            }
+            
+            // 删除按钮
+            Button(action: {
+                showingDeleteAlert = true
+            }) {
+                Image(systemName: "trash.circle")
+                    .font(.system(size: 24))
+                    .foregroundColor(.red)
+            }
+        }
+        .padding(.top, 8)
+    }
+    
+    var body: some View {
+        mainContent
+            .padding(12)
+            .background(Color(hex: "1C1C1E"))
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+            )
+            .overlay(errorToastOverlay)
+            .modifier(AlertModifier(
+                showingPublishAlert: $showingPublishAlert,
+                showingDeleteAlert: $showingDeleteAlert,
+                showingEditView: $showingEditView,
+                board: board,
+                userId: userId,
+                viewModel: viewModel
+            ))
+    }
+    
+    private var mainContent: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            headerView
+            contentView
+            actionButtons
+        }
+    }
+    
+    private var errorToastOverlay: some View {
+        Group {
+            if showingErrorToast {
+                ToastView(message: errorMessage)
+                    .animation(.easeInOut)
+                    .transition(.move(edge: .top))
+            }
+        }
+    }
+    
+    private func formatDate(timestamp: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        return DateFormatter.shortDate.string(from: date)
+    }
+    
+    private func ToastView(message: String) -> some View {
+        VStack {
+            Text(message)
+                .foregroundColor(.white)
+                .padding()
+                .background(Color.black.opacity(0.7))
+                .cornerRadius(10)
+        }
+        .padding(.top, 20)
+    }
+}
+
+private struct AlertModifier: ViewModifier {
+    @Binding var showingPublishAlert: Bool
+    @Binding var showingDeleteAlert: Bool
+    @Binding var showingEditView: Bool
+    let board: StoryBoard
+    let userId: Int64
+    let viewModel: UnpublishedStoryViewModel
+    
+    func body(content: Content) -> some View {
+        content
+            .alert("确认发布", isPresented: $showingPublishAlert) {
+                Button("取消", role: .cancel) { }
+                Button("发布", role: .destructive) {
+                    Task {
+                        // TODO: 调用发布API
+                        // await viewModel.publishStoryBoard(boardId: board.id)
+                    }
+                }
+            } message: {
+                Text("确定要发布这个故事板吗？发布后将无法修改。")
+            }
+            .alert("确认删除", isPresented: $showingDeleteAlert) {
+                Button("取消", role: .cancel) { }
+                Button("删除", role: .destructive) {
+                    Task {
+                        // TODO: 调用删除API
+                        // await viewModel.deleteUnpublishedStoryBoard(boardId: board.id)
+                    }
+                }
+            } message: {
+                Text("确定要删除这个故事板吗？此操作无法撤销。")
+            }
+            .fullScreenCover(isPresented: $showingEditView) {
+                NavigationStack {
+                    EditStoryBoardView(
+                        storyId: board.boardInfo.storyID,
+                        boardId: board.boardInfo.storyBoardID,
+                        userId: userId,
+                        viewModel: viewModel
+                    )
+                    .navigationBarItems(leading: Button(action: {
+                        showingEditView = false
+                    }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.black)
+                    })
+                }
+            }
+    }
+}
+
+struct RefreshableScrollView<Content: View>: View {
+    @Binding var isRefreshing: Bool
+    let onRefresh: () -> Void
+    let content: Content
+    
+    init(
+        isRefreshing: Binding<Bool>,
+        onRefresh: @escaping () -> Void,
+        @ViewBuilder content: () -> Content
+    ) {
+        self._isRefreshing = isRefreshing
+        self.onRefresh = onRefresh
+        self.content = content()
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            GeometryReader { geometry in
+                if geometry.frame(in: .global).minY > 50 {
+                    Color.clear
+                        .preference(key: RefreshKey.self, value: true)
+                } else {
+                    Color.clear
+                        .preference(key: RefreshKey.self, value: false)
+                }
+            }
+            .frame(height: 0)
+            
+            if isRefreshing {
+                ProgressView()
+                    .padding(8)
+            }
+            
+            content
+        }
+        .onPreferenceChange(RefreshKey.self) { shouldRefresh in
+            if shouldRefresh && !isRefreshing {
+                isRefreshing = true
+                onRefresh()
+            }
+        }
+    }
+}
+
+private struct RefreshKey: PreferenceKey {
+    static var defaultValue = false
+    
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = value || nextValue()
+    }
+}
+
+
+

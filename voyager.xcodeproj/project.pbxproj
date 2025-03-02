@@ -125,6 +125,7 @@
 		0FFE24342D7330D9000A8389 /* StoryBoardDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFE24332D7330C1000A8389 /* StoryBoardDetail.swift */; };
 		0FFE24432D7457D3000A8389 /* message.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFE24422D7457D3000A8389 /* message.pb.swift */; };
 		0FFE24442D7457D3000A8389 /* message.connect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFE24412D7457D3000A8389 /* message.connect.swift */; };
+		0FFE24482D747526000A8389 /* UnpublishedStoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFE24472D747526000A8389 /* UnpublishedStoryViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -248,6 +249,7 @@
 		0FFE24332D7330C1000A8389 /* StoryBoardDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryBoardDetail.swift; sourceTree = "<group>"; };
 		0FFE24412D7457D3000A8389 /* message.connect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = message.connect.swift; sourceTree = "<group>"; };
 		0FFE24422D7457D3000A8389 /* message.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = message.pb.swift; sourceTree = "<group>"; };
+		0FFE24472D747526000A8389 /* UnpublishedStoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnpublishedStoryViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -510,6 +512,7 @@
 		0FFA50602B0857DA00D3A4CF /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				0FFE24472D747526000A8389 /* UnpublishedStoryViewModel.swift */,
 				0F980A302CACC9C300510E5A /* StoryProfileViewModel.swift */,
 				0F980A2E2CACC99300510E5A /* GroupProfileViewModel.swift */,
 				0FFA50632B0857DA00D3A4CF /* ProfileViewModel.swift */,
@@ -907,6 +910,7 @@
 				0F8855642B3B10BE002AD7E4 /* service.connect.swift in Sources */,
 				0FFA509C2B0857DA00D3A4CF /* RegistrationView.swift in Sources */,
 				0F254DBC2CCD0F8B00367804 /* StoryRoleViewModel.swift in Sources */,
+				0FFE24482D747526000A8389 /* UnpublishedStoryViewModel.swift in Sources */,
 				0FFA509B2B0857DA00D3A4CF /* AuthService.swift in Sources */,
 				0F59E72B2B064E2D007C2B74 /* voyagerApp.swift in Sources */,
 				0F8855622B3B10BE002AD7E4 /* base.pb.swift in Sources */,
