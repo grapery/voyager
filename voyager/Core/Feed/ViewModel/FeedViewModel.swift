@@ -187,3 +187,95 @@ class FeedViewModel: ObservableObject {
         }
     }
 }
+
+
+// 添加 ViewModel 来管理数据加载
+class FeedListViewModel: ObservableObject {
+    @Published var storyBoardActives: [Common_StoryBoardActive] = []
+    @Published var isLoading = false
+    @Published var hasError = false
+    @Published var errorMessage = ""
+    
+    private let userId: Int64
+    private var currentOffset: Int64 = 0
+    private let pageSize: Int64 = 10
+    private var hasMoreData = true
+    private let storyService = APIClient.shared
+    
+    init(userId: Int64) {
+        self.userId = userId
+    }
+    
+    @MainActor
+    func refreshData() async {
+        guard !isLoading else { return }
+        
+        isLoading = true
+        hasError = false
+        currentOffset = 0
+        
+        do {
+            let (boards, offset, size, error) = await storyService.storyActiveStoryBoards(
+                userId: userId,
+                storyId: 0,
+                offset: 0,
+                pageSize: pageSize,
+                filter: ""
+            )
+            print("refreshData: \(String(describing: boards))")
+            if let error = error {
+                hasError = true
+                errorMessage = error.localizedDescription
+                return
+            }
+            
+            if let boards = boards {
+                storyBoardActives = boards
+                currentOffset = offset ?? 0
+                hasMoreData = boards.count >= pageSize
+            }
+        } catch {
+            hasError = true
+            errorMessage = error.localizedDescription
+        }
+        
+        isLoading = false
+    }
+    
+    @MainActor
+    func loadMoreData() async {
+        guard !isLoading && hasMoreData else { return }
+        
+        isLoading = true
+        hasError = false
+        
+        do {
+            let (boards, offset, size, error) = await storyService.storyActiveStoryBoards(
+                userId: userId,
+                storyId: 0,
+                offset: currentOffset + pageSize,
+                pageSize: pageSize,
+                filter: ""
+            )
+            print("loadMoreData: \(String(describing: boards))")
+            if let error = error {
+                hasError = true
+                errorMessage = error.localizedDescription
+                return
+            }
+            
+            if let boards = boards {
+                storyBoardActives.append(contentsOf: boards)
+                currentOffset = offset ?? currentOffset
+                hasMoreData = boards.count >= pageSize
+            }
+        } catch {
+            hasError = true
+            errorMessage = error.localizedDescription
+        }
+        
+        isLoading = false
+    }
+}
+
+

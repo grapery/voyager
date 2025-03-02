@@ -3714,6 +3714,17 @@ public struct Common_StoryBoardActive: Sendable {
 
   public var roles: [Common_StoryBoardActiveRole] = []
 
+  public var creator: Common_StoryBoardActiveUser {
+    get {return _creator ?? Common_StoryBoardActiveUser()}
+    set {_creator = newValue}
+  }
+  /// Returns true if `creator` has been explicitly set.
+  public var hasCreator: Bool {return self._creator != nil}
+  /// Clears the value of `creator`. Subsequent reads from it will return its default value.
+  public mutating func clearCreator() {self._creator = nil}
+
+  public var isliked: Bool = false
+
   public var mtime: Int64 = 0
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -3721,6 +3732,7 @@ public struct Common_StoryBoardActive: Sendable {
   public init() {}
 
   fileprivate var _storyboard: Common_StoryBoard? = nil
+  fileprivate var _creator: Common_StoryBoardActiveUser? = nil
 }
 
 public struct Common_GetUserWatchRoleActiveStoryBoardsRequest: Sendable {
@@ -13051,7 +13063,9 @@ extension Common_StoryBoardActive: SwiftProtobuf.Message, SwiftProtobuf._Message
     6: .standard(proto: "total_fork_count"),
     7: .same(proto: "users"),
     8: .same(proto: "roles"),
-    9: .same(proto: "mtime"),
+    9: .same(proto: "creator"),
+    10: .same(proto: "isliked"),
+    11: .same(proto: "mtime"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -13068,7 +13082,9 @@ extension Common_StoryBoardActive: SwiftProtobuf.Message, SwiftProtobuf._Message
       case 6: try { try decoder.decodeSingularInt64Field(value: &self.totalForkCount) }()
       case 7: try { try decoder.decodeRepeatedMessageField(value: &self.users) }()
       case 8: try { try decoder.decodeRepeatedMessageField(value: &self.roles) }()
-      case 9: try { try decoder.decodeSingularInt64Field(value: &self.mtime) }()
+      case 9: try { try decoder.decodeSingularMessageField(value: &self._creator) }()
+      case 10: try { try decoder.decodeSingularBoolField(value: &self.isliked) }()
+      case 11: try { try decoder.decodeSingularInt64Field(value: &self.mtime) }()
       default: break
       }
     }
@@ -13103,8 +13119,14 @@ extension Common_StoryBoardActive: SwiftProtobuf.Message, SwiftProtobuf._Message
     if !self.roles.isEmpty {
       try visitor.visitRepeatedMessageField(value: self.roles, fieldNumber: 8)
     }
+    try { if let v = self._creator {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 9)
+    } }()
+    if self.isliked != false {
+      try visitor.visitSingularBoolField(value: self.isliked, fieldNumber: 10)
+    }
     if self.mtime != 0 {
-      try visitor.visitSingularInt64Field(value: self.mtime, fieldNumber: 9)
+      try visitor.visitSingularInt64Field(value: self.mtime, fieldNumber: 11)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -13118,6 +13140,8 @@ extension Common_StoryBoardActive: SwiftProtobuf.Message, SwiftProtobuf._Message
     if lhs.totalForkCount != rhs.totalForkCount {return false}
     if lhs.users != rhs.users {return false}
     if lhs.roles != rhs.roles {return false}
+    if lhs._creator != rhs._creator {return false}
+    if lhs.isliked != rhs.isliked {return false}
     if lhs.mtime != rhs.mtime {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true

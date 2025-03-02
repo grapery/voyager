@@ -54,7 +54,8 @@ struct FeedView: View {
                     LatestUpdatesView(
                         searchText: $searchText,
                         selectedTab: $selectedTab,
-                        tabs: tabs
+                        tabs: tabs,
+                        userId: viewModel.user.userID
                     )
                     .tag(0)
                     
@@ -151,6 +152,16 @@ private struct CategoryTabs: View {
 
 // Feed 内容卡片
 private struct FeedItemCard: View {
+    let storyBoardActive: Common_StoryBoardActive
+    
+    private var storyBoard: Common_StoryBoard {
+        storyBoardActive.storyboard
+    }
+    
+    private var hasParticipants: Bool {
+        !storyBoardActive.users.isEmpty
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // 左侧绿色装饰条
@@ -162,56 +173,81 @@ private struct FeedItemCard: View {
                 VStack(alignment: .leading, spacing: 8) {
                     // 标题和头像
                     HStack {
-                        Text("蓝雀")
+                        Text(storyBoard.title)
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(.white)
                         
                         Spacer()
                         
-                        KFImage(URL(string: defaultAvator)) // 替换为实际头像
+                        KFImage(URL(string: storyBoardActive.creator.userAvatar.isEmpty ? defaultAvator : storyBoardActive.creator.userAvatar))
                             .resizable()
                             .frame(width: 32, height: 32)
                             .clipShape(Circle())
                     }
                     
                     // 内容
-                    Text("欢迎大家来一起创作好玩的故事吧！")
+                    Text(storyBoard.content)
                         .font(.system(size: 14))
                         .foregroundColor(.gray)
+                        .lineLimit(3)
+                    
+                    // 场景数量（如果有）
+                    if !storyBoard.sences.list.isEmpty {
+                        HStack {
+                            Image(systemName: "photo.stack")
+                                .foregroundColor(.gray)
+                                .font(.system(size: 12))
+                            Text("共\(storyBoard.sences.list.count)个场景")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        .padding(.top, 2)
+                    }
                     
                     Divider()
                         .background(Color.gray.opacity(0.3))
                     
                     // 底部统计
                     HStack {
+                        // 评论数
                         HStack(spacing: 4) {
                             Image(systemName: "bubble.left")
-                            Text("10")
+                            Text("\(storyBoardActive.totalCommentCount)")
                         }
                         .foregroundColor(.gray)
                         
                         Spacer()
                         
+                        // 点赞数
                         HStack(spacing: 4) {
-                            Image(systemName: "heart")
-                            Text("10")
+                            Image(systemName: storyBoardActive.isliked ? "heart.fill" : "heart")
+                            Text("\(storyBoardActive.totalLikeCount)")
                         }
-                        .foregroundColor(.gray)
+                        .foregroundColor(storyBoardActive.isliked ? .red : .gray)
                         
                         // 参与者头像
-                        HStack(spacing: -8) {
-                            ForEach(0..<3) { _ in
-                                KFImage(URL(string: defaultAvator)) 
-                                    .resizable()
-                                    .frame(width: 24, height: 24)
-                                    .clipShape(Circle())
-                                    .overlay(
-                                        Circle()
-                                            .stroke(Color.primaryBackgroud, lineWidth: 2)
-                                    )
+                        if hasParticipants {
+                            HStack(spacing: -8) {
+                                ForEach(storyBoardActive.users.prefix(3), id: \.userID) { participant in
+                                    KFImage(URL(string: participant.userAvatar.isEmpty ? defaultAvator : participant.userAvatar))
+                                        .resizable()
+                                        .frame(width: 24, height: 24)
+                                        .clipShape(Circle())
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color.primaryBackgroud, lineWidth: 2)
+                                        )
+                                }
+                                
+                                if storyBoardActive.users.count > 3 {
+                                    Text("+\(storyBoardActive.users.count - 3)")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.gray)
+                                        .padding(.leading, 4) 
+                                }
                             }
+                            .padding(.leading, 8)
                         }
-                        .padding(.leading, 8)
                     }
                     .font(.system(size: 14))
                 }
@@ -258,28 +294,73 @@ private struct LatestUpdatesView: View {
     @Binding var searchText: String
     @Binding var selectedTab: FeedType
     let tabs: [(type: FeedType, title: String)]
+    let userId: Int64
+    @StateObject private var viewModel: FeedListViewModel
+    @State private var isRefreshing = false
+    
+    init(searchText: Binding<String>, selectedTab: Binding<FeedType>, tabs: [(type: FeedType, title: String)], userId: Int64) {
+        self._searchText = searchText
+        self._selectedTab = selectedTab
+        self.tabs = tabs
+        self.userId = userId
+        self._viewModel = StateObject(wrappedValue: FeedListViewModel(userId: userId))
+    }
     
     var body: some View {
         VStack(spacing: 0) {
-            
             // 分类标签
             CategoryTabs(selectedTab: $selectedTab, tabs: tabs)
                 .padding(.vertical, 8)
             
             // 内容列表
             ScrollView {
-                LazyVStack(spacing: 12) {
-                    ForEach(0..<10) { _ in
-                        FeedItemCard()
+                RefreshableScrollView(
+                    isRefreshing: $isRefreshing,
+                    onRefresh: {
+                        Task {
+                            await viewModel.refreshData()
+                            isRefreshing = false
+                        }
                     }
+                ) {
+                    LazyVStack(spacing: 12) {
+                        ForEach(viewModel.storyBoardActives, id: \.storyboard.storyBoardID) { active in
+                            FeedItemCard(storyBoardActive: active)
+                                .onAppear {
+                                    // 当显示最后一个项目时加载更多
+                                    if active.storyboard.storyBoardID == viewModel.storyBoardActives.last?.storyboard.storyBoardID {
+                                        Task {
+                                            await viewModel.loadMoreData()
+                                        }
+                                    }
+                                }
+                        }
+                        
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .padding()
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
             }
         }
         .background(Color(hex: "1C1C1E"))
+        .task {
+            // 初始加载数据
+            if viewModel.storyBoardActives.isEmpty {
+                await viewModel.refreshData()
+            }
+        }
+        .alert("加载失败", isPresented: $viewModel.hasError) {
+            Button("确定", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage)
+        }
     }
 }
+
 
 
 // 发现视图
