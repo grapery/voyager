@@ -106,17 +106,17 @@ struct StoryBoardCellView: View {
     }
     
     private var storyboardCellHeader: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(board?.boardInfo.title ?? "无标题故事章节")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.primary)
-                
-                Text(formatDate(timestamp: (board?.boardInfo.ctime)!))
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
-            }
+        HStack(alignment: .top, spacing: 12) {
+            Text(board?.boardInfo.title ?? "无标题故事章节")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.primary)
+                .padding(.vertical, 4)
+            
             Spacer()
+            
+            Text(formatDate(timestamp: (board?.boardInfo.ctime)!))
+                .font(.system(size: 13))
+                .foregroundColor(.secondary)
         }
     }
     
@@ -126,15 +126,6 @@ struct StoryBoardCellView: View {
         }
         
         return VStack(alignment: .leading, spacing: 8) {
-            // 文字描述
-            if let content = board?.boardInfo.content {
-                Text(content)
-                    .font(.system(size: 15))
-                    .foregroundColor(.primary)
-                    .lineLimit(3)
-                    .padding(.bottom, 4)
-            }
-            
             // 场景图片网格 - 最多显示4张图片
             LazyVGrid(columns: [
                 GridItem(.flexible(), spacing: 4),
@@ -170,6 +161,15 @@ struct StoryBoardCellView: View {
             }
             .padding(.horizontal, 2)
             
+            // 文字描述
+            if let content = board?.boardInfo.content {
+                Text(content)
+                    .font(.system(size: 15))
+                    .foregroundColor(.primary)
+                    .lineLimit(3)
+                    .padding(.vertical, 4)
+            }
+            
             // 场景数量提示
             HStack {
                 Image(systemName: "photo.stack")
@@ -179,7 +179,7 @@ struct StoryBoardCellView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            .padding(.top, 4)
+            .padding(.top, 2)
         }
     }
     
@@ -207,6 +207,7 @@ struct StoryBoardCellView: View {
                             .font(.system(size: 15))
                             .foregroundColor(.primary)
                             .lineLimit(3)
+                            .padding(.vertical, 4)
                     } else {
                         senceDetails
                     }

@@ -168,11 +168,7 @@ struct StoryView: View {
                                          viewModel: viewModel,
                                          selectedTab: $selectedTab)
                         }else if selectedTab == 2 {
-                            storyRolesListView.onAppear{
-                                Task{
-                                    await self.viewModel.getStoryRoles(storyId: self.storyId, userId: self.userId)
-                                }
-                            }
+                            storyRolesListView
                         }
                     }
                     .frame(minHeight: geometry.size.height)
@@ -235,6 +231,11 @@ struct StoryView: View {
                     .padding()
             }
         }
+        .onAppear{
+            Task{
+                await self.viewModel.getStoryRoles(storyId: self.storyId, userId: self.userId)
+            }
+        }
     }
     
     private var storyLineView: some View {
@@ -259,7 +260,7 @@ struct StoryView: View {
                             )
                         }
                     }
-                    .padding(.horizontal)
+                    .padding(.horizontal, 4)
                 }
             }
         }
