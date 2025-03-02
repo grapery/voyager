@@ -651,10 +651,6 @@ struct PendingTab: View {
         VStack(spacing: 16) {
             Spacer()
             
-            Text("改写故事")
-                .font(.system(size: 16))
-                .foregroundColor(.gray)
-            
             Button(action: {
                 // TODO: 实现创作功能
             }) {

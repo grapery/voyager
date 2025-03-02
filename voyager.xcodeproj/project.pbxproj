@@ -123,6 +123,8 @@
 		0FFA50AD2B086C0B00D3A4CF /* AlibabacloudNAS20170626 in Frameworks */ = {isa = PBXBuildFile; productRef = 0FFA50AC2B086C0B00D3A4CF /* AlibabacloudNAS20170626 */; };
 		0FFA50AF2B086D4100D3A4CF /* aliyun.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA50AE2B086D4100D3A4CF /* aliyun.swift */; };
 		0FFE24342D7330D9000A8389 /* StoryBoardDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFE24332D7330C1000A8389 /* StoryBoardDetail.swift */; };
+		0FFE24432D7457D3000A8389 /* message.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFE24422D7457D3000A8389 /* message.pb.swift */; };
+		0FFE24442D7457D3000A8389 /* message.connect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFE24412D7457D3000A8389 /* message.connect.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -244,6 +246,8 @@
 		0FFA50862B0857DA00D3A4CF /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		0FFA50AE2B086D4100D3A4CF /* aliyun.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = aliyun.swift; sourceTree = "<group>"; };
 		0FFE24332D7330C1000A8389 /* StoryBoardDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryBoardDetail.swift; sourceTree = "<group>"; };
+		0FFE24412D7457D3000A8389 /* message.connect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = message.connect.swift; sourceTree = "<group>"; };
+		0FFE24422D7457D3000A8389 /* message.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = message.pb.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -367,6 +371,8 @@
 		0F6CB0602B11E29000D04B8E /* Generated */ = {
 			isa = PBXGroup;
 			children = (
+				0FFE24412D7457D3000A8389 /* message.connect.swift */,
+				0FFE24422D7457D3000A8389 /* message.pb.swift */,
 				0F6F16C42C8678CA004FAAD9 /* agents.pb.swift */,
 				0F6F16C52C8678CA004FAAD9 /* error.pb.swift */,
 				0F6F16C32C8678CA004FAAD9 /* license.pb.swift */,
@@ -904,6 +910,8 @@
 				0FFA509B2B0857DA00D3A4CF /* AuthService.swift in Sources */,
 				0F59E72B2B064E2D007C2B74 /* voyagerApp.swift in Sources */,
 				0F8855622B3B10BE002AD7E4 /* base.pb.swift in Sources */,
+				0FFE24432D7457D3000A8389 /* message.pb.swift in Sources */,
+				0FFE24442D7457D3000A8389 /* message.connect.swift in Sources */,
 				0FFA509D2B0857DA00D3A4CF /* LoginView.swift in Sources */,
 				0FA8EAD82B08CA8D00FFE00C /* api.swift in Sources */,
 			);

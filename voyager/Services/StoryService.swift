@@ -1292,24 +1292,18 @@ extension APIClient {
     }
 
     func getStoryRoleDetail(userId:Int64,roleId:Int64)async -> (StoryRole?,Error?){
-        let role: StoryRole? = nil
-        do {
-            let apiClient = Common_TeamsApiClient(client: self.client!)
-            let request = Common_GetStoryRoleDetailRequest.with {
-                $0.roleID = roleId
-            }
-            var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
-            let response = await apiClient.getStoryRoleDetail(request: request, headers: header)
-            if response.message?.code != Common_ResponseCode.ok{
-                print("getStoryRoleDetail response: ",response.message as Any)
-                return (nil,nil)
-            }
-            let role = StoryRole(Id: response.message!.info.roleID, role: response.message!.info)
-            return (role,nil)
-        } catch {
-            return (nil,NSError(domain: "getStoryRoleDetail", code: 0, userInfo: [NSLocalizedDescriptionKey: "get story role detail failed"]))
-        }   
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_GetStoryRoleDetailRequest.with {
+            $0.roleID = roleId
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.getStoryRoleDetail(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            print("getStoryRoleDetail response: ",response.message as Any)
+            return (nil,nil)
+        }
+        let role = StoryRole(Id: response.message!.info.roleID, role: response.message!.info)
         return (role,nil)
     }
 
@@ -1397,7 +1391,6 @@ extension APIClient {
     }
     
     func getUserChatMessages(userId: Int64,roleId: Int64,chatCtxId: Int64,timestamp: Int64) async -> ([Common_ChatMessage]?,Int64,Error?){
-        let messages: [Common_ChatMessage] = []
         let apiClient = Common_TeamsApiClient(client: self.client!)
         let request = Common_GetUserChatMessagesRequest.with {
             $0.userID = userId
@@ -1489,6 +1482,67 @@ extension APIClient {
         let boardInfo = response.message?.store
         print("storyboard statu: ",boardInfo?.stage as Any)
         return (boardInfo,nil)
+    }
+    
+    func storyActiveStoryBoards(userId: Int64,storyId: Int64,offset: Int64,pageSize: Int64,filter: String)async -> ([Common_StoryBoardActive]?,Int64?,Int64?,Error?){
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_GetUserWatchStoryActiveStoryBoardsRequest.with {
+            $0.userID = userId
+            $0.storyID = storyId
+            $0.offset = offset
+            $0.pageSize = pageSize
+            $0.filter = filter
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.getUserWatchStoryActiveStoryBoards(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return (nil,offset,pageSize,NSError(domain: "storyActiveStoryBoards", code: 0, userInfo: [NSLocalizedDescriptionKey: "get story board active failed"]))
+        }
+        let boardActiveInfo = response.message?.storyboards
+        let offset = response.message?.offset
+        let pageSize = response.message?.pageSize
+        return (boardActiveInfo,offset,pageSize,nil)
+    }
+
+    func userWatchRoleActiveStoryBoards(userId: Int64,roleId: Int64,offset: Int64,pageSize: Int64,filter: String)async -> ([Common_StoryBoardActive]?,Int64?,Int64?,Error?){
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_GetUserWatchRoleActiveStoryBoardsRequest.with {
+            $0.userID = userId
+            $0.roleID = roleId
+            $0.offset = offset
+            $0.pageSize = pageSize
+            $0.filter = filter
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.getUserWatchRoleActiveStoryBoards(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return (nil,offset,pageSize,NSError(domain: "userWatchRoleActiveStoryBoards", code: 0, userInfo: [NSLocalizedDescriptionKey: "get user watch role active story boards failed"]))
+        }
+        let boardActiveInfo = response.message?.storyboards
+        let offset = response.message?.offset
+        let pageSize = response.message?.pageSize
+        return (boardActiveInfo,offset,pageSize,nil)
+    }
+
+    func UnPublishStoryboard(userId: Int64,offset: Int64,pageSize: Int64) async -> ([Common_StoryBoard]?,Int64?,Int64?,Error?) {
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_GetUnPublishStoryboardRequest.with {
+            $0.userID = userId
+            $0.offset = offset
+            $0.pageSize = pageSize
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.getUnPublishStoryboard(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return (nil,offset,pageSize,NSError(domain: "UnPublishStoryboard", code: 0, userInfo: [NSLocalizedDescriptionKey: "unpublish storyboard failed"]))
+        }
+        let storyboards = response.message?.storyboards
+        let offset = response.message?.offset
+        let pageSize = response.message?.pageSize
+        return (storyboards,offset,pageSize,nil)
     }
     
 }
