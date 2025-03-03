@@ -18,7 +18,6 @@ struct GroupDetailView: View {
     @State var showUpdateGroupView: Bool = false
     @State var viewModel: GroupDetailViewModel
     @State private var selectedTab = 0
-    @State private var showUpdateGroupView = false
     @State private var needsRefresh = false
     @State private var isRefreshing = false
     @Environment(\.dismiss) private var dismiss
