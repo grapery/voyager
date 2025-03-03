@@ -20,6 +20,40 @@ fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAP
   typealias Version = _2
 }
 
+public enum Common_GroupMemberType: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public typealias RawValue = Int
+  case normalUnspecified // = 0
+  case maintainer // = 1
+  case UNRECOGNIZED(Int)
+
+  public init() {
+    self = .normalUnspecified
+  }
+
+  public init?(rawValue: Int) {
+    switch rawValue {
+    case 0: self = .normalUnspecified
+    case 1: self = .maintainer
+    default: self = .UNRECOGNIZED(rawValue)
+    }
+  }
+
+  public var rawValue: Int {
+    switch self {
+    case .normalUnspecified: return 0
+    case .maintainer: return 1
+    case .UNRECOGNIZED(let i): return i
+    }
+  }
+
+  // The compiler won't synthesize support with the UNRECOGNIZED case.
+  public static let allCases: [Common_GroupMemberType] = [
+    .normalUnspecified,
+    .maintainer,
+  ]
+
+}
+
 public struct Common_GroupInfo: @unchecked Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -84,6 +118,15 @@ public struct Common_GroupInfo: @unchecked Sendable {
     set {_uniqueStorage()._members = newValue}
   }
 
+  public var currentUserStatus: Common_WhatCurrentUserStatus {
+    get {return _storage._currentUserStatus ?? Common_WhatCurrentUserStatus()}
+    set {_uniqueStorage()._currentUserStatus = newValue}
+  }
+  /// Returns true if `currentUserStatus` has been explicitly set.
+  public var hasCurrentUserStatus: Bool {return _storage._currentUserStatus != nil}
+  /// Clears the value of `currentUserStatus`. Subsequent reads from it will return its default value.
+  public mutating func clearCurrentUserStatus() {_uniqueStorage()._currentUserStatus = nil}
+
   public var ctime: Int64 {
     get {return _storage._ctime}
     set {_uniqueStorage()._ctime = newValue}
@@ -114,6 +157,8 @@ public struct Common_GroupMemberInfo: Sendable {
 
   public var desc: String = String()
 
+  public var memberType: Common_GroupMemberType = .normalUnspecified
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
@@ -134,6 +179,8 @@ public struct Common_GroupProfileInfo: Sendable {
 
   public var description_p: String = String()
 
+  public var backgroudURL: String = String()
+
   public var ctime: Int64 = 0
 
   public var mtime: Int64 = 0
@@ -146,6 +193,13 @@ public struct Common_GroupProfileInfo: Sendable {
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
 fileprivate let _protobuf_package = "common"
+
+extension Common_GroupMemberType: SwiftProtobuf._ProtoNameProviding {
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    0: .same(proto: "GROUP_MEMBER_TYPE_NORMAL_UNSPECIFIED"),
+    1: .same(proto: "GROUP_MEMBER_TYPE_MAINTAINER"),
+  ]
+}
 
 extension Common_GroupInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GroupInfo"
@@ -161,6 +215,7 @@ extension Common_GroupInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     9: .same(proto: "status"),
     10: .same(proto: "profile"),
     11: .same(proto: "members"),
+    12: .standard(proto: "current_user_status"),
     19: .same(proto: "Ctime"),
     20: .same(proto: "Mtime"),
   ]
@@ -177,6 +232,7 @@ extension Common_GroupInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     var _status: Int32 = 0
     var _profile: Common_GroupProfileInfo? = nil
     var _members: [Common_GroupMemberInfo] = []
+    var _currentUserStatus: Common_WhatCurrentUserStatus? = nil
     var _ctime: Int64 = 0
     var _mtime: Int64 = 0
 
@@ -204,6 +260,7 @@ extension Common_GroupInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       _status = source._status
       _profile = source._profile
       _members = source._members
+      _currentUserStatus = source._currentUserStatus
       _ctime = source._ctime
       _mtime = source._mtime
     }
@@ -235,6 +292,7 @@ extension Common_GroupInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
         case 9: try { try decoder.decodeSingularInt32Field(value: &_storage._status) }()
         case 10: try { try decoder.decodeSingularMessageField(value: &_storage._profile) }()
         case 11: try { try decoder.decodeRepeatedMessageField(value: &_storage._members) }()
+        case 12: try { try decoder.decodeSingularMessageField(value: &_storage._currentUserStatus) }()
         case 19: try { try decoder.decodeSingularInt64Field(value: &_storage._ctime) }()
         case 20: try { try decoder.decodeSingularInt64Field(value: &_storage._mtime) }()
         default: break
@@ -282,6 +340,9 @@ extension Common_GroupInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       if !_storage._members.isEmpty {
         try visitor.visitRepeatedMessageField(value: _storage._members, fieldNumber: 11)
       }
+      try { if let v = _storage._currentUserStatus {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 12)
+      } }()
       if _storage._ctime != 0 {
         try visitor.visitSingularInt64Field(value: _storage._ctime, fieldNumber: 19)
       }
@@ -308,6 +369,7 @@ extension Common_GroupInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
         if _storage._status != rhs_storage._status {return false}
         if _storage._profile != rhs_storage._profile {return false}
         if _storage._members != rhs_storage._members {return false}
+        if _storage._currentUserStatus != rhs_storage._currentUserStatus {return false}
         if _storage._ctime != rhs_storage._ctime {return false}
         if _storage._mtime != rhs_storage._mtime {return false}
         return true
@@ -326,6 +388,7 @@ extension Common_GroupMemberInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     2: .same(proto: "name"),
     3: .same(proto: "avatar"),
     4: .same(proto: "desc"),
+    5: .standard(proto: "member_type"),
   ]
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -338,6 +401,7 @@ extension Common_GroupMemberInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageI
       case 2: try { try decoder.decodeSingularStringField(value: &self.name) }()
       case 3: try { try decoder.decodeSingularStringField(value: &self.avatar) }()
       case 4: try { try decoder.decodeSingularStringField(value: &self.desc) }()
+      case 5: try { try decoder.decodeSingularEnumField(value: &self.memberType) }()
       default: break
       }
     }
@@ -356,6 +420,9 @@ extension Common_GroupMemberInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     if !self.desc.isEmpty {
       try visitor.visitSingularStringField(value: self.desc, fieldNumber: 4)
     }
+    if self.memberType != .normalUnspecified {
+      try visitor.visitSingularEnumField(value: self.memberType, fieldNumber: 5)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -364,6 +431,7 @@ extension Common_GroupMemberInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageI
     if lhs.name != rhs.name {return false}
     if lhs.avatar != rhs.avatar {return false}
     if lhs.desc != rhs.desc {return false}
+    if lhs.memberType != rhs.memberType {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -377,6 +445,7 @@ extension Common_GroupProfileInfo: SwiftProtobuf.Message, SwiftProtobuf._Message
     3: .standard(proto: "group_follower_num"),
     4: .standard(proto: "group_story_num"),
     8: .same(proto: "description"),
+    9: .standard(proto: "backgroud_url"),
     19: .same(proto: "Ctime"),
     20: .same(proto: "Mtime"),
   ]
@@ -392,6 +461,7 @@ extension Common_GroupProfileInfo: SwiftProtobuf.Message, SwiftProtobuf._Message
       case 3: try { try decoder.decodeSingularInt32Field(value: &self.groupFollowerNum) }()
       case 4: try { try decoder.decodeSingularInt32Field(value: &self.groupStoryNum) }()
       case 8: try { try decoder.decodeSingularStringField(value: &self.description_p) }()
+      case 9: try { try decoder.decodeSingularStringField(value: &self.backgroudURL) }()
       case 19: try { try decoder.decodeSingularInt64Field(value: &self.ctime) }()
       case 20: try { try decoder.decodeSingularInt64Field(value: &self.mtime) }()
       default: break
@@ -415,6 +485,9 @@ extension Common_GroupProfileInfo: SwiftProtobuf.Message, SwiftProtobuf._Message
     if !self.description_p.isEmpty {
       try visitor.visitSingularStringField(value: self.description_p, fieldNumber: 8)
     }
+    if !self.backgroudURL.isEmpty {
+      try visitor.visitSingularStringField(value: self.backgroudURL, fieldNumber: 9)
+    }
     if self.ctime != 0 {
       try visitor.visitSingularInt64Field(value: self.ctime, fieldNumber: 19)
     }
@@ -430,6 +503,7 @@ extension Common_GroupProfileInfo: SwiftProtobuf.Message, SwiftProtobuf._Message
     if lhs.groupFollowerNum != rhs.groupFollowerNum {return false}
     if lhs.groupStoryNum != rhs.groupStoryNum {return false}
     if lhs.description_p != rhs.description_p {return false}
+    if lhs.backgroudURL != rhs.backgroudURL {return false}
     if lhs.ctime != rhs.ctime {return false}
     if lhs.mtime != rhs.mtime {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
