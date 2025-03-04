@@ -395,67 +395,61 @@ struct ProfileRoleCell: View {
     var body: some View {
         Button(action: { showRoleDetail = true }) {
             HStack(spacing: 0) {
-                // 左侧绿色指示条
-                Rectangle()
-                    .fill(Color.green)
-                    .frame(width: 3)
+                // 左侧角色图片
+                KFImage(URL(string: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 80, height: 100)
+                    .clipped()
                 
-                // 主要内容
-                HStack(spacing: 12) {
-                    // 角色头像
-                    RectProfileImageView(
-                        avatarUrl: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar,
-                        size: .InContent
-                    )
-                    .frame(width: 48, height: 48)
-                    .clipShape(Circle())
-                    
-                    // 角色信息
-                    VStack(alignment: .leading, spacing: 4) {
-                        // 角色名称
+                // 右侧内容区域
+                VStack(alignment: .leading, spacing: 12) {
+                    // 标题和时间
+                    HStack {
                         Text(role.role.characterName)
-                            .font(.system(size: 16))
-                            .foregroundColor(.primary)
-                            .lineLimit(1)
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white)
                         
-                        // 角色描述
-                        Text(role.role.characterDescription)
+                        Spacer()
+                        
+                        Text(formatDate(timestamp: role.role.ctime))
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray)
+                    }
+                    
+                    // 角色描述
+                    Text(role.role.characterDescription)
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                        .lineLimit(2)
+                    
+                    
+                    // 统计信息
+                    HStack(spacing: 24) {
+                        Label("\(role.role.storyboardNum) 故事", systemImage: "doc.text.fill")
                             .font(.system(size: 14))
                             .foregroundColor(.gray)
-                            .lineLimit(2)
                         
-                        // 统计信息
-                        HStack(spacing: 16) {
-                            // 故事数
-                            HStack(spacing: 4) {
-                                Image(systemName: "doc.text.fill")
-                                    .font(.system(size: 14))
-                                Text("\(9)")
-                                    .font(.system(size: 14))
-                            }
+                        Label("\(role.role.likeCount) 赞", systemImage: "heart.fill")
+                            .font(.system(size: 14))
                             .foregroundColor(.gray)
-                            
-                            // 消息数
-                            HStack(spacing: 4) {
-                                Image(systemName: "message.fill")
-                                    .font(.system(size: 14))
-                                Text("\(88)")
-                                    .font(.system(size: 14))
-                            }
+                        
+                        Spacer()
+                        
+                        Image(systemName: "chevron.right")
                             .foregroundColor(.gray)
-                        }
-                        .padding(.top, 4)
+                            .font(.system(size: 14))
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding(.vertical, 12)
                 .padding(.horizontal, 16)
             }
-            .background(Color.white.opacity(0.95))
+            .background(Color(hex: "1C1C1E"))
+            .cornerRadius(12)
         }
         .buttonStyle(PlainButtonStyle())
-        .cornerRadius(8)
         .padding(.horizontal, 16)
+        .padding(.vertical, 8)
         .fullScreenCover(isPresented: $showRoleDetail) {
             NavigationStack {
                 StoryRoleDetailView(
@@ -468,10 +462,17 @@ struct ProfileRoleCell: View {
                     showRoleDetail = false
                 }) {
                     Image(systemName: "xmark")
-                        .foregroundColor(.black)
+                        .foregroundColor(.white)
                 })
             }
         }
+    }
+    
+    private func formatDate(timestamp: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
     }
 }
 
