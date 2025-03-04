@@ -69,32 +69,31 @@ class AuthService {
     }
     
     @MainActor
-    func refreshUserData(token: String) -> Error?{
-       // 程序自动和服务程序交互，刷新token
-        var err :Error?
-        Task{@MainActor in
-            do {
-                if self.token != "" {
-                    let result = try await APIClient.shared.RefreshToken(curToken: token)
-                    print("refresh new token: \(result)")
-                    if result.2 != nil {
-                        err = result.2
-                        return
-                    }
-                    self.token = result.1
-                    self.currentUser = try await APIClient.shared.GetUserInfo(userId: result.0)
-                    print("user \(String(describing: self.currentUser))")
-                    return
-                }
-            }catch{
-                print("refresh token failed")
-                return
+    func refreshUserData(token: String) async throws {
+        print("AuthService.refreshUserData: ", token)
+        print("AuthService.refreshUserData self.token: ", self.token as Any)
+        
+        guard self.token != "" else {
+            print("Current token is empty")
+            throw NSError(domain: "AuthService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Token is empty"])
+        }
+        self.token = token
+        APIClient.shared.setGlobalToken(savedToken: token)
+        do {
+            let result = try await APIClient.shared.RefreshToken(curToken: token)
+            print("AuthService.refresh new token: \(result)")
+            
+            if let error = result.2 {
+                throw error
             }
+            
+            self.token = result.1
+            self.currentUser = try await APIClient.shared.GetUserInfo(userId: result.0)
+            print("AuthService.user \(String(describing: self.currentUser))")
+        } catch {
+            print("refresh token failed: \(error)")
+            throw error
         }
-        if err != nil{
-            return err
-        }
-        return nil
     }
     
     @MainActor

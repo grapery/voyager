@@ -31,13 +31,8 @@ struct APIClient{
         }
     }
     
-    public func setGlobalToken(savedToken: String){
-        print("globalUserToken: ",globalUserToken)
-        if globalUserToken == "" && savedToken != ""{
-            globalUserToken = savedToken
-        }else if globalUserToken != "" {
-            print("globalUserToken not empty: ",globalUserToken as Any)
-        }
+    public func setGlobalToken(savedToken: String) {
+        globalUserToken = savedToken
     }
     
     public func Login(account: String, password: String) async throws -> Common_LoginResponse {
@@ -106,7 +101,7 @@ struct APIClient{
             let request = Common_RefreshTokenRequest.with {
                 $0.token = curToken
             }
-            print("RefreshToken: ",request)
+            print("APICllient.RefreshToken: ",request)
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(curToken)"]
             resp = await authClient.refreshToken(request: request, headers: header)
@@ -115,6 +110,7 @@ struct APIClient{
             }
             
             globalUserToken = message.token
+            print("APIClient.RefreshToken globalUserToken: ",globalUserToken as Any)
             result.token = message.token
             result.userID = message.userID
         }

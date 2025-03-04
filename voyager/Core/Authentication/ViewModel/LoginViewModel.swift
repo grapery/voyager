@@ -36,7 +36,7 @@ class LoginViewModel: ObservableObject {
                     self.currentUser = service.currentUser
                     self.email = self.currentUser!.email
                     // Save token and user data
-                    saveUserToken()
+                    saveUserToken(newToken: service.token!)
                     saveCurrentUser()
                     isLogin = true
                 }
@@ -106,13 +106,13 @@ class LoginViewModel: ObservableObject {
         }
     }
     
-    func saveUserToken() {
+    func saveUserToken(newToken: String) {
         let defaults = UserDefaults.standard
         
         // Save token and email
-        defaults.set(token, forKey: tokenKey)
+        defaults.set(newToken, forKey: tokenKey)
         defaults.set(email, forKey: userEmailKey)
-        print("saving token: ",token)
+        print("saveUserToken saving token: ",newToken)
         // Save current user data
         saveCurrentUser()
         
@@ -137,20 +137,28 @@ class LoginViewModel: ObservableObject {
     
     @MainActor
     private func refreshUserData() async {
-        print("refreshUserData: ",token)
-        if !token.isEmpty {
-            let result = service.refreshUserData(token: token)
-            if result == nil {  // 如果没有错误
-                //self.currentUser = service.currentUser  // 更新当前用户
-                self.token = service.token ?? ""
-                self.isLogin = true
-                saveCurrentUser()  // 保存更新后的用户数据
-                saveUserToken()    // 确保token也被保存
-                print("Successfully refreshed user data, currentUser: \(String(describing: self.currentUser?.name))")
-            } else {
-                print("Failed to refresh user data: \(result?.localizedDescription ?? "")")
-                clearUserToken()
+        print("refreshUserData: ", token)
+        guard !token.isEmpty else {
+            print("Token is empty, cannot refresh")
+            return
+        }
+        do {
+            try await service.refreshUserData(token: token)
+            // 更新本地状态
+            self.token = service.token ?? ""
+            self.currentUser = service.currentUser
+            self.isLogin = true
+            
+            // 保存更新后的数据
+            saveCurrentUser()
+            if let newToken = service.token {
+                saveUserToken(newToken: newToken)
             }
+            
+            print("Successfully refreshed user data, currentUser: \(String(describing: self.currentUser?.name))")
+        } catch {
+            print("Failed to refresh user data: \(error.localizedDescription)")
+            clearUserToken()
         }
     }
     
