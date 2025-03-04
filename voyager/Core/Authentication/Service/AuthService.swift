@@ -70,9 +70,6 @@ class AuthService {
     
     @MainActor
     func refreshUserData(token: String) async throws {
-        print("AuthService.refreshUserData: ", token)
-        print("AuthService.refreshUserData self.token: ", self.token as Any)
-        
         guard self.token != "" else {
             print("Current token is empty")
             throw NSError(domain: "AuthService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Token is empty"])
