@@ -31,28 +31,6 @@ struct UserProfileView: View {
             VStack(spacing: 0) {
                 // 顶部个人信息区域
                 VStack(spacing: 16) {
-                    // 操作按钮行
-                    HStack {
-                        Spacer()
-                        // 编辑资料按钮
-                        Button(action: {
-                            showingEditProfile = true
-                        }) {
-                            Text("编辑资料")
-                                .font(.system(size: 14))
-                                .foregroundColor(.white)
-                        }
-                        // 设置按钮
-                        Button(action: {
-                            showSettings = true
-                        }) {
-                            Image(systemName: "gear")
-                                .foregroundColor(.white)
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 8) // 调整顶部按钮的间距
-                    
                     // 头像和用户信息
                     VStack(spacing: 8) {
                         // 头像
@@ -101,15 +79,30 @@ struct UserProfileView: View {
             .background(Color(hex: "1C1C1E")) // 内容背景色
         }
         .background(Color(hex: "1C1C1E")) // ScrollView 背景色
-        .ignoresSafeArea(.all, edges: .top) // 忽略顶部安全区域
-        .overlay(
-            // 添加顶部安全区域背景色
-            GeometryReader { geometry in
-                Color(hex: "1C1C1E")
-                    .frame(height: geometry.safeAreaInsets.top)
-                    .ignoresSafeArea(.all, edges: .top)
+        .safeAreaInset(edge: .top) {
+            // 操作按钮行
+            HStack {
+                Spacer()
+                // 编辑资料按钮
+                Button(action: {
+                    showingEditProfile = true
+                }) {
+                    Text("编辑资料")
+                        .font(.system(size: 14))
+                        .foregroundColor(.white)
+                }
+                // 设置按钮
+                Button(action: {
+                    showSettings = true
+                }) {
+                    Image(systemName: "gear")
+                        .foregroundColor(.white)
+                }
             }
-        )
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .background(Color(hex: "1C1C1E"))
+        }
         .sheet(isPresented: $showingEditProfile) {
             EditUserProfileView(user: user)
         }
