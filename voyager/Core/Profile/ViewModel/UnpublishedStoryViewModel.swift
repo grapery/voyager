@@ -1,4 +1,3 @@
-
 import Foundation
 
 class UnpublishedStoryViewModel: ObservableObject {
@@ -17,15 +16,14 @@ class UnpublishedStoryViewModel: ObservableObject {
     }
     
     func fetchUnpublishedStoryboards(isRefreshing: Bool = false) async {
-        if isRefreshing {
-            currentPage = 1
-            hasMorePages = true
-        }
-        
-        guard hasMorePages else { return }
-        
-        DispatchQueue.main.async {
-            self.isLoading = true
+        await MainActor.run {
+            if isRefreshing {
+                currentPage = 1
+                hasMorePages = true
+            }
+            
+            guard hasMorePages else { return }
+            isLoading = true
         }
         
         do {
@@ -35,7 +33,7 @@ class UnpublishedStoryViewModel: ObservableObject {
                 pageSize: Int64(self.pageSize)
             )
             
-            DispatchQueue.main.async {
+            await MainActor.run {
                 if let commonBoards = result.0 {
                     // 将 Common_StoryBoard 转换为 StoryBoard
                     let boards = commonBoards.map { commonBoard in
