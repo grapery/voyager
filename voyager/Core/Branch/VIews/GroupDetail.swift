@@ -30,166 +30,166 @@ struct GroupDetailView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Group Info Header with Background
-            ZStack(alignment: .top) {
-                // Background Image
-                KFImage(URL(string: defaultAvator))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(height: 200)  // 增加高度以容纳所有内容
-                    .clipped()
-                    .overlay(
-                        LinearGradient(
-                            gradient: Gradient(colors: [Color.black.opacity(0.3), Color.black.opacity(0.5)]),
-                            startPoint: .top,
-                            endPoint: .bottom
+        ScrollView {
+            RefreshControl(isRefreshing: $isRefreshing) {
+                await refreshGroupData()
+            }
+            
+            VStack(spacing: 0) {
+                // Group Info Header with Background
+                ZStack(alignment: .top) {
+                    // Background Image
+                    KFImage(URL(string: defaultAvator))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(height: 200)  // 增加高度以容纳所有内容
+                        .clipped()
+                        .overlay(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.black.opacity(0.3), Color.black.opacity(0.5)]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
                         )
-                    )
-                
-                VStack(spacing: 0) {
-                    // Top Navigation Bar
-                    HStack {
-                        // Back Button
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            HStack {
-                                Image(systemName: "chevron.left")
-                                    .font(.system(size: 16, weight: .semibold))
-                                Text("返回")
-                                    .font(.system(size: 16))
-                            }
-                            .foregroundColor(.white)
-                            .padding(8)
-                            .background(Color.black.opacity(0.3))
-                            .clipShape(Capsule())
-                        }
-                        
-                        Spacer()
-                        
-                        // Action Buttons
-                        HStack(spacing: 12) {
-                            Button(action: {
-                                showNewStoryView = true
-                            }) {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(.white)
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.black.opacity(0.3))
-                                    .clipShape(Circle())
-                            }
-                            
-                            Button(action: {
-                                showUpdateGroupView = true
-                            }) {
-                                Image(systemName: "gearshape")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(.white)
-                                    .frame(width: 32, height: 32)
-                                    .background(Color.black.opacity(0.3))
-                                    .clipShape(Circle())
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
                     
-                    // Group Info Content
-                    VStack(alignment: .leading, spacing: 12) {
-                        // Group Avatar and Basic Info
-                        HStack(spacing: 12) {
-                            KFImage(URL(string: group!.info.avatar))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 64, height: 64)
-                                .clipShape(Circle())
-                                .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(group!.info.name)
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(.white)
-                                
-                                HStack(spacing: 16) {
-                                    // Story Count
-                                    Label("\(group!.info.profile.groupStoryNum) 个故事", systemImage: "book.fill")
-                                        .font(.system(size: 14))
-                                    
-                                    // Member Count
-                                    Label("\(group!.info.profile.groupMemberNum) 个成员", systemImage: "person.2.fill")
-                                        .font(.system(size: 14))
+                    VStack(spacing: 0) {
+                        // Top Navigation Bar
+                        HStack {
+                            // Back Button
+                            Button(action: {
+                                dismiss()
+                            }) {
+                                HStack {
+                                    Image(systemName: "chevron.left")
+                                        .font(.system(size: 16, weight: .semibold))
+                                    Text("返回")
+                                        .font(.system(size: 16))
                                 }
-                                .foregroundColor(.white.opacity(0.9))
+                                .foregroundColor(.white)
+                                .padding(8)
+                                .background(Color.black.opacity(0.3))
+                                .clipShape(Capsule())
                             }
                             
                             Spacer()
                             
-                            // Join Button
-                            Button(action: {
-                                Task {
-                                    await viewModel.JoinGroup(groupdId: group!.info.groupID)
-                                }
-                            }) {
-                                Text(group!.info.currentUserStatus.isJoined ? "已加入" : "加入")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(group!.info.currentUserStatus.isJoined ? .gray : .white)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
-                                    .background(group!.info.currentUserStatus.isJoined ? Color.gray.opacity(0.1) : Color.blue)
-                                    .clipShape(Capsule())
-                            }
-                        }
-                        
-                        // Group Description
-                        if !group!.info.desc.isEmpty {
-                            Text(group!.info.desc)
-                                .font(.system(size: 15))
-                                .foregroundColor(.white)
-                                .lineLimit(3)
-                        }
-                        
-                        // Member Avatars
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: -8) {
-                                ForEach(group!.info.members.prefix(6), id: \.userID) { member in
-                                    KFImage(URL(string: member.avatar.isEmpty ? defaultAvator : member.avatar))
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 32, height: 32)
-                                        .clipShape(Circle())
-                                        .overlay(Circle().stroke(Color.white, lineWidth: 1))
-                                }
-                                
-                                if group!.info.members.count > 6 {
-                                    Text("+\(group!.info.members.count - 6)")
-                                        .font(.system(size: 12))
+                            // Action Buttons
+                            HStack(spacing: 12) {
+                                Button(action: {
+                                    showNewStoryView = true
+                                }) {
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 16, weight: .semibold))
                                         .foregroundColor(.white)
                                         .frame(width: 32, height: 32)
-                                        .background(Color.gray.opacity(0.5))
+                                        .background(Color.black.opacity(0.3))
+                                        .clipShape(Circle())
+                                }
+                                
+                                Button(action: {
+                                    showUpdateGroupView = true
+                                }) {
+                                    Image(systemName: "gearshape")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .frame(width: 32, height: 32)
+                                        .background(Color.black.opacity(0.3))
                                         .clipShape(Circle())
                                 }
                             }
                         }
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                        
+                        // Group Info Content
+                        VStack(alignment: .leading, spacing: 12) {
+                            // Group Avatar and Basic Info
+                            HStack(spacing: 12) {
+                                KFImage(URL(string: group!.info.avatar))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 64, height: 64)
+                                    .clipShape(Circle())
+                                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(group!.info.name)
+                                        .font(.system(size: 20, weight: .bold))
+                                        .foregroundColor(.white)
+                                    
+                                    HStack(spacing: 16) {
+                                        // Story Count
+                                        Label("\(group!.info.profile.groupStoryNum) 个故事", systemImage: "book.fill")
+                                            .font(.system(size: 14))
+                                        
+                                        // Member Count
+                                        Label("\(group!.info.profile.groupMemberNum) 个成员", systemImage: "person.2.fill")
+                                            .font(.system(size: 14))
+                                    }
+                                    .foregroundColor(.white.opacity(0.9))
+                                }
+                                
+                                Spacer()
+                                
+                                // Join Button
+                                Button(action: {
+                                    Task {
+                                        await viewModel.JoinGroup(groupdId: group!.info.groupID)
+                                    }
+                                }) {
+                                    Text(group!.info.currentUserStatus.isJoined ? "已加入" : "加入")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(group!.info.currentUserStatus.isJoined ? .gray : .white)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 8)
+                                        .background(group!.info.currentUserStatus.isJoined ? Color.gray.opacity(0.1) : Color.blue)
+                                        .clipShape(Capsule())
+                                }
+                            }
+                            
+                            // Group Description
+                            if !group!.info.desc.isEmpty {
+                                Text(group!.info.desc)
+                                    .font(.system(size: 15))
+                                    .foregroundColor(.white)
+                                    .lineLimit(3)
+                            }
+                            
+                            // Member Avatars
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: -8) {
+                                    ForEach(group!.info.members.prefix(6), id: \.userID) { member in
+                                        KFImage(URL(string: member.avatar.isEmpty ? defaultAvator : member.avatar))
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 32, height: 32)
+                                            .clipShape(Circle())
+                                            .overlay(Circle().stroke(Color.white, lineWidth: 1))
+                                    }
+                                    
+                                    if group!.info.members.count > 6 {
+                                        Text("+\(group!.info.members.count - 6)")
+                                            .font(.system(size: 12))
+                                            .foregroundColor(.white)
+                                            .frame(width: 32, height: 32)
+                                            .background(Color.gray.opacity(0.5))
+                                            .clipShape(Circle())
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.top, 16)  // 增加与顶部导航栏的间距
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 16)  // 增加与顶部导航栏的间距
                 }
-            }
-            
-            // Custom Tab View
-            CustomTabView(selectedTab: $selectedTab)
-                .padding(.vertical, 8)
-            Divider()
-            
-            // Story List
-            if selectedTab == 0 {
-                ScrollView {
-                    RefreshControl(isRefreshing: $isRefreshing) {
-                        await refreshGroupData()
-                    }
-                    
+                
+                // Custom Tab View
+                CustomTabView(selectedTab: $selectedTab)
+                    .padding(.vertical, 8)
+                Divider()
+                
+                // Story List
+                if selectedTab == 0 {
                     if viewModel.storys.isEmpty {
                         EmptyStateView(
                             icon: "doc.text.image",
@@ -206,13 +206,7 @@ struct GroupDetailView: View {
                             }
                         }
                     }
-                }
-            } else if selectedTab == 1 {
-                ScrollView {
-                    RefreshControl(isRefreshing: $isRefreshing) {
-                        await refreshGroupData()
-                    }
-                    
+                } else if selectedTab == 1 {
                     if viewModel.storys.isEmpty {
                         EmptyStateView(
                             icon: "doc.text.image",
