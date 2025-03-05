@@ -281,7 +281,7 @@ private struct EmptyStateView: View {
 
 struct CustomTabView: View {
     @Binding var selectedTab: Int
-    let tabs = ["关注", "最近"]
+    let tabs = ["关注", "全部"]
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
