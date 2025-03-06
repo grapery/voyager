@@ -542,43 +542,52 @@ struct StoryUpdateCell: View {
     let viewModel: GroupDetailViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Header
-            HStack {
-                KFImage(URL(string: story.storyInfo.avatar))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 40, height: 40)
-                    .clipShape(Circle())
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(story.storyInfo.name)
-                        .font(.system(size: 15, weight: .medium))
-                    Text(formatTimeAgo(timestamp: story.storyInfo.ctime))
-                        .font(.system(size: 12))
+        NavigationLink(destination: StoryView(story: story, userId: userId)) {
+            VStack(alignment: .leading, spacing: 12) {
+                // Header
+                HStack {
+                    KFImage(URL(string: story.storyInfo.avatar))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 40, height: 40)
+                        .clipShape(Circle())
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(story.storyInfo.name)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(.primary)
+                        Text(formatTimeAgo(timestamp: story.storyInfo.ctime))
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
                         .foregroundColor(.secondary)
+                        .font(.system(size: 14))
                 }
                 
-                Spacer()
+                // Content
+                Text(story.storyInfo.origin)
+                    .font(.system(size: 14))
+                    .lineLimit(3)
+                    .foregroundColor(.primary)
+                
+                if let imageUrl = URL(string: story.storyInfo.avatar) {
+                    KFImage(imageUrl)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(height: 180)
+                        .clipped()
+                        .cornerRadius(8)
+                }
             }
-            
-            // Content
-            Text(story.storyInfo.origin)
-                .font(.system(size: 14))
-                .lineLimit(3)
-            
-            if let imageUrl = URL(string: story.storyInfo.avatar) {
-                KFImage(imageUrl)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(height: 180)
-                    .clipped()
-                    .cornerRadius(8)
-            }
+            .padding(16)
+            .background(Color(UIColor.systemBackground))
+            .compositingGroup()
         }
-        .padding(16)
-        .background(Color(UIColor.systemBackground))
-        .compositingGroup() // Add this to ensure proper layering
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
