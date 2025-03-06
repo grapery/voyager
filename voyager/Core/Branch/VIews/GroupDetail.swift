@@ -21,6 +21,9 @@ struct GroupDetailView: View {
     @State private var needsRefresh = false
     @State private var isRefreshing = false
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedStoryId: Int64? = nil
+    @State private var scrollOffset: CGFloat = 0
+    @State private var isHeaderSticky: Bool = false
 
     init(user: User, group: BranchGroup) {
         self.user = user
@@ -31,9 +34,11 @@ struct GroupDetailView: View {
     
     var body: some View {
         ScrollView {
-            RefreshControl(isRefreshing: $isRefreshing) {
-                await refreshGroupData()
+            GeometryReader { geometry in
+                Color.clear.preference(key: ScrollOffsetPreferenceKey.self,
+                    value: geometry.frame(in: .named("scroll")).minY)
             }
+            .frame(height: 0)
             
             VStack(spacing: 0) {
                 // Group Info Header with Background
@@ -183,50 +188,137 @@ struct GroupDetailView: View {
                     }
                 }
                 
-                // Custom Tab View
-                CustomTabView(selectedTab: $selectedTab)
-                    .padding(.vertical, 8)
-                Divider()
-                
-                // Story List
-                if selectedTab == 0 {
-                    if viewModel.storys.isEmpty {
-                        EmptyStateView(
-                            icon: "doc.text.image",
-                            title: "暂无关注的故事",
-                            message: "快来创建第一个故事吧"
-                        )
-                    } else {
-                        LazyVStack(spacing: 0) {
-                            ForEach(viewModel.storys) { story in
-                                NavigationLink(destination: StoryView(story: story, userId: user.userID)) {
-                                    StoryCellView(story: story, userId: user.userID, viewModel: viewModel)
+                // Story List Section (Non-sticky version)
+                VStack(spacing: 0) {
+                    // Horizontal Story List
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            Button(action: {
+                                selectedStoryId = nil
+                            }) {
+                                VStack {
+                                    Circle()
+                                        .fill(selectedStoryId == nil ? Color.blue : Color.gray.opacity(0.3))
+                                        .frame(width: 60, height: 60)
+                                        .overlay(
+                                            Image(systemName: "timelapse")
+                                                .foregroundColor(.white)
+                                        )
+                                    Text("全部")
+                                        .font(.system(size: 12))
                                 }
-                                .buttonStyle(PlainButtonStyle())
+                            }
+                            
+                            ForEach(viewModel.storys) { story in
+                                Button(action: {
+                                    selectedStoryId = story.storyInfo.id
+                                }) {
+                                    VStack {
+                                        KFImage(URL(string: story.storyInfo.avatar))
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 60, height: 60)
+                                            .clipShape(Circle())
+                                            .overlay(
+                                                Circle()
+                                                    .stroke(selectedStoryId == story.storyInfo.id ? Color.orange : Color.gray, lineWidth: 2)
+                                            )
+                                        Text(story.storyInfo.name.prefix(4))
+                                            .font(.system(size: 12))
+                                            .lineLimit(1)
+                                    }
+                                }
                             }
                         }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
                     }
-                } else if selectedTab == 1 {
-                    if viewModel.storys.isEmpty {
-                        EmptyStateView(
-                            icon: "doc.text.image",
-                            title: "暂无最新故事",
-                            message: "快来创建第一个故事吧"
-                        )
+                    .background(Color(UIColor.systemBackground))
+                    
+                    Divider()
+                }
+                .opacity(isHeaderSticky ? 0 : 1)
+                
+                // Story Updates List
+                LazyVStack(spacing: 0) {
+                    if let selectedId = selectedStoryId {
+                        // Show updates for selected story
+                        ForEach(viewModel.storys.filter { $0.storyInfo.id == selectedId }) { story in
+                            StoryUpdateCell(story: story, userId: user.userID, viewModel: viewModel)
+                        }
                     } else {
-                        LazyVStack(spacing: 0) {
-                            ForEach(viewModel.storys.sorted { $0.storyInfo.ctime > $1.storyInfo.ctime }) { story in
-                                NavigationLink(destination: StoryView(story: story, userId: user.userID)) {
-                                    StoryCellView(story: story, userId: user.userID, viewModel: viewModel)
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                            }
+                        // Show all updates
+                        ForEach(viewModel.storys.sorted { $0.storyInfo.ctime > $1.storyInfo.ctime }) { story in
+                            StoryUpdateCell(story: story, userId: user.userID, viewModel: viewModel)
                         }
                     }
                 }
+                .padding(.top, isHeaderSticky ? 100 : 0) // Add padding when header is sticky
             }
         }
-        .navigationBarHidden(true)  // Hide the default navigation bar
+        .coordinateSpace(name: "scroll")
+        .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+            withAnimation {
+                isHeaderSticky = value < -200 // Adjust this value based on when you want the header to stick
+            }
+        }
+        .overlay(
+            Group {
+                if isHeaderSticky {
+                    // Sticky Header Overlay
+                    VStack(spacing: 0) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 16) {
+                                Button(action: {
+                                    selectedStoryId = nil
+                                }) {
+                                    VStack {
+                                        Circle()
+                                            .fill(selectedStoryId == nil ? Color.blue : Color.gray.opacity(0.3))
+                                            .frame(width: 60, height: 60)
+                                            .overlay(
+                                                Image(systemName: "star.fill")
+                                                    .foregroundColor(.white)
+                                            )
+                                        Text("全部")
+                                            .font(.system(size: 12))
+                                    }
+                                }
+                                
+                                ForEach(viewModel.storys) { story in
+                                    Button(action: {
+                                        selectedStoryId = story.storyInfo.id
+                                    }) {
+                                        VStack {
+                                            KFImage(URL(string: story.storyInfo.avatar))
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 60, height: 60)
+                                                .clipShape(Circle())
+                                                .overlay(
+                                                    Circle()
+                                                        .stroke(selectedStoryId == story.storyInfo.id ? Color.blue : Color.clear, lineWidth: 2)
+                                                )
+                                            Text(story.storyInfo.name.prefix(4))
+                                                .font(.system(size: 12))
+                                                .lineLimit(1)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                        }
+                        
+                        Divider()
+                    }
+                    .background(Color(UIColor.systemBackground))
+                    .transition(.opacity)
+                }
+            }
+            , alignment: .top
+        )
+        .navigationBarHidden(true)
         .sheet(isPresented: $showNewStoryView) {
             NewStoryView(groupId: group!.info.groupID, userId: user.userID)
                 .onDisappear {
@@ -432,5 +524,77 @@ struct RefreshControl: View {
             }
         }
         .frame(height: 5)
+    }
+}
+
+// Preference Key for tracking scroll offset
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+// Story Update Cell View
+struct StoryUpdateCell: View {
+    let story: Story
+    let userId: Int64
+    let viewModel: GroupDetailViewModel
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Header
+            HStack {
+                KFImage(URL(string: story.storyInfo.avatar))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 40, height: 40)
+                    .clipShape(Circle())
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(story.storyInfo.name)
+                        .font(.system(size: 15, weight: .medium))
+                    Text(formatTimeAgo(timestamp: story.storyInfo.ctime))
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+            }
+            
+            // Content
+            Text(story.storyInfo.origin)
+                .font(.system(size: 14))
+                .lineLimit(3)
+            
+            if let imageUrl = URL(string: story.storyInfo.avatar) {
+                KFImage(imageUrl)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(height: 180)
+                    .clipped()
+                    .cornerRadius(8)
+            }
+        }
+        .padding(16)
+        .background(Color(UIColor.systemBackground))
+        .compositingGroup() // Add this to ensure proper layering
+    }
+}
+
+// Helper function to format time
+func formatTimeAgo(timestamp: Int64) -> String {
+    let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+    let now = Date()
+    let components = Calendar.current.dateComponents([.minute, .hour, .day], from: date, to: now)
+    
+    if let day = components.day, day > 0 {
+        return "\(day)天前"
+    } else if let hour = components.hour, hour > 0 {
+        return "\(hour)小时前"
+    } else if let minute = components.minute, minute > 0 {
+        return "\(minute)分钟前"
+    } else {
+        return "刚刚"
     }
 }
