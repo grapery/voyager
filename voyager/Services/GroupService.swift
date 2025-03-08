@@ -272,43 +272,30 @@ extension APIClient {
     }
     // 搜索群组
     func SearchGroups(keyword: String,userId: Int64,page: Int64,size: Int64) async -> ([BranchGroup]?,Int64,Int64,Error?){
-        do {
-            let request = Common_SearchGroupRequest.with {
-                $0.name = keyword
-                $0.offset = page
-                $0.pageSize = size
-                $0.userID = userId
-            }
-            var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
-            let apiClient = Common_TeamsApiClient(client: self.client!)
-            let response = await apiClient.searchGroup(request: request, headers: header)
-            if response.message?.code != Common_ResponseCode.accountDisabled{
-                let groups = response.message?.data.list.map { BranchGroup(info: $0) }
-                return (groups, page, size,nil)
-            } else {
-                return ([], 0,  0,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Search groups failed"]))
-            }
-        } catch {
-            print("Error searching groups: \(error.localizedDescription)")
+        let request = Common_SearchGroupRequest.with {
+            $0.name = keyword
+            $0.offset = page
+            $0.pageSize = size
+            $0.userID = userId
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let response = await apiClient.searchGroup(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.accountDisabled{
+            let groups = response.message?.data.list.map { BranchGroup(info: $0) }
+            return (groups, page, size,nil)
+        } else {
             return ([], 0,  0,NSError(domain: "GroupService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Search groups failed"]))
         }
     }
     
     
     func followGroup(userId:Int64,groupID:Int64) async -> Error?{
-        do {
-            return nil
-        } catch {
-            return error
-        }
+        return nil
     }
     
     func unfollowGroup(userId: Int64,groupId:Int64) async -> Error?{
-        do {
-            return nil
-        } catch {
-            return error
-        }
+        return nil
     }
 }

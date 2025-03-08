@@ -195,11 +195,12 @@ struct GroupDiscussionCell: View {
                         isActive: false,
                         action: {
                             Task{
-                                if false{
-                                    await self.viewModel.unlikeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
-                                }else{
-                                    await self.viewModel.likeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
-                                }
+//                                if true{
+//                                    await self.viewModel.unlikeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
+//                                }else{
+                                print("send sub request")
+                                await self.viewModel.followGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
+                                //}
                             }
                         }
                     )
@@ -218,15 +219,16 @@ struct GroupDiscussionCell: View {
                         icon: "heart",
                         count: 40,
                         isActive: false,
-                        action: { 
+                        action: {
                             // 处理喜欢按钮点击
                             print("Heart tapped")
                             Task{
-                                if false{
-                                    await self.viewModel.unlikeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
-                                }else{
+//                                if true{
+//                                    await self.viewModel.unlikeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
+//                                }else{
+                                print("send like request")
                                     await self.viewModel.likeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
-                                }
+                                //}
                             }
                         }
                     )

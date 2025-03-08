@@ -207,7 +207,7 @@ class FeedListViewModel: ObservableObject {
     }
     
     @MainActor
-    func refreshData() async {
+    func refreshData(type: FeedType) async {
         guard !isLoading else { return }
         
         isLoading = true
@@ -215,25 +215,53 @@ class FeedListViewModel: ObservableObject {
         currentOffset = 0
         
         do {
-            let (boards, offset, size, error) = await storyService.storyActiveStoryBoards(
-                userId: userId,
-                storyId: 0,
-                offset: 0,
-                pageSize: pageSize,
-                filter: ""
-            )
-            print("refreshData: \(String(describing: boards))")
-            if let error = error {
-                hasError = true
-                errorMessage = error.localizedDescription
-                return
+            switch type{
+            case .Story:
+                // 获取用户关注的故事动态
+                let (boards, offset, size, error) = await storyService.storyActiveStoryBoards(
+                    userId: userId,
+                    storyId: 0,
+                    offset: 0,
+                    pageSize: pageSize,
+                    filter: ""
+                )
+                print("refreshData: \(String(describing: boards))")
+                if let error = error {
+                    hasError = true
+                    errorMessage = error.localizedDescription
+                    return
+                }
+                
+                if let boards = boards {
+                    storyBoardActives = boards
+                    currentOffset = offset ?? 0
+                    hasMoreData = boards.count >= pageSize
+                }
+            case .StoryRole:
+                // 获取用户关注的角色参与的故事板信息
+                let (boards, offset, size, error) = await storyService.userWatchRoleActiveStoryBoards(
+                    userId: userId,
+                    roleId: 0,
+                    offset: 0,
+                    pageSize: pageSize,
+                    filter: ""
+                )
+                print("refreshData: \(String(describing: boards))")
+                if let error = error {
+                    hasError = true
+                    errorMessage = error.localizedDescription
+                    return
+                }
+                
+                if let boards = boards {
+                    storyBoardActives = boards
+                    currentOffset = offset ?? 0
+                    hasMoreData = boards.count >= pageSize
+                }
+            case .Groups:
+                print("not support")
             }
             
-            if let boards = boards {
-                storyBoardActives = boards
-                currentOffset = offset ?? 0
-                hasMoreData = boards.count >= pageSize
-            }
         } catch {
             hasError = true
             errorMessage = error.localizedDescription
@@ -243,32 +271,58 @@ class FeedListViewModel: ObservableObject {
     }
     
     @MainActor
-    func loadMoreData() async {
+    func loadMoreData(type: FeedType) async {
         guard !isLoading && hasMoreData else { return }
         
         isLoading = true
         hasError = false
         
         do {
-            let (boards, offset, size, error) = await storyService.storyActiveStoryBoards(
-                userId: userId,
-                storyId: 0,
-                offset: currentOffset + pageSize,
-                pageSize: pageSize,
-                filter: ""
-            )
-            print("loadMoreData: \(String(describing: boards))")
-            if let error = error {
-                hasError = true
-                errorMessage = error.localizedDescription
-                return
+            switch type{
+            case .Story:
+                let (boards, offset, size, error) = await storyService.storyActiveStoryBoards(
+                    userId: userId,
+                    storyId: 0,
+                    offset: currentOffset + pageSize,
+                    pageSize: pageSize,
+                    filter: ""
+                )
+                print("loadMoreData: \(String(describing: boards))")
+                if let error = error {
+                    hasError = true
+                    errorMessage = error.localizedDescription
+                    return
+                }
+                
+                if let boards = boards {
+                    storyBoardActives.append(contentsOf: boards)
+                    currentOffset = offset ?? currentOffset
+                    hasMoreData = boards.count >= pageSize
+                }
+            case .StoryRole:
+                let (boards, offset, size, error) = await storyService.userWatchRoleActiveStoryBoards(
+                    userId: userId,
+                    roleId:  0,
+                    offset: currentOffset + pageSize,
+                    pageSize: pageSize,
+                    filter: ""
+                )
+                print("loadMoreData: \(String(describing: boards))")
+                if let error = error {
+                    hasError = true
+                    errorMessage = error.localizedDescription
+                    return
+                }
+                
+                if let boards = boards {
+                    storyBoardActives.append(contentsOf: boards)
+                    currentOffset = offset ?? currentOffset
+                    hasMoreData = boards.count >= pageSize
+                }
+            case .Groups:
+                print("not support")
             }
             
-            if let boards = boards {
-                storyBoardActives.append(contentsOf: boards)
-                currentOffset = offset ?? currentOffset
-                hasMoreData = boards.count >= pageSize
-            }
         } catch {
             hasError = true
             errorMessage = error.localizedDescription

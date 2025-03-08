@@ -17,9 +17,10 @@ enum FeedType{
 // 获取用户的关注以及用户参与的故事，以及用户关注或者参与的小组的故事动态。不可以用户关注用户，只可以关注小组或者故事,以及故事的角色
 struct FeedView: View {
     @StateObject var viewModel: FeedViewModel
-    @State private var selectedTab: FeedType = .Groups
+    @State private var selectedTab: FeedType = .Story
     @State private var searchText = ""
     @State private var selectedIndex: Int = 0
+    @State private var isRefreshing = false
     
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: FeedViewModel(user: user))
@@ -51,17 +52,21 @@ struct FeedView: View {
                 // 页面内容
                 TabView(selection: $selectedIndex) {
                     // 最新动态页面
-                    LatestUpdatesView(
-                        searchText: $searchText,
-                        selectedTab: $selectedTab,
-                        tabs: tabs,
-                        userId: viewModel.user.userID
-                    )
-                    .tag(0)
+                    ScrollView {
+                        LatestUpdatesView(
+                            searchText: $searchText,
+                            selectedTab: $selectedTab,
+                            tabs: tabs,
+                            userId: viewModel.user.userID
+                        )
+                        .tag(0)
+                    }
                     
                     // 发现页面
-                    DiscoveryView(viewModel: self.viewModel, messageText: "")
-                    .tag(1)
+                    ScrollView {
+                        DiscoveryView(viewModel: self.viewModel, messageText: "")
+                        .tag(1)
+                    }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
@@ -166,9 +171,6 @@ private struct FeedItemCard: View {
         VStack(alignment: .leading, spacing: 8) {
             // 左侧绿色装饰条
             HStack(spacing: 0) {
-                Rectangle()
-                    .fill(Color.primaryGreenBackgroud.opacity(0.3))
-                    .frame(width: 4)
                 
                 VStack(alignment: .leading, spacing: 8) {
                     // 标题和头像
@@ -216,7 +218,6 @@ private struct FeedItemCard: View {
                         }
                         .foregroundColor(.gray)
                         
-                        Spacer()
                         
                         // 点赞数
                         HStack(spacing: 4) {
@@ -311,6 +312,12 @@ private struct LatestUpdatesView: View {
             // 分类标签
             CategoryTabs(selectedTab: $selectedTab, tabs: tabs)
                 .padding(.vertical, 8)
+                .onChange(of: selectedTab) { newTab in
+                    Task {
+                        // 切换标签时刷新数据
+                        await viewModel.refreshData(type: newTab)
+                    }
+                }
             
             // 内容列表
             ScrollView {
@@ -318,7 +325,7 @@ private struct LatestUpdatesView: View {
                     isRefreshing: $isRefreshing,
                     onRefresh: {
                         Task {
-                            await viewModel.refreshData()
+                            await viewModel.refreshData(type: selectedTab)
                             isRefreshing = false
                         }
                     }
@@ -330,7 +337,7 @@ private struct LatestUpdatesView: View {
                                     // 当显示最后一个项目时加载更多
                                     if active.storyboard.storyBoardID == viewModel.storyBoardActives.last?.storyboard.storyBoardID {
                                         Task {
-                                            await viewModel.loadMoreData()
+                                            await viewModel.loadMoreData(type: selectedTab)
                                         }
                                     }
                                 }
@@ -350,7 +357,7 @@ private struct LatestUpdatesView: View {
         .task {
             // 初始加载数据
             if viewModel.storyBoardActives.isEmpty {
-                await viewModel.refreshData()
+                await viewModel.refreshData(type: selectedTab)
             }
         }
         .alert("加载失败", isPresented: $viewModel.hasError) {
