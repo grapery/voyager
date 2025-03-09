@@ -89,6 +89,22 @@ class StoryRoleModel: ObservableObject {
             print("likeStoryboard failed: ",err!)
         }
     }
+    
+    func generateRoleDescription(storyId: Int64,roleId:Int64,userId:Int64,sampleDesc: String) async -> (String?,Error?){
+        return (sampleDesc,nil)
+    }
+    
+    func updateRoleDescription(roleId:Int64,userId:Int64,desc: String)async -> Error?{
+        return nil
+    }
+    
+    func generateRolePrompt(storyId: Int64,roleId:Int64,userId:Int64,samplePrompt: String) async -> (String?,Error?){
+        return (samplePrompt,nil)
+    }
+    
+    func updateRolePrompt(roleId:Int64,userId:Int64,prompt: String)async -> Error?{
+        return nil
+    }
 }
 
 

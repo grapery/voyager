@@ -151,23 +151,15 @@ struct StoryView: View {
             }
             .padding(16)
             .background(Color(.systemBackground))
-            Divider()
+            
             StoryTabView(selectedTab: $selectedTab)
                 .padding(.top, 2) // 减少顶部间距
-            
+            Divider()
             GeometryReader { geometry in
                     VStack(spacing: 0) {
                         if selectedTab == 0 {
-                            // 故事线视图
                             storyLineView
-                        }else if selectedTab == 1{
-                            // 故事生成视图
-                            StoryGenView(generatedStory: $generatedStory,
-                                         isGenerating: $isGenerating,
-                                         errorMessage: $errorMessage,
-                                         viewModel: viewModel,
-                                         selectedTab: $selectedTab)
-                        }else if selectedTab == 2 {
+                        }else if selectedTab == 1 {
                             storyRolesListView
                         }
                     }
@@ -331,7 +323,7 @@ extension DateFormatter {
 
 struct StoryTabView: View {
     @Binding var selectedTab: Int64
-    let tabs = ["故事板", "故事线","故事人物"]
+    let tabs = ["故事板", "故事人物"]
     
     var body: some View {
         HStack {
@@ -342,18 +334,12 @@ struct StoryTabView: View {
                     .foregroundColor(selectedTab == 0 ? .black : .gray)
             }
             
+            
             Spacer() // 中间 Spacer
             
             Button(action: { selectedTab = 1 }) {
-                Image(systemName: "arrow.triangle.branch")
-                    .foregroundColor(selectedTab == 1 ? .black : .gray)
-            }
-            
-            Spacer() // 中间 Spacer
-            
-            Button(action: { selectedTab = 2 }) {
                 Image(systemName: "person.crop.rectangle.stack")
-                    .foregroundColor(selectedTab == 2 ? .black : .gray)
+                    .foregroundColor(selectedTab == 1 ? .black : .gray)
             }
             
             Spacer() // 添加结束 Spacer

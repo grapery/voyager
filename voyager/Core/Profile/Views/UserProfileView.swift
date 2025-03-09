@@ -455,7 +455,7 @@ struct ProfileRoleCell: View {
                     showRoleDetail = false
                 }) {
                     Image(systemName: "xmark")
-                        .foregroundColor(.white)
+                        .foregroundColor(.black)
                 })
             }
         }

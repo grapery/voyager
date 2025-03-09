@@ -307,7 +307,7 @@ struct StoryRoleDetailView: View {
                 )
             }
             .sheet(isPresented: $showingDescriptionEditor) {
-                EditDescriptionView(role: role, onSave: { /* 保存逻辑 */ })
+                EditDescriptionView(role: role, viewModel: self.viewModel)
             }
             
             Divider()
@@ -323,7 +323,7 @@ struct StoryRoleDetailView: View {
                 )
             }
             .sheet(isPresented: $showingPromptEditor) {
-                EditPromptView(role: role, onSave: { /* 保存逻辑 */ })
+                EditPromptView(role: role, viewModel: self.viewModel)
             }
             
             Divider()
@@ -466,13 +466,16 @@ struct RoleActionButton: View {
 // MARK: - Edit Description View
 struct EditDescriptionView: View {
     let role: StoryRole
-    let onSave: () -> Void
+    let viewModel: StoryRoleModel?  // 使用传入的 viewModel
     @Environment(\.dismiss) private var dismiss
     @State private var description: String
+    @State private var isGenerating = false
+    @State private var showError = false
+    @State private var errorMessage = ""
     
-    init(role: StoryRole, onSave: @escaping () -> Void) {
+    init(role: StoryRole, viewModel: StoryRoleModel?) {
         self.role = role
-        self.onSave = onSave
+        self.viewModel = viewModel
         _description = State(initialValue: role.role.characterDescription)
     }
     
@@ -482,6 +485,34 @@ struct EditDescriptionView: View {
                 Text("编辑角色描述")
                     .font(.system(size: 16, weight: .medium))
                     .padding(.top)
+                
+                // AI生成按钮
+                Button(action: {
+                    Task {
+                        await generateDescription()
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: "wand.and.stars")
+                        Text("AI生成角色描述")
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.blue)
+                    .cornerRadius(20)
+                }
+                .disabled(isGenerating || viewModel == nil)
+                
+                if isGenerating {
+                    HStack {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                        Text("正在生成描述...")
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray)
+                    }
+                }
                 
                 TextEditor(text: $description)
                     .font(.system(size: 14))
@@ -496,30 +527,105 @@ struct EditDescriptionView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("取消") { dismiss() }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("保存") {
-                        // TODO: 实现保存逻辑
-                        onSave()
+                    Button("取消") {
                         dismiss()
                     }
                 }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("保存") {
+                        Task {
+                            await saveDescription()
+                        }
+                    }
+                    .disabled(viewModel == nil)
+                }
             }
+            .alert("生成失败", isPresented: $showError) {
+                Button("确定", role: .cancel) { }
+            } message: {
+                Text(errorMessage)
+            }
+        }
+    }
+    
+    private func generateDescription() async {
+        guard let viewModel = viewModel else {
+            errorMessage = "生成失败"
+            showError = true
+            return
+        }
+        
+        isGenerating = true
+        
+        do {
+            // 使用 viewModel 生成角色描述
+            let (newDescription, error) = await viewModel.generateRoleDescription(
+                storyId: role.role.storyID,
+                roleId: role.role.roleID,
+                userId: viewModel.userId,
+                sampleDesc: description
+            )
+            
+            await MainActor.run {
+                if let error = error {
+                    errorMessage = error.localizedDescription
+                    showError = true
+                } else if let newDescription = newDescription {
+                    description = newDescription
+                }
+                isGenerating = false
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                showError = true
+                isGenerating = false
+            }
+        }
+    }
+    
+    private func saveDescription() async {
+        guard let viewModel = viewModel else {
+            errorMessage = "视图模型未初始化"
+            showError = true
+            return
+        }
+        
+        do {
+            // 使用 viewModel 保存角色描述
+            let error = await viewModel.updateRoleDescription(
+                roleId: role.role.roleID,
+                userId: viewModel.userId,
+                desc: description
+            )
+            
+            if let error = error {
+                errorMessage = error.localizedDescription
+                showError = true
+            } else {
+                dismiss()
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+            showError = true
         }
     }
 }
 
+
 // MARK: - Edit Prompt View
 struct EditPromptView: View {
     let role: StoryRole
-    let onSave: () -> Void
+    let viewModel: StoryRoleModel?
     @Environment(\.dismiss) private var dismiss
     @State private var prompt: String
+    @State private var isGenerating = false
+    @State private var showError = false
+    @State private var errorMessage = ""
     
-    init(role: StoryRole, onSave: @escaping () -> Void) {
+    init(role: StoryRole, viewModel: StoryRoleModel?) {
         self.role = role
-        self.onSave = onSave
+        self.viewModel = viewModel
         _prompt = State(initialValue: role.role.characterPrompt)
     }
     
@@ -533,6 +639,34 @@ struct EditPromptView: View {
                 Text("提示词将用于AI对话中塑造角色性格")
                     .font(.system(size: 12))
                     .foregroundColor(.secondary)
+                
+                // AI生成按钮
+                Button(action: {
+                    Task {
+                        await generatePrompt()
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: "wand.and.stars")
+                        Text("AI生成提示词")
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.blue)
+                    .cornerRadius(20)
+                }
+                .disabled(isGenerating || viewModel == nil)
+                
+                if isGenerating {
+                    HStack {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                        Text("正在生成提示词...")
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray)
+                    }
+                }
                 
                 TextEditor(text: $prompt)
                     .font(.system(size: 14))
@@ -551,12 +685,81 @@ struct EditPromptView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("保存") {
-                        // TODO: 实现保存逻辑
-                        onSave()
-                        dismiss()
+                        Task {
+                            await savePrompt()
+                        }
                     }
+                    .disabled(viewModel == nil)
                 }
             }
+            .alert("生成失败", isPresented: $showError) {
+                Button("确定", role: .cancel) { }
+            } message: {
+                Text(errorMessage)
+            }
+        }
+    }
+    
+    private func generatePrompt() async {
+        guard let viewModel = viewModel else {
+            errorMessage = "生成失败"
+            showError = true
+            return
+        }
+        
+        isGenerating = true
+        
+        do {
+            // 使用 viewModel 生成角色提示词
+            let (newPrompt, error) = await viewModel.generateRolePrompt(
+                storyId: role.role.storyID,
+                roleId: role.role.roleID,
+                userId: viewModel.userId,
+                samplePrompt: prompt
+            )
+            
+            await MainActor.run {
+                if let error = error {
+                    errorMessage = error.localizedDescription
+                    showError = true
+                } else if let newPrompt = newPrompt {
+                    prompt = newPrompt
+                }
+                isGenerating = false
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                showError = true
+                isGenerating = false
+            }
+        }
+    }
+    
+    private func savePrompt() async {
+        guard let viewModel = viewModel else {
+            errorMessage = "保存失败"
+            showError = true
+            return
+        }
+        
+        do {
+            // 使用 viewModel 保存角色提示词
+            let error = await viewModel.updateRolePrompt(
+                roleId: role.role.roleID,
+                userId: viewModel.userId,
+                prompt: prompt
+            )
+            
+            if let error = error {
+                errorMessage = error.localizedDescription
+                showError = true
+            } else {
+                dismiss()
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+            showError = true
         }
     }
 }
