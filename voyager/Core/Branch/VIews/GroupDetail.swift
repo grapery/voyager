@@ -20,6 +20,7 @@ struct GroupDetailView: View {
     @State private var selectedTab = 0
     @State private var needsRefresh = false
     @State private var isRefreshing = false
+    @State private var isLoading = true  // 添加加载状态
     @Environment(\.dismiss) private var dismiss
     @State private var selectedStoryId: Int64? = nil
     @State private var scrollOffset: CGFloat = 0
@@ -33,311 +34,264 @@ struct GroupDetailView: View {
     }
     
     var body: some View {
-        ScrollView {
-            GeometryReader { geometry in
-                Color.clear.preference(key: ScrollOffsetPreferenceKey.self,
-                    value: geometry.frame(in: .named("scroll")).minY)
-            }
-            .frame(height: 0)
-            
-            VStack(spacing: 0) {
-                // Group Info Header with Background
-                ZStack(alignment: .top) {
-                    // Background Image
-                    KFImage(URL(string: defaultAvator))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(height: 200)  // 增加高度以容纳所有内容
-                        .clipped()
-                        .overlay(
-                            LinearGradient(
-                                gradient: Gradient(colors: [Color.black.opacity(0.3), Color.black.opacity(0.5)]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                    
-                    VStack(spacing: 0) {
-                        // Top Navigation Bar
-                        HStack {
-                            // Back Button
-                            Button(action: {
-                                dismiss()
-                            }) {
-                                HStack {
-                                    Image(systemName: "chevron.left")
-                                        .font(.system(size: 16, weight: .semibold))
-                                    Text("返回")
-                                        .font(.system(size: 16))
-                                }
-                                .foregroundColor(.white)
-                                .padding(8)
-                                .background(Color.black.opacity(0.3))
-                                .clipShape(Capsule())
-                            }
-                            
-                            Spacer()
-                            
-                            // Action Buttons
-                            HStack(spacing: 12) {
-                                Button(action: {
-                                    showNewStoryView = true
-                                }) {
-                                    Image(systemName: "plus")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundColor(.white)
-                                        .frame(width: 32, height: 32)
-                                        .background(Color.black.opacity(0.3))
-                                        .clipShape(Circle())
-                                }
-                                
-                                Button(action: {
-                                    showUpdateGroupView = true
-                                }) {
-                                    Image(systemName: "gearshape")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundColor(.white)
-                                        .frame(width: 32, height: 32)
-                                        .background(Color.black.opacity(0.3))
-                                        .clipShape(Circle())
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 16)
+        ZStack {
+            if isLoading {
+                VStack {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                    Text("加载中...")
+                        .foregroundColor(.secondary)
                         .padding(.top, 8)
-                        
-                        // Group Info Content
-                        VStack(alignment: .leading, spacing: 12) {
-                            // Group Avatar and Basic Info
-                            HStack(spacing: 12) {
-                                KFImage(URL(string: group!.info.avatar))
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 64, height: 64)
-                                    .clipShape(Circle())
-                                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                                
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(group!.info.name)
-                                        .font(.system(size: 20, weight: .bold))
-                                        .foregroundColor(.white)
-                                    
-                                    HStack(spacing: 16) {
-                                        // Story Count
-                                        Label("\(group!.info.profile.groupStoryNum) 个故事", systemImage: "book.fill")
-                                            .font(.system(size: 14))
-                                        
-                                        // Member Count
-                                        Label("\(group!.info.profile.groupMemberNum) 个成员", systemImage: "person.2.fill")
-                                            .font(.system(size: 14))
-                                    }
-                                    .foregroundColor(.white.opacity(0.9))
-                                }
-                                
-                                Spacer()
-                                
-                                // Join Button
-                                Button(action: {
-                                    Task {
-                                        await viewModel.JoinGroup(groupdId: group!.info.groupID)
-                                    }
-                                }) {
-                                    Text(group!.info.currentUserStatus.isJoined ? "已加入" : "加入")
-                                        .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(group!.info.currentUserStatus.isJoined ? .gray : .white)
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 8)
-                                        .background(group!.info.currentUserStatus.isJoined ? Color.gray.opacity(0.1) : Color.blue)
-                                        .clipShape(Capsule())
-                                }
-                            }
-                            
-                            // Group Description
-                            if !group!.info.desc.isEmpty {
-                                Text(group!.info.desc)
-                                    .font(.system(size: 15))
-                                    .foregroundColor(.white)
-                                    .lineLimit(3)
-                            }
-                            
-                            // Member Avatars
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: -8) {
-                                    ForEach(group!.info.members.prefix(6), id: \.userID) { member in
-                                        KFImage(URL(string: member.avatar.isEmpty ? defaultAvator : member.avatar))
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 32, height: 32)
-                                            .clipShape(Circle())
-                                            .overlay(Circle().stroke(Color.white, lineWidth: 1))
-                                    }
-                                    
-                                    if group!.info.members.count > 6 {
-                                        Text("+\(group!.info.members.count - 6)")
-                                            .font(.system(size: 12))
-                                            .foregroundColor(.white)
-                                            .frame(width: 32, height: 32)
-                                            .background(Color.gray.opacity(0.5))
-                                            .clipShape(Circle())
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.top, 16)  // 增加与顶部导航栏的间距
-                    }
                 }
-                
-                // Story List Section (Non-sticky version)
-                VStack(spacing: 0) {
-                    // Horizontal Story List
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            Button(action: {
-                                selectedStoryId = nil
-                            }) {
-                                VStack {
-                                    Circle()
-                                        .fill(selectedStoryId == nil ? Color.blue : Color.gray.opacity(0.3))
-                                        .frame(width: 60, height: 60)
-                                        .overlay(
-                                            Image(systemName: "timelapse")
-                                                .foregroundColor(.white)
-                                        )
-                                    Text("全部")
-                                        .font(.system(size: 12))
-                                }
-                            }
-                            
-                            ForEach(viewModel.storys) { story in
-                                Button(action: {
-                                    selectedStoryId = story.storyInfo.id
-                                }) {
-                                    VStack {
-                                        KFImage(URL(string: story.storyInfo.avatar))
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 60, height: 60)
-                                            .clipShape(Circle())
-                                            .overlay(
-                                                Circle()
-                                                    .stroke(selectedStoryId == story.storyInfo.id ? Color.orange : Color.gray, lineWidth: 2)
-                                            )
-                                        Text(story.storyInfo.name.prefix(4))
-                                            .font(.system(size: 12))
-                                            .lineLimit(1)
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
+            } else {
+                ScrollView {
+                    GeometryReader { geometry in
+                        Color.clear.preference(key: ScrollOffsetPreferenceKey.self,
+                            value: geometry.frame(in: .named("scroll")).minY)
                     }
-                    .background(Color(UIColor.systemBackground))
+                    .frame(height: 0)
                     
-                    Divider()
-                }
-                .opacity(isHeaderSticky ? 0 : 1)
-                
-                // Story Updates List
-                LazyVStack(spacing: 0) {
-                    if let selectedId = selectedStoryId {
-                        // Show updates for selected story
-                        ForEach(viewModel.storys.filter { $0.storyInfo.id == selectedId }) { story in
-                            StoryUpdateCell(story: story, userId: user.userID, viewModel: viewModel)
-                        }
-                    } else {
-                        // Show all updates
-                        ForEach(viewModel.storys.sorted { $0.storyInfo.ctime > $1.storyInfo.ctime }) { story in
-                            StoryUpdateCell(story: story, userId: user.userID, viewModel: viewModel)
-                        }
-                    }
-                }
-                .padding(.top, isHeaderSticky ? 100 : 0) // Add padding when header is sticky
-            }
-        }
-        .coordinateSpace(name: "scroll")
-        .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-            withAnimation {
-                isHeaderSticky = value < -200 // Adjust this value based on when you want the header to stick
-            }
-        }
-        .overlay(
-            Group {
-                if isHeaderSticky {
-                    // Sticky Header Overlay
                     VStack(spacing: 0) {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                Button(action: {
-                                    selectedStoryId = nil
-                                }) {
-                                    VStack {
-                                        Circle()
-                                            .fill(selectedStoryId == nil ? Color.blue : Color.gray.opacity(0.3))
-                                            .frame(width: 60, height: 60)
-                                            .overlay(
-                                                Image(systemName: "star.fill")
-                                                    .foregroundColor(.white)
-                                            )
-                                        Text("全部")
-                                            .font(.system(size: 12))
-                                    }
-                                }
-                                
-                                ForEach(viewModel.storys) { story in
+                        // Group Info Header with Background
+                        ZStack(alignment: .top) {
+                            // Background Image
+                            KFImage(URL(string: defaultAvator))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(height: 200)  // 增加高度以容纳所有内容
+                                .clipped()
+                                .overlay(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [Color.black.opacity(0.3), Color.black.opacity(0.5)]),
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                            
+                            VStack(spacing: 0) {
+                                // Top Navigation Bar
+                                HStack {
+                                    // Back Button
                                     Button(action: {
-                                        selectedStoryId = story.storyInfo.id
+                                        dismiss()
                                     }) {
-                                        VStack {
-                                            KFImage(URL(string: story.storyInfo.avatar))
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(width: 60, height: 60)
+                                        HStack {
+                                            Image(systemName: "chevron.left")
+                                                .font(.system(size: 16, weight: .semibold))
+                                            Text("返回")
+                                                .font(.system(size: 16))
+                                        }
+                                        .foregroundColor(.white)
+                                        .padding(8)
+                                        .background(Color.black.opacity(0.3))
+                                        .clipShape(Capsule())
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    // Action Buttons
+                                    HStack(spacing: 12) {
+                                        Button(action: {
+                                            showNewStoryView = true
+                                        }) {
+                                            Image(systemName: "plus")
+                                                .font(.system(size: 16, weight: .semibold))
+                                                .foregroundColor(.white)
+                                                .frame(width: 32, height: 32)
+                                                .background(Color.black.opacity(0.3))
                                                 .clipShape(Circle())
-                                                .overlay(
-                                                    Circle()
-                                                        .stroke(selectedStoryId == story.storyInfo.id ? Color.blue : Color.clear, lineWidth: 2)
-                                                )
-                                            Text(story.storyInfo.name.prefix(4))
-                                                .font(.system(size: 12))
-                                                .lineLimit(1)
+                                        }
+                                        
+                                        Button(action: {
+                                            showUpdateGroupView = true
+                                        }) {
+                                            Image(systemName: "gearshape")
+                                                .font(.system(size: 16, weight: .semibold))
+                                                .foregroundColor(.white)
+                                                .frame(width: 32, height: 32)
+                                                .background(Color.black.opacity(0.3))
+                                                .clipShape(Circle())
                                         }
                                     }
                                 }
+                                .padding(.horizontal, 16)
+                                .padding(.top, 8)
+                                
+                                // Group Info Content
+                                VStack(alignment: .leading, spacing: 12) {
+                                    // Group Avatar and Basic Info
+                                    HStack(spacing: 12) {
+                                        KFImage(URL(string: group!.info.avatar))
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 64, height: 64)
+                                            .clipShape(Circle())
+                                            .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                                        
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(group!.info.name)
+                                                .font(.system(size: 20, weight: .bold))
+                                                .foregroundColor(.white)
+                                            
+                                            HStack(spacing: 16) {
+                                                // Story Count
+                                                Label("\(group!.info.profile.groupStoryNum) 个故事", systemImage: "book.fill")
+                                                    .font(.system(size: 14))
+                                                
+                                                // Member Count
+                                                Label("\(group!.info.profile.groupMemberNum) 个成员", systemImage: "person.2.fill")
+                                                    .font(.system(size: 14))
+                                            }
+                                            .foregroundColor(.white.opacity(0.9))
+                                        }
+                                        
+                                        Spacer()
+                                        
+                                        // Join Button
+                                        Button(action: {
+                                            Task {
+                                                await viewModel.JoinGroup(groupdId: group!.info.groupID)
+                                            }
+                                        }) {
+                                            Text(group!.info.currentUserStatus.isJoined ? "已加入" : "加入")
+                                                .font(.system(size: 14, weight: .medium))
+                                                .foregroundColor(group!.info.currentUserStatus.isJoined ? .gray : .white)
+                                                .padding(.horizontal, 16)
+                                                .padding(.vertical, 8)
+                                                .background(group!.info.currentUserStatus.isJoined ? Color.gray.opacity(0.1) : Color.blue)
+                                                .clipShape(Capsule())
+                                        }
+                                    }
+                                    
+                                    // Group Description
+                                    if !group!.info.desc.isEmpty {
+                                        Text(group!.info.desc)
+                                            .font(.system(size: 15))
+                                            .foregroundColor(.white)
+                                            .lineLimit(3)
+                                    }
+                                    
+                                    // Member Avatars
+                                    ScrollView(.horizontal, showsIndicators: false) {
+                                        HStack(spacing: -8) {
+                                            ForEach(group!.info.members.prefix(6), id: \.userID) { member in
+                                                KFImage(URL(string: member.avatar.isEmpty ? defaultAvator : member.avatar))
+                                                    .resizable()
+                                                    .aspectRatio(contentMode: .fill)
+                                                    .frame(width: 32, height: 32)
+                                                    .clipShape(Circle())
+                                                    .overlay(Circle().stroke(Color.white, lineWidth: 1))
+                                            }
+                                            
+                                            if group!.info.members.count > 6 {
+                                                Text("+\(group!.info.members.count - 6)")
+                                                    .font(.system(size: 12))
+                                                    .foregroundColor(.white)
+                                                    .frame(width: 32, height: 32)
+                                                    .background(Color.gray.opacity(0.5))
+                                                    .clipShape(Circle())
+                                            }
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.top, 16)  // 增加与顶部导航栏的间距
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
                         }
                         
-                        Divider()
+                        // Story List Section (Non-sticky version)
+                        VStack(spacing: 0) {
+                            // Horizontal Story List
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 16) {
+                                    Button(action: {
+                                        selectedStoryId = nil
+                                    }) {
+                                        VStack {
+                                            Circle()
+                                                .fill(selectedStoryId == nil ? Color.blue : Color.gray.opacity(0.3))
+                                                .frame(width: 32, height: 32)
+                                                .overlay(
+                                                    Image(systemName: "timelapse")
+                                                        .foregroundColor(.white)
+                                                )
+                                            Text("全部")
+                                                .font(.system(size: 12))
+                                        }
+                                    }
+                                    
+                                    ForEach(viewModel.storys) { story in
+                                        Button(action: {
+                                            selectedStoryId = story.storyInfo.id
+                                        }) {
+                                            VStack {
+                                                KFImage(URL(string: story.storyInfo.avatar))
+                                                    .resizable()
+                                                    .aspectRatio(contentMode: .fill)
+                                                    .frame(width: 32, height: 32)
+                                                    .clipShape(Circle())
+                                                    .overlay(
+                                                        Circle()
+                                                            .stroke(selectedStoryId == story.storyInfo.id ? Color.orange : Color.gray, lineWidth: 2)
+                                                    )
+                                                Text(story.storyInfo.name.prefix(4))
+                                                    .font(.system(size: 12))
+                                                    .lineLimit(1)
+                                            }
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                            }
+                            .background(Color(UIColor.systemBackground))
+                            
+                            Divider()
+                        }
+                        .opacity(isHeaderSticky ? 0 : 1)
+                        
+                        // Story Updates List
+                        LazyVStack(spacing: 0) {
+                            if let selectedId = selectedStoryId {
+                                // Show updates for selected story
+                                ForEach(viewModel.storys.filter { $0.storyInfo.id == selectedId }) { story in
+                                    StoryUpdateCell(story: story, userId: user.userID, viewModel: viewModel)
+                                }
+                            } else {
+                                // Show all updates
+                                ForEach(viewModel.storys.sorted { $0.storyInfo.ctime > $1.storyInfo.ctime }) { story in
+                                    StoryUpdateCell(story: story, userId: user.userID, viewModel: viewModel)
+                                }
+                            }
+                        }
+                        .padding(.top, isHeaderSticky ? 100 : 0) // Add padding when header is sticky
                     }
-                    .background(Color(UIColor.systemBackground))
-                    .transition(.opacity)
+                }
+                .navigationBarHidden(true)
+                .sheet(isPresented: $showNewStoryView) {
+                    NewStoryView(groupId: group!.info.groupID, userId: user.userID)
+                        .onDisappear {
+                            Task {
+                                await refreshGroupData()
+                            }
+                        }
+                }
+                .sheet(isPresented: $showUpdateGroupView) {
+                    UpdateGroupView(group: group!, userId: user.userID)
                 }
             }
-            , alignment: .top
-        )
-        .navigationBarHidden(true)
-        .sheet(isPresented: $showNewStoryView) {
-            NewStoryView(groupId: group!.info.groupID, userId: user.userID)
-                .onDisappear {
-                    Task {
-                        await refreshGroupData()
-                    }
-                }
-        }
-        .sheet(isPresented: $showUpdateGroupView) {
-            UpdateGroupView(group: group!, userId: user.userID)
         }
         .onAppear {
             Task {
+                isLoading = true
                 await refreshGroupData()
+                isLoading = false
             }
         }
     }
     
     private func refreshGroupData() async {
+        isRefreshing = true
         await viewModel.fetchGroupStorys(groupdId: group!.info.groupID)
         isRefreshing = false
     }
@@ -447,7 +401,7 @@ struct StoryCellView: View {
                     }
                 }) {
                     HStack(spacing: 4) {
-                        Image(systemName: "bell.circle")
+                        Image(systemName: "bell")
                             .font(.system(size: 14))
                         Text("订阅")
                             .font(.system(size: 14))
@@ -460,7 +414,7 @@ struct StoryCellView: View {
                     }
                 }) {
                     HStack(spacing: 4) {
-                        Image(systemName: "heart.circle")
+                        Image(systemName: "heart")
                             .font(.system(size: 14))
                         Text("点赞")
                             .font(.system(size: 14))
@@ -473,7 +427,7 @@ struct StoryCellView: View {
                     }
                 }) {
                     HStack(spacing: 4) {
-                        Image(systemName: "square.and.arrow.up.circle")
+                        Image(systemName: "square.and.arrow.up")
                             .font(.system(size: 14))
                         Text("分享")
                             .font(.system(size: 14))

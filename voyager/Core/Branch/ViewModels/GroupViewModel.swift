@@ -141,7 +141,7 @@ class GroupDetailViewModel: ObservableObject {
         self.storys = [Story]()
         self.members = [User]()
         self.groupId = groupId
-        Task{@MainActor in
+        Task{
             await self.fetchGroupStorys(groupdId:groupId)
         }
     }
@@ -179,10 +179,9 @@ class GroupDetailViewModel: ObservableObject {
         var pageSize: Int64 = 10
         (storys,page,pageSize,err) = await APIClient.shared.GetGroupStorys(groupId: self.groupId, userId: self.user.userID, page: Int64(self.storyPage), size: Int64(self.storyPageSize))
         if err != nil {
-            print("fetchGroupStorys err",err!)
+            print("fetchGroupStorys err: ",err as Any)
             return
         }
-        print("fetchGroupStorys : ",storys?.count as Any)
         self.storyPage = Int32(page)
         self.storyPageSize = Int32(pageSize)
         self.storys = storys!
