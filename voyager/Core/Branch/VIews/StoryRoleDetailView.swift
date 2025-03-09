@@ -126,6 +126,12 @@ struct StoryRoleDetailView: View {
         self.viewModel = StoryRoleModel(story: nil, storyId: 0, userId: userId)
         self.boardIds = [Int64]()
         self.userId = userId
+        print("=== role detail init ===")
+        print("Name: \(role!.role.characterName)")
+        print("Description: \(role!.role.characterDescription)")
+        print("Prompt: \(role!.role.characterPrompt)")
+        print("Create Time: \(role!.role.ctime)")
+        print("=== role detail init ===")
     }
 
     init(roleId: Int64, userId: Int64) {
@@ -230,9 +236,9 @@ struct StoryRoleDetailView: View {
             }
             
         }
-        .task {  // 或者使用 .onAppear
-            await loadRoleDetails()
-        }
+//        .task {  // 或者使用 .onAppear
+//            await loadRoleDetails()
+//        }
     }
     
     // 角色基本信息卡片
@@ -266,7 +272,13 @@ struct StoryRoleDetailView: View {
     
     // 统计信息卡片
     private func statsCard(role: StoryRole) -> some View {
-        HStack(spacing: 24) {
+        print("=== statsCard OnAppear ===")
+        print("Name: \(role.role.characterName)")
+        print("Description: \(role.role.characterDescription)")
+        print("Prompt: \(role.role.characterPrompt)")
+        print("Create Time: \(role.role.ctime)")
+        print("=== End statsCard OnAppear ===")
+        return HStack(spacing: 24) {
             InteractionStatView(
                 icon: "heart.fill",
                 color: .red,
@@ -296,7 +308,13 @@ struct StoryRoleDetailView: View {
     
     // 详细信息卡片
     private func detailsCard(role: StoryRole) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        print("=== Details Card OnAppear ===")
+        print("Name: \(role.role.characterName)")
+        print("Description: \(role.role.characterDescription)")
+        print("Prompt: \(role.role.characterPrompt)")
+        print("Create Time: \(role.role.ctime)")
+        print("=== End Details Card OnAppear ===")
+        return VStack(alignment: .leading, spacing: 12) {
             // 角色描述部分
             Button(action: { showingDescriptionEditor = true }) {
                 DetailSection(
