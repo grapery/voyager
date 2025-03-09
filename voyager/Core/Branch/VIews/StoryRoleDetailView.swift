@@ -76,7 +76,7 @@ struct CharacterCell: View {
                     Button(action: {
                         showingDetail = true
                     }) {
-                        Image(systemName: "info.circle")
+                        Image(systemName: "info")
                             .font(.system(size: 16))
                     }
                     .foregroundColor(.orange)
@@ -355,7 +355,7 @@ struct StoryRoleDetailView: View {
                     HStack {
                         Label(formatDate(timestamp: role.role.ctime), systemImage: "clock")
                         Spacer()
-                        Label("ID: \(role.role.creatorID)", systemImage: "person.circle")
+                        Label("ID: \(role.role.creatorID)", systemImage: "person")
                     }
                     .font(.system(size: 12))
                     .foregroundColor(.secondary)

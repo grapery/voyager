@@ -213,15 +213,19 @@ struct UpdateGroupView: View {
         }
         // Upload avatar image if selected
         Task{
-            //self.avatar = try await APIClient.shared.uploadImage(image: self.avatarImage!, filename: defaultAvator)
-            self.avatar = try await AliyunClient.UploadImage(image: self.avatarImage!)
-            print("self.avatar: \(self.avatar)")
-            if (self.avatarImage?.size.width)! > 10{
-                await self.updateGroupInfo(avatarURL: self.avatar)
-            }else{
-                await self.updateGroupInfo(avatarURL: defaultAvator)
+            do{
+                //self.avatar = try await APIClient.shared.uploadImage(image: self.avatarImage!, filename: defaultAvator)
+                self.avatar = try AliyunClient.UploadImage(image: self.avatarImage!)
+                print("self.avatar: \(self.avatar)")
+                if (self.avatarImage?.size.width)! > 10{
+                    await self.updateGroupInfo(avatarURL: self.avatar)
+                }else{
+                    await self.updateGroupInfo(avatarURL: defaultAvator)
+                }
+                
+            }catch{
+                print("updateGroup error")
             }
-            
         }
     }
     

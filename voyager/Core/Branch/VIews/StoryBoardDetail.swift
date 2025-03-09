@@ -215,17 +215,17 @@ struct StoryBoardCellView: View {
                 
                 // Action buttons
                 HStack(spacing: 24) {
-                    StoryActionButton(icon: "pencil.circle", action: {
+                    StoryActionButton(icon: "pencil", action: {
                         self.isShowingNewStoryBoard = true
                     })
                     .frame(width: 32, height: 32)
                     
-                    StoryActionButton(icon: "signpost.right.and.left.circle", action: {
+                    StoryActionButton(icon: "signpost.right.and.left", action: {
                         self.isForkingStory = true
                     })
                     .frame(width: 32, height: 32)
                     
-                    StoryActionButton(icon: "heart.circle", action: {
+                    StoryActionButton(icon: "heart", action: {
                         self.isLiked = true
                         Task {
                             let err = await self.viewModel.likeStoryBoard(storyId: self.storyId, boardId: (self.board?.boardInfo.storyBoardID)!, userId: self.userId)
@@ -244,7 +244,7 @@ struct StoryBoardCellView: View {
                     .frame(width: 32, height: 32)
                     
                     if self.board?.boardInfo.creator == self.userId {
-                        StoryActionButton(icon: "trash.circle", action: {
+                        StoryActionButton(icon: "trash", action: {
                             showingDeleteAlert = true
                         })
                         .frame(width: 32, height: 32)
