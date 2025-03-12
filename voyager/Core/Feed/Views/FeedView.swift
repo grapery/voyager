@@ -39,38 +39,37 @@ struct FeedView: View {
                 CommonNavigationBar(
                     title: "动态",
                     onAddTapped: {
-                        // 处理添加操作
+                        selectedIndex = 0
                     }
-                )
-                
-                // 使用通用搜索栏
-                CommonSearchBar(
-                    searchText: $searchText,
-                    placeholder: "搜索动态"
                 )
                 
                 // 页面内容
                 TabView(selection: $selectedIndex) {
                     // 最新动态页面
                     ScrollView {
+                        // 使用通用搜索栏
+                        CommonSearchBar(
+                            searchText: $searchText,
+                            placeholder: "发生了什么......."
+                        )
                         LatestUpdatesView(
                             searchText: $searchText,
                             selectedTab: $selectedTab,
                             tabs: tabs,
-                            userId: viewModel.user.userID
+                            viewModel: viewModel
                         )
                         .tag(0)
                     }
                     
                     // 发现页面
                     ScrollView {
-                        DiscoveryView(viewModel: self.viewModel, messageText: "")
+                        DiscoveryView(viewModel: viewModel, messageText: "最近那边发生了什么事情？")
                         .tag(1)
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
-            .background(Color(hex: "1C1C1E"))
+            .background(Color.theme.background)
         }
     }
 }
@@ -88,7 +87,7 @@ private struct TopNavigationBar: View {
             }) {
                 Text("最新动态")
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(selectedIndex == 0 ? .white : .gray)
+                    .foregroundColor(selectedIndex == 0 ? Color.theme.primaryText : Color.theme.tertiaryText)
             }
             
             Button(action: { 
@@ -98,14 +97,14 @@ private struct TopNavigationBar: View {
             }) {
                 Text("发现")
                     .font(.system(size: 17))
-                    .foregroundColor(selectedIndex == 1 ? .white : .gray)
+                    .foregroundColor(selectedIndex == 1 ? Color.theme.primaryText : Color.theme.tertiaryText)
             }
             
             Spacer()
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(Color.primaryBackgroud)
+        .background(Color.theme.secondaryBackground)
     }
 }
 
@@ -117,13 +116,14 @@ private struct FeedSearchBar: View {
         HStack {
             TextField("搜索", text: $text)
                 .textFieldStyle(PlainTextFieldStyle())
+                .foregroundColor(Color.theme.inputText)
                 .padding(8)
             
             Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
+                .foregroundColor(Color.theme.tertiaryText)
                 .padding(.trailing, 8)
         }
-        .background(Color.primaryBackgroud)
+        .background(Color.theme.inputBackground)
         .cornerRadius(20)
     }
 }
@@ -140,12 +140,12 @@ private struct CategoryTabs: View {
                     Button(action: { selectedTab = tab.type }) {
                         Text(tab.title)
                             .font(.system(size: 14))
-                            .foregroundColor(selectedTab == tab.type ? .black : .gray)
+                            .foregroundColor(selectedTab == tab.type ? Color.theme.primaryText : Color.theme.tertiaryText)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
                             .background(
                                 Capsule()
-                                    .fill(selectedTab == tab.type ? Color.primaryGreenBackgroud : Color.primaryBackgroud)
+                                    .fill(selectedTab == tab.type ? Color.theme.accent.opacity(0.1) : Color.theme.secondaryBackground)
                             )
                     }
                 }
@@ -158,108 +158,232 @@ private struct CategoryTabs: View {
 // Feed 内容卡片
 private struct FeedItemCard: View {
     let storyBoardActive: Common_StoryBoardActive
-    
-    private var storyBoard: Common_StoryBoard {
-        storyBoardActive.storyboard
-    }
-    
-    private var hasParticipants: Bool {
-        !storyBoardActive.users.isEmpty
-    }
+    let userId: Int64
+    @ObservedObject var viewModel: FeedViewModel
+    @State private var showComments = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // 左侧绿色装饰条
-            HStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 12) {
+            // 顶部信息：创建者和故事信息
+            HStack(spacing: 8) {
+                // 创建者头像
+                KFImage(URL(string: storyBoardActive.creator.userAvatar))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 32, height: 32)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
                 
-                VStack(alignment: .leading, spacing: 8) {
-                    // 标题和头像
-                    HStack {
-                        Text(storyBoard.title)
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
-                        
-                        Spacer()
-                        
-                        KFImage(URL(string: storyBoardActive.creator.userAvatar.isEmpty ? defaultAvator : storyBoardActive.creator.userAvatar))
-                            .resizable()
-                            .frame(width: 32, height: 32)
-                            .clipShape(Circle())
-                    }
+                Text(storyBoardActive.creator.userName)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(Color.theme.primaryText)
+                
+                Text("@")
+                    .foregroundColor(Color.theme.tertiaryText)
+                
+                // 故事缩略图和名称
+                HStack(spacing: 4) {
+                    KFImage(URL(string: storyBoardActive.summary.storyAvatar))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 20, height: 20)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
                     
-                    // 内容
-                    Text(storyBoard.content)
+                    Text(storyBoardActive.summary.storyTitle)
                         .font(.system(size: 14))
-                        .foregroundColor(.gray)
-                        .lineLimit(3)
-                    
-                    // 场景数量（如果有）
-                    if !storyBoard.sences.list.isEmpty {
-                        HStack {
-                            Image(systemName: "photo.stack")
-                                .foregroundColor(.gray)
-                                .font(.system(size: 12))
-                            Text("共\(storyBoard.sences.list.count)个场景")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
-                        .padding(.top, 2)
-                    }
-                    
-                    Divider()
-                        .background(Color.gray.opacity(0.3))
-                    
-                    // 底部统计
-                    HStack {
-                        // 评论数
-                        HStack(spacing: 4) {
-                            Image(systemName: "bubble.left")
-                            Text("\(storyBoardActive.totalCommentCount)")
-                        }
-                        .foregroundColor(.gray)
-                        
-                        
-                        // 点赞数
-                        HStack(spacing: 4) {
-                            Image(systemName: storyBoardActive.isliked ? "heart.fill" : "heart")
-                            Text("\(storyBoardActive.totalLikeCount)")
-                        }
-                        .foregroundColor(storyBoardActive.isliked ? .red : .gray)
-                        
-                        // 参与者头像
-                        if hasParticipants {
-                            HStack(spacing: -8) {
-                                ForEach(storyBoardActive.users.prefix(3), id: \.userID) { participant in
-                                    KFImage(URL(string: participant.userAvatar.isEmpty ? defaultAvator : participant.userAvatar))
-                                        .resizable()
-                                        .frame(width: 24, height: 24)
-                                        .clipShape(Circle())
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color.primaryBackgroud, lineWidth: 2)
-                                        )
-                                }
-                                
-                                if storyBoardActive.users.count > 3 {
-                                    Text("+\(storyBoardActive.users.count - 3)")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.gray)
-                                        .padding(.leading, 4) 
-                                }
-                            }
-                            .padding(.leading, 8)
-                        }
-                    }
-                    .font(.system(size: 14))
+                        .foregroundColor(Color.theme.accent)
                 }
-                .padding(12)
+                
+                Spacer()
+                
+                // 发布时间
+                Text(formatTimeAgo(timestamp: storyBoardActive.storyboard.ctime))
+                    .font(.system(size: 12))
+                    .foregroundColor(Color.theme.tertiaryText)
             }
+            .padding(.horizontal)
+            
+            // 故事板内容
+            VStack(alignment: .leading, spacing: 8) {
+                Text(storyBoardActive.storyboard.content)
+                    .font(.system(size: 15))
+                    .foregroundColor(Color.theme.primaryText)
+                    .lineLimit(3)
+                
+//                if !storyBoardActive.images.isEmpty {
+//                    ScrollView(.horizontal, showsIndicators: false) {
+//                        HStack(spacing: 8) {
+//                            ForEach(storyBoardActive.storyboard.sences.list, id: \.self) { imageUrl in
+//                                KFImage(URL(string: imageUrl))
+//                                    .resizable()
+//                                    .aspectRatio(contentMode: .fill)
+//                                    .frame(width: 120, height: 120)
+//                                    .cornerRadius(8)
+//                                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.theme.border, lineWidth: 0.5))
+//                            }
+//                        }
+//                    }
+//                }
+            }
+            .padding(.horizontal)
+            
+            // 交互按钮
+            HStack(spacing: 24) {
+                // 评论按钮
+                Button(action: {
+                    showComments = true
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "bubble.left")
+                            .font(.system(size: 16))
+                        Text("\(storyBoardActive.totalCommentCount)")
+                            .font(.system(size: 14))
+                    }
+                    .foregroundColor(Color.theme.tertiaryText)
+                }
+                
+                // 点赞按钮
+                Button(action: {
+                    Task {
+                        if storyBoardActive.isliked {
+                            await viewModel.unlikeStoryBoard(storyBoardId: storyBoardActive.storyboard.storyBoardID)
+                        } else {
+                            await viewModel.likeStoryBoard(storyBoardId: storyBoardActive.storyboard.storyBoardID)
+                        }
+                    }
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: storyBoardActive.isliked ? "heart.fill" : "heart")
+                            .font(.system(size: 16))
+                        Text("\(storyBoardActive.totalLikeCount)")
+                            .font(.system(size: 14))
+                    }
+                    .foregroundColor(storyBoardActive.isliked ? Color.theme.accent : Color.theme.tertiaryText)
+                }
+                
+                Spacer()
+                
+                // 分享按钮
+                Button(action: {}) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 16))
+                        .foregroundColor(Color.theme.tertiaryText)
+                }
+            }
+            .padding(.horizontal)
         }
-        .background(Color.primaryBackgroud)
-        .cornerRadius(8)
+        .padding(.vertical, 12)
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.theme.border, lineWidth: 0.5)
+        )
+        .shadow(color: Color.theme.primaryText.opacity(0.05), radius: 4, y: 2)
+        .sheet(isPresented: $showComments) {
+            CommentsView(
+                storyBoardId: storyBoardActive.storyboard.storyBoardID,
+                userId: userId,
+                viewModel: viewModel
+            )
+        }
     }
 }
 
+// 评论视图
+struct CommentsView: View {
+    let storyBoardId: Int64
+    let userId: Int64
+    @ObservedObject var viewModel: FeedViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var commentText = ""
+    @State private var isLoading = false
+    
+    var body: some View {
+        NavigationView {
+            VStack {
+                // 评论列表
+                ScrollView {
+                    LazyVStack(spacing: 16) {
+                        ForEach(viewModel.comments) { comment in
+                            CommentCell(comment: comment)
+                        }
+                    }
+                    .padding()
+                }
+                
+                // 评论输入框
+                HStack {
+                    TextField("添加评论...", text: $commentText)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.horizontal)
+                    
+                    Button(action: {
+                        Task {
+                            await sendComment()
+                        }
+                    }) {
+                        Text("发送")
+                            .foregroundColor(.blue)
+                    }
+                    .padding(.trailing)
+                    .disabled(commentText.isEmpty || isLoading)
+                }
+                .padding(.vertical, 8)
+                .background(Color(.systemBackground))
+                .shadow(radius: 2)
+            }
+            .navigationTitle("评论")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(leading: Button("关闭") {
+                dismiss()
+            })
+            .onAppear {
+                Task {
+                    await viewModel.fetchComments(storyBoardId: storyBoardId)
+                }
+            }
+        }
+    }
+    
+    private func sendComment() async {
+        guard !commentText.isEmpty else { return }
+        isLoading = true
+        await viewModel.addComment(storyBoardId: storyBoardId, content: commentText)
+        commentText = ""
+        isLoading = false
+    }
+}
+
+// 评论单元格
+struct CommentCell: View {
+    let comment: Comment
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            KFImage(URL(string: comment.commentUser.avatar))
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 32, height: 32)
+                .clipShape(Circle())
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(comment.commentUser.name)
+                    .font(.system(size: 14, weight: .medium))
+                
+                Text(comment.realComment.content)
+                    .font(.system(size: 14))
+                
+                Text(formatTimeAgo(timestamp: comment.realComment.ctime))
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
+            }
+            
+            Spacer()
+        }
+    }
+}
 
 // 优化搜索栏组件
 struct SearchBar: View {
@@ -289,73 +413,32 @@ struct SearchBar: View {
     }
 }
 
-
-// 最新动态视图
+// 最新动态主视图
 private struct LatestUpdatesView: View {
     @Binding var searchText: String
     @Binding var selectedTab: FeedType
     let tabs: [(type: FeedType, title: String)]
-    let userId: Int64
-    @StateObject private var viewModel: FeedListViewModel
+    @ObservedObject var viewModel: FeedViewModel
     @State private var isRefreshing = false
     
-    init(searchText: Binding<String>, selectedTab: Binding<FeedType>, tabs: [(type: FeedType, title: String)], userId: Int64) {
+    init(searchText: Binding<String>, selectedTab: Binding<FeedType>, tabs: [(type: FeedType, title: String)], viewModel: FeedViewModel) {
         self._searchText = searchText
         self._selectedTab = selectedTab
         self.tabs = tabs
-        self.userId = userId
-        self._viewModel = StateObject(wrappedValue: FeedListViewModel(userId: userId))
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
     }
     
     var body: some View {
         VStack(spacing: 0) {
-            // 分类标签
-            CategoryTabs(selectedTab: $selectedTab, tabs: tabs)
-                .padding(.vertical, 8)
-                .onChange(of: selectedTab) { newTab in
-                    Task {
-                        // 切换标签时刷新数据
-                        await viewModel.refreshData(type: newTab)
-                    }
-                }
-            
-            // 内容列表
-            ScrollView {
-                RefreshableScrollView(
-                    isRefreshing: $isRefreshing,
-                    onRefresh: {
-                        Task {
-                            await viewModel.refreshData(type: selectedTab)
-                            isRefreshing = false
-                        }
-                    }
-                ) {
-                    LazyVStack(spacing: 12) {
-                        ForEach(viewModel.storyBoardActives, id: \.storyboard.storyBoardID) { active in
-                            FeedItemCard(storyBoardActive: active)
-                                .onAppear {
-                                    // 当显示最后一个项目时加载更多
-                                    if active.storyboard.storyBoardID == viewModel.storyBoardActives.last?.storyboard.storyBoardID {
-                                        Task {
-                                            await viewModel.loadMoreData(type: selectedTab)
-                                        }
-                                    }
-                                }
-                        }
-                        
-                        if viewModel.isLoading {
-                            ProgressView()
-                                .padding()
-                        }
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                }
-            }
+            CategoryTabsSection(selectedTab: $selectedTab, tabs: tabs, viewModel: viewModel)
+            FeedContentSection(
+                selectedTab: $selectedTab,
+                isRefreshing: $isRefreshing,
+                viewModel: viewModel
+            )
         }
-        .background(Color(hex: "1C1C1E"))
+        .background(Color.theme.background)
         .task {
-            // 初始加载数据
             if viewModel.storyBoardActives.isEmpty {
                 await viewModel.refreshData(type: selectedTab)
             }
@@ -368,7 +451,91 @@ private struct LatestUpdatesView: View {
     }
 }
 
+// 分类标签区域
+private struct CategoryTabsSection: View {
+    @Binding var selectedTab: FeedType
+    let tabs: [(type: FeedType, title: String)]
+    @ObservedObject var viewModel: FeedViewModel
+    
+    var body: some View {
+        CategoryTabs(selectedTab: $selectedTab, tabs: tabs)
+            .padding(.vertical, 8)
+            .onChange(of: selectedTab) { newTab in
+                Task {
+                    await viewModel.refreshData(type: newTab)
+                }
+            }
+    }
+}
 
+// 内容列表区域
+private struct FeedContentSection: View {
+    @Binding var selectedTab: FeedType
+    @Binding var isRefreshing: Bool
+    @ObservedObject var viewModel: FeedViewModel
+    
+    var body: some View {
+        ScrollView {
+            RefreshableScrollView(
+                isRefreshing: $isRefreshing,
+                onRefresh: {
+                    Task {
+                        await viewModel.refreshData(type: selectedTab)
+                        isRefreshing = false
+                    }
+                }
+            ) {
+                FeedItemList(
+                    viewModel: viewModel,
+                    selectedTab: $selectedTab
+                )
+            }
+        }
+    }
+}
+
+// 动态列表
+private struct FeedItemList: View {
+    @ObservedObject var viewModel: FeedViewModel
+    @Binding var selectedTab: FeedType
+    
+    var body: some View {
+        LazyVStack(spacing: 12) {
+            ForEach(viewModel.storyBoardActives, id: \.storyboard.storyBoardID) { active in
+                FeedItemCard(
+                    storyBoardActive: active,
+                    userId: viewModel.user.userID,
+                    viewModel: viewModel
+                )
+                .onAppear {
+                    checkAndLoadMore(active)
+                }
+            }
+            
+            if viewModel.isLoading {
+                LoadingIndicator()
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+    }
+    
+    private func checkAndLoadMore(_ active: Common_StoryBoardActive) {
+        if active.storyboard.storyBoardID == viewModel.storyBoardActives.last?.storyboard.storyBoardID {
+            Task {
+                await viewModel.loadMoreData(type: selectedTab)
+            }
+        }
+    }
+}
+
+// 加载指示器
+private struct LoadingIndicator: View {
+    var body: some View {
+        ProgressView()
+            .padding()
+    }
+}
 
 // 发现视图
 private struct DiscoveryView: View {
@@ -419,7 +586,7 @@ private struct DiscoveryView: View {
             self.messages.append(ChatMessage(id: 1, msg: msg1,status: .MessageSendSuccess))
             self.messages.append(ChatMessage(id: 1, msg: msg2,status: .MessageSendSuccess))
         }
-        .background(Color(hex: "1C1C1E"))
+        .background(Color.theme.background)
     }
     
     private func sendMessage() {
@@ -458,7 +625,7 @@ private struct AIChatHeader: View {
             }
         }
         .padding(12)
-        .background(Color(hex: "FAFDF2"))
+        .background(Color.theme.background)
         .cornerRadius(8)
     }
 }
@@ -477,9 +644,9 @@ private struct ChatBubble: View {
                 
                 Text(message.msg.message)
                     .padding(12)
-                    .background(Color.primaryBackgroud)
+                    .background(Color.theme.secondaryBackground)
                     .cornerRadius(16)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.theme.primaryText)
                 
                 Spacer()
             } else {
@@ -487,9 +654,9 @@ private struct ChatBubble: View {
                 
                 Text(message.msg.message)
                     .padding(12)
-                    .background(Color.primaryGreenBackgroud)
+                    .background(Color.theme.accent)
                     .cornerRadius(16)
-                    .foregroundColor(.black)
+                    .foregroundColor(Color.theme.buttonText)
             }
         }
     }

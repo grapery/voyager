@@ -416,9 +416,10 @@ struct InteractionStatView: View {
                 .font(.system(size: 20))
             Text("\(value)")
                 .font(.system(size: 16, weight: .bold))
+                .foregroundColor(Color.theme.primaryText)
             Text(title)
                 .font(.system(size: 14))
-                .foregroundColor(.secondary)
+                .foregroundColor(Color.theme.secondaryText)
         }
         .frame(maxWidth: .infinity)
     }
@@ -430,7 +431,7 @@ struct DetailSection: View {
     let placeholder: String
     var showIcon: Bool = false
     let fontSize: CGFloat
-    init(title: String, content: String, placeholder: String,showIcon: Bool, fontSize: CGFloat) {
+    init(title: String, content: String, placeholder: String, showIcon: Bool, fontSize: CGFloat) {
         self.title = title
         self.content = content
         self.placeholder = placeholder
@@ -442,10 +443,11 @@ struct DetailSection: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
                 .font(.system(size: fontSize, weight: .medium))
+                .foregroundColor(Color.theme.primaryText)
             
             Text(content.isEmpty ? placeholder : content)
                 .font(.system(size: fontSize))
-                .foregroundColor(content.isEmpty ? .secondary : .primary)
+                .foregroundColor(content.isEmpty ? Color.theme.tertiaryText : Color.theme.primaryText)
                 .multilineTextAlignment(.leading)
             
             if showIcon {
@@ -453,7 +455,7 @@ struct DetailSection: View {
                     Spacer()
                     Image(systemName: "pencil")
                         .font(.system(size: 12))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Color.theme.tertiaryText)
                 }
             }
         }
@@ -880,8 +882,8 @@ struct PosterView: View {
                 // 背景渐变
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        Color(hex: "1C1C1E"),
-                        Color(hex: "2C2C2E")
+                        Color.theme.background,
+                        Color.theme.secondaryBackground
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
@@ -891,11 +893,11 @@ struct PosterView: View {
                 KFImage(URL(string: defaultPosterImage))
                     .placeholder { // 加载占位
                         Rectangle()
-                            .fill(Color(hex: "2C2C2E"))
+                            .fill(Color.theme.secondaryBackground)
                             .overlay(
                                 Image(systemName: "photo")
                                     .font(.system(size: 30))
-                                    .foregroundColor(.gray)
+                                    .foregroundColor(Color.theme.tertiaryText)
                             )
                     }
                     .loadDiskFileSynchronously()

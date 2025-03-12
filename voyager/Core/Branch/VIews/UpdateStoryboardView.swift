@@ -348,8 +348,6 @@ struct StoryboardStepIndicatorView: View {
     
     private let lineHeight: CGFloat = 4
     private let circleSize: CGFloat = 32
-    private let activeColor = Color.blue
-    private let inactiveColor = Color.gray.opacity(0.3)
     
     var body: some View {
         VStack(spacing: 8) {
@@ -358,16 +356,16 @@ struct StoryboardStepIndicatorView: View {
                 ForEach(0..<steps.count, id: \.self) { index in
                     // Step circle
                     Circle()
-                        .fill(index <= currentStep ? activeColor : inactiveColor)
+                        .fill(index <= currentStep ? Color.theme.accent : Color.theme.tertiaryText.opacity(0.3))
                         .frame(width: circleSize, height: circleSize)
                         .overlay(
                             Group {
                                 if index <= currentStep {
                                     Image(systemName: index == currentStep ? "\(index + 1).circle.fill" : "checkmark.circle.fill")
-                                        .foregroundColor(.white)
+                                        .foregroundColor(Color.theme.buttonText)
                                 } else {
                                     Text("\(index + 1)")
-                                        .foregroundColor(.white)
+                                        .foregroundColor(Color.theme.buttonText)
                                 }
                             }
                         )
@@ -375,7 +373,7 @@ struct StoryboardStepIndicatorView: View {
                     // Connecting line
                     if index < steps.count - 1 {
                         Rectangle()
-                            .fill(index < currentStep ? activeColor : inactiveColor)
+                            .fill(index < currentStep ? Color.theme.accent : Color.theme.tertiaryText.opacity(0.3))
                             .frame(height: lineHeight)
                     }
                 }
@@ -385,13 +383,13 @@ struct StoryboardStepIndicatorView: View {
             HStack(spacing: 0) {
                 ForEach(0..<steps.count, id: \.self) { index in
                     Text(steps[index])
-                        .font(.caption)
-                        .foregroundColor(index == currentStep ? activeColor : .gray)
+                        .font(.system(size: 12))
+                        .foregroundColor(index <= currentStep ? Color.theme.primaryText : Color.theme.tertiaryText)
                         .frame(maxWidth: .infinity)
-                        .multilineTextAlignment(.center)
                 }
             }
         }
-        .padding(.horizontal)
+        .padding(.vertical, 12)
+        .background(Color.theme.tertiaryBackground)
     }
 }

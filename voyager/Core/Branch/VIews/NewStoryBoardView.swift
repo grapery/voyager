@@ -820,18 +820,18 @@ struct StepProgressView: View {
                 HStack(spacing: 4) {
                     // Step circle
                     Circle()
-                        .fill(index == currentStep ? Color.blue : Color.gray.opacity(0.3))
+                        .fill(index == currentStep ? Color.theme.accent : Color.theme.tertiaryText.opacity(0.3))
                         .frame(width: 24, height: 24)
                         .overlay(
                             Text("\(index + 1)")
-                                .foregroundColor(index == currentStep ? .white : .gray)
+                                .foregroundColor(index == currentStep ? Color.theme.buttonText : Color.theme.tertiaryText)
                                 .font(.system(size: 14, weight: .medium))
                         )
                     
                     // Connecting line
                     if index < totalSteps - 1 {
                         Rectangle()
-                            .fill(index < currentStep ? Color.blue : Color.gray.opacity(0.3))
+                            .fill(index < currentStep ? Color.theme.accent : Color.theme.tertiaryText.opacity(0.3))
                             .frame(height: 1)
                     }
                 }
@@ -1423,11 +1423,6 @@ struct StepNavigationView: View {
     let totalSteps: Int
     let titles: [String]
     
-    // 定义颜色常量
-    private let activeColor = Color.blue
-    private let inactiveColor = Color.gray.opacity(0.15)
-    private let backgroundColor = Color(.systemGray6) // 浅灰色背景
-    
     var body: some View {
         VStack(spacing: 8) {
             // Steps with connecting lines
@@ -1442,13 +1437,13 @@ struct StepNavigationView: View {
                             
                             Text("\(index + 1)")
                                 .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(index <= currentStep ? .white : .gray)
+                                .foregroundColor(index <= currentStep ? Color.theme.buttonText : Color.theme.tertiaryText)
                         }
                         
                         // Connecting line
                         if index < totalSteps - 1 {
                             Rectangle()
-                                .fill(index < currentStep ? getStepColor(for: index) : inactiveColor)
+                                .fill(index < currentStep ? getStepColor(for: index) : Color.theme.tertiaryText.opacity(0.15))
                                 .frame(height: 1)
                         }
                     }
@@ -1468,18 +1463,18 @@ struct StepNavigationView: View {
             .padding(.horizontal, 20)
         }
         .padding(.vertical, 12)
-        .background(backgroundColor)
+        .background(Color.theme.tertiaryBackground)
     }
     
     // 获取步骤颜色
     private func getStepColor(for index: Int) -> Color {
         switch index {
             case _ where index < currentStep:
-                return .green // 已完成的步骤显示为绿色
+                return Color.theme.success // 已完成的步骤显示为绿色
             case currentStep:
-                return activeColor // 当前步骤显示为蓝色
+                return Color.theme.accent // 当前步骤显示为蓝色
             default:
-                return inactiveColor // 未完成的步骤显示为灰色
+                return Color.theme.tertiaryText.opacity(0.15) // 未完成的步骤显示为灰色
         }
     }
     
@@ -1487,11 +1482,11 @@ struct StepNavigationView: View {
     private func getTextColor(for index: Int) -> Color {
         switch index {
             case _ where index < currentStep:
-                return .green // 已完成的步骤文字显示为绿色
+                return Color.theme.success // 已完成的步骤文字显示为绿色
             case currentStep:
-                return activeColor // 当前步骤文字显示为蓝色
+                return Color.theme.accent // 当前步骤文字显示为蓝色
             default:
-                return .gray // 未完成的步骤文字显示为灰色
+                return Color.theme.tertiaryText // 未完成的步骤文字显示为灰色
         }
     }
 }
@@ -1511,7 +1506,7 @@ struct ActionButton: View {
                 Text(title)
                     .font(.system(size: 14, weight: .medium))
             }
-            .foregroundColor(.white)
+            .foregroundColor(Color.theme.buttonText)
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .background(color)

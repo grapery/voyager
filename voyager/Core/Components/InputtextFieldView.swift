@@ -14,11 +14,12 @@ struct InputtextFieldView: View {
     
     var body: some View {
         TextField(placeholder, text: $text)
+            .foregroundColor(Color.theme.inputText)
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 25)
-                    .fill(Color.theme.background)
-                    .shadow(color: Color.theme.accent.opacity(0.15), radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/, x: /*@START_MENU_TOKEN@*/0.0/*@END_MENU_TOKEN@*/, y: /*@START_MENU_TOKEN@*/0.0/*@END_MENU_TOKEN@*/)
+                    .fill(Color.theme.inputBackground)
+                    .shadow(color: Color.theme.accent.opacity(0.15), radius: 10, x: 0, y: 0)
             )
     }
 }
@@ -33,11 +34,12 @@ struct InputPasswordView: View {
     
     var body: some View {
         SecureField(placeholder, text: $text)
+            .foregroundColor(Color.theme.inputText)
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 25)
-                    .fill(Color.theme.background)
-                    .shadow(color: Color.theme.accent.opacity(0.15), radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/, x: /*@START_MENU_TOKEN@*/0.0/*@END_MENU_TOKEN@*/, y: /*@START_MENU_TOKEN@*/0.0/*@END_MENU_TOKEN@*/)
+                    .fill(Color.theme.inputBackground)
+                    .shadow(color: Color.theme.accent.opacity(0.15), radius: 10, x: 0, y: 0)
             )
     }
 }
@@ -61,7 +63,7 @@ struct InteractionButton: View {
                 Text("\(count)")
                     .font(.system(size: 14))
             }
-            .foregroundColor(isActive ? .blue : .gray)
+            .foregroundColor(isActive ? Color.theme.accent : Color.theme.tertiaryText)
         }
     }
 }

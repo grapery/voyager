@@ -27,7 +27,7 @@ struct TimelineButton: View {
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(isActive ? Color.blue.opacity(0.1) : Color.clear)
+                    .fill(isActive ? Color.theme.accent.opacity(0.1) : Color.clear)
                     .animation(.easeInOut(duration: 0.2), value: isActive)
             )
         }
@@ -35,19 +35,19 @@ struct TimelineButton: View {
     
     private var iconColor: Color {
         if isCompleted {
-            return .green
+            return Color.theme.success
         } else if isActive {
-            return .blue
+            return Color.theme.accent
         } else {
-            return .gray
+            return Color.theme.tertiaryText
         }
     }
     
     private var textColor: Color {
         if isActive {
-            return .primary
+            return Color.theme.primaryText
         } else {
-            return .gray
+            return Color.theme.tertiaryText
         }
     }
 }
@@ -103,6 +103,6 @@ enum TimelineStep: CaseIterable {
             isImageGenerated: isImageGenerated,
             isNarrationCompleted: isNarrationCompleted
         )
-        return completed ? Color.green.opacity(0.6) : Color.red.opacity(0.6)
+        return completed ? Color.theme.success : Color.theme.error
     }
 }

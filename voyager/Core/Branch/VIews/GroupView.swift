@@ -39,13 +39,14 @@ struct GroupView: View {
                         HStack {
                             Text("我的小组")
                                 .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(Color.theme.primaryText)
                             Spacer()
                             NavigationLink {
                                 AllGroupsView(viewModel: viewModel)
                             } label: {
                                 Text("查看全部")
                                     .font(.system(size: 14))
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(Color.theme.accent)
                             }
                         }
                         .padding(.horizontal)
@@ -59,6 +60,7 @@ struct GroupView: View {
                     }
                     .padding(.vertical)
                 }
+                .background(Color.theme.background)
             }
             .sheet(isPresented: $isShowingNewGroupView) {
                 NewGroupView(userId: viewModel.user.userID, viewModel: viewModel)
@@ -68,6 +70,7 @@ struct GroupView: View {
                     await viewModel.fetchGroups()
                 }
             }
+            .background(Color.theme.background)
         }
     }
 }
@@ -82,10 +85,10 @@ struct CategoryTabButton: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 15, weight: isSelected ? .semibold : .regular))
-                .foregroundColor(isSelected ? .blue : .gray)
+                .foregroundColor(isSelected ? Color.theme.accent : Color.theme.tertiaryText)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.blue.opacity(0.1) : Color.clear)
+                .background(isSelected ? Color.theme.accent.opacity(0.1) : Color.clear)
                 .cornerRadius(16)
         }
     }
@@ -112,17 +115,18 @@ struct GroupGridItemView: View {
                         .scaledToFill()
                         .frame(width: 48, height: 48)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.gray.opacity(0.1), lineWidth: 0.5))
+                        .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
                     
                     // 名称和成员数
                     VStack(alignment: .leading, spacing: 4) {
                         Text(group.info.name)
                             .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(Color.theme.primaryText)
                             .lineLimit(1)
                         
                         Text("\(999) 成员")
                             .font(.system(size: 12))
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color.theme.tertiaryText)
                     }
                 }
                 
@@ -130,20 +134,20 @@ struct GroupGridItemView: View {
                 if !group.info.desc.isEmpty {
                     Text(group.info.desc)
                         .font(.system(size: 13))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Color.theme.secondaryText)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
                 }
             }
             .frame(width: 240)
             .padding(16)
-            .background(Color(.systemBackground))
+            .background(Color.theme.secondaryBackground)
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+                    .stroke(Color.theme.border, lineWidth: 1)
             )
-            .shadow(color: Color.black.opacity(0.05), radius: 4, y: 2)
+            .shadow(color: Color.theme.primaryText.opacity(0.05), radius: 4, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -166,14 +170,15 @@ struct GroupDiscussionCell: View {
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 48, height: 48)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.gray.opacity(0.1), lineWidth: 0.5))
+                        .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
                     
                     VStack(alignment: .leading, spacing: 2) {
                         Text(group.info.name)
                             .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(Color.theme.primaryText)
                         Text("成员: \(999)")
                             .font(.system(size: 12))
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color.theme.tertiaryText)
                     }
                     
                     Spacer()
@@ -183,8 +188,8 @@ struct GroupDiscussionCell: View {
                 if !group.info.desc.isEmpty {
                     Text(group.info.desc)
                         .font(.system(size: 14))
+                        .foregroundColor(Color.theme.secondaryText)
                         .lineLimit(2)
-                        .foregroundColor(.secondary)
                 }
                 
                 // 更新互动栏实现
@@ -195,12 +200,8 @@ struct GroupDiscussionCell: View {
                         isActive: false,
                         action: {
                             Task{
-//                                if true{
-//                                    await self.viewModel.unlikeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
-//                                }else{
                                 print("send sub request")
                                 await self.viewModel.followGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
-                                //}
                             }
                         }
                     )
@@ -210,7 +211,6 @@ struct GroupDiscussionCell: View {
                         count: 30,
                         isActive: false,
                         action: { 
-                            // 处理评论按钮点击
                             print("Comment tapped")
                         }
                     )
@@ -220,15 +220,10 @@ struct GroupDiscussionCell: View {
                         count: 40,
                         isActive: false,
                         action: {
-                            // 处理喜欢按钮点击
                             print("Heart tapped")
                             Task{
-//                                if true{
-//                                    await self.viewModel.unlikeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
-//                                }else{
                                 print("send like request")
-                                    await self.viewModel.likeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
-                                //}
+                                await viewModel.likeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
                             }
                         }
                     )
@@ -237,7 +232,7 @@ struct GroupDiscussionCell: View {
                     
                     Button(action: {}) {
                         Image(systemName: "square.and.arrow.up")
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color.theme.tertiaryText)
                             .font(.system(size: 14))
                     }
                 }
@@ -245,9 +240,9 @@ struct GroupDiscussionCell: View {
             }
             .padding(.vertical, 16)
             .padding(.horizontal, 16)
-            .background(Color(.systemBackground))
+            .background(Color.theme.secondaryBackground)
             .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.03), radius: 6, y: 2)
+            .shadow(color: Color.theme.primaryText.opacity(0.03), radius: 6, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
         .fullScreenCover(isPresented: $showGroupDetail) {
@@ -257,7 +252,7 @@ struct GroupDiscussionCell: View {
                         ToolbarItem(placement: .navigationBarLeading) {
                             Button(action: { showGroupDetail = false }) {
                                 Image(systemName: "xmark")
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Color.theme.primaryText)
                             }
                         }
                     }

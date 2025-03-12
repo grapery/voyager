@@ -19,7 +19,7 @@ struct MainTabView: View {
         // 设置 UITabBar 的外观
         let appearance = UITabBarAppearance()
         appearance.configureWithDefaultBackground()
-        appearance.backgroundColor = UIColor(named: "2C2C2E")
+        appearance.backgroundColor = UIColor(Color.theme.secondaryBackground)
         
         // 调整 TabBar 的高度
         UITabBar.appearance().standardAppearance = appearance
@@ -34,13 +34,13 @@ struct MainTabView: View {
                 }
                 .tabItem {
                     Circle()
-                        .fill(selectedItem == 1 ? Color.primaryGreenBackgroud : Color.clear)
+                        .fill(selectedItem == 1 ? Color.theme.primary : Color.clear)
                         .overlay(
                             Image(systemName: "target")
-                                .foregroundColor(selectedItem == 1 ? .white : .gray)
+                                .foregroundColor(selectedItem == 1 ? Color.theme.buttonText : Color.theme.tertiaryText)
                         )
                     Text("发现")
-                        .foregroundColor(selectedItem == 1 ? Color.primaryGreenBackgroud : .gray)
+                        .foregroundColor(selectedItem == 1 ? Color.theme.primary : Color.theme.tertiaryText)
                 }
                 .tag(1)
             GroupView(user: self.user)
@@ -49,13 +49,13 @@ struct MainTabView: View {
                 }
                 .tabItem {
                     Circle()
-                        .fill(selectedItem == 2 ? Color.primaryGreenBackgroud : Color.clear)
+                        .fill(selectedItem == 2 ? Color.theme.primary : Color.clear)
                         .overlay(
                             Image(systemName: "circle.hexagonpath")
-                                .foregroundColor(selectedItem == 2 ? .white : .gray)
+                                .foregroundColor(selectedItem == 2 ? Color.theme.buttonText : Color.theme.tertiaryText)
                         )
                     Text("小组")
-                        .foregroundColor(selectedItem == 2 ? Color.primaryGreenBackgroud : .gray)
+                        .foregroundColor(selectedItem == 2 ? Color.theme.primary : Color.theme.tertiaryText)
                 }
                 .tag(2)
             MessageView(user: self.user)
@@ -64,13 +64,13 @@ struct MainTabView: View {
                 }
                 .tabItem {
                     Circle()
-                        .fill(selectedItem == 3 ? Color.primaryGreenBackgroud : Color.clear)
+                        .fill(selectedItem == 3 ? Color.theme.primary : Color.clear)
                         .overlay(
                             Image(systemName: "message")
-                                .foregroundColor(selectedItem == 3 ? .white : .gray)
+                                .foregroundColor(selectedItem == 3 ? Color.theme.buttonText : Color.theme.tertiaryText)
                         )
                     Text("消息")
-                        .foregroundColor(selectedItem == 3 ? Color.primaryGreenBackgroud : .gray)
+                        .foregroundColor(selectedItem == 3 ? Color.theme.primary : Color.theme.tertiaryText)
                 }
                 .tag(3)
             UserProfileView(user: self.user)
@@ -79,17 +79,17 @@ struct MainTabView: View {
                 }
                 .tabItem {
                     Circle()
-                        .fill(selectedItem == 4 ? Color.primaryGreenBackgroud : Color.clear)
+                        .fill(selectedItem == 4 ? Color.theme.primary : Color.clear)
                         .overlay(
                             Image(systemName: "person")
-                                .foregroundColor(selectedItem == 4 ? .white : .gray)
+                                .foregroundColor(selectedItem == 4 ? Color.theme.buttonText : Color.theme.tertiaryText)
                         )
                     Text("个人")
-                        .foregroundColor(selectedItem == 4 ? Color.primaryGreenBackgroud : .gray)
+                        .foregroundColor(selectedItem == 4 ? Color.theme.primary : Color.theme.tertiaryText)
                 }
                 .tag(4)
         }
-        .background(Color.primaryBackgroud)
-        .accentColor(.primary)
+        .background(Color.theme.background)
+        .accentColor(Color.theme.accent)
     }
 }

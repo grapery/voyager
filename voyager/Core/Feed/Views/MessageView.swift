@@ -52,11 +52,12 @@ struct MessageView: View {
                     searchText: $searchText,
                     placeholder: "搜索消息"
                 )
-                .padding(.bottom, 8) // 搜索栏底部添加间距
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
                 
                 // 消息列表
                 ScrollView {
-                    LazyVStack(spacing: 12) { // 增加列表项之间的间距
+                    LazyVStack(spacing: 16) {
                         ForEach(viewModel.msgCtxs, id: \.id) { msgCtx in
                             MessageContextCellView(
                                 msgCtxId: msgCtx.chatinfo.chatID,
@@ -67,16 +68,16 @@ struct MessageView: View {
                             )
                         }
                     }
-                    .padding(.top, 12) // 列表顶部添加间距
+                    .padding(.top, 16)
                 }
-                .background(Color(hex: "1C1C1E"))
+                .background(Color.theme.background)
             }
             .onAppear {
                 Task {
                     await self.viewModel.initUserChatContext()
                 }
             }
-            .background(Color(hex: "1C1C1E"))
+            .background(Color.theme.background)
         }
     }
 }
@@ -137,32 +138,6 @@ struct MessageContextCellView: View {
         }
     }
     
-    private func formatTime(_ timestamp: Int64) -> String {
-        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
-        let now = Date()
-        let calendar = Calendar.current
-        
-        if calendar.isDateInToday(date) {
-            // 今天的消息显示具体时间
-            let formatter = DateFormatter()
-            formatter.dateFormat = "HH:mm"
-            return formatter.string(from: date)
-        } else if calendar.isDateInYesterday(date) {
-            return "昨天"
-        } else if calendar.dateComponents([.day], from: date, to: now).day! < 7 {
-            // 一周内显示星期几
-            let formatter = DateFormatter()
-            formatter.dateFormat = "EEEE"
-            formatter.locale = Locale(identifier: "zh_CN")
-            return formatter.string(from: date)
-        } else {
-            // 超过一周显示具体日期
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MM-dd"
-            return formatter.string(from: date)
-        }
-    }
-    
     var body: some View {
         NavigationLink(destination: MessageContextView(
             userId: userId,
@@ -172,41 +147,71 @@ struct MessageContextCellView: View {
             .toolbar(.visible, for: .tabBar)
         ) {
             // 主要内容
-            HStack(spacing: 0) {
+            HStack(spacing: 12) {
                 // 头像
                 RectProfileImageView(avatarUrl: avatarURL, size: .InChat)
-                    .frame(width: 50, height: 50)
+                    .frame(width: 48, height: 48)
                     .clipShape(Circle())
+                    .overlay(
+                        Circle()
+                            .stroke(Color.theme.border, lineWidth: 0.5)
+                    )
                 
                 // 消息内容
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 8) {
                     HStack(alignment: .center) {
                         Text(isFromUser ? (user?.name ?? "Me") : (role?.role.characterName ?? "Unknown"))
-                            .font(.system(size: 15))
-                            .foregroundColor(.white)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(Color.theme.primaryText)
                         
                         Spacer()
                         
                         Text(formatTime(lastMessage?.timestamp ?? 0))
                             .font(.system(size: 12))
-                            .foregroundColor(.gray.opacity(0.8))
+                            .foregroundColor(Color.theme.tertiaryText)
                     }
                     
                     Text(lastMessage?.message ?? "")
                         .font(.system(size: 14))
-                        .foregroundColor(.gray.opacity(0.9))
+                        .foregroundColor(Color.theme.secondaryText)
                         .lineLimit(1)
                 }
-                .padding(.leading, 12)
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(hex: "2C2C2E").opacity(0.95))
-            .cornerRadius(8)
+            .background(Color.theme.secondaryBackground)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.theme.border, lineWidth: 0.5)
+            )
             .padding(.horizontal, 16)
         }
         .buttonStyle(PlainButtonStyle())
+    }
+    
+    private func formatTime(_ timestamp: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let now = Date()
+        let calendar = Calendar.current
+        
+        if calendar.isDateInToday(date) {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "HH:mm"
+            return formatter.string(from: date)
+        } else if calendar.isDateInYesterday(date) {
+            return "昨天"
+        } else if calendar.dateComponents([.day], from: date, to: now).day! < 7 {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE"
+            formatter.locale = Locale(identifier: "zh_CN")
+            return formatter.string(from: date)
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MM-dd"
+            return formatter.string(from: date)
+        }
     }
 }
 

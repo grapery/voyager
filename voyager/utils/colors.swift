@@ -9,23 +9,139 @@ import Foundation
 import SwiftUI
 import UIKit
 
+// MARK: - Theme Manager
+class ThemeManager: ObservableObject {
+    static let shared = ThemeManager()
+    @Published var currentTheme: AppTheme = .light
+    
+    private init() {}
+    
+    func toggleTheme() {
+        currentTheme = currentTheme == .light ? .dark : .light
+    }
+}
+
+// MARK: - Theme Enum
+enum AppTheme {
+    case light
+    case dark
+    
+    var colors: ThemeColors {
+        switch self {
+        case .light:
+            return ThemeColors(
+                // Background Colors
+                background: Color(hex: "F2F2F7"),
+                secondaryBackground: Color(hex: "FFFFFF"),
+                tertiaryBackground: Color(hex: "E5E5EA"),
+                
+                // Text Colors
+                primaryText: Color(hex: "000000"),
+                secondaryText: Color(hex: "3C3C43"),
+                tertiaryText: Color(hex: "787880"),
+                
+                // Content Colors
+                primary: Color(hex: "A5D661"),     // Brand Green
+                secondary: Color(hex: "2C2C2E"),   // Dark Gray
+                accent: Color(hex: "007AFF"),      // Blue
+                
+                // Status Colors
+                success: Color(hex: "34C759"),
+                warning: Color(hex: "FF9500"),
+                error: Color(hex: "FF3B30"),
+                
+                // Interactive Colors
+                buttonBackground: Color(hex: "A5D661"),
+                buttonText: Color(hex: "FFFFFF"),
+                inputBackground: Color(hex: "FFFFFF"),
+                inputText: Color(hex: "000000"),
+                
+                // Divider & Border
+                divider: Color(hex: "C6C6C8"),
+                border: Color(hex: "D1D1D6")
+            )
+            
+        case .dark:
+            return ThemeColors(
+                // Background Colors
+                background: Color(hex: "000000"),
+                secondaryBackground: Color(hex: "1C1C1E"),
+                tertiaryBackground: Color(hex: "2C2C2E"),
+                
+                // Text Colors
+                primaryText: Color(hex: "FFFFFF"),
+                secondaryText: Color(hex: "EBEBF5"),
+                tertiaryText: Color(hex: "98989F"),
+                
+                // Content Colors
+                primary: Color(hex: "A5D661"),     // Brand Green
+                secondary: Color(hex: "2C2C2E"),   // Dark Gray
+                accent: Color(hex: "0A84FF"),      // Blue
+                
+                // Status Colors
+                success: Color(hex: "30D158"),
+                warning: Color(hex: "FF9F0A"),
+                error: Color(hex: "FF453A"),
+                
+                // Interactive Colors
+                buttonBackground: Color(hex: "A5D661"),
+                buttonText: Color(hex: "000000"),
+                inputBackground: Color(hex: "1C1C1E"),
+                inputText: Color(hex: "FFFFFF"),
+                
+                // Divider & Border
+                divider: Color(hex: "38383A"),
+                border: Color(hex: "48484A")
+            )
+        }
+    }
+}
+
+// MARK: - Theme Colors Structure
+struct ThemeColors {
+    // Background Colors
+    let background: Color
+    let secondaryBackground: Color
+    let tertiaryBackground: Color
+    
+    // Text Colors
+    let primaryText: Color
+    let secondaryText: Color
+    let tertiaryText: Color
+    
+    // Content Colors
+    let primary: Color
+    let secondary: Color
+    let accent: Color
+    
+    // Status Colors
+    let success: Color
+    let warning: Color
+    let error: Color
+    
+    // Interactive Colors
+    let buttonBackground: Color
+    let buttonText: Color
+    let inputBackground: Color
+    let inputText: Color
+    
+    // Divider & Border
+    let divider: Color
+    let border: Color
+}
+
+// MARK: - Color Extension
+extension Color {
+    static var theme: ThemeColors {
+        ThemeManager.shared.currentTheme.colors
+    }
+}
 
 extension Color {
     static let primaryBackgroud = Color(hex: "2C2C2E") //深灰色背景
     static let primaryGreenBackgroud = Color(hex: "A5D661") //绿色背景
     static let primaryGrayBackgroud = Color(hex: "F2F2F2") //灰色背景
-    static let theme = ColorTheme()
     static let launch = LaunchTheme()
-}
-
-struct ColorTheme {
-    let accent = Color("AccentColor")
-    let background = Color("BackgroundColor")
-    let green = Color("GreenColor")
-    let red = Color("RedColor")
-    let secondaryText = Color("SecondaryTextColor")
-    let primaryButtonBackgroundColor = Color("PrimaryButtonBackgroundColor")
-    let primaryButtonForegroundColor = Color("PrimaryButtonForegroundColor")
 }
 
 struct LaunchTheme {

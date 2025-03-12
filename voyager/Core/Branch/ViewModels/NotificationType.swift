@@ -17,17 +17,17 @@ enum NotificationType {
     
     var color: Color {
         switch self {
-        case .success: return .green
-        case .error: return .red
-        case .warning: return .yellow
+        case .success: return Color.theme.success
+        case .error: return Color.theme.error
+        case .warning: return Color.theme.warning
         }
     }
     
     var backgroundColor: Color {
         switch self {
-        case .success: return Color.green.opacity(0.3)
-        case .error: return Color.red.opacity(0.3)
-        case .warning: return Color.yellow.opacity(0.3)
+        case .success: return Color.theme.success.opacity(0.3)
+        case .error: return Color.theme.error.opacity(0.3)
+        case .warning: return Color.theme.warning.opacity(0.3)
         }
     }
 }

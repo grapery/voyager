@@ -600,17 +600,17 @@ struct SettingRow: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.headline)
-                .foregroundColor(.primary)
+                .foregroundColor(Color.theme.primaryText)
             
             Text(content)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(Color.theme.secondaryText)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(Color(.systemGray6))
+        .background(Color.theme.secondaryBackground)
         .cornerRadius(8)
     }
 }

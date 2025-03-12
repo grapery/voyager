@@ -22,6 +22,7 @@ struct LoginView: View {
                         .resizable()
                         .scaledToFill()
                         .frame(maxWidth: 80, maxHeight: 80)
+                        .foregroundColor(Color.theme.accent)
                 }
                 VStack (alignment: .center){
                     VStack {
@@ -29,14 +30,16 @@ struct LoginView: View {
                             .autocapitalization(.none)
                             .font(.subheadline)
                             .padding(14)
-                            .background(Color(.systemGray5))
+                            .background(Color.theme.inputBackground)
+                            .foregroundColor(Color.theme.inputText)
                             .cornerRadius(14)
                             .padding(.top, 48)
                             .padding(.horizontal, 30)
                         SecureField("密码", text: $viewModel.password)
                             .font(.subheadline)
                             .padding(14)
-                            .background(Color(.systemGray5))
+                            .background(Color.theme.inputBackground)
+                            .foregroundColor(Color.theme.inputText)
                             .cornerRadius(14)
                             .padding(.horizontal, 30)
                     }
@@ -49,10 +52,10 @@ struct LoginView: View {
                     } label: {
                         Text("登入")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.theme.buttonText)
                             .fontWeight(.bold)
                             .frame(width: 330, height: 50)
-                            .background(Color.black)
+                            .background(Color.theme.buttonBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 22))
                     }
                 }
@@ -63,13 +66,12 @@ struct LoginView: View {
                         .fontWeight(.bold)
                 }
                 .padding(.top, 8)
-                .foregroundColor(.secondary)
+                .foregroundColor(Color.theme.secondaryText)
                 
                 Spacer()
             }
-            .background(Color(.systemGray6))
+            .background(Color.theme.background)
             .ignoresSafeArea()
-            .foregroundColor(.blue)
         }
     }
 }

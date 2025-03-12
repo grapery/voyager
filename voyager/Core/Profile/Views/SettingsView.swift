@@ -92,19 +92,22 @@ struct SettingsRow: View {
                 .frame(width: 24)
             
             Text(title)
-                .foregroundColor(.primary)
+                .foregroundColor(Color.theme.primaryText)
             
             Spacer()
             
             if let subtitle = subtitle {
                 Text(subtitle)
-                    .foregroundColor(.gray)
+                    .foregroundColor(Color.theme.tertiaryText)
                     .font(.system(size: 14))
             }
             
             Image(systemName: "chevron.right")
-                .foregroundColor(.gray)
+                .foregroundColor(Color.theme.tertiaryText)
                 .font(.system(size: 14))
         }
+        .padding()
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(10)
     }
 }

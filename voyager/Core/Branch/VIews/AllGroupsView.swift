@@ -82,7 +82,7 @@ struct AllGroupsView: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .background(Color(hex: "1C1C1E"))
+            .background(Color.theme.background)
         }
         .navigationBarHidden(true)
     }
@@ -110,17 +110,18 @@ struct GroupSearchBar: View {
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
+                .foregroundColor(Color.theme.tertiaryText)
             TextField("搜索小组", text: $searchText)
+                .foregroundColor(Color.theme.inputText)
             if !searchText.isEmpty {
                 Button(action: { searchText = "" }) {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color.theme.tertiaryText)
                 }
             }
         }
         .padding(8)
-        .background(Color(.systemGray6))
+        .background(Color.theme.inputBackground)
         .cornerRadius(8)
     }
 }
@@ -285,13 +286,13 @@ struct TabBarView: View {
                     VStack {
                         Text(tab)
                             .font(.system(size: 15))
-                            .foregroundColor(selectedTab == tab ? .primary : .gray)
+                            .foregroundColor(selectedTab == tab ? Color.theme.primaryText : Color.theme.tertiaryText)
                             .padding(.bottom, 8)
                         
                         // 选中指示器
                         Rectangle()
                             .frame(height: 2)
-                            .foregroundColor(selectedTab == tab ? .green : .clear)
+                            .foregroundColor(selectedTab == tab ? Color.theme.accent : Color.clear)
                     }
                     .onTapGesture {
                         withAnimation {
@@ -303,7 +304,9 @@ struct TabBarView: View {
             .padding(.horizontal)
             
             Divider()
+                .background(Color.theme.divider)
         }
+        .background(Color.theme.secondaryBackground)
     }
 }
 
@@ -318,7 +321,7 @@ struct LoadMoreView: View {
                     .progressViewStyle(CircularProgressViewStyle())
                 Text("加载中...")
                     .font(.system(size: 14))
-                    .foregroundColor(.gray)
+                    .foregroundColor(Color.theme.tertiaryText)
             }
         }
         .frame(height: 50)
