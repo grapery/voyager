@@ -20,6 +20,7 @@ struct UserProfileView: View {
     @State private var showingEditProfile = false
     @State private var backgroundImage: UIImage?
     @State private var showSettings = false
+    @State private var isLoading = false
     
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
@@ -129,16 +130,20 @@ struct UserProfileView: View {
                 
                 // 内容区域
                 TabView(selection: $selectedTab) {
-                    StoriesTab(viewModel: viewModel)
+                    StoriesTab(viewModel: viewModel, isLoading: isLoading)
                         .tag(0)
+                        .id("stories")
                     
-                    RolesTab(viewModel: viewModel)
+                    RolesTab(viewModel: viewModel, isLoading: isLoading)
                         .tag(1)
+                        .id("roles")
                     
                     PendingTab(userId: viewModel.user?.userID ?? 0)
                         .tag(2)
+                        .id("pending")
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
+                .frame(minHeight: UIScreen.main.bounds.height * 0.6)
             }
         }
         .background(Color.theme.background)
@@ -152,10 +157,15 @@ struct UserProfileView: View {
             SettingsView()
         }
         .refreshable {
-           await refreshData()
+            await refreshData()
         }
         .task {
             await loadUserData()
+        }
+        .onChange(of: selectedTab) { newValue in
+            Task {
+                await loadFilteredContent(for: newValue, forceRefresh: true)
+            }
         }
     }
     
@@ -175,10 +185,15 @@ struct UserProfileView: View {
     
     // MARK: - Data Loading Methods
     private func refreshData() async {
+        isLoading = true
+        defer { isLoading = false }
         await loadFilteredContent(for: selectedTab, forceRefresh: true)
     }
     
     private func loadUserData() async {
+        isLoading = true
+        defer { isLoading = false }
+        
         if viewModel.profile.userID == 0 {
             viewModel.profile = await viewModel.fetchUserProfile()
         }
@@ -186,51 +201,47 @@ struct UserProfileView: View {
     }
     
     private func loadFilteredContent(for filter: Int, forceRefresh: Bool = false) async {
+        isLoading = true
+        
         do {
-            print("loadFilteredContent : ",filter,"forceRefresh: ",forceRefresh)
             switch filter {
             case 0:
-                if viewModel.storyboards.isEmpty || forceRefresh {
-                    let (boards, _) = try await viewModel.fetchUserCreatedStoryboards(
-                        userId: user.userID,
-                        groupId: 0,
-                        storyId: 0
-                    )
+                let (boards, _) = try await viewModel.fetchUserCreatedStoryboards(
+                    userId: user.userID,
+                    groupId: 0,
+                    storyId: 0
+                )
+                await MainActor.run {
                     if let boards = boards {
-                        await MainActor.run {
-                            viewModel.storyboards = boards
-                        }
+                        viewModel.storyboards = boards
                     }
+                    isLoading = false
                 }
                 
             case 1:
-                if viewModel.storyRoles.isEmpty || forceRefresh {
-                    let (roles, _) = try await viewModel.fetchUserCreatedStoryRoles(
-                        userId: user.userID,
-                        groupId: 0,
-                        storyId: 0
-                    )
+                let (roles, _) = try await viewModel.fetchUserCreatedStoryRoles(
+                    userId: user.userID,
+                    groupId: 0,
+                    storyId: 0
+                )
+                await MainActor.run {
                     if let roles = roles {
-                        await MainActor.run {
-                            viewModel.storyRoles = roles
-                        }
+                        viewModel.storyRoles = roles
                     }
+                    isLoading = false
                 }
+                
+            case 2:
+                // 待发布标签页有自己的 ViewModel，不需要在这里处理
+                isLoading = false
+                
             default:
-                if viewModel.storyboards.isEmpty || forceRefresh {
-                    let (boards, _) = try await viewModel.fetchUserCreatedStoryboards(
-                        userId: user.userID,
-                        groupId: 0,
-                        storyId: 0
-                    )
-                    if let boards = boards {
-                        await MainActor.run {
-                            viewModel.storyboards = boards
-                        }
-                    }
-                }
+                isLoading = false
             }
         } catch {
+            await MainActor.run {
+                isLoading = false
+            }
             print("Error loading filtered content: \(error)")
         }
     }
@@ -273,124 +284,76 @@ struct CustomSegmentedControl: View {
 }
 
 
-// MARK: - Background Image View
-private struct BackgroundImageView: View {
-    let image: UIImage?
-    
-    var body: some View {
-        if let image = image {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(height: 280)
-                .clipped()
-        } else {
-            Rectangle()
-                .fill(Color.theme.tertiaryBackground)
-                .frame(height: 280)
-        }
-    }
-}
-
-
-// MARK: - Profile Settings Button
-private struct ProfileSettingsButton: View {
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: "gearshape.fill")
-                .foregroundColor(Color.theme.primaryText)
-        }
-    }
-}
-
-struct StatView: View {
-    let icon: String
-    let count: Int64
-    let title: String
-    
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon)
-                .foregroundColor(Color.theme.primaryText)
-                .font(.system(size: 16))
-            
-            Text("\(count) \(title)")
-                .font(.system(size: 14))
-                .foregroundColor(Color.theme.secondaryText)
-        }
-    }
-}
-
 
 struct StoryboardCell: View {
     let board: StoryBoard
     
     var body: some View {
-        HStack(spacing: 0) {    
+        VStack(alignment: .leading, spacing: 0) {    
             // 主要内容
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 12) {
                 // 标题行
                 HStack {
                     Text(board.boardInfo.title)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(Color.theme.primaryText)
                     
                     Spacer()
                     
                     Text(formatDate(board.boardInfo.ctime))
-                        .font(.system(size: 14))
+                        .font(.system(size: 13))
                         .foregroundColor(Color.theme.tertiaryText)
                 }
                 
                 // 内容
                 Text(board.boardInfo.content)
-                    .font(.system(size: 14))
+                    .font(.system(size: 15))
                     .foregroundColor(Color.theme.secondaryText)
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
                 
-                Divider()
-                    .background(Color.theme.divider)
-                
                 // 底部统计
-                HStack {
+                HStack(spacing: 24) {
                     StatLabel(
-                        icon: "bubble.left",
+                        icon: "bubble.left.fill",
                         count: 10,
-                        iconColor: .gray,
-                        countColor: .gray
+                        iconColor: Color.theme.tertiaryText,
+                        countColor: Color.theme.tertiaryText
+                    )
+                    
+                    StatLabel(
+                        icon: "heart.fill",
+                        count: 10,
+                        iconColor: Color.theme.tertiaryText,
+                        countColor: Color.theme.tertiaryText
+                    )
+                    
+                    StatLabel(
+                        icon: "arrow.triangle.2.circlepath",
+                        count: 10,
+                        iconColor: Color.theme.tertiaryText,
+                        countColor: Color.theme.tertiaryText
                     )
                     
                     Spacer()
-                    
-                    StatLabel(
-                        icon: "heart",
-                        count: 10,
-                        iconColor: .gray,
-                        countColor: .gray
-                    )
-                    
-                    Spacer()
-                    
-                    Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
                 }
                 .padding(.top, 4)
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, 16)
             .padding(.horizontal, 16)
         }
-        .background(Color.primaryBackgroud) // 深灰色背景
-        .cornerRadius(8) // 整体圆角
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.theme.border, lineWidth: 0.5)
+        )
     }
     
     private func formatDate(_ timestamp: Int64) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.dateFormat = "MM-dd HH:mm"
         return formatter.string(from: date)
     }
 }
@@ -460,12 +423,13 @@ struct StatLabel: View {
     var countColor: Color = Color.theme.tertiaryText
     
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 6) {
             Image(systemName: icon)
+                .font(.system(size: 14))
                 .foregroundColor(iconColor)
             Text("\(count)")
+                .font(.system(size: 13))
                 .foregroundColor(countColor)
-                .font(.system(size: 14))
         }
     }
 }
@@ -525,39 +489,19 @@ private struct SegmentedControlView: View {
     }
 }
 
-// MARK: - Content View
-private struct ProfileContentView: View {
-    @Binding var selectedTab: Int
-    @ObservedObject var viewModel: ProfileViewModel
-    
-    var body: some View {
-        TabView(selection: $selectedTab) {
-            // 故事标签页
-            StoriesTab(viewModel: viewModel)
-                .tag(0)
-            
-            // 角色标签页
-            RolesTab(viewModel: viewModel)
-                .tag(1)
-            
-            // 待发布标签页
-            PendingTab(userId: viewModel.user?.userID ?? 0)
-                .tag(2)
-        }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        .frame(minHeight: UIScreen.main.bounds.height * 0.7)
-        .background(Color.theme.background)
-    }
-}
 
 // 故事标签页
 private struct StoriesTab: View {
     @ObservedObject var viewModel: ProfileViewModel
+    let isLoading: Bool
     
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
-                if viewModel.storyboards.isEmpty {
+                if isLoading {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, minHeight: 200)
+                } else if viewModel.storyboards.isEmpty {
                     EmptyStateView(
                         image: "doc.text",
                         title: "还没有故事",
@@ -565,7 +509,7 @@ private struct StoriesTab: View {
                     )
                     .padding(.top, 40)
                 } else {
-                    ForEach(viewModel.storyboards, id: \.id) { board in
+                    ForEach(viewModel.storyboards) { board in
                         StoryboardCell(board: board)
                             .padding(.horizontal, 16)
                     }
@@ -580,11 +524,15 @@ private struct StoriesTab: View {
 // 角色标签页
 private struct RolesTab: View {
     @ObservedObject var viewModel: ProfileViewModel
+    let isLoading: Bool
     
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
-                if viewModel.storyRoles.isEmpty {
+                if isLoading {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, minHeight: 200)
+                } else if viewModel.storyRoles.isEmpty {
                     EmptyStateView(
                         image: "person.circle",
                         title: "还没有角色",
@@ -592,7 +540,7 @@ private struct RolesTab: View {
                     )
                     .padding(.top, 40)
                 } else {
-                    ForEach(viewModel.storyRoles, id: \.id) { role in
+                    ForEach(viewModel.storyRoles) { role in
                         ProfileRoleCell(role: role, viewModel: viewModel)
                     }
                 }
@@ -741,83 +689,86 @@ struct UnpublishedStoryBoardCellView: View {
     @State private var showingErrorAlert = false
     
     private var headerView: some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .center, spacing: 12) {
             Text(board.boardInfo.title)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.white)
-                .padding(.vertical, 4)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundColor(Color.theme.primaryText)
             
             Spacer()
             
             Text(formatDate(timestamp: board.boardInfo.ctime))
                 .font(.system(size: 13))
-                .foregroundColor(.gray)
+                .foregroundColor(Color.theme.tertiaryText)
         }
     }
     
     private var contentView: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(board.boardInfo.content)
                 .font(.system(size: 15))
-                .foregroundColor(.white)
+                .foregroundColor(Color.theme.secondaryText)
                 .lineLimit(3)
                 .padding(.vertical, 4)
             
             let scenes = board.boardInfo.sences.list
             if !scenes.isEmpty {
                 HStack {
-                    Image(systemName: "photo.stack")
-                        .foregroundColor(.gray)
-                        .font(.system(size: 12))
+                    Image(systemName: "photo.stack.fill")
+                        .foregroundColor(Color.theme.tertiaryText)
+                        .font(.system(size: 13))
                     Text("共\(scenes.count)个场景")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                        .font(.system(size: 13))
+                        .foregroundColor(Color.theme.tertiaryText)
                 }
-                .padding(.top, 2)
             }
+            
+            Divider()
+                .background(Color.theme.divider)
         }
     }
     
     private var actionButtons: some View {
-        HStack(spacing: 24) {
+        HStack(spacing: 32) {
             // 编辑按钮
             Button(action: {
                 showingEditView = true
             }) {
-                Image(systemName: "pencil.circle")
-                    .font(.system(size: 24))
-                    .foregroundColor(.gray)
+                Label("编辑", systemImage: "pencil")
+                    .font(.system(size: 14))
+                    .foregroundColor(Color.theme.tertiaryText)
             }
             
             // 发布按钮
             Button(action: {
                 showingPublishAlert = true
             }) {
-                Image(systemName: "arrow.up.circle")
-                    .font(.system(size: 24))
-                    .foregroundColor(.blue)
+                Label("发布", systemImage: "arrow.up.circle.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(Color.theme.accent)
             }
             
             // 删除按钮
             Button(action: {
                 showingDeleteAlert = true
             }) {
-                Image(systemName: "trash.circle")
-                    .font(.system(size: 24))
-                    .foregroundColor(.red)
+                Label("删除", systemImage: "trash")
+                    .font(.system(size: 14))
+                    .foregroundColor(Color.theme.error)
             }
+            
+            Spacer()
         }
-        .padding(.top, 8)
+        .padding(.top, 12)
     }
     
     var body: some View {
         mainContent
-            .padding(12)
-            .background(Color.theme.background)
+            .padding(16)
+            .background(Color.theme.secondaryBackground)
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    .stroke(Color.theme.border, lineWidth: 0.5)
             )
             .overlay(errorToastOverlay)
             .modifier(AlertModifier(
@@ -831,7 +782,7 @@ struct UnpublishedStoryBoardCellView: View {
     }
     
     private var mainContent: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             headerView
             contentView
             actionButtons
@@ -850,16 +801,20 @@ struct UnpublishedStoryBoardCellView: View {
     
     private func formatDate(timestamp: Int64) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
-        return DateFormatter.shortDate.string(from: date)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM-dd HH:mm"
+        return formatter.string(from: date)
     }
     
     private func ToastView(message: String) -> some View {
         VStack {
             Text(message)
+                .font(.system(size: 14))
                 .foregroundColor(.white)
-                .padding()
-                .background(Color.black.opacity(0.7))
-                .cornerRadius(10)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(Color.theme.secondary.opacity(0.9))
+                .cornerRadius(8)
         }
         .padding(.top, 20)
     }
