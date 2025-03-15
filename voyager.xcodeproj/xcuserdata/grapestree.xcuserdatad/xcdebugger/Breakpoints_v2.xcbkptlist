@@ -46,8 +46,8 @@
             filePath = "voyager/Core/Profile/ViewModel/ProfileViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "158"
-            endingLineNumber = "158"
+            startingLineNumber = "167"
+            endingLineNumber = "167"
             landmarkName = "fetchUserCreatedStoryboards(userId:groupId:storyId:)"
             landmarkType = "7">
          </BreakpointContent>

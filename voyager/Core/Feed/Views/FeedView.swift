@@ -166,21 +166,6 @@ private struct FeedItemCard: View {
         VStack(alignment: .leading, spacing: 12) {
             // 顶部信息：创建者和故事信息
             HStack(spacing: 8) {
-                // 创建者头像
-                KFImage(URL(string: storyBoardActive.creator.userAvatar))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 32, height: 32)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
-                
-                Text(storyBoardActive.creator.userName)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(Color.theme.primaryText)
-                
-                Text("@")
-                    .foregroundColor(Color.theme.tertiaryText)
-                
                 // 故事缩略图和名称
                 HStack(spacing: 4) {
                     KFImage(URL(string: storyBoardActive.summary.storyAvatar))
@@ -193,6 +178,19 @@ private struct FeedItemCard: View {
                     Text(storyBoardActive.summary.storyTitle)
                         .font(.system(size: 14))
                         .foregroundColor(Color.theme.accent)
+                    Text("@")
+                        .foregroundColor(Color.theme.tertiaryText)
+                    // 创建者头像
+                    KFImage(URL(string: storyBoardActive.creator.userAvatar))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 32, height: 32)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
+                    
+                    Text(storyBoardActive.creator.userName)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(Color.theme.primaryText)
                 }
                 
                 Spacer()

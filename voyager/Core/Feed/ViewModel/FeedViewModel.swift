@@ -151,6 +151,7 @@ class FeedViewModel: ObservableObject {
                     pageSize: pageSize,
                     filter: ""
                 )
+                print("size info:",size)
                 print("refreshData: \(String(describing: boards))")
                 if let error = error {
                     hasError = true
@@ -237,19 +238,19 @@ class FeedViewModel: ObservableObject {
     }
 
     
-    func fetchComments(storyBoardId: Int64){
+    func fetchComments(storyBoardId: Int64) async{
         
     }
     
-    func addComment(storyBoardId: Int64, content: String){
+    func addComment(storyBoardId: Int64, content: String) async{
         
     }
     
-    func unlikeStoryBoard(storyBoardId: Int64){
+    func unlikeStoryBoard(storyBoardId: Int64) async{
         
     }
     
-    func likeStoryBoard(storyBoardId: Int64){
+    func likeStoryBoard(storyBoardId: Int64) async{
         
     }
 }

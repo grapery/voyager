@@ -281,10 +281,10 @@ struct UserProfileView: View {
                 }.value
                 
                 // 更新用户资料
-                let updatedProfile = await viewModel.updateUserbackgroud(backgroundImage: imageUrl)
+                let err = await viewModel.updateUserbackgroud(userId: viewModel.user!.userID, backgroundImageUrl: imageUrl)
                 
                 await MainActor.run {
-                    if updatedProfile {
+                    if err == nil {
                         // 更新成功
                         isLoading = false
                     } else {

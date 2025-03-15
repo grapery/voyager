@@ -126,12 +126,12 @@ struct StoryRoleDetailView: View {
         self.viewModel = StoryRoleModel(story: nil, storyId: 0, userId: userId)
         self.boardIds = [Int64]()
         self.userId = userId
-        print("=== role detail init ===")
-        print("Name: \(role!.role.characterName)")
-        print("Description: \(role!.role.characterDescription)")
-        print("Prompt: \(role!.role.characterPrompt)")
-        print("Create Time: \(role!.role.ctime)")
-        print("=== role detail init ===")
+        // print("=== role detail init ===")
+        // print("Name: \(role!.role.characterName)")
+        // print("Description: \(role!.role.characterDescription)")
+        // print("Prompt: \(role!.role.characterPrompt)")
+        // print("Create Time: \(role!.role.ctime)")
+        // print("=== role detail init ===")
     }
 
     init(roleId: Int64, userId: Int64) {
@@ -272,12 +272,12 @@ struct StoryRoleDetailView: View {
     
     // 统计信息卡片
     private func statsCard(role: StoryRole) -> some View {
-        print("=== statsCard OnAppear ===")
-        print("Name: \(role.role.characterName)")
-        print("Description: \(role.role.characterDescription)")
-        print("Prompt: \(role.role.characterPrompt)")
-        print("Create Time: \(role.role.ctime)")
-        print("=== End statsCard OnAppear ===")
+        // print("=== statsCard OnAppear ===")
+        // print("Name: \(role.role.characterName)")
+        // print("Description: \(role.role.characterDescription)")
+        // print("Prompt: \(role.role.characterPrompt)")
+        // print("Create Time: \(role.role.ctime)")
+        // print("=== End statsCard OnAppear ===")
         return HStack(spacing: 24) {
             InteractionStatView(
                 icon: "heart.fill",
@@ -308,12 +308,12 @@ struct StoryRoleDetailView: View {
     
     // 详细信息卡片
     private func detailsCard(role: StoryRole) -> some View {
-        print("=== Details Card OnAppear ===")
-        print("Name: \(role.role.characterName)")
-        print("Description: \(role.role.characterDescription)")
-        print("Prompt: \(role.role.characterPrompt)")
-        print("Create Time: \(role.role.ctime)")
-        print("=== End Details Card OnAppear ===")
+        // print("=== Details Card OnAppear ===")
+        // print("Name: \(role.role.characterName)")
+        // print("Description: \(role.role.characterDescription)")
+        // print("Prompt: \(role.role.characterPrompt)")
+        // print("Create Time: \(role.role.ctime)")
+        // print("=== End Details Card OnAppear ===")
         return VStack(alignment: .leading, spacing: 12) {
             // 角色描述部分
             Button(action: { showingDescriptionEditor = true }) {

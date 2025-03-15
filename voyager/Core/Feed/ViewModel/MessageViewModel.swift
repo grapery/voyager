@@ -164,15 +164,15 @@ class MessageContextViewModel: ObservableObject{
 
     func loadMessages(userId: Int64,roleId: Int64,chatCtxId: Int64,timestamp: Int64) async {
         do {
-            print(userId," ",roleId," ",chatCtxId)
-            coreDataManager.debugPrintAllMessages()
+            // print(userId," ",roleId," ",chatCtxId)
+            // coreDataManager.debugPrintAllMessages()
             // 1. 首先加载本地消息
             let localMessages = try coreDataManager.fetchRecentMessages(chatId: msgContext.chatID)
-            print("首先加载本地消息: ",localMessages.count)
+            //print("首先加载本地消息: ",localMessages.count)
             DispatchQueue.main.async {
                 self.messages = localMessages
             }
-            print("localMessages: ",localMessages.count)
+            //print("localMessages: ",localMessages.count)
             // 2. 然后从服务器获取新消息
             let lastMessageTimestamp = localMessages.last?.msg.timestamp ?? 0
             let (serverMessages,_,err) = await APIClient.shared.getUserChatMessages(userId: userId,roleId: roleId,chatCtxId: chatCtxId,timestamp: lastMessageTimestamp)
@@ -180,7 +180,7 @@ class MessageContextViewModel: ObservableObject{
                 print("fetch message error")
                 return
             }
-            print("serverMessages: ",serverMessages!.count)
+            //print("serverMessages: ",serverMessages!.count)
             // 3. 保存新消息到本地
             if let messages = serverMessages {
                 for message in messages {
@@ -197,7 +197,7 @@ class MessageContextViewModel: ObservableObject{
             DispatchQueue.main.async {
                 self.messages.append(contentsOf: newChatMessages)
                 // Add debug printing
-                print("Total messages count: \(self.messages.count)")
+                //print("Total messages count: \(self.messages.count)")
             }
             // 4. 清理旧消息
             try await cleanupOldMessages()
@@ -213,7 +213,7 @@ class MessageContextViewModel: ObservableObject{
     
     func getChatContext(userId:Int64,roleId: Int64) async -> Error?{
         let (msgContext, err) = await APIClient.shared.createChatWithRoleContext(userId: userId, roleId: roleId)
-        print("userId \(userId),roleId \(roleId)")
+        //print("userId \(userId),roleId \(roleId)")
         if let err = err {
             print("getChatContext error: ", err)
             return err
@@ -307,7 +307,7 @@ class MessageContextViewModel: ObservableObject{
         do {
             // 1. 首先加载本地消息
             let localMessages = try coreDataManager.fetchRecentMessagesByTimestamp(chatId: msgContext.chatID,timestamp:timestamp)
-            print("加载本地消息: ",localMessages.count)
+            //print("加载本地消息: ",localMessages.count)
             DispatchQueue.main.async {
                 self.messages.insert(contentsOf: localMessages, at: 0)
             }

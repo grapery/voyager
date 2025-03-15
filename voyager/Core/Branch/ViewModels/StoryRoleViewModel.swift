@@ -244,6 +244,23 @@ class StoryDetailViewModel: ObservableObject {
         if err != nil{
             print("likeStoryboard failed: ",err!)
         }
+        return
+    }
+    
+    func updateStoryRoleAvatar(roleId: Int64,roleAvatar: String) async{
+        let err = await APIClient.shared.updateStoryRoleAvatar(userId: self.userId,roleId: roleId,avatar: roleAvatar)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+        return
+    }
+    
+    func updateStoryRoleBackground(roleId: Int64,backgroundAvatar: String) async{
+        let err = await APIClient.shared.updateStoryRoleBackgroud(userId: self.userId,roleId: roleId,backgrondUrl: backgroundAvatar)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+        return
     }
     
 }

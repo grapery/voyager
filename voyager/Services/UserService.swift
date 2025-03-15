@@ -30,21 +30,6 @@ extension APIClient {
         return result
     }
     
-    func fetchUsersInSameProject(projectId:Int64,userId: Int64) async -> ([User],Int32,Dictionary<String,Int64>) {
-        var resp :ResponseMessage<Common_GetProjectMembersResponse>
-        do {
-            let authClient = Common_TeamsApiClient(client: self.client!)
-            // Performed within an async context.
-            let request = Common_GetProjectMembersRequest.with {
-                $0.userID = Int32(userId);
-                $0.projectID = Int32(projectId)
-            }
-            var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
-            resp = await authClient.getProjectMembers(request:request)
-        }
-        return (resp.message!.data.list,resp.message!.data.total,resp.message!.data.role)
-    }
     
     func fetchUsersInSameGroup(groupId:Int64,userId: Int64,offset: Int64,size: Int64) async  -> [User] {
         var resp :ResponseMessage<Common_FetchGroupMembersResponse>
@@ -62,11 +47,7 @@ extension APIClient {
         }
         return resp.message!.data.list
     }
-    // 如果project有权限设置，就需要检查当前用户的权限
-    func fetchUsersIsProjectWatcher(projectId:Int64,userId: Int64) async -> [User] {
-        let users: [User] = []
-        return users
-    }
+
     
     func fetchUserProfile(userId: Int64) async -> UserProfile{
         if (globalUserToken == nil){
@@ -90,15 +71,18 @@ extension APIClient {
         return UserProfile()
     }
     
-    func updateUserProfile(userId: Int64,profile: UserProfile) async -> Error?{
+    func updateUserProfile(userId: Int64,backgroundImage:String,avatar: String,name: String,description_p:String,location: String,email: String) async -> Error?{
         var resp :ResponseMessage<Common_UpdateUserProfileResponse>
         let authClient = Common_TeamsApiClient(client: self.client!)
         // Performed within an async context.
-        var newProfile = Common_UserProfileInfo()
-        newProfile.userID = userId
         let request = Common_UpdateUserProfileRequest.with {
             $0.userID = Int64(userId)
-            $0.info = newProfile
+            $0.backgroundImage = backgroundImage
+            $0.avatar = avatar
+            $0.name = name
+            $0.description_p = description_p
+            $0.location = location
+            $0.email = email
         }
         var header = Connect.Headers()
         header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
@@ -126,7 +110,22 @@ extension APIClient {
         return nil
     }
     
-    // 使用gprc 双向流连接，进行消息的发送和接收。
+    func updateUserBackgroud(userId: Int64,backgrouUrl: String) async -> Error?{
+        var resp :ResponseMessage<Common_UpdateUserBackgroundImageResponse>
+        let authClient = Common_TeamsApiClient(client: self.client!)
+        // Performed within an async context.
+        let request = Common_UpdateUserBackgroundImageRequest.with {
+            $0.userID = Int64(userId)
+            $0.backgroundImage = backgrouUrl
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        resp = await authClient.updateUserBackgroundImage(request:request, headers: header)
+        if resp.code.rawValue != 0 {
+            return NSError(domain: "updateUserBackgroud", code: 0, userInfo: [NSLocalizedDescriptionKey: "updateUserBackgroud failed"])
+        }
+        return nil
+    }
     
 
 }

@@ -1545,5 +1545,37 @@ extension APIClient {
         return (storyboards,offset,pageSize,nil)
     }
     
+    func updateStoryRoleAvatar(userId: Int64,roleId: Int64,avatar :String) async -> Error?{
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_UpdateStoryRoleAvatorRequest.with {
+            $0.userID = userId
+            $0.roleID = roleId
+            $0.avator = avatar
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.updateStoryRoleAvator(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return NSError(domain: "updateStoryRoleAvatar", code: 0, userInfo: [NSLocalizedDescriptionKey: "update story role avatar failed"])
+        }
+        return nil
+    }
+    
+    func updateStoryRoleBackgroud(userId: Int64,roleId: Int64,backgrondUrl: String) async -> Error?{
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_UpdateStoryRoleDetailRequest.with {
+            $0.userID = userId
+            $0.roleID = roleId
+            $0.backgroundImage = backgrondUrl
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.updateStoryRoleDetail(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return NSError(domain: "updateStoryRoleBackgroud", code: 0, userInfo: [NSLocalizedDescriptionKey: "update story role background failed"])
+        }
+        return nil
+    }
+    
 }
 

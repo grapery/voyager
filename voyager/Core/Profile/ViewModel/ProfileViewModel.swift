@@ -87,13 +87,13 @@ class ProfileViewModel: ObservableObject {
     
     @MainActor
     public func updateProfile() async {
-        let newProfile = await APIClient.shared.updateUserProfile(userId: self.user!.userID,profile: self.profile)
+        let newProfile = await APIClient.shared.updateUserProfile(userId: user!.userID,backgroundImage:self.profile.backgroundImage,avatar: user!.avatar,name: user!.name,description_p: user!.desc,location:  user!.location,email:  user!.email)
         print(newProfile as Any)
+        return
     }
     
     func loadImage(fromItem item: PhotosPickerItem?) async {
         guard let item = item else { return }
-        
         guard let data = try? await item.loadTransferable(type: Data.self) else { return }
         guard let uiImage = UIImage(data: data) else { return }
         self.uiImage = uiImage
@@ -115,8 +115,13 @@ class ProfileViewModel: ObservableObject {
         
     }
     
-    func updateUserbackgroud(backgroundImage: String) -> Bool{
-        return  true
+    func updateUserbackgroud(userId: Int64,backgroundImageUrl: String) async -> Error?{
+        let err = await APIClient.shared.updateUserAvator(userId: userId, avatorUrl: backgroundImageUrl)
+        print("updateUserbackgroud err:", err?.localizedDescription as Any)
+        if err != nil {
+            return err
+        }
+        return nil
     }
     
     func ResetStoriesParams(){
