@@ -90,8 +90,40 @@ extension APIClient {
         return UserProfile()
     }
     
-    func updateUserProfile(userId: Int64,profile: UserProfile) async -> UserProfile{
-        return UserProfile()
+    func updateUserProfile(userId: Int64,profile: UserProfile) async -> Error?{
+        var resp :ResponseMessage<Common_UpdateUserProfileResponse>
+        let authClient = Common_TeamsApiClient(client: self.client!)
+        // Performed within an async context.
+        var newProfile = Common_UserProfileInfo()
+        newProfile.userID = userId
+        let request = Common_UpdateUserProfileRequest.with {
+            $0.userID = Int64(userId)
+            $0.info = newProfile
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        resp = await authClient.updateUserProfile(request:request, headers: header)
+        if resp.code.rawValue != 0 {
+            return NSError(domain: "updateUserProfile", code: 0, userInfo: [NSLocalizedDescriptionKey: "updateUserProfile failed"])
+        }
+        return nil
+    }
+    
+    func updateUserAvator(userId: Int64,avatorUrl: String) async -> Error?{
+        var resp :ResponseMessage<Common_UpdateUserAvatorResponse>
+        let authClient = Common_TeamsApiClient(client: self.client!)
+        // Performed within an async context.
+        let request = Common_UpdateUserAvatorRequest.with {
+            $0.userID = Int64(userId)
+            $0.avatar = avatorUrl
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        resp = await authClient.updateUserAvator(request:request, headers: header)
+        if resp.code.rawValue != 0 {
+            return NSError(domain: "updateUserAvator", code: 0, userInfo: [NSLocalizedDescriptionKey: "updateUserAvator failed"])
+        }
+        return nil
     }
     
     // 使用gprc 双向流连接，进行消息的发送和接收。

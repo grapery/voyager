@@ -21,6 +21,8 @@ struct UserProfileView: View {
     @State private var backgroundImage: UIImage?
     @State private var showSettings = false
     @State private var isLoading = false
+    @State private var showingErrorAlert = false
+    @State private var errorMessage = ""
     
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
@@ -153,6 +155,11 @@ struct UserProfileView: View {
         .sheet(isPresented: $showingImagePicker) {
             SingleImagePicker(image: $backgroundImage)
         }
+        .onChange(of: backgroundImage) { newImage in
+            if newImage != nil {
+                handleImageSelected()
+            }
+        }
         .sheet(isPresented: $showSettings) {
             SettingsView()
         }
@@ -165,6 +172,20 @@ struct UserProfileView: View {
         .onChange(of: selectedTab) { newValue in
             Task {
                 await loadFilteredContent(for: newValue, forceRefresh: true)
+            }
+        }
+        .alert("错误", isPresented: $showingErrorAlert) {
+            Button("确定", role: .cancel) { }
+        } message: {
+            Text(errorMessage)
+        }
+        .overlay {
+            if isLoading {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                ProgressView()
+                    .tint(.white)
+                    .scaleEffect(1.5)
             }
         }
     }
@@ -243,6 +264,43 @@ struct UserProfileView: View {
                 isLoading = false
             }
             print("Error loading filtered content: \(error)")
+        }
+    }
+    
+    private func handleImageSelected() {
+        guard let image = backgroundImage else { return }
+        
+        // 显示加载状态
+        isLoading = true
+        
+        Task {
+            do {
+                // 上传图片到阿里云 OSS
+                let imageUrl = try await Task.detached {
+                    try AliyunClient.UploadImage(image: image)
+                }.value
+                
+                // 更新用户资料
+                let updatedProfile = await viewModel.updateUserbackgroud(backgroundImage: imageUrl)
+                
+                await MainActor.run {
+                    if updatedProfile {
+                        // 更新成功
+                        isLoading = false
+                    } else {
+                        // 更新失败
+                        errorMessage = "更新背景图片失败"
+                        showingErrorAlert = true
+                        isLoading = false
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = "上传图片失败: \(error.localizedDescription)"
+                    showingErrorAlert = true
+                    isLoading = false
+                }
+            }
         }
     }
 }

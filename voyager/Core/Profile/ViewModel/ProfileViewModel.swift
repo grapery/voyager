@@ -88,7 +88,7 @@ class ProfileViewModel: ObservableObject {
     @MainActor
     public func updateProfile() async {
         let newProfile = await APIClient.shared.updateUserProfile(userId: self.user!.userID,profile: self.profile)
-        print(newProfile)
+        print(newProfile as Any)
     }
     
     func loadImage(fromItem item: PhotosPickerItem?) async {
@@ -101,16 +101,18 @@ class ProfileViewModel: ObservableObject {
         
     }
     
-    func updateUserDate() async throws {
-        var data = [String: Any]()
-        if let uiImage = self.uiImage {
-            let imageUrl = try? await APIClient.shared.uploadImage(image: uiImage,filename: "data.jpg")
-            data["profileImageUrl"] = imageUrl
-        }
-        if !fullname.isEmpty && user!.name != fullname {
-            data["fullname"] = fullname
-            
-        }
+    @MainActor
+    public func updateAvator(userId:Int64,newAvatorUrl: String) async{
+        let err = await APIClient.shared.updateUserAvator(userId: userId, avatorUrl: newAvatorUrl)
+        print("updateAvator err:", err?.localizedDescription as Any)
+    }
+    
+    func updateUserData() async throws {
+        
+    }
+    
+    func updateUserbackgroud(backgroundImage: String) -> Bool{
+        return  true
     }
     
     func ResetStoriesParams(){
@@ -139,18 +141,6 @@ class ProfileViewModel: ObservableObject {
     }
     
     
-    
-    func SearchGroups(userId: Int64) async throws -> ([BranchGroup]?,Error?){
-        let result = await APIClient.shared.SearchGroups(name: self.query, userId: userId, offset: Int64(self.GroupsPage), pageSize: Int64(self.GroupsSize))
-        if result.3 != nil {
-            self.GroupsPage = 0
-            self.GroupsSize = 10
-            return (nil,result.3)
-        }
-        self.GroupsPage = Int(result.1)
-        self.GroupsSize = Int(result.2)
-        return (result.0,nil)
-    }
     
     func SearchStoryRoles(userId: Int64,groupId:Int64) async throws -> ([StoryRole]?,Error?){
         let result = await APIClient.shared.SearchStoryRoles(keyword: self.query, userId: userId, page: Int64(self.StoryRolePage), size: Int64(self.StoryRoleSize))
