@@ -134,7 +134,10 @@ struct EditUserProfileView: View {
                         let imageUrl = try await Task.detached {
                             try AliyunClient.UploadImage(image: uiImage)
                         }.value
-                        
+                        let err = await viewModel.updateAvator(userId: viewModel.user!.userID, newAvatorUrl: imageUrl)
+                        if err != nil {
+                            throw NSError(domain: "ImageError", code: -1, userInfo: [NSLocalizedDescriptionKey: "上传图片失败"])
+                        }
                         // 更新 viewModel 中的头像 URL
                         viewModel.user?.avatar = imageUrl
                     } catch {

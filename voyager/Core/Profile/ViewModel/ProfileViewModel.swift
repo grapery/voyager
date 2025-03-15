@@ -102,9 +102,13 @@ class ProfileViewModel: ObservableObject {
     }
     
     @MainActor
-    public func updateAvator(userId:Int64,newAvatorUrl: String) async{
+    public func updateAvator(userId:Int64,newAvatorUrl: String) async -> Error?{
         let err = await APIClient.shared.updateUserAvator(userId: userId, avatorUrl: newAvatorUrl)
         print("updateAvator err:", err?.localizedDescription as Any)
+        if err != nil {
+            return err
+        }
+        return nil
     }
     
     func updateUserData() async throws {
