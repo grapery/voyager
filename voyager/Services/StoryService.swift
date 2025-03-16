@@ -1526,7 +1526,7 @@ extension APIClient {
         return (boardActiveInfo,offset,pageSize,nil)
     }
 
-    func UnPublishStoryboard(userId: Int64,offset: Int64,pageSize: Int64) async -> ([Common_StoryBoard]?,Int64?,Int64?,Error?) {
+    func UnPublishStoryboard(userId: Int64,offset: Int64,pageSize: Int64) async -> ([Common_StoryBoardActive]?,Int64?,Int64?,Error?) {
         let apiClient = Common_TeamsApiClient(client: self.client!)
         let request = Common_GetUnPublishStoryboardRequest.with {
             $0.userID = userId
@@ -1539,10 +1539,10 @@ extension APIClient {
         if response.message?.code != Common_ResponseCode.ok{
             return (nil,offset,pageSize,NSError(domain: "UnPublishStoryboard", code: 0, userInfo: [NSLocalizedDescriptionKey: "unpublish storyboard failed"]))
         }
-        let storyboards = response.message?.storyboards
+        let storyboardActives = response.message?.storyboardactives
         let offset = response.message?.offset
         let pageSize = response.message?.pageSize
-        return (storyboards,offset,pageSize,nil)
+        return (storyboardActives,offset,pageSize,nil)
     }
     
     func updateStoryRoleAvatar(userId: Int64,roleId: Int64,avatar :String) async -> Error?{

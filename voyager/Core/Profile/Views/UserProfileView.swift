@@ -708,7 +708,7 @@ struct PendingTab: View {
     }
     
     private var storyBoardsListView: some View {
-        LazyVStack(spacing: 16) {
+        LazyVStack(spacing: 8) {
             ForEach(viewModel.unpublishedStoryboards) { board in
                 UnpublishedStoryBoardCellView(
                     board: board,
@@ -730,11 +730,12 @@ struct PendingTab: View {
             }
         }
         .padding(.vertical, 8)
+        .padding(.horizontal, 12)
     }
 }
 
 struct UnpublishedStoryBoardCellView: View {
-    var board: StoryBoard
+    var board: StoryBoardActive
     var userId: Int64
     @ObservedObject var viewModel: UnpublishedStoryViewModel
     @State private var showingPublishAlert = false
@@ -744,36 +745,54 @@ struct UnpublishedStoryBoardCellView: View {
     @State private var showingErrorToast = false
     @State private var showingErrorAlert = false
     
-    private var headerView: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Text(board.boardInfo.title)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(Color.theme.primaryText)
+    private var storyInfoView: some View {
+        HStack(spacing: 12) {
+            // 故事图片
+            KFImage(URL(string: board.boardActive.summary.storyAvatar))
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 40, height: 40)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+            
+            // 故事名称
+            Text(board.boardActive.summary.storyTitle)
+                .font(.system(size: 14))
+                .foregroundColor(Color.theme.secondaryText)
             
             Spacer()
+        }
+    }
+    
+    private var headerView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            storyInfoView
+                .padding(.bottom, 4)
             
-            Text(formatDate(timestamp: board.boardInfo.ctime))
-                .font(.system(size: 13))
+            Text(board.boardActive.storyboard.title)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(Color.theme.primaryText)
+            
+            Text(formatDate(timestamp: board.boardActive.storyboard.ctime))
+                .font(.system(size: 12))
                 .foregroundColor(Color.theme.tertiaryText)
         }
     }
     
     private var contentView: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(board.boardInfo.content)
-                .font(.system(size: 15))
+        VStack(alignment: .leading, spacing: 8) {
+            Text(board.boardActive.storyboard.content)
+                .font(.system(size: 14))
                 .foregroundColor(Color.theme.secondaryText)
-                .lineLimit(3)
-                .padding(.vertical, 4)
+                .lineLimit(2)
             
-            let scenes = board.boardInfo.sences.list
+            let scenes = board.boardActive.storyboard.sences.list
             if !scenes.isEmpty {
                 HStack {
                     Image(systemName: "photo.stack.fill")
                         .foregroundColor(Color.theme.tertiaryText)
-                        .font(.system(size: 13))
+                        .font(.system(size: 12))
                     Text("共\(scenes.count)个场景")
-                        .font(.system(size: 13))
+                        .font(.system(size: 12))
                         .foregroundColor(Color.theme.tertiaryText)
                 }
             }
@@ -784,42 +803,45 @@ struct UnpublishedStoryBoardCellView: View {
     }
     
     private var actionButtons: some View {
-        HStack(spacing: 32) {
+        HStack(spacing: 20) {
             // 编辑按钮
             Button(action: {
                 showingEditView = true
             }) {
                 Label("编辑", systemImage: "pencil")
-                    .font(.system(size: 14))
+                    .font(.system(size: 13))
                     .foregroundColor(Color.theme.tertiaryText)
             }
+            .frame(height: 28)
             
             // 发布按钮
             Button(action: {
                 showingPublishAlert = true
             }) {
                 Label("发布", systemImage: "arrow.up.circle.fill")
-                    .font(.system(size: 14))
+                    .font(.system(size: 13))
                     .foregroundColor(Color.theme.accent)
             }
+            .frame(height: 28)
             
             // 删除按钮
             Button(action: {
                 showingDeleteAlert = true
             }) {
                 Label("删除", systemImage: "trash")
-                    .font(.system(size: 14))
+                    .font(.system(size: 13))
                     .foregroundColor(Color.theme.error)
             }
+            .frame(height: 28)
             
             Spacer()
         }
-        .padding(.top, 12)
+        .padding(.top, 8)
     }
     
     var body: some View {
         mainContent
-            .padding(16)
+            .padding(12)
             .background(Color.theme.secondaryBackground)
             .cornerRadius(12)
             .overlay(
@@ -831,14 +853,14 @@ struct UnpublishedStoryBoardCellView: View {
                 showingPublishAlert: $showingPublishAlert,
                 showingDeleteAlert: $showingDeleteAlert,
                 showingEditView: $showingEditView,
-                board: board,
+                board: StoryBoard(id: board.boardActive.storyboard.storyBoardID, boardInfo: board.boardActive.storyboard),
                 userId: userId,
                 viewModel: viewModel
             ))
     }
     
     private var mainContent: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 8) {
             headerView
             contentView
             actionButtons

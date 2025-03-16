@@ -1,7 +1,7 @@
 import Foundation
 
 class UnpublishedStoryViewModel: ObservableObject {
-    @Published var unpublishedStoryboards: [StoryBoard] = []
+    @Published var unpublishedStoryboards: [StoryBoardActive] = []
     @Published var isLoading = false
     @Published var hasError = false
     @Published var errorMessage = ""
@@ -37,7 +37,7 @@ class UnpublishedStoryViewModel: ObservableObject {
                 if let commonBoards = result.0 {
                     // 将 Common_StoryBoard 转换为 StoryBoard
                     let boards = commonBoards.map { commonBoard in
-                        StoryBoard(id: commonBoard.storyBoardID, boardInfo: commonBoard)
+                        StoryBoardActive(id: commonBoard.storyboard.storyBoardID, boardActive: commonBoard)
                     }
                     
                     if isRefreshing {

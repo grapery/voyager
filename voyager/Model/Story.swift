@@ -63,3 +63,18 @@ class StoryBoard: Identifiable {
         return false
     }
 }
+
+class StoryBoardActive: Identifiable {
+    var id: Int64
+    var boardActive: Common_StoryBoardActive
+    init(id: Int64, boardActive: Common_StoryBoardActive) {
+        self.id = id
+        self.boardActive = boardActive
+    }
+    static func == (lhs: StoryBoardActive,rhs: StoryBoardActive) -> Bool {
+        if lhs.id == rhs.id {
+            return true
+        }
+        return false
+    }
+}
