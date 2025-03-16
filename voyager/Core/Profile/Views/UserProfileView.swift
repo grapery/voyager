@@ -40,6 +40,11 @@ struct UserProfileView: View {
         .background(Color.theme.background)
         .sheet(isPresented: $showingEditProfile) {
             EditUserProfileView(user: user)
+                .onDisappear {
+                    Task {
+                        await refreshData()
+                    }
+                }
         }
         .sheet(isPresented: $showingImagePicker) {
             SingleImagePicker(image: $viewModel.backgroundImage)
@@ -61,6 +66,12 @@ struct UserProfileView: View {
         .onChange(of: selectedTab) { newValue in
             Task {
                 await loadFilteredContent(for: newValue, forceRefresh: true)
+            }
+        }
+        .onChange(of: viewModel.profile) { _ in
+            // profile 更新时自动刷新数据
+            Task {
+                await refreshData()
             }
         }
         .alert("错误", isPresented: $showingErrorAlert) {
@@ -136,7 +147,7 @@ struct UserProfileView: View {
     private var userProfileInfo: some View {
         VStack(spacing: 20) {
             RectProfileImageView(
-                avatarUrl: user.avatar,
+                avatarUrl: viewModel.user?.avatar ?? user.avatar,
                 size: .InProfile2
             )
             .frame(width: 88, height: 88)
@@ -144,7 +155,7 @@ struct UserProfileView: View {
             .overlay(Circle().stroke(Color.white, lineWidth: 2))
             .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
             
-            Text(user.name)
+            Text(viewModel.user?.name ?? user.name)
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundColor(.white)
             
@@ -209,7 +220,7 @@ struct UserProfileView: View {
         await MainActor.run {
             viewModel.profile = newProfile
         }
-        await loadFilteredContent(for: selectedTab, forceRefresh: true)
+        await loadFilteredContent(for: selectedTab)
     }
     
     private func loadUserData() async {

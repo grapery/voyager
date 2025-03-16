@@ -87,9 +87,18 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
+    @MainActor
+    func updateUserInfo(newUser: User) {
+        self.user = newUser
+        Task {
+            let newProfile = await self.fetchUserProfile()
+            self.profile = newProfile
+        }
+    }
+    
     func fetchUserProfile() async -> UserProfile {
         let profile = await APIClient.shared.fetchUserProfile(userId: self.user?.userID ?? -1)
-        print("fetchUserProfile: ",fetchUserProfile as Any)
+        print("fetchUserProfile: ", profile as Any)
         return profile
     }
     
@@ -100,25 +109,44 @@ class ProfileViewModel: ObservableObject {
     
     @MainActor
     public func updateProfile() async {
-        let newProfile = await APIClient.shared.updateUserProfile(userId: user!.userID,backgroundImage:self.profile.backgroundImage,avatar: user!.avatar,name: user!.name,description_p: user!.desc,location:  user!.location,email:  user!.email)
-        print("updateProfile: ",newProfile as Any)
-        return
+        let newProfile = await APIClient.shared.updateUserProfile(
+            userId: user!.userID,
+            backgroundImage: self.profile.backgroundImage,
+            avatar: user!.avatar,
+            name: user!.name,
+            description_p: user!.desc,
+            location: user!.location,
+            email: user!.email
+        )
+        print("updateProfile: ", newProfile as Any)
+        
+        // 在主线程更新 profile
+        let updatedProfile = await self.fetchUserProfile()
+        await MainActor.run {
+            self.profile = updatedProfile
+        }
     }
     
     func loadImage(fromItem item: PhotosPickerItem?) async {
         guard let item = item else { return }
         guard let data = try? await item.loadTransferable(type: Data.self) else { return }
         guard let uiImage = UIImage(data: data) else { return }
-        self.uiImage = uiImage
-        self.userImage = Image(uiImage: uiImage)
+        
+        await MainActor.run {
+            self.uiImage = uiImage
+            self.userImage = Image(uiImage: uiImage)
+        }
     }
     
     func loadBackgroundImage(fromItem item: PhotosPickerItem?) async {
         guard let item = item else { return }
         guard let data = try? await item.loadTransferable(type: Data.self) else { return }
         guard let uiImage = UIImage(data: data) else { return }
-        self.uiImage = uiImage
-        self.backgroundImage = uiImage
+        
+        await MainActor.run {
+            self.uiImage = uiImage
+            self.backgroundImage = uiImage
+        }
     }
     
     @MainActor
