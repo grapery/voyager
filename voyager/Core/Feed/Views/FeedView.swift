@@ -171,7 +171,7 @@ private struct FeedItemCard: View {
                     KFImage(URL(string: storyBoardActive.summary.storyAvatar))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 20, height: 20)
+                        .frame(width: 32, height: 32)
                         .clipShape(Circle())
                         .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
                     
@@ -184,7 +184,7 @@ private struct FeedItemCard: View {
                     KFImage(URL(string: storyBoardActive.creator.userAvatar))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 32, height: 32)
+                        .frame(width: 20, height: 20)
                         .clipShape(Circle())
                         .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
                     

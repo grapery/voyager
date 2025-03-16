@@ -29,7 +29,7 @@ enum UserProfileFilterViewModel: Int, CaseIterable {
 
 class ProfileViewModel: ObservableObject {
     @Published var user: User?
-    @State var profile: UserProfile
+    @Published var profile: UserProfile
     @Published var selectedImage: PhotosPickerItem? {
         didSet {
             Task {
@@ -38,45 +38,58 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
+    @Published var backgroundSelectedImage: PhotosPickerItem? {
+        didSet {
+            Task {
+                await loadBackgroundImage(fromItem: backgroundSelectedImage)
+            }
+        }
+    }
+    
     @Published var userImage: Image?
+    @Published var backgroundImage: UIImage?
     @Published var fullname = ""
     @Published var bio = ""
-    @State var isLoad = false
+    @Published var isLoad = false
     
-    @State var StoriesPage = 0
-    @State var StoriesSize = 10
     @Published var stories = [Story]()
-    
-    @State var StoryRolePage = 0
-    @State var StoryRoleSize = 10
     @Published var storyRoles = [StoryRole]()
-    
-    @State var GroupsPage = 0
-    @State var GroupsSize = 10
     @Published var groups = [BranchGroup]()
-    
-    @State var StoryboardsPage = 0
-    @State var StoryboardsSize = 10
     @Published var storyboards = [StoryBoard]()
     
-    private var uiImage: UIImage?
+    private var StoriesPage = 0
+    private var StoriesSize = 10
+    private var StoryRolePage = 0
+    private var StoryRoleSize = 10
+    private var GroupsPage = 0
+    private var GroupsSize = 10
+    private var StoryboardsPage = 0
+    private var StoryboardsSize = 10
     
-    @State var query: String = ""
+    private var uiImage: UIImage?
+    private var query: String = ""
     
     init(user: User) {
         self.user = user
         self.profile = UserProfile()
         if isLoad == true {
             print("user profile is load")
-        }else{
-            Task{
-                self.profile = await fetchUserProfile()
+        } else {
+            Task {
+                await MainActor.run {
+                    self.isLoad = true
+                }
+                let newProfile = await self.fetchUserProfile()
+                await MainActor.run {
+                    self.profile = newProfile
+                }
             }
         }
-        
     }
-    func fetchUserProfile() async -> UserProfile{
+    
+    func fetchUserProfile() async -> UserProfile {
         let profile = await APIClient.shared.fetchUserProfile(userId: self.user?.userID ?? -1)
+        print("fetchUserProfile: ",fetchUserProfile as Any)
         return profile
     }
     
@@ -88,7 +101,7 @@ class ProfileViewModel: ObservableObject {
     @MainActor
     public func updateProfile() async {
         let newProfile = await APIClient.shared.updateUserProfile(userId: user!.userID,backgroundImage:self.profile.backgroundImage,avatar: user!.avatar,name: user!.name,description_p: user!.desc,location:  user!.location,email:  user!.email)
-        print(newProfile as Any)
+        print("updateProfile: ",newProfile as Any)
         return
     }
     
@@ -98,7 +111,14 @@ class ProfileViewModel: ObservableObject {
         guard let uiImage = UIImage(data: data) else { return }
         self.uiImage = uiImage
         self.userImage = Image(uiImage: uiImage)
-        
+    }
+    
+    func loadBackgroundImage(fromItem item: PhotosPickerItem?) async {
+        guard let item = item else { return }
+        guard let data = try? await item.loadTransferable(type: Data.self) else { return }
+        guard let uiImage = UIImage(data: data) else { return }
+        self.uiImage = uiImage
+        self.backgroundImage = uiImage
     }
     
     @MainActor
@@ -111,12 +131,8 @@ class ProfileViewModel: ObservableObject {
         return nil
     }
     
-    func updateUserData() async throws {
-        
-    }
-    
     func updateUserbackgroud(userId: Int64,backgroundImageUrl: String) async -> Error?{
-        let err = await APIClient.shared.updateUserAvator(userId: userId, avatorUrl: backgroundImageUrl)
+        let err = await APIClient.shared.updateUserBackgroud(userId: userId, backgrouUrl: backgroundImageUrl)
         print("updateUserbackgroud err:", err?.localizedDescription as Any)
         if err != nil {
             return err
@@ -165,38 +181,43 @@ class ProfileViewModel: ObservableObject {
     
     func fetchUserCreatedStoryboards(userId: Int64,groupId:Int64,storyId:Int64) async throws -> ([StoryBoard]?,Error?){
         let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryboardsSize), storyId: storyId)
+        print("fetchUserCreatedStoryboards params",self.StoryboardsPage, self.StoryboardsSize)
         if result.3 != nil {
             self.StoryboardsPage = 0
             self.StoryboardsSize = 10
             return (nil,result.3)
         }
+        print("fetchUserCreatedStoryboards result: ",result as Any)
         self.StoryboardsPage = Int(result.1)
-        self.StoryboardsSize = Int(result.2)
+        self.StoryboardsSize = 10
         return (result.0,nil)
     }
     
     func fetchUserCreatedStoryRoles(userId: Int64,groupId:Int64,storyId:Int64) async throws -> ([StoryRole]?,Error?){
         let result = await APIClient.shared.fetchUserCreatedStoryRoles(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryRoleSize), storyid: storyId)
+        print("fetchUserCreatedStoryRoles params",self.StoryboardsPage, self.StoryRoleSize)
         if result.3 != nil {
             self.StoryRolePage = 0
             self.StoryRoleSize = 10
             return (nil,result.3)
         }
         self.StoryRolePage = Int(result.1)
-        self.StoryRoleSize = Int(result.2)
-        print("fetchUserCreatedStoryRoles result: ",result)
+        self.StoryRoleSize = 10
+        print("fetchUserCreatedStoryRoles result: ",result as Any)
         return (result.0,nil)
     }
     
     func fetchUserUnPublishedStoryboards(userId: Int64,groupId:Int64,storyId:Int64,status: Int64) async throws -> ([StoryBoard]?,Error?){
         let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryboardsSize), storyId: storyId)
+        print("fetchUserUnPublishedStoryboards params",self.StoryboardsPage, self.StoryboardsSize)
         if result.3 != nil {
             self.StoryboardsPage = 0
             self.StoryboardsSize = 10
             return (nil,result.3)
         }
+        print("fetchUserUnPublishedStoryboards result",result as Any)
         self.StoryboardsPage = Int(result.1)
-        self.StoryboardsSize = Int(result.2)
+        self.StoryboardsSize = 10
         return (result.0,nil)
     }
 }

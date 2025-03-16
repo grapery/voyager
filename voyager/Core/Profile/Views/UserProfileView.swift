@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Kingfisher
+import PhotosUI
 
 // MARK: - Main View
 struct UserProfileView: View {
@@ -18,7 +19,6 @@ struct UserProfileView: View {
     @GestureState private var dragOffset: CGFloat = 0
     @State private var showingImagePicker = false
     @State private var showingEditProfile = false
-    @State private var backgroundImage: UIImage?
     @State private var showSettings = false
     @State private var isLoading = false
     @State private var showingErrorAlert = false
@@ -32,120 +32,9 @@ struct UserProfileView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                // 顶部操作栏
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        showingEditProfile = true
-                    }) {
-                        Image(systemName: "line.3.horizontal")
-                            .foregroundColor(Color.theme.tertiaryText)
-                    }
-                    .padding(.horizontal, 16)
-                    
-                    Button(action: {
-                        showSettings = true
-                    }) {
-                        Image(systemName: "gearshape")
-                            .foregroundColor(Color.theme.tertiaryText)
-                    }
-                    .padding(.trailing, 16)
-                }
-                .padding(.vertical, 8)
-                .background(Color.theme.background)
-                
-                // 用户信息区域
-                ZStack {
-                    // 背景图片
-                    if let image = backgroundImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(height: 260)
-                            .clipped()
-                            .overlay(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        Color.black.opacity(0.3),
-                                        Color.black.opacity(0.1)
-                                    ]),
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                    } else {
-                        Rectangle()
-                            .fill(Color.theme.tertiaryBackground)
-                            .frame(height: 260)
-                    }
-                    
-                    // 虚化圆形效果
-                    Circle()
-                        .fill(Color.white.opacity(0.15))
-                        .frame(width: 200, height: 200)
-                        .blur(radius: 30)
-                    
-                    // 用户信息
-                    VStack(spacing: 20) {
-                        // 头像
-                        RectProfileImageView(
-                            avatarUrl: user.avatar,
-                            size: .InProfile2
-                        )
-                        .frame(width: 88, height: 88)
-                        .clipShape(Circle())
-                        .overlay(
-                            Circle()
-                                .stroke(Color.white, lineWidth: 2)
-                        )
-                        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
-                        
-                        // 用户名
-                        Text(user.name)
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.white)
-                        
-                        // 统计数据
-                        HStack(spacing: 0) {
-                            StatItem(count: 8, title: "关注", icon: "bell.fill")
-                                .frame(maxWidth: .infinity)
-                            
-                            StatItem(count: 3, title: "粉丝", icon: "person.2.fill")
-                                .frame(maxWidth: .infinity)
-                            
-                            StatItem(count: 2, title: "获赞", icon: "heart.fill")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .padding(.top, 8)
-                    }
-                    .padding(.vertical, 24)
-                }
-                .onLongPressGesture {
-                    showingImagePicker = true
-                }
-                
-                // 分段控制器
-                CustomSegmentedControl(
-                    selectedIndex: $selectedTab,
-                    titles: ["故事", "角色", "待发布"]
-                )
-                
-                // 内容区域
-                TabView(selection: $selectedTab) {
-                    StoriesTab(viewModel: viewModel, isLoading: isLoading)
-                        .tag(0)
-                        .id("stories")
-                    
-                    RolesTab(viewModel: viewModel, isLoading: isLoading)
-                        .tag(1)
-                        .id("roles")
-                    
-                    PendingTab(userId: viewModel.user?.userID ?? 0)
-                        .tag(2)
-                        .id("pending")
-                }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .frame(minHeight: UIScreen.main.bounds.height * 0.6)
+                headerView
+                userInfoSection
+                tabsSection
             }
         }
         .background(Color.theme.background)
@@ -153,9 +42,9 @@ struct UserProfileView: View {
             EditUserProfileView(user: user)
         }
         .sheet(isPresented: $showingImagePicker) {
-            SingleImagePicker(image: $backgroundImage)
+            SingleImagePicker(image: $viewModel.backgroundImage)
         }
-        .onChange(of: backgroundImage) { newImage in
+        .onChange(of: viewModel.backgroundImage) { newImage in
             if newImage != nil {
                 handleImageSelected()
             }
@@ -181,33 +70,145 @@ struct UserProfileView: View {
         }
         .overlay {
             if isLoading {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                ProgressView()
-                    .tint(.white)
-                    .scaleEffect(1.5)
+                loadingOverlay
             }
         }
     }
     
-    // MARK: - Action Handlers
-    private func handleHeaderLongPress() {
-        showingImagePicker = true
+    // MARK: - View Components
+    private var headerView: some View {
+        HStack {
+            Spacer()
+            Button(action: { showingEditProfile = true }) {
+                Image(systemName: "line.3.horizontal")
+                    .foregroundColor(Color.theme.tertiaryText)
+            }
+            .padding(.horizontal, 16)
+            
+            Button(action: { showSettings = true }) {
+                Image(systemName: "gearshape")
+                    .foregroundColor(Color.theme.tertiaryText)
+            }
+            .padding(.trailing, 16)
+        }
+        .padding(.vertical, 8)
+        .background(Color.theme.background)
     }
     
-    private func handleSettingsPress() {
-        showingEditProfile = true
+    private var userInfoSection: some View {
+        ZStack {
+            backgroundImageView
+            userProfileInfo
+        }
+        .onLongPressGesture {
+            showingImagePicker = true
+        }
     }
     
-    private func handleSheetDismiss() {
-        showingEditProfile = false
-        showingImagePicker = false
+    private var backgroundImageView: some View {
+        PhotosPicker(selection: $viewModel.backgroundSelectedImage) {
+            if let image = viewModel.backgroundImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(height: 260)
+                    .clipped()
+                    .overlay(backgroundGradient)
+            } else {
+                Rectangle()
+                    .fill(Color.theme.tertiaryBackground)
+                    .frame(height: 260)
+            }
+        }
     }
     
-    // MARK: - Data Loading Methods
+    private var backgroundGradient: some View {
+        LinearGradient(
+            gradient: Gradient(colors: [
+                Color.black.opacity(0.3),
+                Color.black.opacity(0.1)
+            ]),
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+    
+    private var userProfileInfo: some View {
+        VStack(spacing: 20) {
+            RectProfileImageView(
+                avatarUrl: user.avatar,
+                size: .InProfile2
+            )
+            .frame(width: 88, height: 88)
+            .clipShape(Circle())
+            .overlay(Circle().stroke(Color.white, lineWidth: 2))
+            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+            
+            Text(user.name)
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundColor(.white)
+            
+            userStats
+        }
+        .padding(.vertical, 24)
+    }
+    
+    private var userStats: some View {
+        HStack(spacing: 0) {
+            StatItem(count: Int(viewModel.profile.watchingStoryNum), title: "创建", icon: "bell.fill")
+                .frame(maxWidth: .infinity)
+            StatItem(count: Int(viewModel.profile.createdStoryNum), title: "关注", icon: "person.2.fill")
+                .frame(maxWidth: .infinity)
+            StatItem(count: Int(viewModel.profile.contributStoryNum), title: "参与", icon: "heart.fill")
+                .frame(maxWidth: .infinity)
+        }
+        .padding(.top, 8)
+    }
+    
+    private var tabsSection: some View {
+        VStack(spacing: 0) {
+            CustomSegmentedControl(
+                selectedIndex: $selectedTab,
+                titles: ["故事", "角色", "待发布"]
+            )
+            
+            TabView(selection: $selectedTab) {
+                StoriesTab(viewModel: viewModel, isLoading: isLoading)
+                    .tag(0)
+                    .id("stories")
+                
+                RolesTab(viewModel: viewModel, isLoading: isLoading)
+                    .tag(1)
+                    .id("roles")
+                
+                PendingTab(userId: viewModel.user?.userID ?? 0)
+                    .tag(2)
+                    .id("pending")
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .frame(minHeight: UIScreen.main.bounds.height * 0.6)
+        }
+    }
+    
+    private var loadingOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+            ProgressView()
+                .tint(.white)
+                .scaleEffect(1.5)
+        }
+    }
+    
+    // MARK: - Methods
     private func refreshData() async {
         isLoading = true
         defer { isLoading = false }
+        
+        let newProfile = await viewModel.fetchUserProfile()
+        await MainActor.run {
+            viewModel.profile = newProfile
+        }
         await loadFilteredContent(for: selectedTab, forceRefresh: true)
     }
     
@@ -215,14 +216,16 @@ struct UserProfileView: View {
         isLoading = true
         defer { isLoading = false }
         
-        if viewModel.profile.userID == 0 {
-            viewModel.profile = await viewModel.fetchUserProfile()
+        let newProfile = await viewModel.fetchUserProfile()
+        await MainActor.run {
+            viewModel.profile = newProfile
         }
         await loadFilteredContent(for: selectedTab)
     }
     
     private func loadFilteredContent(for filter: Int, forceRefresh: Bool = false) async {
         isLoading = true
+        defer { isLoading = false }
         
         do {
             switch filter {
@@ -232,11 +235,10 @@ struct UserProfileView: View {
                     groupId: 0,
                     storyId: 0
                 )
-                await MainActor.run {
-                    if let boards = boards {
+                if let boards = boards {
+                    await MainActor.run {
                         viewModel.storyboards = boards
                     }
-                    isLoading = false
                 }
                 
             case 1:
@@ -245,53 +247,38 @@ struct UserProfileView: View {
                     groupId: 0,
                     storyId: 0
                 )
-                await MainActor.run {
-                    if let roles = roles {
+                if let roles = roles {
+                    await MainActor.run {
                         viewModel.storyRoles = roles
                     }
-                    isLoading = false
                 }
                 
-            case 2:
-                // 待发布标签页有自己的 ViewModel，不需要在这里处理
-                isLoading = false
-                
             default:
-                isLoading = false
+                break
             }
         } catch {
-            await MainActor.run {
-                isLoading = false
-            }
             print("Error loading filtered content: \(error)")
         }
     }
     
     private func handleImageSelected() {
-        guard let image = backgroundImage else { return }
+        guard let image = viewModel.backgroundImage else { return }
         
-        // 显示加载状态
         isLoading = true
         
         Task {
             do {
-                // 上传图片到阿里云 OSS
                 let imageUrl = try await Task.detached {
                     try AliyunClient.UploadImage(image: image)
                 }.value
                 
-                // 更新用户资料
                 let err = await viewModel.updateUserbackgroud(userId: viewModel.user!.userID, backgroundImageUrl: imageUrl)
                 
                 await MainActor.run {
-                    if err == nil {
-                        // 更新成功
-                        isLoading = false
-                    } else {
-                        // 更新失败
+                    isLoading = false
+                    if err != nil {
                         errorMessage = "更新背景图片失败"
                         showingErrorAlert = true
-                        isLoading = false
                     }
                 }
             } catch {

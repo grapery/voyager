@@ -40,7 +40,7 @@ struct EditUserProfileView: View {
                                                 .stroke(Color.theme.border, lineWidth: 0.5)
                                         )
                                 } else {
-                                    CircularProfileImageView(avatarUrl: viewModel.user!.avatar, size: .InProfile)
+                                    CircularProfileImageView(avatarUrl: viewModel.user!.avatar, size: .InProfile2)
                                         .overlay(
                                             Circle()
                                                 .stroke(Color.theme.border, lineWidth: 0.5)
@@ -54,7 +54,7 @@ struct EditUserProfileView: View {
                         }
                     }
                     .padding(.top, 20)
-                    
+                    Spacer()
                     // 基本信息部分
                     VStack(spacing: 20) {
                         // 用户名输入框
@@ -151,7 +151,7 @@ struct EditUserProfileView: View {
                 }
                 
                 // 更新用户资料
-                try await viewModel.updateUserData()
+                await viewModel.updateProfile()
                 await MainActor.run {
                     isLoading = false
                     dismiss()
