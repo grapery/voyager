@@ -415,6 +415,80 @@ struct StoryboardCell: View {
 }
 
 
+struct StoryboardActiveCell: View {
+    let board: StoryBoardActive
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // 主要内容
+            VStack(alignment: .leading, spacing: 12) {
+                // 标题行
+                HStack {
+                    Text(board.boardActive.storyboard.title)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(Color.theme.primaryText)
+                    
+                    Spacer()
+                    
+                    Text(formatDate(board.boardActive.storyboard.ctime))
+                        .font(.system(size: 13))
+                        .foregroundColor(Color.theme.tertiaryText)
+                }
+                
+                // 内容
+                Text(board.boardActive.storyboard.content)
+                    .font(.system(size: 15))
+                    .foregroundColor(Color.theme.secondaryText)
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
+                
+                // 底部统计
+                HStack(spacing: 24) {
+                    StatLabel(
+                        icon: "bubble.left.fill",
+                        count: 10,
+                        iconColor: Color.theme.tertiaryText,
+                        countColor: Color.theme.tertiaryText
+                    )
+                    
+                    StatLabel(
+                        icon: "heart.fill",
+                        count: 10,
+                        iconColor: Color.theme.tertiaryText,
+                        countColor: Color.theme.tertiaryText
+                    )
+                    
+                    StatLabel(
+                        icon: "arrow.triangle.2.circlepath",
+                        count: 10,
+                        iconColor: Color.theme.tertiaryText,
+                        countColor: Color.theme.tertiaryText
+                    )
+                    
+                    Spacer()
+                }
+                .padding(.top, 4)
+            }
+            .padding(.vertical, 16)
+            .padding(.horizontal, 16)
+        }
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.theme.border, lineWidth: 0.5)
+        )
+    }
+    
+    private func formatDate(_ timestamp: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM-dd HH:mm"
+        return formatter.string(from: date)
+    }
+}
+
+
 struct ProfileRoleCell: View {
     let role: StoryRole
     @StateObject var viewModel: ProfileViewModel
@@ -455,17 +529,10 @@ struct ProfileRoleCell: View {
         .fullScreenCover(isPresented: $showRoleDetail) {
             NavigationStack {
                 StoryRoleDetailView(
-                    storyId: role.role.storyID,
                     roleId: role.role.roleID,
                     userId: viewModel.user?.userID ?? 0,
                     role: role
                 )
-                .navigationBarItems(leading: Button(action: {
-                    showRoleDetail = false
-                }) {
-                    Image(systemName: "xmark")
-                        .foregroundColor(Color.theme.primaryText)
-                })
             }
         }
     }
@@ -632,12 +699,12 @@ private struct EmptyStateView: View {
 
 // 修改 StoryboardsListView
 private struct StoryboardsListView: View {
-    let boards: [StoryBoard]
+    let boards: [StoryBoardActive]
     
     var body: some View {
         LazyVStack(spacing: 12) {
             ForEach(boards, id: \.id) { board in
-                StoryboardCell(board: board)
+                StoryboardActiveCell(board: board)
             }
         }
         .padding(.horizontal, 16)

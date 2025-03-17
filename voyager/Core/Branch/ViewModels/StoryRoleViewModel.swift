@@ -9,18 +9,17 @@ import SwiftUI
 import Combine
 
 class StoryRoleModel: ObservableObject {
-    @Published var story: Story?
     @Published var isLoading: Bool = false
     @Published var storyId: Int64
     @State var roles: [StoryRole] = [StoryRole]()
+    @Published var roleStoryboards: [StoryBoardActive] = [StoryBoardActive]()
     var userId: Int64
     
     var err: Error? = nil
     var page: Int64 = 0
     var pageSize: Int64 = 10
     
-    init(story: Story? = nil, storyId: Int64 = 0, userId: Int64 = 0) {
-        self.story = story
+    init(storyId: Int64 = 0, userId: Int64 = 0) {
         self.storyId = storyId
         self.userId = userId
     }
@@ -28,7 +27,6 @@ class StoryRoleModel: ObservableObject {
     init(userId:Int64){
         self.userId = userId
         self.storyId = 0
-        self.story = nil
     }
     
     func fetchStoryRoles(storyId:Int64) async {
@@ -102,8 +100,30 @@ class StoryRoleModel: ObservableObject {
         return (samplePrompt,nil)
     }
     
-    func updateRolePrompt(roleId:Int64,userId:Int64,prompt: String)async -> Error?{
+    func updateRolePrompt(userId: Int64,roleId:Int64,prompt: String)async -> Error?{
         return nil
+    }
+    
+    
+    func updateRoleAvatar(userId: Int64,roleId: Int64,avatar: String) async -> Error?{
+        let err = await APIClient.shared.updateStoryRoleAvatar(userId: self.userId,roleId: roleId,avatar: avatar)
+        if err != nil{
+            print("updateRoleAvatar failed: ",err!)
+            return err
+        }
+        return nil
+    }
+    
+    func updateStoryRoleBackground(userId: Int64,roleId: Int64,backgroundAvatar: String) async{
+        let err = await APIClient.shared.updateStoryRoleBackgroud(userId: userId, roleId: roleId,backgrondUrl: backgroundAvatar)
+        if err != nil{
+            print("updateStoryRoleBackground failed: ",err!)
+        }
+        return
+    }
+    
+    func fetchRoleStoryboards(userId: Int64,roleId:Int64,storyName: String) async ->([StoryBoardActive]?,Error?){
+        return (nil,nil)
     }
 }
 

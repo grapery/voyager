@@ -430,7 +430,6 @@ struct AllCharactersView: View {
         }
         .navigationDestination(for: StoryRole.self) { character in
             StoryRoleDetailView(
-                storyId: character.role.storyID,
                 roleId: character.role.roleID,
                 userId: character.role.creatorID,
                 role: character

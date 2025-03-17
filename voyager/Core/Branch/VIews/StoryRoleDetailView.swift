@@ -82,7 +82,6 @@ struct CharacterCell: View {
                     .foregroundColor(.orange)
                     .navigationDestination(isPresented: $showingDetail) {
                         StoryRoleDetailView(
-                            storyId: character.role.storyID,
                             roleId: character.role.roleID,
                             userId: character.role.creatorID,
                             role: character
@@ -100,305 +99,340 @@ struct CharacterCell: View {
 }
 
 
-// 角色详情视图
+// MARK: - Main View
 struct StoryRoleDetailView: View {
-    let storyId: Int64
-    var boardIds: [Int64]
+    // MARK: - Properties
     let roleId: Int64
     let userId: Int64
-    @State var role: StoryRole?
-    @State var viewModel: StoryRoleModel?
-    @State private var showingEditView = false
-    @State private var showingChatView = false
-    @State private var showingPosterView = false
-    @State private var showingDescriptionEditor = false
-    @State private var showingPromptEditor = false
-    @State private var showingInfoEditor = false
-    @State private var showingAvatarPreview = false
     
-    @Environment(\.dismiss) private var dismiss  // 用于关闭视图
+    @State private var role: StoryRole?
+    // MARK: - State
+    @StateObject private var viewModel: StoryRoleModel
+    @State private var selectedTab = 0
+    @State private var showImagePicker = false
+    @State private var selectedImage: UIImage?
+    @State private var isLoading = false
+    @State private var showError = false
+    @State private var errorMessage = ""
+    @State private var showChatView = false
+    @State private var showPosterView = false
     
+    // MARK: - Environment
+    @Environment(\.dismiss) private var dismiss
     
-    init(storyId: Int64, roleId: Int64, userId: Int64,role: StoryRole? = nil){
-        self.storyId = storyId
+    // MARK: - Initialization
+    init(roleId: Int64, userId: Int64, role: StoryRole? = nil) {
         self.roleId = roleId
+        self.userId = userId
         self.role = role
-        self.viewModel = StoryRoleModel(story: nil, storyId: 0, userId: userId)
-        self.boardIds = [Int64]()
-        self.userId = userId
-        // print("=== role detail init ===")
-        // print("Name: \(role!.role.characterName)")
-        // print("Description: \(role!.role.characterDescription)")
-        // print("Prompt: \(role!.role.characterPrompt)")
-        // print("Create Time: \(role!.role.ctime)")
-        // print("=== role detail init ===")
-    }
-
-    init(roleId: Int64, userId: Int64) {
-        self.viewModel = StoryRoleModel(userId: userId)
-        self.boardIds = [Int64]()
-        self.userId = userId
-        self.roleId = roleId
-        self.storyId = 0
+        self._viewModel = StateObject(wrappedValue: StoryRoleModel(
+            userId: userId
+        ))
     }
     
-    // 添加新的加载方法
-    private func loadRoleDetails() async {
-        if let viewModel = viewModel {
-            do {
-                let (detail, err) = await viewModel.fetchStoryRoleDetail(roleId: roleId)
-                if err == nil {
-                    role = detail
-                }
-            }
-        }
-    }
-    
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 12) {
-                    // 角色基本信息卡片
+                VStack(spacing: 16) {
                     if let role = role {
-                        profileCard
-                        // 添加全屏预览视图
-                            .fullScreenCover(isPresented: $showingAvatarPreview) {
-                                AvatarPreviewView(
-                                    imageURL: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar,
-                                    isPresented: $showingAvatarPreview
-                                )
-                            }
-                            .onTapGesture {
-                                showingAvatarPreview = true
-                            }
+                        // Profile Section
+                        RoleProfileSection(
+                            role: role,
+                            onAvatarTap: { showImagePicker = true }
+                        )
+                        
+                        // Action Buttons
+                        RoleActionButtons(
+                            onChat: { showChatView = true },
+                            onPoster: { showPosterView = true }
+                        )
+                        .padding(.horizontal, 16)
+                        
+                        // Stats Card
+                        RoleStatsCard(role: role)
+                            .padding(.horizontal, 16)
+                        
+                        // Tab Content
+                        RoleTabContent(
+                            role: role,
+                            viewModel: viewModel,
+                            selectedTab: $selectedTab
+                        )
+                    } else {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-                    // 统计信息卡片
-                    if let role = role {
-                        statsCard(role: role)
-                    }
-                    
-                    // 详细信息卡片
-                    if let role = role {
-                        detailsCard(role: role)
-                    }
-                    
-                    // 底部操作按钮
-                    bottomActionButtons
                 }
-                .padding(.horizontal, 12)
+                .padding(.vertical, 16)
             }
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarItems(leading: Button(action: {
-                dismiss()
-            }) {
-                Image(systemName: "chevron.left")
-                    .foregroundColor(.white)
-            })
-            .fullScreenCover(isPresented: $showingEditView) {
-                NavigationStack {
-                    EditStoryRoleDetailView(role: role, userId: self.userId, viewModel: self.$viewModel)
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarLeading) {
-                                Button("返回") {
-                                    showingEditView = false
-                                }
-                            }
-                        }
+            .navigationBarItems(leading: BackButton())
+            .sheet(isPresented: $showImagePicker) {
+                SingleImagePicker(image: $selectedImage)
+            }
+            .onChange(of: selectedImage) { newImage in
+                if let image = newImage {
+                    Task {
+                        await uploadAvatar(image)
+                    }
                 }
             }
-            .fullScreenCover(isPresented: $showingChatView) {
-                NavigationStack {
-                    MessageContextView(userId: self.userId, roleId: self.roleId, role: self.role!)
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarLeading) {
-                                Button("返回") {
-                                    showingChatView = false
-                                }
-                            }
-                        }
-                        .navigationBarHidden(true)
+            .alert(isPresented: $showError) {
+                Alert(
+                    title: Text("错误"),
+                    message: Text(errorMessage),
+                    dismissButton: .default(Text("确定"))
+                )
+            }
+            .fullScreenCover(isPresented: $showChatView) {
+                if let role = role {
+                    MessageContextView(userId: userId, roleId: roleId, role: role)
                 }
             }
-            .fullScreenCover(isPresented: $showingPosterView) {
-//                // 添加海报视图的导航目标
-                NavigationStack {
-                    PosterView(role: self.role!, isImageLoaded: false)
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarLeading) {
-                                Button("返回") {
-                                    showingPosterView = false
-                                }
-                            }
-                        }
-                        .navigationBarHidden(true)
-                    
+            .fullScreenCover(isPresented: $showPosterView) {
+                if let role = role {
+                    PosterView(role: role)
                 }
             }
-            
         }
-//        .task {  // 或者使用 .onAppear
-//            await loadRoleDetails()
-//        }
+        .task {
+            await loadRoleDetails()
+        }
     }
     
-    // 角色基本信息卡片
-    private var profileCard: some View {
+    // MARK: - Methods
+    private func loadRoleDetails() async {
+        isLoading = true
+        let (fetchedRole, error) = await viewModel.fetchStoryRoleDetail(roleId: roleId)
+        await MainActor.run {
+            isLoading = false
+            if let error = error {
+                errorMessage = error.localizedDescription
+                showError = true
+            } else if let fetchedRole = fetchedRole {
+                role = fetchedRole
+            }
+        }
+    }
+    
+    private func uploadAvatar(_ image: UIImage) async {
+        isLoading = true
+        do {
+            let imageUrl = try await AliyunClient.UploadImage(image: image)
+            let error = await viewModel.updateRoleAvatar(userId: userId, roleId: roleId, avatar: imageUrl)
+            await MainActor.run {
+                isLoading = false
+                if let error = error {
+                    errorMessage = error.localizedDescription
+                    showError = true
+                } else {
+                    // Refresh role details after successful upload
+                    Task {
+                        await loadRoleDetails()
+                    }
+                }
+            }
+        } catch {
+            await MainActor.run {
+                isLoading = false
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+        }
+    }
+}
+
+// MARK: - Profile Section
+struct RoleProfileSection: View {
+    let role: StoryRole
+    let onAvatarTap: () -> Void
+    
+    var body: some View {
         VStack(spacing: 12) {
-            if let role = role {
-                // 头像
+            Button(action: onAvatarTap) {
                 KFImage(URL(string: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar))
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 100, height: 100)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                    )
-                
-                // 名称
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.theme.border, lineWidth: 1))
+            }
+            
                 Text(role.role.characterName)
                     .font(.system(size: 20, weight: .bold))
-            } else {
-                ProgressView()
-            }
+                .foregroundColor(Color.theme.primaryText)
         }
         .frame(maxWidth: .infinity)
         .padding(16)
-        .background(Color.white)
+        .background(Color.theme.secondaryBackground)
         .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
     }
+}
+
+// MARK: - Action Buttons
+struct RoleActionButtons: View {
+    let onChat: () -> Void
+    let onPoster: () -> Void
     
-    // 统计信息卡片
-    private func statsCard(role: StoryRole) -> some View {
-        // print("=== statsCard OnAppear ===")
-        // print("Name: \(role.role.characterName)")
-        // print("Description: \(role.role.characterDescription)")
-        // print("Prompt: \(role.role.characterPrompt)")
-        // print("Create Time: \(role.role.ctime)")
-        // print("=== End statsCard OnAppear ===")
-        return HStack(spacing: 24) {
-            InteractionStatView(
+    var body: some View {
+        HStack(spacing: 16) {
+            StoryRoleActionButton(
+                title: "聊天",
+                icon: "message.fill",
+                color: Color.theme.accent,
+                action: onChat
+            )
+            
+            StoryRoleActionButton(
+                title: "海报",
+                icon: "photo.fill",
+                color: Color.theme.primary,
+                action: onPoster
+            )
+        }
+    }
+}
+
+struct StoryRoleActionButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Label(title, systemImage: icon)
+                .font(.system(size: 14))
+                .foregroundColor(.white)
+                .frame(height: 32)
+                .frame(maxWidth: .infinity)
+                .background(color)
+                .cornerRadius(16)
+        }
+    }
+}
+
+// MARK: - Stats Card
+struct RoleStatsCard: View {
+    let role: StoryRole
+    
+    var body: some View {
+        HStack(spacing: 24) {
+            StoryRoleStatItem(
                 icon: "heart.fill",
-                color: .red,
+                color: Color.theme.error,
                 value: role.role.likeCount,
                 title: "点赞"
             )
             
-            InteractionStatView(
+            StoryRoleStatItem(
                 icon: "person.2.fill",
-                color: .blue,
+                color: Color.theme.accent,
                 value: role.role.followCount,
                 title: "关注"
             )
             
-            InteractionStatView(
+            StoryRoleStatItem(
                 icon: "book.fill",
-                color: .green,
+                color: Color.theme.success,
                 value: role.role.storyboardNum,
                 title: "故事"
             )
         }
-        .padding(20)
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
+        .padding(16)
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(12)
     }
+}
+
+struct StoryRoleStatItem: View {
+    let icon: String
+    let color: Color
+    let value: Int64
+    let title: String
     
-    // 详细信息卡片
-    private func detailsCard(role: StoryRole) -> some View {
-        // print("=== Details Card OnAppear ===")
-        // print("Name: \(role.role.characterName)")
-        // print("Description: \(role.role.characterDescription)")
-        // print("Prompt: \(role.role.characterPrompt)")
-        // print("Create Time: \(role.role.ctime)")
-        // print("=== End Details Card OnAppear ===")
-        return VStack(alignment: .leading, spacing: 12) {
-            // 角色描述部分
-            Button(action: { showingDescriptionEditor = true }) {
-                DetailSection(
-                    title: "角色描述",
-                    content: role.role.characterDescription,
-                    placeholder: "角色比较神秘，没有介绍！", showIcon: false,
-                    fontSize: 14
-                )
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(systemName: icon)
+                .foregroundColor(color)
+                .font(.system(size: 20))
+            Text("\(value)")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundColor(Color.theme.primaryText)
+            Text(title)
+                .font(.system(size: 14))
+                .foregroundColor(Color.theme.secondaryText)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+// MARK: - Tab Content
+struct RoleTabContent: View {
+    let role: StoryRole
+    let viewModel: StoryRoleModel
+    @Binding var selectedTab: Int
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            TabView(selection: $selectedTab) {
+                // 简介 Tab
+                RoleInfoTab(role: role, viewModel: viewModel)
+                    .tag(0)
+                
+                // 参与 Tab
+                RoleParticipationTab(viewModel: viewModel)
+                    .tag(1)
             }
-            .sheet(isPresented: $showingDescriptionEditor) {
-                EditDescriptionView(role: role, viewModel: self.viewModel)
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            
+            CustomTabSelector(selectedTab: $selectedTab)
+                .padding(.horizontal, 16)
+        }
+    }
+}
+
+// MARK: - Info Tab
+struct RoleInfoTab: View {
+    let role: StoryRole
+    let viewModel: StoryRoleModel
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                DetailSection(role: role, viewModel: viewModel)
+                    .padding(.horizontal, 16)
             }
-            
-            Divider()
-            
-            // 角色提示词部分
-            Button(action: { showingPromptEditor = true }) {
-                DetailSection(
-                    title: "角色提示词",
-                    content: role.role.characterPrompt,
-                    placeholder: "提示词为空",
-                    showIcon: true,
-                    fontSize: 14
-                )
-            }
-            .sheet(isPresented: $showingPromptEditor) {
-                EditPromptView(role: role, viewModel: self.viewModel)
-            }
-            
-            Divider()
-            
-            // 其他信息部分
-            Button(action: { showingInfoEditor = true }) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("其他信息")
-                        .font(.system(size: 14, weight: .medium))
-                    
-                    HStack {
-                        Label(formatDate(timestamp: role.role.ctime), systemImage: "clock")
-                        Spacer()
-                        Label("ID: \(role.role.creatorID)", systemImage: "person")
-                    }
-                    .font(.system(size: 12))
-                    .foregroundColor(.secondary)
+        }
+    }
+}
+
+// MARK: - Participation Tab
+struct RoleParticipationTab: View {
+    @ObservedObject var viewModel: StoryRoleModel
+    
+    var body: some View {
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                ForEach(viewModel.roleStoryboards, id: \.id) { board in
+                    StoryboardActiveCell(board: board)
+                        .padding(.horizontal, 16)
                 }
             }
-            .sheet(isPresented: $showingInfoEditor) {
-                EditInfoView(role: role, onSave: { /* 保存逻辑 */ })
-            }
-        }
-        .padding(16)
-        .background(Color.white)
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
-    }
-    
-    // 底部操作按钮
-    private var bottomActionButtons: some View {
-        HStack(spacing: 20) {
-            RoleActionButton(
-                title: "聊天",
-                icon: "message.fill",
-                action: { showingChatView = true }
-            )
-            
-            RoleActionButton(
-                title: "海报",
-                icon: "photo.fill",
-                action: { showingPosterView = true }
-            )
         }
     }
+}
+
+// MARK: - Back Button
+struct BackButton: View {
+    @Environment(\.dismiss) private var dismiss
     
-    private func loadRoleData() {
-        // TODO: 实现从 viewModel 或网络加载角色数据的逻辑
-        // role = viewModel.getRoleById(roleId)
-    }
-    
-    // 在 struct StoryRoleDetailView 之前添加
-    private func formatDate(timestamp: Int64) -> String {
-        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter.string(from: date)
+    var body: some View {
+        Button(action: { dismiss() }) {
+            Image(systemName: "chevron.left")
+                .foregroundColor(Color.theme.primaryText)
+        }
     }
 }
 
@@ -426,59 +460,129 @@ struct InteractionStatView: View {
 }
 
 struct DetailSection: View {
-    let title: String
-    let content: String
-    let placeholder: String
-    var showIcon: Bool = false
-    let fontSize: CGFloat
-    init(title: String, content: String, placeholder: String, showIcon: Bool, fontSize: CGFloat) {
-        self.title = title
-        self.content = content
-        self.placeholder = placeholder
-        self.fontSize = fontSize
-        self.showIcon = showIcon
-    }
+    let role: StoryRole
+    let viewModel: StoryRoleModel
+    @State private var showingDescriptionEditor = false
+    @State private var showingPromptEditor = false
+    @State private var isExpanded = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.system(size: fontSize, weight: .medium))
+        VStack(spacing: 16) {
+            // Character Description Section
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("角色描述")
+                        .font(.system(size: 16, weight: .medium))
                 .foregroundColor(Color.theme.primaryText)
             
-            Text(content.isEmpty ? placeholder : content)
-                .font(.system(size: fontSize))
-                .foregroundColor(content.isEmpty ? Color.theme.tertiaryText : Color.theme.primaryText)
+                    Spacer()
+                    
+                    Button(action: { showingDescriptionEditor = true }) {
+                        Image(systemName: "pencil.circle")
+                            .foregroundColor(Color.theme.accent)
+                    }
+                }
+                
+                Text(role.role.characterDescription.isEmpty ? "角色比较神秘，没有介绍！" : role.role.characterDescription)
+                    .font(.system(size: 14))
+                    .foregroundColor(role.role.characterDescription.isEmpty ? Color.theme.tertiaryText : Color.theme.primaryText)
+                    .lineLimit(isExpanded ? nil : 3)
                 .multilineTextAlignment(.leading)
             
-            if showIcon {
-                HStack {
-                    Spacer()
-                    Image(systemName: "pencil")
-                        .font(.system(size: 12))
-                        .foregroundColor(Color.theme.tertiaryText)
+                if !role.role.characterDescription.isEmpty {
+                    Button(action: { isExpanded.toggle() }) {
+                        Text(isExpanded ? "收起" : "展开")
+                            .font(.system(size: 14))
+                            .foregroundColor(Color.theme.accent)
+                    }
                 }
             }
+            .padding(12)
+            .background(Color.theme.background)
+            .cornerRadius(8)
+            .sheet(isPresented: $showingDescriptionEditor) {
+                EditDescriptionView(role: role, viewModel: viewModel)
+            }
+            
+            // Character Prompt Section
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("角色提示词")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(Color.theme.primaryText)
+                    
+                    Spacer()
+                    
+                    Button(action: { showingPromptEditor = true }) {
+                        Image(systemName: "pencil.circle")
+                            .foregroundColor(Color.theme.accent)
+                    }
+                }
+                
+                Text(role.role.characterPrompt.isEmpty ? "提示词为空" : role.role.characterPrompt)
+                    .font(.system(size: 14))
+                    .foregroundColor(role.role.characterPrompt.isEmpty ? Color.theme.tertiaryText : Color.theme.primaryText)
+                    .lineLimit(4)
+                    .multilineTextAlignment(.leading)
+                }
+            .padding(12)
+            .background(Color.theme.background)
+            .cornerRadius(8)
+            .sheet(isPresented: $showingPromptEditor) {
+                EditPromptView(role: role, viewModel: viewModel)
+            }
+            
+            // Other Information Section
+            VStack(alignment: .leading, spacing: 8) {
+                Text("其他信息")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(Color.theme.primaryText)
+                
+                VStack(spacing: 12) {
+                    InfoRow(icon: "person.fill", title: "创建者", value: "\(role.role.creatorID)")
+                    InfoRow(icon: "clock.fill", title: "创建时间", value: formatDate(timestamp: role.role.ctime))
+                    InfoRow(icon: "number", title: "角色ID", value: "\(role.role.roleID)")
+                    if role.role.mtime != 0 {
+                        InfoRow(icon: "clock.arrow.circlepath", title: "最后修改", value: formatDate(timestamp: role.role.mtime))
+                    }
+                }
+            }
+            .padding(12)
+            .background(Color.theme.background)
+            .cornerRadius(8)
         }
+    }
+    
+    private func formatDate(timestamp: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
     }
 }
 
-struct RoleActionButton: View {
-    let title: String
+// 信息行组件
+struct InfoRow: View {
     let icon: String
-    let action: () -> Void
+    let title: String
+    let value: String
     
     var body: some View {
-        Button(action: action) {
-            HStack {
+        HStack(spacing: 8) {
                 Image(systemName: icon)
+                .foregroundColor(Color.theme.accent)
+                .frame(width: 20)
+            
                 Text(title)
-            }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color.orange)
-            .foregroundColor(.white)
-            .cornerRadius(12)
-            .font(.system(size: 16, weight: .medium))
+                .font(.system(size: 14))
+                .foregroundColor(Color.theme.secondaryText)
+            
+            Spacer()
+            
+            Text(value)
+                .font(.system(size: 14))
+                .foregroundColor(Color.theme.primaryText)
         }
     }
 }
@@ -486,14 +590,14 @@ struct RoleActionButton: View {
 // MARK: - Edit Description View
 struct EditDescriptionView: View {
     let role: StoryRole
-    let viewModel: StoryRoleModel?  // 使用传入的 viewModel
+    let viewModel: StoryRoleModel
     @Environment(\.dismiss) private var dismiss
     @State private var description: String
     @State private var isGenerating = false
     @State private var showError = false
     @State private var errorMessage = ""
     
-    init(role: StoryRole, viewModel: StoryRoleModel?) {
+    init(role: StoryRole, viewModel: StoryRoleModel) {
         self.role = role
         self.viewModel = viewModel
         _description = State(initialValue: role.role.characterDescription)
@@ -522,7 +626,7 @@ struct EditDescriptionView: View {
                     .background(Color.blue)
                     .cornerRadius(20)
                 }
-                .disabled(isGenerating || viewModel == nil)
+                .disabled(isGenerating)
                 
                 if isGenerating {
                     HStack {
@@ -537,7 +641,7 @@ struct EditDescriptionView: View {
                 TextEditor(text: $description)
                     .font(.system(size: 14))
                     .padding(8)
-                    .frame(maxHeight: 200)
+                    .frame(maxHeight: 300)
                     .background(Color(.systemGray6))
                     .cornerRadius(8)
                 
@@ -547,9 +651,7 @@ struct EditDescriptionView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("取消") {
-                        dismiss()
-                    }
+                    Button("取消") { dismiss() }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("保存") {
@@ -557,7 +659,6 @@ struct EditDescriptionView: View {
                             await saveDescription()
                         }
                     }
-                    .disabled(viewModel == nil)
                 }
             }
             .alert("生成失败", isPresented: $showError) {
@@ -569,16 +670,7 @@ struct EditDescriptionView: View {
     }
     
     private func generateDescription() async {
-        guard let viewModel = viewModel else {
-            errorMessage = "生成失败"
-            showError = true
-            return
-        }
-        
         isGenerating = true
-        
-        do {
-            // 使用 viewModel 生成角色描述
             let (newDescription, error) = await viewModel.generateRoleDescription(
                 storyId: role.role.storyID,
                 roleId: role.role.roleID,
@@ -587,32 +679,18 @@ struct EditDescriptionView: View {
             )
             
             await MainActor.run {
+            isGenerating = false
                 if let error = error {
                     errorMessage = error.localizedDescription
                     showError = true
                 } else if let newDescription = newDescription {
                     description = newDescription
                 }
-                isGenerating = false
-            }
-        } catch {
-            await MainActor.run {
-                errorMessage = error.localizedDescription
-                showError = true
-                isGenerating = false
-            }
         }
     }
     
     private func saveDescription() async {
-        guard let viewModel = viewModel else {
-            errorMessage = "视图模型未初始化"
-            showError = true
-            return
-        }
-        
         do {
-            // 使用 viewModel 保存角色描述
             let error = await viewModel.updateRoleDescription(
                 roleId: role.role.roleID,
                 userId: viewModel.userId,
@@ -632,18 +710,17 @@ struct EditDescriptionView: View {
     }
 }
 
-
 // MARK: - Edit Prompt View
 struct EditPromptView: View {
     let role: StoryRole
-    let viewModel: StoryRoleModel?
+    let viewModel: StoryRoleModel
     @Environment(\.dismiss) private var dismiss
     @State private var prompt: String
     @State private var isGenerating = false
     @State private var showError = false
     @State private var errorMessage = ""
     
-    init(role: StoryRole, viewModel: StoryRoleModel?) {
+    init(role: StoryRole, viewModel: StoryRoleModel) {
         self.role = role
         self.viewModel = viewModel
         _prompt = State(initialValue: role.role.characterPrompt)
@@ -676,7 +753,7 @@ struct EditPromptView: View {
                     .background(Color.blue)
                     .cornerRadius(20)
                 }
-                .disabled(isGenerating || viewModel == nil)
+                .disabled(isGenerating)
                 
                 if isGenerating {
                     HStack {
@@ -709,7 +786,6 @@ struct EditPromptView: View {
                             await savePrompt()
                         }
                     }
-                    .disabled(viewModel == nil)
                 }
             }
             .alert("生成失败", isPresented: $showError) {
@@ -721,16 +797,7 @@ struct EditPromptView: View {
     }
     
     private func generatePrompt() async {
-        guard let viewModel = viewModel else {
-            errorMessage = "生成失败"
-            showError = true
-            return
-        }
-        
         isGenerating = true
-        
-        do {
-            // 使用 viewModel 生成角色提示词
             let (newPrompt, error) = await viewModel.generateRolePrompt(
                 storyId: role.role.storyID,
                 roleId: role.role.roleID,
@@ -739,35 +806,21 @@ struct EditPromptView: View {
             )
             
             await MainActor.run {
+            isGenerating = false
                 if let error = error {
                     errorMessage = error.localizedDescription
                     showError = true
                 } else if let newPrompt = newPrompt {
                     prompt = newPrompt
                 }
-                isGenerating = false
-            }
-        } catch {
-            await MainActor.run {
-                errorMessage = error.localizedDescription
-                showError = true
-                isGenerating = false
-            }
         }
     }
     
     private func savePrompt() async {
-        guard let viewModel = viewModel else {
-            errorMessage = "保存失败"
-            showError = true
-            return
-        }
-        
         do {
-            // 使用 viewModel 保存角色提示词
             let error = await viewModel.updateRolePrompt(
-                roleId: role.role.roleID,
                 userId: viewModel.userId,
+                roleId: role.role.roleID,
                 prompt: prompt
             )
             
@@ -872,10 +925,12 @@ struct PosterView: View {
     @Environment(\.dismiss) private var dismiss
     let defaultPosterImage = "https://grapery-1301865260.cos.ap-shanghai.myqcloud.com/poster/default_role_poster.png"
     @State private var isImageLoaded = false
+    
     init(role: StoryRole?, isImageLoaded: Bool = false) {
         self.role = role
         self.isImageLoaded = isImageLoaded
     }
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -891,7 +946,7 @@ struct PosterView: View {
                 
                 // 海报图片
                 KFImage(URL(string: defaultPosterImage))
-                    .placeholder { // 加载占位
+                    .placeholder {
                         Rectangle()
                             .fill(Color.theme.secondaryBackground)
                             .overlay(
@@ -924,11 +979,9 @@ struct PosterView: View {
                 
                 // 角色信息叠加层
                 VStack(spacing: 0) {
+                    // 顶部导航栏
                     HStack {
-                        // 返回按钮
-                        Button(action: {
-                            dismiss()
-                        }) {
+                        Button(action: { dismiss() }) {
                             HStack(spacing: 4) {
                                 Image(systemName: "chevron.left")
                                     .font(.system(size: 18, weight: .medium))
@@ -940,31 +993,71 @@ struct PosterView: View {
                             .background(Color.black.opacity(0.3))
                             .cornerRadius(8)
                         }
-                        
                         Spacer()
                     }
-                    .padding(.top, 48)
+                    .padding(.top, geometry.safeAreaInsets.top + 16)
                     .padding(.horizontal, 16)
+                    
                     Spacer()
-                    VStack(alignment: .leading, spacing: 8) {
-                        // 角色名称和描述
-                        VStack(alignment: .leading, spacing: 4) {
+                    
+                    // 底部角色信息
+                    VStack(alignment: .leading, spacing: 12) {
                             Text(role?.role.characterName ?? "未知角色")
-                                .font(.system(size: 24, weight: .medium))
+                            .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(.white)
                             
                             Text(role?.role.characterDescription ?? "暂无描述")
-                                .font(.system(size: 14))
+                            .font(.system(size: 16))
                                 .foregroundColor(.white.opacity(0.8))
-                                .lineLimit(2)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 16)
+                            .lineLimit(3)
+                            .multilineTextAlignment(.leading)
                     }
+                    .padding(20)
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.black.opacity(0),
+                                Color.black.opacity(0.8)
+                            ]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                }
+            }
+            .edgesIgnoringSafeArea(.all)
+        }
+    }
+}
+
+// 自定义 Tab 选择器
+struct CustomTabSelector: View {
+    @Binding var selectedTab: Int
+    private let tabs = ["简介", "参与"]
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(0..<tabs.count, id: \.self) { index in
+                Button(action: {
+                    withAnimation {
+                        selectedTab = index
+                    }
+                }) {
+                    VStack(spacing: 8) {
+                        Text(tabs[index])
+                            .font(.system(size: 15))
+                            .foregroundColor(selectedTab == index ? Color.theme.accent : Color.theme.tertiaryText)
+                        
+                        Rectangle()
+                            .fill(selectedTab == index ? Color.theme.accent : Color.clear)
+                            .frame(height: 2)
+                    }
+                    .frame(maxWidth: .infinity)
                 }
             }
         }
-        .ignoresSafeArea()
+        .padding(.vertical, 8)
+        .background(Color.theme.secondaryBackground)
     }
 }
 
