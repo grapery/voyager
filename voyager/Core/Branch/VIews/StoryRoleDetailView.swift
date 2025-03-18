@@ -416,11 +416,197 @@ struct RoleParticipationTab: View {
         ScrollView {
             LazyVStack(spacing: 16) {
                 ForEach(viewModel.roleStoryboards, id: \.id) { board in
-                    StoryboardActiveCell(board: board)
+                    ParticipationCell(board: board)
                         .padding(.horizontal, 16)
                 }
             }
+            .padding(.vertical, 16)
         }
+    }
+}
+
+// MARK: - Participation Cell
+struct ParticipationCell: View {
+    let board: StoryBoardActive
+    @State private var isLiked = false
+    @State private var showDetail = false
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Content Section
+            VStack(alignment: .leading, spacing: 12) {
+                // Header
+                HStack {
+                    KFImage(URL(string: board.boardActive.creator.userAvatar))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 36, height: 36)
+                        .clipShape(Circle())
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(board.boardActive.creator.userName)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(Color.theme.primaryText)
+                        
+                        Text(formatDate(timestamp: board.boardActive.storyboard.ctime))
+                            .font(.system(size: 12))
+                            .foregroundColor(Color.theme.tertiaryText)
+                    }
+                    
+                    Spacer()
+                    
+                    Menu {
+                        Button(action: {
+                            // Share action
+                        }) {
+                            Label("分享", systemImage: "square.and.arrow.up")
+                        }
+                        
+                        Button(action: {
+                            // Report action
+                        }) {
+                            Label("举报", systemImage: "exclamationmark.triangle")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .foregroundColor(Color.theme.secondaryText)
+                            .padding(8)
+                    }
+                }
+                
+                // Title and Content
+                Text(board.boardActive.storyboard.title)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(Color.theme.primaryText)
+                    .lineLimit(2)
+                
+                Text(board.boardActive.storyboard.content)
+                    .font(.system(size: 14))
+                    .foregroundColor(Color.theme.secondaryText)
+                    .lineLimit(3)
+                
+                // Image Grid if available
+//                if !board.images.isEmpty {
+//                    ImageGridView(images: board.boardActive.storyboard.sences.list)
+//                        .frame(height: 200)
+//                        .cornerRadius(12)
+//                }
+            }
+            .padding(16)
+            .background(Color.theme.secondaryBackground)
+            
+            // Interaction Bar
+            HStack(spacing: 0) {
+                // Like Button
+                StoryRoleInteractionButton(
+                    icon: isLiked ? "heart.fill" : "heart",
+                    color: isLiked ? Color.theme.error : Color.theme.tertiaryText,
+                    text: "\(board.boardActive.totalLikeCount)",
+                    action: {
+                        withAnimation(.spring()) {
+                            isLiked.toggle()
+                        }
+                    }
+                )
+                
+                Divider()
+                    .frame(height: 24)
+                    .background(Color.theme.divider)
+                
+                // Comment Button
+                StoryRoleInteractionButton(
+                    icon: "bubble.left",
+                    color: Color.theme.tertiaryText,
+                    text: "\(board.boardActive.totalCommentCount)",
+                    action: { showDetail = true }
+                )
+                
+                Divider()
+                    .frame(height: 24)
+                    .background(Color.theme.divider)
+                
+                // Share Button
+                StoryRoleInteractionButton(
+                    icon: "square.and.arrow.up",
+                    color: Color.theme.tertiaryText,
+                    text: "\(board.boardActive.totalForkCount)",
+                    action: {
+                        // Share action
+                    }
+                )
+            }
+            .frame(height: 44)
+            .background(Color.theme.secondaryBackground)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.theme.border.opacity(0.1), lineWidth: 1)
+        )
+    }
+    
+    private func formatDate(timestamp: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: date, relativeTo: Date())
+    }
+}
+
+// MARK: - Interaction Button
+struct StoryRoleInteractionButton: View {
+    let icon: String
+    let color: Color
+    let text: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                Text(text)
+                    .font(.system(size: 14))
+            }
+            .foregroundColor(color)
+            .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
+        }
+    }
+}
+
+// MARK: - Image Grid View
+struct ImageGridView: View {
+    let images: [String]
+    
+    var body: some View {
+        if images.count == 1 {
+            SingleImageView(url: images[0])
+        } else {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: min(3, images.count)), spacing: 4) {
+                ForEach(images.prefix(9), id: \.self) { url in
+                    KFImage(URL(string: url))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(height: images.count <= 3 ? 200 : 96)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+            }
+        }
+    }
+}
+
+struct SingleImageView: View {
+    let url: String
+    
+    var body: some View {
+        KFImage(URL(string: url))
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(maxWidth: .infinity)
+            .frame(height: 200)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
@@ -827,6 +1013,7 @@ struct EditPromptView: View {
             if let error = error {
                 errorMessage = error.localizedDescription
                 showError = true
+                
             } else {
                 dismiss()
             }

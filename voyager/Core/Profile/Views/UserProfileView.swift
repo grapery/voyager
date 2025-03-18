@@ -812,146 +812,101 @@ struct UnpublishedStoryBoardCellView: View {
     @State private var showingErrorToast = false
     @State private var showingErrorAlert = false
     
-    private var storyInfoView: some View {
-        HStack(spacing: 12) {
-            // 故事图片
-            KFImage(URL(string: board.boardActive.summary.storyAvatar))
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 40, height: 40)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-            
-            // 故事名称
-            Text(board.boardActive.summary.storyTitle)
-                .font(.system(size: 14))
-                .foregroundColor(Color.theme.secondaryText)
-            
-            Spacer()
-        }
-    }
-    
-    private var headerView: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            storyInfoView
-                .padding(.bottom, 4)
-            
-            Text(board.boardActive.storyboard.title)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(Color.theme.primaryText)
-            
-            Text(formatDate(timestamp: board.boardActive.storyboard.ctime))
-                .font(.system(size: 12))
-                .foregroundColor(Color.theme.tertiaryText)
-        }
-    }
-    
-    private var contentView: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(board.boardActive.storyboard.content)
-                .font(.system(size: 14))
-                .foregroundColor(Color.theme.secondaryText)
-                .lineLimit(2)
-            
-            let scenes = board.boardActive.storyboard.sences.list
-            if !scenes.isEmpty {
-                HStack {
-                    Image(systemName: "photo.stack.fill")
-                        .foregroundColor(Color.theme.tertiaryText)
-                        .font(.system(size: 12))
-                    Text("共\(scenes.count)个场景")
-                        .font(.system(size: 12))
-                        .foregroundColor(Color.theme.tertiaryText)
-                }
-            }
-            
-            Divider()
-                .background(Color.theme.divider)
-        }
-    }
-    
-    private var actionButtons: some View {
-        HStack(spacing: 20) {
-            // 编辑按钮
-            Button(action: {
-                showingEditView = true
-            }) {
-                Label("编辑", systemImage: "pencil")
-                    .font(.system(size: 13))
-                    .foregroundColor(Color.theme.tertiaryText)
-            }
-            .frame(height: 28)
-            
-            // 发布按钮
-            Button(action: {
-                showingPublishAlert = true
-            }) {
-                Label("发布", systemImage: "arrow.up.circle.fill")
-                    .font(.system(size: 13))
-                    .foregroundColor(Color.theme.accent)
-            }
-            .frame(height: 28)
-            
-            // 删除按钮
-            Button(action: {
-                showingDeleteAlert = true
-            }) {
-                Label("删除", systemImage: "trash")
-                    .font(.system(size: 13))
-                    .foregroundColor(Color.theme.error)
-            }
-            .frame(height: 28)
-            
-            Spacer()
-        }
-        .padding(.top, 8)
-    }
-    
     var body: some View {
-        mainContent
-            .padding(12)
-            .background(Color.theme.secondaryBackground)
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.theme.border, lineWidth: 0.5)
-            )
-            .overlay(errorToastOverlay)
-            .modifier(AlertModifier(
-                showingPublishAlert: $showingPublishAlert,
-                showingDeleteAlert: $showingDeleteAlert,
-                showingEditView: $showingEditView,
-                board: StoryBoard(id: board.boardActive.storyboard.storyBoardID, boardInfo: board.boardActive.storyboard),
-                userId: userId,
-                viewModel: viewModel
-            ))
-    }
-    
-    private var mainContent: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            headerView
-            contentView
-            actionButtons
+        VStack(alignment: .leading, spacing: 0) {
+            // 标题和内容区域
+            VStack(alignment: .leading, spacing: 8) {
+                // 标题
+                Text(board.boardActive.storyboard.title)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(Color.theme.primaryText)
+                    .lineLimit(2)
+                
+                // 内容
+                Text(board.boardActive.storyboard.content)
+                    .font(.system(size: 14))
+                    .foregroundColor(Color.theme.secondaryText)
+                    .lineLimit(3)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            
+            // 交互栏
+            HStack(spacing: 16) {
+                // 编辑
+                InteractionStatItem(
+                    icon: "paintbrush.pointed",
+                    count: 10,
+                    color: Color.theme.tertiaryText
+                )
+                
+                // 发布
+                InteractionStatItem(
+                    icon: "mountain.2",
+                    count: 10,
+                    color: Color.theme.tertiaryText
+                )
+                
+                // 转发
+                InteractionStatItem(
+                    icon: "trash",
+                    count: 10,
+                    color: Color.theme.tertiaryText
+                )
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
         }
+        .background(Color.theme.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.theme.border.opacity(0.1), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .overlay(errorToastOverlay)
+        .modifier(AlertModifier(
+            showingPublishAlert: $showingPublishAlert,
+            showingDeleteAlert: $showingDeleteAlert,
+            showingEditView: $showingEditView,
+            board: StoryBoard(id: board.boardActive.storyboard.storyBoardID, boardInfo: board.boardActive.storyboard),
+            userId: userId,
+            viewModel: viewModel
+        ))
     }
     
     private var errorToastOverlay: some View {
         Group {
             if showingErrorToast {
-                ToastView(message: errorMessage)
+                UnpublishedToastView(message: errorMessage)
                     .animation(.easeInOut)
                     .transition(.move(edge: .top))
             }
         }
     }
+}
+
+// MARK: - Interaction Stat Item
+private struct InteractionStatItem: View {
+    let icon: String
+    let count: Int
+    let color: Color
     
-    private func formatDate(timestamp: Int64) -> String {
-        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM-dd HH:mm"
-        return formatter.string(from: date)
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.system(size: 16))
+            Text("\(count)")
+                .font(.system(size: 14))
+        }
+        .foregroundColor(color)
     }
+}
+
+private struct UnpublishedToastView: View {
+    let message: String
     
-    private func ToastView(message: String) -> some View {
+    var body: some View {
         VStack {
             Text(message)
                 .font(.system(size: 14))
