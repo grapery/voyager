@@ -179,6 +179,13 @@ struct StoryRoleDetailView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(leading: Button(action: { dismiss() }) {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 16, weight: .medium))
+                }
+                .foregroundColor(Color.theme.primaryText)
+            })
             .sheet(isPresented: $showImagePicker) {
                 SingleImagePicker(image: $selectedImage)
             }
