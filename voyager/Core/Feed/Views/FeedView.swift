@@ -498,7 +498,7 @@ private struct FeedItemList: View {
     @Binding var selectedTab: FeedType
     
     var body: some View {
-        LazyVStack(spacing: 12) {
+        LazyVStack(spacing: 4) {
             ForEach(viewModel.storyBoardActives, id: \.storyboard.storyBoardID) { active in
                 FeedItemCard(
                     storyBoardActive: active,

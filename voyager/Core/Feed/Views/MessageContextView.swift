@@ -549,6 +549,7 @@ struct AvatarView: View {
                 }
             }
         }
+        .navigationBarBackButtonHidden()
     }
     
     private func getAvatarUrl() -> String {
