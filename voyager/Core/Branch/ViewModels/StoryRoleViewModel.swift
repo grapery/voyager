@@ -40,12 +40,18 @@ class StoryRoleModel: ObservableObject {
     }
     
     func fetchStoryRoleDetail(roleId:Int64) async -> (StoryRole?,Error?){
+        print("Fetching role detail for roleId: \(roleId), userId: \(self.userId)")
         let (role,err) = await APIClient.shared.getStoryRoleDetail(userId: self.userId, roleId: roleId)
-        if err != nil {
-            print("fetchStoryRoleDetail failed: ",err as Any)
-            return (nil,err)
+        if let err = err {
+            print("fetchStoryRoleDetail failed: \(err)")
+            return (nil, err)
         }
-        return (role,err)
+        guard let role = role else {
+            print("fetchStoryRoleDetail: No role data returned")
+            return (nil, NSError(domain: "StoryRoleModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "No role data found"]))
+        }
+        print("fetchStoryRoleDetail succeeded: roleId=\(role.role.roleID), name=\(role.role.characterName)")
+        return (role, nil)
     }
     
     func createNewStoryRole(role:Common_StoryRole) async -> Error?{

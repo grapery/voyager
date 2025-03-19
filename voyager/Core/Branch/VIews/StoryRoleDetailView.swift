@@ -122,52 +122,63 @@ struct StoryRoleDetailView: View {
     
     // MARK: - Initialization
     init(roleId: Int64, userId: Int64, role: StoryRole? = nil) {
+        print("StoryRoleDetailView init - roleId: \(roleId), userId: \(userId)")
         self.roleId = roleId
         self.userId = userId
-        self.role = role
-        self._viewModel = StateObject(wrappedValue: StoryRoleModel(
-            userId: userId
-        ))
+        self._viewModel = StateObject(wrappedValue: StoryRoleModel(userId: userId))
+        
+        // 如果提供了初始角色数据，使用它
+        if let role = role {
+            print("Using provided role data - name: \(role.role.characterName)")
+            self._role = State(initialValue: role)
+        } else {
+            print("No initial role data, will fetch from API")
+        }
     }
     
     // MARK: - Body
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
-                    if let role = role {
-                        // Profile Section
-                        RoleProfileSection(
-                            role: role,
-                            onAvatarTap: { showImagePicker = true }
-                        )
-                        
-                        // Action Buttons
-                        RoleActionButtons(
-                            onChat: { showChatView = true },
-                            onPoster: { showPosterView = true }
-                        )
-                        .padding(.horizontal, 16)
-                        
-                        // Stats Card
-                        RoleStatsCard(role: role)
+            ZStack {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        if let role = role {
+                            // Profile Section
+                            RoleProfileSection(
+                                role: role,
+                                onAvatarTap: { showImagePicker = true }
+                            )
+                            
+                            // Action Buttons
+                            RoleActionButtons(
+                                onChat: { showChatView = true },
+                                onPoster: { showPosterView = true }
+                            )
                             .padding(.horizontal, 16)
-                        
-                        // Tab Content
-                        RoleTabContent(
-                            role: role,
-                            viewModel: viewModel,
-                            selectedTab: $selectedTab
-                        )
-                    } else {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            
+                            // Stats Card
+                            RoleStatsCard(role: role)
+                                .padding(.horizontal, 16)
+                            CustomTabSelector(selectedTab: $selectedTab)
+                                .padding(.horizontal, 16)
+                            // Tab Content
+                            RoleTabContent(
+                                role: role,
+                                viewModel: viewModel,
+                                selectedTab: $selectedTab
+                            )
+                        }
                     }
+                    .padding(.vertical, 16)
                 }
-                .padding(.vertical, 16)
+                
+                if isLoading {
+                    ProgressView("加载中...")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.black.opacity(0.1))
+                }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarItems(leading: BackButton())
             .sheet(isPresented: $showImagePicker) {
                 SingleImagePicker(image: $selectedImage)
             }
@@ -197,21 +208,33 @@ struct StoryRoleDetailView: View {
             }
         }
         .task {
-            await loadRoleDetails()
+            // 只有在没有初始角色数据时才从API获取
+            if role == nil {
+                print("Starting loadRoleDetails task")
+                await loadRoleDetails()
+            }
         }
     }
     
     // MARK: - Methods
     private func loadRoleDetails() async {
+        print("loadRoleDetails started - roleId: \(roleId)")
         isLoading = true
         let (fetchedRole, error) = await viewModel.fetchStoryRoleDetail(roleId: roleId)
+        
         await MainActor.run {
             isLoading = false
             if let error = error {
+                print("Error loading role details: \(error.localizedDescription)")
                 errorMessage = error.localizedDescription
                 showError = true
             } else if let fetchedRole = fetchedRole {
-                role = fetchedRole
+                print("Successfully fetched role - name: \(fetchedRole.role.characterName)")
+                self.role = fetchedRole
+            } else {
+                print("No role data returned and no error")
+                errorMessage = "无法获取角色信息"
+                showError = true
             }
         }
     }
@@ -370,26 +393,30 @@ struct StoryRoleStatItem: View {
 
 // MARK: - Tab Content
 struct RoleTabContent: View {
-    let role: StoryRole
+    let role: StoryRole?
     let viewModel: StoryRoleModel
     @Binding var selectedTab: Int
     
     var body: some View {
         VStack(spacing: 0) {
-            TabView(selection: $selectedTab) {
-                // 简介 Tab
-                RoleInfoTab(role: role, viewModel: viewModel)
-                    .tag(0)
-                
-                // 参与 Tab
-                RoleParticipationTab(viewModel: viewModel)
-                    .tag(1)
+            if let role = role {
+                TabView(selection: $selectedTab) {
+                    // 简介 Tab
+                    RoleInfoTab(role: role, viewModel: viewModel)
+                        .tag(0)
+                    
+                    // 参与 Tab
+                    RoleParticipationTab(viewModel: viewModel)
+                        .tag(1)
+                }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                .frame(minHeight: 400) // 增加高度以显示更多内容
+            } else {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-            
-            CustomTabSelector(selectedTab: $selectedTab)
-                .padding(.horizontal, 16)
         }
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -404,7 +431,9 @@ struct RoleInfoTab: View {
                 DetailSection(role: role, viewModel: viewModel)
                     .padding(.horizontal, 16)
             }
+            .padding(.vertical, 16)
         }
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -454,24 +483,6 @@ struct ParticipationCell: View {
                     }
                     
                     Spacer()
-                    
-                    Menu {
-                        Button(action: {
-                            // Share action
-                        }) {
-                            Label("分享", systemImage: "square.and.arrow.up")
-                        }
-                        
-                        Button(action: {
-                            // Report action
-                        }) {
-                            Label("举报", systemImage: "exclamationmark.triangle")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .foregroundColor(Color.theme.secondaryText)
-                            .padding(8)
-                    }
                 }
                 
                 // Title and Content
@@ -484,13 +495,6 @@ struct ParticipationCell: View {
                     .font(.system(size: 14))
                     .foregroundColor(Color.theme.secondaryText)
                     .lineLimit(3)
-                
-                // Image Grid if available
-//                if !board.images.isEmpty {
-//                    ImageGridView(images: board.boardActive.storyboard.sences.list)
-//                        .frame(height: 200)
-//                        .cornerRadius(12)
-//                }
             }
             .padding(16)
             .background(Color.theme.secondaryBackground)
@@ -530,9 +534,7 @@ struct ParticipationCell: View {
                     icon: "square.and.arrow.up",
                     color: Color.theme.tertiaryText,
                     text: "\(board.boardActive.totalForkCount)",
-                    action: {
-                        // Share action
-                    }
+                    action: { }
                 )
             }
             .frame(height: 44)
@@ -540,10 +542,6 @@ struct ParticipationCell: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.theme.border.opacity(0.1), lineWidth: 1)
-        )
     }
     
     private func formatDate(timestamp: Int64) -> String {
@@ -554,7 +552,6 @@ struct ParticipationCell: View {
     }
 }
 
-// MARK: - Interaction Button
 struct StoryRoleInteractionButton: View {
     let icon: String
     let color: Color
@@ -576,75 +573,7 @@ struct StoryRoleInteractionButton: View {
     }
 }
 
-// MARK: - Image Grid View
-struct ImageGridView: View {
-    let images: [String]
-    
-    var body: some View {
-        if images.count == 1 {
-            SingleImageView(url: images[0])
-        } else {
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: min(3, images.count)), spacing: 4) {
-                ForEach(images.prefix(9), id: \.self) { url in
-                    KFImage(URL(string: url))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(height: images.count <= 3 ? 200 : 96)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-            }
-        }
-    }
-}
-
-struct SingleImageView: View {
-    let url: String
-    
-    var body: some View {
-        KFImage(URL(string: url))
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(maxWidth: .infinity)
-            .frame(height: 200)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-}
-
-// MARK: - Back Button
-struct BackButton: View {
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        Button(action: { dismiss() }) {
-            Image(systemName: "chevron.left")
-                .foregroundColor(Color.theme.primaryText)
-        }
-    }
-}
-
-// 辅助视图组件
-struct InteractionStatView: View {
-    let icon: String
-    let color: Color
-    let value: Int64
-    let title: String
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            Image(systemName: icon)
-                .foregroundColor(color)
-                .font(.system(size: 20))
-            Text("\(value)")
-                .font(.system(size: 16, weight: .bold))
-                .foregroundColor(Color.theme.primaryText)
-            Text(title)
-                .font(.system(size: 14))
-                .foregroundColor(Color.theme.secondaryText)
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
-
+// MARK: - Detail Section
 struct DetailSection: View {
     let role: StoryRole
     let viewModel: StoryRoleModel
@@ -659,8 +588,8 @@ struct DetailSection: View {
                 HStack {
                     Text("角色描述")
                         .font(.system(size: 16, weight: .medium))
-                .foregroundColor(Color.theme.primaryText)
-            
+                        .foregroundColor(Color.theme.primaryText)
+                    
                     Spacer()
                     
                     Button(action: { showingDescriptionEditor = true }) {
@@ -673,8 +602,8 @@ struct DetailSection: View {
                     .font(.system(size: 14))
                     .foregroundColor(role.role.characterDescription.isEmpty ? Color.theme.tertiaryText : Color.theme.primaryText)
                     .lineLimit(isExpanded ? nil : 3)
-                .multilineTextAlignment(.leading)
-            
+                    .multilineTextAlignment(.leading)
+                
                 if !role.role.characterDescription.isEmpty {
                     Button(action: { isExpanded.toggle() }) {
                         Text(isExpanded ? "收起" : "展开")
@@ -737,6 +666,7 @@ struct DetailSection: View {
             .background(Color.theme.background)
             .cornerRadius(8)
         }
+        .frame(maxWidth: .infinity) // 确保占满宽度
     }
     
     private func formatDate(timestamp: Int64) -> String {
@@ -1247,4 +1177,5 @@ struct CustomTabSelector: View {
         .background(Color.theme.secondaryBackground)
     }
 }
+
 
