@@ -429,7 +429,7 @@ struct NewStoryBoardView: View {
         let index: Int
         
         var body: some View {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
                 // 场景标题栏
                 HStack {
                     Text("场景 \(scene.senceIndex)")
@@ -449,7 +449,7 @@ struct NewStoryBoardView: View {
                     contentSection("图片提示词", content: scene.imagePrompt)
                 }
             }
-            .padding(16)
+            .padding(4)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color(.systemBackground))
