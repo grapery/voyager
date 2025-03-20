@@ -31,7 +31,7 @@ open class AliyunClient {
         let accessKeySecret = ""
         
         // 生成唯一的文件名
-        let fileName = UUID().uuidString + ".jpg"
+        let fileName = "avatar/"+UUID().uuidString + ".jpg"
         let objectKey =  fileName
         
         // 准备图片数据
