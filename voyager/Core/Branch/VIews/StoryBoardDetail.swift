@@ -28,23 +28,13 @@ struct SceneMediaContent: Identifiable {
 }
 
 struct StoryBoardCellView: View {
-    var board: StoryBoard?
-    var userId: Int64
-    var groupId: Int64
-    var storyId: Int64
-    @State var viewModel: StoryViewModel
-    @State private var isShowingBoardDetail = false
-    
-    @State var isShowingNewStoryBoard = false
-    @State var isShowingCommentView = false
-    @State var isForkingStory = false
-    @State var isLiked = false
-    @State var showingDeleteAlert = false
-    
-    // 添加错误处理相关状态
-    @State private var errorMessage: String = ""
-    @State private var showingErrorToast = false
-    @State private var showingErrorAlert = false
+    let board: StoryBoardActive
+    let userId: Int64
+    let groupId: Int64
+    let storyId: Int64
+    @ObservedObject var viewModel: StoryViewModel
+    @State private var isLiked = false
+    @State private var showDetail = false
     
     // 添加评论相关状态
     @State private var commentText: String = ""
@@ -58,20 +48,17 @@ struct StoryBoardCellView: View {
     // 将 sceneMediaContents 改为普通属性而不是 @State
     let sceneMediaContents: [SceneMediaContent]
     
-    
-    init(board: StoryBoard? = nil, userId: Int64, groupId: Int64, storyId: Int64,
-         isShowingBoardDetail: Bool = false, viewModel: StoryViewModel) {
-        self.board = board
+    init(board: StoryBoardActive? = nil, userId: Int64, groupId: Int64, storyId: Int64,viewModel: StoryViewModel) {
+        self.board = board!
         self.userId = userId
         self.groupId = groupId
         self.storyId = storyId
         self.viewModel = viewModel
-        self.isShowingBoardDetail = isShowingBoardDetail
         
         // 初始化 sceneMediaContents
         var tempSceneContents: [SceneMediaContent] = []
         
-        if let scenes = board?.boardInfo.sences.list {
+        if let scenes = board?.boardActive.storyboard.sences.list {
             
             for scene in scenes {
                 let genResult = scene.genResult
@@ -105,298 +92,213 @@ struct StoryBoardCellView: View {
         self.sceneMediaContents = tempSceneContents
     }
     
-    private var storyboardCellHeader: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Text(board?.boardInfo.title ?? "无标题故事章节")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primary)
-                .padding(.vertical, 4)
-            
-            Spacer()
-            
-            Text(formatDate(timestamp: (board?.boardInfo.ctime)!))
-                .font(.system(size: 13))
-                .foregroundColor(.secondary)
-        }
-    }
-    
-    private var senceDetails: some View {
-        let allMediaItems = sceneMediaContents.flatMap { content in
-            content.mediaItems
-        }
-        
-        return VStack(alignment: .leading, spacing: 8) {
-            // 场景图片网格 - 最多显示4张图片
-            LazyVGrid(columns: [
-                GridItem(.flexible(), spacing: 4),
-                GridItem(.flexible(), spacing: 4)
-            ], spacing: 4) {
-                ForEach(Array(allMediaItems.prefix(min(4, allMediaItems.count)).enumerated()), id: \.element.id) { index, item in
-                    if index == 3 && allMediaItems.count > 4 {
-                        // 如果是第4个位置且有更多图片，显示+N
-                        ZStack {
-                            KFImage(item.url)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(height: (UIScreen.main.bounds.width - 48) / 2)
-                                .clipped()
-                            
-                            Rectangle()
-                                .fill(Color.black.opacity(0.6))
-                            
-                            Text("+\(allMediaItems.count - 3)")
-                                .font(.system(size: 24, weight: .semibold))
-                                .foregroundColor(.white)
-                        }
-                        .cornerRadius(8)
-                    } else {
-                        KFImage(item.url)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(height: (UIScreen.main.bounds.width - 48) / 2)
-                            .clipped()
-                            .cornerRadius(8)
-                    }
-                }
-            }
-            .padding(.horizontal, 2)
-            
-            // 文字描述
-            if let content = board?.boardInfo.content {
-                Text(content)
-                    .font(.system(size: 15))
-                    .foregroundColor(.primary)
-                    .lineLimit(3)
-                    .padding(.vertical, 4)
-            }
-            
-            // 场景数量提示
-            HStack {
-                Image(systemName: "photo.stack")
-                    .foregroundColor(.secondary)
-                    .font(.system(size: 12))
-                Text("共\(sceneMediaContents.count)个场景")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            .padding(.top, 2)
-        }
-    }
-    
-    // 添加 Toast 视图
-    private func ToastView(message: String) -> some View {
-        VStack {
-            Text(message)
-                .foregroundColor(.white)
-                .padding()
-                .background(Color.black.opacity(0.7))
-                .cornerRadius(10)
-        }
-        .padding(.top, 20)
-    }
-    
     var body: some View {
-        NavigationLink(destination: StoryBoardView(board: board!, userId: userId, groupId: self.groupId, storyId: self.storyId, viewModel: self.viewModel)) {
-            VStack(alignment: .leading, spacing: 8) {
-                storyboardCellHeader
+        VStack(alignment: .leading, spacing: 12) {
+            // Header
+            HStack {
+                KFImage(URL(string: defaultAvator))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 44, height: 44)
+                    .clipShape(Circle())
                 
-                // Content
-                VStack {
-                    if sceneMediaContents.count <= 0 {
-                        Text((board?.boardInfo.content)!)
-                            .font(.system(size: 15))
-                            .foregroundColor(.primary)
-                            .lineLimit(3)
-                            .padding(.vertical, 4)
-                    } else {
-                        senceDetails
-                    }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(board.boardActive.storyboard.title)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(Color.theme.primaryText)
+                    
+                    Text(formatDate(timestamp: board.boardActive.storyboard.ctime))
+                        .font(.system(size: 12))
+                        .foregroundColor(Color.theme.tertiaryText)
                 }
                 
-                // Action buttons
-                HStack(spacing: 24) {
-                    StoryActionButton(icon: "pencil", action: {
-                        self.isShowingNewStoryBoard = true
-                    })
-                    .frame(width: 32, height: 32)
-                    
-                    StoryActionButton(icon: "signpost.right.and.left", action: {
-                        self.isForkingStory = true
-                    })
-                    .frame(width: 32, height: 32)
-                    
-                    StoryActionButton(icon: "heart", action: {
-                        self.isLiked = true
-                        Task {
-                            let err = await self.viewModel.likeStoryBoard(storyId: self.storyId, boardId: (self.board?.boardInfo.storyBoardID)!, userId: self.userId)
-                            if let error = err {
-                                DispatchQueue.main.async {
-                                    self.errorMessage = error.localizedDescription
-                                    self.showingErrorToast = true
-                                    // 2秒后自动隐藏
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                        self.showingErrorToast = false
-                                    }
-                                }
-                            }
-                        }
-                    })
-                    .frame(width: 32, height: 32)
-                    
-                    if self.board?.boardInfo.creator == self.userId {
-                        StoryActionButton(icon: "trash", action: {
-                            showingDeleteAlert = true
-                        })
-                        .frame(width: 32, height: 32)
-                        .alert("确认删除", isPresented: $showingDeleteAlert) {
-                            Button("取消", role: .cancel) { }
-                            Button("删除", role: .destructive) {
-                                Task {
-                                    let err = await self.viewModel.deleteStoryBoard(
-                                        storyId: self.storyId,
-                                        boardId: (self.board?.boardInfo.storyBoardID)!,
-                                        userId: self.userId
-                                    )
-                                    if let error = err {
-                                        DispatchQueue.main.async {
-                                            self.errorMessage = error.localizedDescription
-                                            self.showingErrorAlert = true
-                                        }
-                                    }
-                                }
-                            }
-                        } message: {
-                            Text("确定要删除这个故事板吗？此操作无法撤销。")
-                        }
-                    }
-                }
-                .padding(.top, 8)
+                Spacer()
             }
-            .padding(2)
-            .background(Color(.systemBackground))
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
-        }
-        .buttonStyle(PlainButtonStyle())
-        .padding(.horizontal, 2)
-        .padding(.vertical, 4)
-        .overlay(
-            Group {
-                if showingErrorToast {
-                    ToastView(message: errorMessage)
-                        .animation(.easeInOut)
-                        .transition(.move(edge: .top))
-                }
-            }
-        )
-        .alert("操作失败", isPresented: $showingErrorAlert) {
-            Button("确定", role: .cancel) {
-                showingErrorAlert = false
-            }
-        } message: {
-            Text(errorMessage)
-        }
-        .fullScreenCover(isPresented: $isShowingNewStoryBoard) {
             
-            NavigationStack {
-                NewStoryBoardView(
-                    storyId: viewModel.storyId,
-                    boardId: (board?.boardInfo.storyBoardID)!,
-                    prevBoardId: (board?.boardInfo.prevBoardID)!,
-                    viewModel: $viewModel,
-                    roles: [StoryRole](),
-                    isForkingStory: false,
-                    isPresented: $isShowingNewStoryBoard  // 新增
-                )
-                .navigationBarItems(leading: Button(action: {
-                    isShowingNewStoryBoard = false
-                }) {
-                    Image(systemName: "xmark")
-                        .foregroundColor(.black)
-                })
+            // Content
+            Text(board.boardActive.storyboard.title)
+                .font(.system(size: 12))
+                .foregroundColor(Color.theme.primaryText)
+                .padding(.vertical, 1)
+            
+            // Images Grid
+            if !self.sceneMediaContents.isEmpty {
+                VStack(alignment: .leading, spacing: 2) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 2) {
+                            ForEach(self.sceneMediaContents, id: \.id) { sceneContent in
+                                VStack(alignment: .leading, spacing: 2) {
+                                    // 场景图片（取第一张）
+                                    if let firstMedia = sceneContent.mediaItems.first {
+                                        KFImage(firstMedia.url)
+                                            .placeholder {
+                                                Rectangle()
+                                                    .fill(Color.theme.tertiaryBackground)
+                                                    .overlay(
+                                                        ProgressView()
+                                                            .progressViewStyle(CircularProgressViewStyle())
+                                                    )
+                                            }
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 140, height: 200)
+                                            .clipped()
+                                            .cornerRadius(6)
+                                            .contentShape(Rectangle())
+                                            .onTapGesture {
+                                                print("Tapped scene: \(sceneContent.sceneTitle)")
+                                            }
+                                    }
+                                    
+                                    // 场景标题
+                                    Text(sceneContent.sceneTitle)
+                                        .font(.system(size: 12))
+                                        .foregroundColor(Color.theme.secondaryText)
+                                        .lineLimit(2)
+                                        .frame(width: 140)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                    }
+                }
             }
-        }
-        .fullScreenCover(isPresented: $isForkingStory) {
-            NavigationStack {
-                NewStoryBoardView(
-                    storyId: viewModel.storyId,
-                    boardId: (board?.boardInfo.storyBoardID)!,
-                    prevBoardId: (board?.boardInfo.prevBoardID)!,
-                    viewModel: $viewModel,
-                    roles: [StoryRole](),
-                    isForkingStory: true,
-                    isPresented: $isForkingStory  // 新增
+            
+            // Interaction Bar
+            HStack(spacing: 24) {
+                // Like Button
+                StorySubViewInteractionButton(
+                    icon: isLiked ? "heart.fill" : "heart",
+                    count: "\(board.boardActive.totalLikeCount)",
+                    color: isLiked ? Color.theme.error : Color.theme.tertiaryText,
+                    action: {
+                        withAnimation(.spring()) {
+                            isLiked.toggle()
+                        }
+                    }
                 )
-                .navigationBarItems(leading: Button(action: {
-                    isForkingStory = false
-                }) {
-                    Image(systemName: "xmark")
-                        .foregroundColor(.black)
-                })
+                
+                // Comment Button
+                StorySubViewInteractionButton(
+                    icon: "bubble.left",
+                    count: "\(board.boardActive.totalCommentCount)",
+                    color: Color.theme.tertiaryText,
+                    action: {
+                        showDetail = true
+                    }
+                )
+                
+                // Share Button
+                StorySubViewInteractionButton(
+                    icon: "square.and.arrow.up",
+                    count: "\(board.boardActive.totalForkCount)",
+                    color: Color.theme.tertiaryText,
+                    action: {
+                        // Share action
+                    }
+                )
+                
+                Spacer()
             }
+            .padding(.top, 8)
         }
+        .padding(16)
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(16)
     }
     
     private func formatDate(timestamp: Int64) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
-        return DateFormatter.shortDate.string(from: date)
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: date, relativeTo: Date())
     }
-    
-    // 添加提交评论的方法
-    private func submitComment() async {
-        guard !commentText.isEmpty else { return }
-        
-        do {
-            // 调用评论 API
-            let err = await self.commentViewModel.submitCommentForStoryboard(
-                commentText: commentText,
-                storyId: storyId,
-                boardId: board?.boardInfo.storyBoardID ?? 0,
-                userId:  self.userId
-            )
-            
-            if err != nil{
-                // 处理错误
-                print("Error submitting comment: \(String(describing: err))")
-            } else {
-                // 清空评论文本
-                commentText = ""
-                // 可能需要刷新评论列表
-                await self.commentViewModel.fetchStoryboardComments()
-            }
-        }
-    }
-    
 }
 
-struct StoryActionButton: View {
-    let icon: String
-    let action: () -> Void
-    @State private var isPressed = false
+
+
+// 添加 CommentSheet 视图
+struct CommentSheet: View {
+    @Binding var isPresented: Bool
+    @Binding var commentText: String
+    var onSubmit: () -> Void
+    
+    // 添加键盘相关状态
+    @FocusState private var isFocused: Bool
+    @State private var keyboardHeight: CGFloat = 0
     
     var body: some View {
-        Button(action: {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                isPressed = true
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                action()
-                withAnimation {
-                    isPressed = false
+        VStack(spacing: 0) {
+            // 顶部导航栏
+            HStack {
+                Button(action: {
+                    isPresented = false
+                }) {
+                    Image(systemName: "xmark")
+                        .foregroundColor(.black)
                 }
+                Spacer()
+                Text("讨论")
+                    .font(.headline)
+                Spacer()
+                Button(action: {
+                    onSubmit()
+                    isPresented = false
+                }) {
+                    Text("发布")
+                        .foregroundColor(commentText.isEmpty ? .gray : .blue)
+                }
+                .disabled(commentText.isEmpty)
             }
-        }) {
-            Image(systemName: icon)
-                .font(.system(size: 18))
-                .foregroundColor(.gray)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                //.background(Color(.systemGray6))
-                .cornerRadius(16)
-                .scaleEffect(isPressed ? 0.95 : 1.0)
+            .padding()
+            
+            Divider()
+            
+            // 评论输入区域
+            TextField("说点什么...", text: $commentText, axis: .vertical)
+                .textFieldStyle(.plain)
+                .padding()
+                .focused($isFocused)
+                .onAppear {
+                    isFocused = true // 自动弹出键盘
+                }
+            
+            Spacer()
+            
+            // 底部工具栏
+            HStack(spacing: 20) {
+                Spacer()
+                Button(action: {}) {
+                    Image(systemName: "photo")
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+                Button(action: {}) {
+                    Image(systemName: "at")
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+                Button(action: {}) {
+                    Image(systemName: "face.smiling")
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+            }
+            .padding()
+            .background(Color(.systemGray6))
         }
+        .background(Color(.systemBackground))
+        // 添加手势关闭键盘
+        .gesture(
+            TapGesture()
+                .onEnded { _ in
+                    isFocused = false
+                }
+        )
+        // 调整视图位置以适应键盘
+        .animation(.easeOut(duration: 0.16), value: keyboardHeight)
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
+

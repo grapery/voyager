@@ -55,7 +55,7 @@ struct StoryView: View {
                         KFImage(URL(string: self.viewModel.story?.storyInfo.avatar ?? ""))
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 44, height: 44)
+                            .frame(width: 66, height: 66)
                             .clipShape(Circle())
                             .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
                         
@@ -88,64 +88,67 @@ struct StoryView: View {
                     StoryInteractionButton(
                         count: "10",
                         icon: "heart",
-                        color: .red
-                    ) {
-                        // 处理点赞事件
-                        print("Like button tapped")
-                        Task {
-                            let err = await self.viewModel.likeStory(storyId: self.storyId, userId: self.userId)
-                            if let error = err {
-                                DispatchQueue.main.async {
-                                    self.errorMessage = error.localizedDescription
-                                    self.showingErrorToast = true
-                                    // 2秒后自动隐藏
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                        self.showingErrorToast = false
+                        color: .red,
+                        action: {
+                            // 处理点赞事件
+                            print("Like button tapped")
+                            Task {
+                                let err = await self.viewModel.likeStory(storyId: self.storyId, userId: self.userId)
+                                if let error = err {
+                                    DispatchQueue.main.async {
+                                        self.errorMessage = error.localizedDescription
+                                        self.showingErrorToast = true
+                                        // 2秒后自动隐藏
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                            self.showingErrorToast = false
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
+                    )
                     
                     StoryInteractionButton(
                         count: "1",
                         icon: "bell",
-                        color: .blue
-                    ) {
-                        // 处理关注事件
-                        print("Follow button tapped")
-                        Task {
-                            let err = await self.viewModel.watchStory(storyId: self.storyId, userId: self.userId)
-                            if let error = err {
-                                DispatchQueue.main.async {
-                                    self.errorMessage = error.localizedDescription
-                                    self.showingErrorToast = true
-                                    // 2秒后自动隐藏
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                        self.showingErrorToast = false
+                        color: .blue,
+                        action: {
+                            // 处理关注事件
+                            print("Follow button tapped")
+                            Task {
+                                let err = await self.viewModel.watchStory(storyId: self.storyId, userId: self.userId)
+                                if let error = err {
+                                    DispatchQueue.main.async {
+                                        self.errorMessage = error.localizedDescription
+                                        self.showingErrorToast = true
+                                        // 2秒后自动隐藏
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                            self.showingErrorToast = false
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
+                    )
                     
                     StoryInteractionButton(
                         count: "分享",
                         icon: "square.and.arrow.up",
-                        color: .green
-                    ) {
-                        // 处理分享事件
-                        print("Share button tapped")
-                        Task {
-                            let err = await self.viewModel.likeStory(storyId: self.storyId, userId: self.userId)
-                            if let error = err {
-                                DispatchQueue.main.async {
-                                    self.errorMessage = error.localizedDescription
-                                    self.showingErrorAlert = true
+                        color: .green,
+                        action: {
+                            // 处理分享事件
+                            print("Share button tapped")
+                            Task {
+                                let err = await self.viewModel.likeStory(storyId: self.storyId, userId: self.userId)
+                                if let error = err {
+                                    DispatchQueue.main.async {
+                                        self.errorMessage = error.localizedDescription
+                                        self.showingErrorAlert = true
+                                    }
                                 }
                             }
                         }
-                    }
+                    )
                 }
                 .padding(.top, 4)
             }
@@ -321,138 +324,40 @@ extension DateFormatter {
     }()
 }
 
+// Story Tab View
 struct StoryTabView: View {
     @Binding var selectedTab: Int64
-    let tabs = ["故事板", "故事人物"]
     
     var body: some View {
-        HStack {
-            Spacer() // 添加起始 Spacer
-            
-            Button(action: { selectedTab = 0 }) {
-                Image(systemName: "photo.stack")
-                    .foregroundColor(selectedTab == 0 ? .black : .gray)
+        HStack(spacing: 0) {
+            ForEach([0, 1], id: \.self) { tab in
+                Button(action: { selectedTab = Int64(tab) }) {
+                    VStack(spacing: 8) {
+                        Text(tab == 0 ? "故事" : "人物")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(selectedTab == Int64(tab) ? Color.theme.primaryText : Color.theme.tertiaryText)
+                        
+                        Rectangle()
+                            .fill(selectedTab == Int64(tab) ? Color.theme.accent : Color.clear)
+                            .frame(height: 2)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
             }
-            
-            
-            Spacer() // 中间 Spacer
-            
-            Button(action: { selectedTab = 1 }) {
-                Image(systemName: "person.crop.rectangle.stack")
-                    .foregroundColor(selectedTab == 1 ? .black : .gray)
-            }
-            
-            Spacer() // 添加结束 Spacer
         }
-        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color.theme.secondaryBackground)
     }
 }
 
-// 添加 CommentSheet 视图
-struct CommentSheet: View {
-    @Binding var isPresented: Bool
-    @Binding var commentText: String
-    var onSubmit: () -> Void
-    
-    // 添加键盘相关状态
-    @FocusState private var isFocused: Bool
-    @State private var keyboardHeight: CGFloat = 0
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            // 顶部导航栏
-            HStack {
-                Button(action: {
-                    isPresented = false
-                }) {
-                    Image(systemName: "xmark")
-                        .foregroundColor(.black)
-                }
-                Spacer()
-                Text("讨论")
-                    .font(.headline)
-                Spacer()
-                Button(action: {
-                    onSubmit()
-                    isPresented = false
-                }) {
-                    Text("发布")
-                        .foregroundColor(commentText.isEmpty ? .gray : .blue)
-                }
-                .disabled(commentText.isEmpty)
-            }
-            .padding()
-            
-            Divider()
-            
-            // 评论输入区域
-            TextField("说点什么...", text: $commentText, axis: .vertical)
-                .textFieldStyle(.plain)
-                .padding()
-                .focused($isFocused)
-                .onAppear {
-                    isFocused = true // 自动弹出键盘
-                }
-            
-            Spacer()
-            
-            // 底部工具栏
-            HStack(spacing: 20) {
-                Spacer()
-                Button(action: {}) {
-                    Image(systemName: "photo")
-                        .foregroundColor(.gray)
-                }
-                Spacer()
-                Button(action: {}) {
-                    Image(systemName: "at")
-                        .foregroundColor(.gray)
-                }
-                Spacer()
-                Button(action: {}) {
-                    Image(systemName: "face.smiling")
-                        .foregroundColor(.gray)
-                }
-                Spacer()
-            }
-            .padding()
-            .background(Color(.systemGray6))
-        }
-        .background(Color(.systemBackground))
-        // 添加手势关闭键盘
-        .gesture(
-            TapGesture()
-                .onEnded { _ in
-                    isFocused = false
-                }
-        )
-        // 调整视图位置以适应键盘
-        .animation(.easeOut(duration: 0.16), value: keyboardHeight)
-        .ignoresSafeArea(.keyboard, edges: .bottom)
-    }
-}
-
-
-
-// 新增的交互按钮组件
-struct StoryInteractionButton: View {
-    let count: String
+struct StorySubViewInteractionButton: View {
     let icon: String
+    let count: String
     let color: Color
-    var action: () -> Void  // 添加点击回调闭包
-    @State private var isPressed = false  // 添加按压状态
+    let action: () -> Void
     
     var body: some View {
-        Button(action: {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                isPressed = true
-                // 延迟重置按压状态
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    isPressed = false
-                }
-            }
-            action()  // 执行点击回调
-        }) {
+        Button(action: action) {
             HStack(spacing: 4) {
                 Image(systemName: icon)
                     .font(.system(size: 16))
@@ -460,11 +365,31 @@ struct StoryInteractionButton: View {
                     .font(.system(size: 14))
             }
             .foregroundColor(color)
-            .scaleEffect(isPressed ? 0.9 : 1.0)  // 添加按压效果
         }
     }
 }
 
+// Story Interaction Button
+struct StoryInteractionButton: View {
+    let count: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 18))
+                Text(count)
+                    .font(.system(size: 14))
+            }
+            .foregroundColor(color)
+        }
+    }
+}
+
+// Story Board Cell View
 
 // 角色卡片视图
 struct RoleCard: View {

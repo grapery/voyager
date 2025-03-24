@@ -241,8 +241,8 @@ extension APIClient {
         }
     }
     
-    func GetStoryboards(storyId: Int64, branchId: Int64, startTime: Int64, endTime: Int64, offset: Int64, size: Int64) async -> (([StoryBoard], Int64, Int64, Error?)) {
-        var storyboards: [StoryBoard] = []
+    func GetStoryboards(storyId: Int64, branchId: Int64, startTime: Int64, endTime: Int64, offset: Int64, size: Int64) async -> (([StoryBoardActive], Int64, Int64, Error?)) {
+        var storyboards: [StoryBoardActive] = []
         var totalCount: Int64 = 0
         var nextOffset: Int64 = 0
         
@@ -267,7 +267,7 @@ extension APIClient {
             }
             if let boardsData = resp.message?.data {
                 storyboards = boardsData.list.map { boardInfo in
-                    StoryBoard(id: Int64(boardInfo.storyBoardID), boardInfo: boardInfo)
+                    StoryBoardActive(id: Int64(boardInfo.storyboard.storyBoardID), boardActive: boardInfo)
                 }
                 totalCount = Int64(boardsData.total)
                 nextOffset = offset + Int64(storyboards.count)

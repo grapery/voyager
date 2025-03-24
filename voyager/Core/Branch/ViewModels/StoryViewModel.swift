@@ -13,7 +13,7 @@ class StoryViewModel: ObservableObject {
     @Published var story: Story?
     @Published var isLoading: Bool = false
     @Published var storyId: Int64
-    @Published var storyboards:[StoryBoard]?
+    @Published var storyboards:[StoryBoardActive]?
     var isUpdateOk: Bool = false
     var isCreateOk: Bool = false
     var isForkOk: Bool = false

@@ -427,50 +427,75 @@ struct NewStoryBoardView: View {
     private struct SceneCardView: View {
         let scene: StoryBoardSence
         let index: Int
+        @State private var selectedTab = 0
+        let totalScenes: Int
         
         var body: some View {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(spacing: 12) {
+                // 场景指示器
+                HStack(spacing: 8) {
+                    ForEach(0..<totalScenes, id: \.self) { sceneIndex in
+                        Circle()
+                            .fill(sceneIndex == selectedTab ? Color.theme.accent : Color.theme.tertiaryText.opacity(0.3))
+                            .frame(width: 8, height: 8)
+                    }
+                }
+                .padding(.top, 8)
+                
                 // 场景标题栏
                 HStack {
                     Text("场景 \(scene.senceIndex)")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Color.theme.primaryText)
                     Spacer()
                 }
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
-                .background(Color.blue.opacity(0.1))
+                .background(Color.theme.primary.opacity(0.1))
                 .cornerRadius(8)
                 
-                // 内容区域
-                VStack(alignment: .leading, spacing: 16) {
+                // 内容区域 - 使用 TabView 实现横向滚动
+                TabView(selection: $selectedTab) {
+                    // 场景故事
                     contentSection("场景故事", content: scene.content)
+                        .tag(0)
+                    
+                    // 参与人物
                     contentSection("参与人物", content: scene.characters)
+                        .tag(1)
+                    
+                    // 图片提示词
                     contentSection("图片提示词", content: scene.imagePrompt)
+                        .tag(2)
                 }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .frame(height: 150)
             }
-            .padding(4)
+            .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemBackground))
-                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+                    .fill(Color.theme.secondaryBackground)
+                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
             )
         }
         
-        private func contentSection(_ title: String, content: String) ->some View {
+        private func contentSection(_ title: String, content: String) -> some View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color.theme.secondaryText)
                 
-                Text(content)
-                    .font(.system(size: 15))
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(12)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
+                ScrollView {
+                    Text(content)
+                        .font(.system(size: 15))
+                        .foregroundColor(Color.theme.primaryText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .background(Color.theme.background)
+                        .cornerRadius(8)
+                }
             }
+            .padding(.horizontal, 4)
         }
     }
 
@@ -511,7 +536,11 @@ struct NewStoryBoardView: View {
         ScrollView(.vertical) {
             VStack(spacing: 16) {
                 ForEach(Array(viewModel.storyScenes.enumerated()), id: \.element.senceIndex) { index, scene in
-                    SceneCardView(scene: scene,index:index)
+                    SceneCardView(
+                        scene: scene,
+                        index: index,
+                        totalScenes: viewModel.storyScenes.count
+                    )
                     SenceGenControlView(idx: index, senceId: scene.senceId)
                 }
             }
