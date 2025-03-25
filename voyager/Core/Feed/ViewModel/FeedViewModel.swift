@@ -130,7 +130,6 @@ class FeedViewModel: ObservableObject {
                     pageSize: pageSize,
                     filter: ""
                 )
-                print("refreshData: \(String(describing: boards))")
                 if let error = error {
                     hasError = true
                     errorMessage = error.localizedDescription
@@ -151,8 +150,6 @@ class FeedViewModel: ObservableObject {
                     pageSize: pageSize,
                     filter: ""
                 )
-                print("size info:",size)
-                print("refreshData: \(String(describing: boards))")
                 if let error = error {
                     hasError = true
                     errorMessage = error.localizedDescription

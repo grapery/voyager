@@ -17,40 +17,25 @@ class CommentsViewModel: ObservableObject {
         self.pageNum = 0
     }
     
-    func submitCommentForStory(commentText: String,storyId:Int64,userId:Int64) async -> Error?{
+    func submitCommentForStory(storyId: Int64,userId:Int64,content: String,prevId:Int64) async -> Error?{
         return nil
     }
     
-    func submitCommentForStoryboard(commentText: String,storyId:Int64,boardId: Int64,userId:Int64) async -> Error?{
+    func submitCommentForStoryboard(storyId: Int64,storyboardId: Int64,userId:Int64,content: String,prevId:Int64) async -> Error?{
         return nil
     }
     
-    func submitCommentForStoryRole(commentText: String,storyId:Int64,roleId: Int64,userId:Int64) async -> Error?{
+    func fetchStoryComments(storyId: Int64,userId: Int64,pageSize: Int64,pageNum: Int64) async -> ([Comment]?,Error?){
+        return (nil,nil)
+    }
+    
+    func fetchStoryboardComments() async -> ([Comment]?,Error?){
+        return (nil,nil)
+    }
+    
+    
+    func likeComments() async ->Error? {
         return nil
-    }
-    
-    func fetchStoryComments() async {
-        for i in 0..<comments.count {
-            let comment = comments[i]
-            let user = await APIClient.shared.fetchUser(withUid: comment.realComment.userID)
-            comments[i].commentUser = user
-        }
-    }
-    
-    func fetchStoryboardComments() async {
-        for i in 0..<comments.count {
-            let comment = comments[i]
-            let user = await APIClient.shared.fetchUser(withUid: comment.realComment.userID)
-            comments[i].commentUser = user
-        }
-    }
-    
-    func fetchStoryRoleComments() async {
-        for i in 0..<comments.count {
-            let comment = comments[i]
-            let user = await APIClient.shared.fetchUser(withUid: comment.realComment.userID)
-            comments[i].commentUser = user
-        }
     }
 }
 

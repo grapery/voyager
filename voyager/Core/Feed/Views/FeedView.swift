@@ -168,7 +168,7 @@ private struct FeedItemCard: View {
         self.viewModel = viewModel
         self.showComments = false
         var tempSceneContents: [SceneMediaContent] = []
-        
+        print("storyBoardActive :",storyBoardActive as Any)
         let scenes = storyBoardActive!.storyboard.sences.list
         for scene in scenes {
             let genResult = scene.genResult
@@ -197,6 +197,7 @@ private struct FeedItemCard: View {
             }
         }
         self.sceneMediaContents = tempSceneContents
+        print("self.sceneMediaContents: ",self.sceneMediaContents as Any)
     }
     
     var body: some View {

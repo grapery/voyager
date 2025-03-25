@@ -1183,11 +1183,21 @@ extension APIClient {
         return (roles,0,0,nil)
     }
     
-    func createCommentForBoards(userId: Int64,boardId: Int64,info: Comment) async ->Void {
-        return
+    func createCommentForBoards(userId: Int64,boardId: Int64,info: Comment) async ->Error? {
+        return nil
     }
     
     func getBoardComments(userId: Int64,boardId: Int64) async ->([Comment],Error?) {
+        let comments: [Comment] = []
+        return (comments,nil)
+    }
+    
+    func createCommentForStory(userId: Int64,storyId: Int64,info: Comment) async ->Error? {
+        
+        return nil
+    }
+    
+    func getStoryComments(userId: Int64,storyId: Int64) async ->([Comment],Error?) {
         let comments: [Comment] = []
         return (comments,nil)
     }

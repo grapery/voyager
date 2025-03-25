@@ -81,7 +81,7 @@ struct StoryCommentsView: View {
                                 print("empty comment")
                                 commentText = ""
                             }else{
-                                await viewModel.submitCommentForStory(commentText: commentText, storyId: self.storyId, userId: self.user.userID)
+                                await viewModel.submitCommentForStory(storyId: storyId, userId: user.userID, content: commentText, prevId: 0)
                             }
                             commentText = ""
                         }
