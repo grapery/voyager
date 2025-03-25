@@ -161,6 +161,43 @@ private struct FeedItemCard: View {
     let userId: Int64
     @ObservedObject var viewModel: FeedViewModel
     @State private var showComments = false
+    let sceneMediaContents: [SceneMediaContent]
+    init(storyBoardActive: Common_StoryBoardActive?=nil, userId: Int64, viewModel: FeedViewModel) {
+        self.storyBoardActive = storyBoardActive!
+        self.userId = userId
+        self.viewModel = viewModel
+        self.showComments = false
+        var tempSceneContents: [SceneMediaContent] = []
+        
+        let scenes = storyBoardActive!.storyboard.sences.list
+        for scene in scenes {
+            let genResult = scene.genResult
+            if let data = genResult.data(using: .utf8),
+               let urls = try? JSONDecoder().decode([String].self, from: data) {
+                
+                var mediaItems: [MediaItem] = []
+                for urlString in urls {
+                    if let url = URL(string: urlString) {
+                        let item = MediaItem(
+                            id: UUID().uuidString,
+                            type: urlString.hasSuffix(".mp4") ? .video : .image,
+                            url: url,
+                            thumbnail: urlString.hasSuffix(".mp4") ? URL(string: urlString) : nil
+                        )
+                        mediaItems.append(item)
+                    }
+                }
+                
+                let sceneContent = SceneMediaContent(
+                    id: UUID().uuidString,
+                    sceneTitle: scene.content,
+                    mediaItems: mediaItems
+                )
+                tempSceneContents.append(sceneContent)
+            }
+        }
+        self.sceneMediaContents = tempSceneContents
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -208,21 +245,50 @@ private struct FeedItemCard: View {
                     .font(.system(size: 15))
                     .foregroundColor(Color.theme.primaryText)
                     .lineLimit(3)
+                if !self.sceneMediaContents.isEmpty {
+                    VStack(alignment: .leading, spacing: 2) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 2) {
+                                ForEach(self.sceneMediaContents, id: \.id) { sceneContent in
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        // 场景图片（取第一张）
+                                        if let firstMedia = sceneContent.mediaItems.first {
+                                            KFImage(firstMedia.url)
+                                                .placeholder {
+                                                    Rectangle()
+                                                        .fill(Color.theme.tertiaryBackground)
+                                                        .overlay(
+                                                            ProgressView()
+                                                                .progressViewStyle(CircularProgressViewStyle())
+                                                        )
+                                                }
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 140, height: 200)
+                                                .clipped()
+                                                .cornerRadius(6)
+                                                .contentShape(Rectangle())
+                                                .onTapGesture {
+                                                    print("Tapped scene: \(sceneContent.sceneTitle)")
+                                                }
+                                        }
+                                        
+                                        // 场景标题
+                                        Text(sceneContent.sceneTitle)
+                                            .font(.system(size: 12))
+                                            .foregroundColor(Color.theme.secondaryText)
+                                            .lineLimit(2)
+                                            .frame(width: 140)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                        }
+                    }
+                }
                 
-//                if !storyBoardActive.images.isEmpty {
-//                    ScrollView(.horizontal, showsIndicators: false) {
-//                        HStack(spacing: 8) {
-//                            ForEach(storyBoardActive.storyboard.sences.list, id: \.self) { imageUrl in
-//                                KFImage(URL(string: imageUrl))
-//                                    .resizable()
-//                                    .aspectRatio(contentMode: .fill)
-//                                    .frame(width: 120, height: 120)
-//                                    .cornerRadius(8)
-//                                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.theme.border, lineWidth: 0.5))
-//                            }
-//                        }
-//                    }
-//                }
+                
             }
             .padding(.horizontal)
             
