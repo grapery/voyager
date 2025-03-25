@@ -327,13 +327,13 @@ private struct FeedItemCard: View {
                     .foregroundColor(storyBoardActive.isliked ? Color.theme.accent : Color.theme.tertiaryText)
                 }
                 
-                Spacer()
-                
                 // 分享按钮
                 Button(action: {}) {
-                    Image(systemName: "square.and.arrow.up")
+                    Image(systemName: "signpost.right.and.left")
                         .font(.system(size: 16))
                         .foregroundColor(Color.theme.tertiaryText)
+                    Text("\(storyBoardActive.totalForkCount)")
+                        .font(.system(size: 14))
                 }
             }
             .padding(.horizontal)
