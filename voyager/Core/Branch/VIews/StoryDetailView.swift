@@ -247,38 +247,42 @@ struct StoryDetailView: View {
     }
     
     private var charactersList: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("故事角色")
                     .font(.headline)
+                    .foregroundColor(Color.theme.primaryText)
                 Spacer()
                 NavigationLink(destination: AllCharactersView(viewModel: viewModel)) {
                     Text("查看\(viewModel.characters!.count)名角色 >")
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color.theme.tertiaryText)
                 }
             }
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 4) {
+                HStack(spacing: 15) {
                     ForEach(Array(viewModel.characters!.enumerated()), id: \.offset) { _, character in
-                        VStack {
+                        VStack(spacing: 4) {
                             if character.role.characterAvatar.isEmpty {
                                 KFImage(URL(string: defaultAvator))
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 50, height: 50)
                                     .clipShape(Circle())
-                            }else{
+                                    .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
+                            } else {
                                 KFImage(URL(string: character.role.characterAvatar))
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 50, height: 50)
                                     .clipShape(Circle())
+                                    .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
                             }
                             
                             Text(character.role.characterName)
                                 .font(.caption)
+                                .foregroundColor(Color.theme.secondaryText)
                                 .lineLimit(1)
                         }
                     }
@@ -286,17 +290,19 @@ struct StoryDetailView: View {
                     Button(action: {
                         showNewStoryRole = true
                     }) {
-                        VStack {
+                        VStack(spacing: 4) {
                             Image(systemName: "plus")
+                                .foregroundColor(Color.theme.accent)
                                 .frame(width: 50, height: 50)
-                                .background(Color.gray.opacity(0.2))
+                                .background(Color.theme.tertiaryBackground)
                                 .clipShape(Circle())
                             Text("添加人物角色")
                                 .font(.caption)
+                                .foregroundColor(Color.theme.tertiaryText)
                         }
                     }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
             }
             .sheet(isPresented: $showNewStoryRole) {
                 NewStoryRole(
@@ -309,54 +315,61 @@ struct StoryDetailView: View {
     }
 
     private var participantsList: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("参与故事创建")
                     .font(.headline)
+                    .foregroundColor(Color.theme.primaryText)
                 Spacer()
                 NavigationLink(destination: AllParticipantsView(viewModel: viewModel)) {
                     Text("查看\(viewModel.participants.count)名群成员 >")
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color.theme.tertiaryText)
                 }
             }
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 15) {
                     ForEach(viewModel.participants, id: \.userID) { participant in
-                        VStack {
+                        VStack(spacing: 4) {
                             if participant.avatar.isEmpty {
                                 KFImage(URL(string: defaultAvator))
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 50, height: 50)
                                     .clipShape(Circle())
-                            }else{
+                                    .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
+                            } else {
                                 KFImage(URL(string: participant.avatar))
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 50, height: 50)
                                     .clipShape(Circle())
+                                    .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
                             }
                             
                             Text(participant.name)
                                 .font(.caption)
+                                .foregroundColor(Color.theme.secondaryText)
                                 .lineLimit(1)
                         }
                     }
                     Button(action: {
                         // 邀请新成员
                     }) {
-                        VStack {
+                        VStack(spacing: 4) {
                             Image(systemName: "plus")
+                                .foregroundColor(Color.theme.accent)
                                 .frame(width: 50, height: 50)
-                                .background(Color.gray.opacity(0.2))
+                                .background(Color.theme.tertiaryBackground)
                                 .clipShape(Circle())
                             Text("邀请人员参与")
                                 .font(.caption)
+                                .foregroundColor(Color.theme.tertiaryText)
                         }
                     }
                 }
+                .padding(.horizontal, 16)
             }
         }
     }
