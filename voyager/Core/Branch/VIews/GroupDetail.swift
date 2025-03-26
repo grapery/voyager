@@ -234,7 +234,7 @@ struct GroupDetailView: View {
                                                         Circle()
                                                             .stroke(selectedStoryId == story.storyInfo.id ? Color.orange : Color.gray, lineWidth: 2)
                                                     )
-                                                Text(story.storyInfo.name.prefix(4))
+                                                Text(story.storyInfo.title.prefix(4))
                                                     .font(.system(size: 12))
                                                     .lineLimit(1)
                                             }

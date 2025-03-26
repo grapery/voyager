@@ -342,7 +342,7 @@ struct CustomSegmentedControl: View {
 
 
 struct StoryboardCell: View {
-    let board: StoryBoard
+    let board: StoryBoardActive
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {    
@@ -350,19 +350,19 @@ struct StoryboardCell: View {
             VStack(alignment: .leading, spacing: 12) {
                 // 标题行
                 HStack {
-                    Text(board.boardInfo.title)
+                    Text(board.boardActive.storyboard.title)
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(Color.theme.primaryText)
                     
                     Spacer()
                     
-                    Text(formatDate(board.boardInfo.ctime))
+                    Text(formatDate(board.boardActive.storyboard.ctime))
                         .font(.system(size: 13))
                         .foregroundColor(Color.theme.tertiaryText)
                 }
                 
                 // 内容
-                Text(board.boardInfo.content)
+                Text(board.boardActive.storyboard.content)
                     .font(.system(size: 15))
                     .foregroundColor(Color.theme.secondaryText)
                     .lineLimit(3)
@@ -441,6 +441,8 @@ struct StoryboardActiveCell: View {
                     .foregroundColor(Color.theme.secondaryText)
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
+                
+                
                 
                 // 底部统计
                 HStack(spacing: 24) {
@@ -847,7 +849,7 @@ struct UnpublishedStoryBoardCellView: View {
                     color: Color.theme.tertiaryText
                 )
                 
-                // 转发
+                // 删除
                 InteractionStatItem(
                     icon: "trash",
                     count: 10,

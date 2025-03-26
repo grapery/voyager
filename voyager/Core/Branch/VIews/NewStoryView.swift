@@ -37,23 +37,24 @@ struct NewStoryView: View {
     
     var body: some View {
         ZStack {
-            Color(.systemGray6).ignoresSafeArea()
+            Color.theme.background.ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: 20) {
                     Text("创建新故事")
                         .font(.largeTitle)
                         .fontWeight(.bold)
+                        .foregroundColor(Color.theme.primaryText)
                         .padding(.top, 50)
                     
                     VStack(spacing: 15) {
-                        // customTextField(title: "名称", text: $name)
                         customTextField(title: "标题", text: $title)
                         customTextField(title: "简短描述", text: $shortDesc)
                         customTextEditor(title: "故事内容", text: $origin)
                         
                         Toggle("使用AI生成", isOn: $isAIGen)
                             .padding(.horizontal, 30)
+                            .tint(Color.theme.accent)
                         
                         customTextField(title: "故事描述", text: $storyDescription)
                         customTextField(title: "负面提示", text: $negativePrompt)
@@ -64,9 +65,9 @@ struct NewStoryView: View {
                         }) {
                             Text(refImages?.isEmpty ?? true ? "添加参考图片" : "更改参考图片")
                                 .font(.headline)
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.theme.buttonText)
                                 .frame(width: 330, height: 50)
-                                .background(Color.blue)
+                                .background(Color.theme.accent)
                                 .cornerRadius(14)
                         }
                         .padding(.horizontal, 30)
@@ -79,9 +80,9 @@ struct NewStoryView: View {
                     Button(action: createStory) {
                         Text("创建故事")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.theme.buttonText)
                             .frame(width: 330, height: 50)
-                            .background(Color.black)
+                            .background(Color.theme.primary)
                             .cornerRadius(14)
                     }
                     .padding(.top, 20)
@@ -92,7 +93,11 @@ struct NewStoryView: View {
             }
         }
         .alert(isPresented: $showAlert) {
-            Alert(title: Text("错误"), message: Text(alertMessage), dismissButton: .default(Text("确定")))
+            Alert(
+                title: Text("错误"),
+                message: Text(alertMessage),
+                dismissButton: .default(Text("确定"))
+            )
         }
         .sheet(isPresented: $showImagePicker) {
             ImagePicker(image: $refImages)
@@ -104,15 +109,21 @@ struct NewStoryView: View {
         Button("取消") {
             presentationMode.wrappedValue.dismiss()
         }
+        .foregroundColor(Color.theme.accent)
     }
     
     private func customTextField(title: String, text: Binding<String>) -> some View {
         TextField(title, text: text)
             .autocapitalization(.none)
             .font(.subheadline)
+            .foregroundColor(Color.theme.inputText)
             .padding(14)
-            .background(Color(.systemGray5))
+            .background(Color.theme.inputBackground)
             .cornerRadius(14)
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.theme.border, lineWidth: 0.5)
+            )
             .padding(.horizontal, 30)
     }
     
@@ -120,15 +131,20 @@ struct NewStoryView: View {
         VStack(alignment: .leading) {
             Text(title)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(Color.theme.secondaryText)
                 .padding(.leading, 30)
             
             TextEditor(text: text)
                 .font(.subheadline)
+                .foregroundColor(Color.theme.inputText)
                 .padding(10)
                 .frame(height: 100)
-                .background(Color(.systemGray5))
+                .background(Color.theme.inputBackground)
                 .cornerRadius(14)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.theme.border, lineWidth: 0.5)
+                )
                 .padding(.horizontal, 30)
         }
     }
@@ -144,9 +160,9 @@ struct NewStoryView: View {
                             .frame(height: 100)
                             .clipped()
                             .cornerRadius(10)
-                        Color.black.opacity(0.6)
+                        Color.theme.primaryText.opacity(0.6)
                         Text("+\(images.count - 3)")
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.theme.buttonText)
                             .font(.title2)
                     }
                 } else {
@@ -156,6 +172,10 @@ struct NewStoryView: View {
                         .frame(height: 100)
                         .clipped()
                         .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.theme.border, lineWidth: 0.5)
+                        )
                 }
             }
         }
@@ -164,8 +184,6 @@ struct NewStoryView: View {
     }
     
     private func createStory() {
-        // 验证和创建故事的逻辑保持不变
-        // self.viewModel.story?.storyInfo.name = self.name
         self.viewModel.story?.storyInfo.title = self.title
         self.viewModel.story?.storyInfo.desc = self.shortDesc
         self.viewModel.story?.storyInfo.origin = self.origin
@@ -175,7 +193,6 @@ struct NewStoryView: View {
         self.viewModel.story?.storyInfo.params.background = self.background
         self.viewModel.story?.storyInfo.groupID = self.groupId
         self.viewModel.story?.storyInfo.creatorID = self.viewModel.userId
-        //self.viewModel.story?.storyInfo.params.refImage = self.refImages?.map({$0.description}).joined(separator: ",")
         
         Task {@MainActor in
             do {

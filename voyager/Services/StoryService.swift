@@ -1114,7 +1114,7 @@ extension APIClient {
         }
     }
     
-    func fetchUserCreatedStoryBoards(userId:Int64,page: Int64,size: Int64,storyId:Int64) async -> ([StoryBoard]?,Int64,Int64,Error?){
+    func fetchUserCreatedStoryBoards(userId:Int64,page: Int64,size: Int64,storyId:Int64) async -> ([StoryBoardActive]?,Int64,Int64,Error?){
         do {
             print("fetchUserCreatedStoryBoards " ,userId)
             let apiClient = Common_TeamsApiClient(client: self.client!)
@@ -1129,10 +1129,10 @@ extension APIClient {
             let response = await apiClient.getUserCreatedStoryboards(request: request, headers: header)
             if response.message?.code != Common_ResponseCode.ok{
                 print("fetchUserCreatedStoryBoards response: ",response.message as Any)
-                return ([StoryBoard](),0,0,nil)
+                return ([StoryBoardActive](),0,0,nil)
             }
-            let boards = response.message?.storyboards.map { StoryBoard(id: $0.storyBoardID, boardInfo: $0) }
-            print(boards as Any)
+            let boards = response.message?.storyboards.map { StoryBoardActive(id: $0.storyboard.storyBoardID, boardActive: $0) }
+            print("boards?.count : ",boards?.count as Any)
             return (boards,response.message!.offset,response.message!.pageSize,nil)
         } catch {
             return (nil,0,0,error)

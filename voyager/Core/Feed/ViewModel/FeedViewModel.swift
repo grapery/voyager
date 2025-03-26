@@ -13,7 +13,7 @@ class FeedViewModel: ObservableObject {
     @Published var userId: Int64
     @Published var user: User
     @Published var roles: [StoryRole]
-    @Published var boards: [StoryBoard]
+    @Published var boards: [StoryBoardActive]
     @Published var filters = [String]()
 
     
@@ -48,7 +48,7 @@ class FeedViewModel: ObservableObject {
         self.userId = user.userID
         self.tags = [String]()
         self.roles = [StoryRole]()
-        self.boards = [StoryBoard]()
+        self.boards = [StoryBoardActive]()
         
         self.currentOffset = 0
         self.user = user

@@ -55,7 +55,7 @@ class ProfileViewModel: ObservableObject {
     @Published var stories = [Story]()
     @Published var storyRoles = [StoryRole]()
     @Published var groups = [BranchGroup]()
-    @Published var storyboards = [StoryBoard]()
+    @Published var storyboards = [StoryBoardActive]()
     
     private var StoriesPage = 0
     private var StoriesSize = 10
@@ -207,7 +207,7 @@ class ProfileViewModel: ObservableObject {
         return (result.0,nil)
     }
     
-    func fetchUserCreatedStoryboards(userId: Int64,groupId:Int64,storyId:Int64) async throws -> ([StoryBoard]?,Error?){
+    func fetchUserCreatedStoryboards(userId: Int64,groupId:Int64,storyId:Int64) async throws -> ([StoryBoardActive]?,Error?){
         let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryboardsSize), storyId: storyId)
         print("fetchUserCreatedStoryboards params",self.StoryboardsPage, self.StoryboardsSize)
         if result.3 != nil {
@@ -235,7 +235,7 @@ class ProfileViewModel: ObservableObject {
         return (result.0,nil)
     }
     
-    func fetchUserUnPublishedStoryboards(userId: Int64,groupId:Int64,storyId:Int64,status: Int64) async throws -> ([StoryBoard]?,Error?){
+    func fetchUserUnPublishedStoryboards(userId: Int64,groupId:Int64,storyId:Int64,status: Int64) async throws -> ([StoryBoardActive]?,Error?){
         let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryboardsSize), storyId: storyId)
         print("fetchUserUnPublishedStoryboards params",self.StoryboardsPage, self.StoryboardsSize)
         if result.3 != nil {
