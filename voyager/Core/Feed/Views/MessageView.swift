@@ -30,6 +30,8 @@ struct MessageView: View {
     @State private var searchText = ""
     @State private var isSearching = false
     @State var user: User?
+    @State private var showingDeleteAlert = false
+    @State private var messageToDelete: Int64? = nil
     
     init(user: User? = nil) {
         self.user = user
@@ -48,29 +50,63 @@ struct MessageView: View {
                 )
                 
                 // 使用通用搜索栏
-                CommonSearchBar(
-                    searchText: $searchText,
-                    placeholder: "搜索消息"
-                )
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(Color.theme.tertiaryText)
+                    TextField("搜索消息", text: $searchText)
+                        .foregroundColor(Color.theme.inputText)
+                    if !searchText.isEmpty {
+                        Button(action: { searchText = "" }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(Color.theme.tertiaryText)
+                        }
+                    }
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(Color.theme.tertiaryBackground)
+                .clipShape(Capsule())
                 .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.vertical, 8)
                 
                 // 消息列表
                 ScrollView {
-                    LazyVStack(spacing: 4) {
+                    LazyVStack(spacing: 0) {
                         ForEach(viewModel.msgCtxs, id: \.id) { msgCtx in
-                            MessageContextCellView(
-                                msgCtxId: msgCtx.chatinfo.chatID,
-                                userId: user!.userID,
-                                user: msgCtx.chatinfo.user,
-                                role: StoryRole(Id: msgCtx.chatinfo.role.roleID, role: msgCtx.chatinfo.role),
-                                lastMessage: msgCtx.chatinfo.lastMessage
-                            )
+                            VStack(spacing: 0) {
+                                MessageContextCellView(
+                                    msgCtxId: msgCtx.chatinfo.chatID,
+                                    user: msgCtx.chatinfo.user,
+                                    userId: user!.userID,
+                                    role: StoryRole(Id: msgCtx.chatinfo.role.roleID, role: msgCtx.chatinfo.role),
+                                    lastMessage: msgCtx.chatinfo.lastMessage,
+                                    onDelete: { id in
+                                        messageToDelete = id
+                                        showingDeleteAlert = true
+                                    }
+                                )
+                                
+                                if msgCtx.id != viewModel.msgCtxs.last?.id {
+                                    Divider()
+                                        .background(Color.theme.divider)
+                                }
+                            }
                         }
                     }
-                    .padding(.top, 16)
                 }
                 .background(Color.theme.background)
+            }
+            .alert("确认删除", isPresented: $showingDeleteAlert) {
+                Button("取消", role: .cancel) { }
+                Button("删除", role: .destructive) {
+                    if let id = messageToDelete {
+                        Task {
+                        //await viewModel.deleteMessageContext(msgCtxId: id)
+                        }
+                    }
+                }
+            } message: {
+                Text("确定要删除这条消息吗？此操作无法撤销。")
             }
             .onAppear {
                 Task {
@@ -117,14 +153,7 @@ struct MessageContextCellView: View {
     var userId: Int64
     var role: StoryRole?
     var lastMessage: Common_ChatMessage?
-    
-    init(msgCtxId: Int64, userId: Int64, user: User, role: StoryRole, lastMessage: Common_ChatMessage) {
-        self.msgCtxId = msgCtxId
-        self.userId = userId
-        self.lastMessage = lastMessage
-        self.user = user
-        self.role = role
-    }
+    var onDelete: (Int64) -> Void
     
     private var isFromUser: Bool {
         lastMessage!.sender == userId
@@ -181,14 +210,15 @@ struct MessageContextCellView: View {
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.theme.secondaryBackground)
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.theme.border, lineWidth: 0.5)
-            )
-            .padding(.horizontal, 16)
         }
         .buttonStyle(PlainButtonStyle())
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button(role: .destructive) {
+                onDelete(msgCtxId)
+            } label: {
+                Label("删除", systemImage: "trash")
+            }
+        }
     }
     
     private func formatTime(_ timestamp: Int64) -> String {
