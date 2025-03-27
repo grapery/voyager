@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import UIKit
+import PhotosUI
 
 struct NewGroupView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -13,136 +15,181 @@ struct NewGroupView: View {
     public var viewModel: GroupViewModel
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
+    @State private var isLoading = false
     
     @State private var name: String = ""
     @State private var description: String = ""
     @State private var avatar: UIImage?
     @State private var showImagePicker: Bool = false
+    @State private var selectedPhotoItem: PhotosPickerItem?
     
-    init(userId: Int64,viewModel: GroupViewModel) {
+    init(userId: Int64, viewModel: GroupViewModel) {
         self.viewModel = viewModel
     }
     
     var body: some View {
-        ZStack {
-            Color(.systemGray6).ignoresSafeArea()
-            
-            VStack {
-                Spacer()
+        NavigationView {
+            ZStack {
+                Color.theme.background.ignoresSafeArea()
                 
-                VStack(alignment: .center) {
-                    Button(action: {
-                        showImagePicker = true
-                    }) {
+                VStack(spacing: 24) {
+                    // 头像选择区域
+                    PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
                         if let avatar = avatar {
                             Image(uiImage: avatar)
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: 80, height: 80)
+                                .frame(width: 100, height: 100)
                                 .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.theme.border, lineWidth: 1))
                         } else {
                             Image(systemName: "infinity.circle")
                                 .resizable()
                                 .scaledToFill()
-                                .frame(maxWidth: 80, maxHeight: 80)
-                                .foregroundColor(.blue)
+                                .frame(width: 100, height: 100)
+                                .foregroundColor(Color.theme.accent)
                         }
                     }
-                    .padding(.bottom, 20)
-                }
-                
-                VStack(alignment: .center) {
-                    TextField("小组名称", text: $name)
-                        .autocapitalization(.none)
-                        .font(.subheadline)
-                        .padding(14)
-                        .background(Color(.systemGray5))
-                        .cornerRadius(14)
-                        .padding(.horizontal, 30)
+                    .padding(.top, 32)
                     
-                    TextField("小组描述", text: $description)
-                        .autocapitalization(.none)
-                        .font(.subheadline)
-                        .padding(14)
-                        .background(Color(.systemGray5))
-                        .cornerRadius(14)
-                        .padding(.horizontal, 30)
-                        .padding(.top, 10)
-                }
-                
-                Spacer()
-                    .frame(maxWidth: .infinity, maxHeight: 80)
-                
-                VStack(spacing: 16) {
-                    Button(action: createGroup) {
-                        Text("创建小组")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .fontWeight(.bold)
-                            .frame(width: 330, height: 50)
-                            .background(Color.black)
-                            .clipShape(RoundedRectangle(cornerRadius: 22))
+                    // 输入区域
+                    VStack(spacing: 16) {
+                        TextField("小组名称", text: $name)
+                            .textFieldStyle(CustomTextFieldStyle())
+                        
+                        TextField("小组描述", text: $description)
+                            .textFieldStyle(CustomTextFieldStyle())
                     }
+                    .padding(.horizontal, 24)
                     
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Text("取消")
-                            .font(.headline)
-                            .foregroundColor(.gray)
-                            .fontWeight(.medium)
-                            .frame(width: 330, height: 50)
-                            .background(Color.white)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 22)
-                                    .stroke(Color.gray, lineWidth: 1)
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 22))
+                    Spacer()
+                    
+                    // 按钮区域
+                    VStack(spacing: 16) {
+                        Button(action: createGroup) {
+                            if isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            } else {
+                                Text("创建小组")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(Color.theme.accent)
+                        .clipShape(RoundedRectangle(cornerRadius: 25))
+                        .disabled(isLoading)
+                        
+                        Button(action: { dismiss() }) {
+                            Text("取消")
+                                .font(.headline)
+                                .foregroundColor(Color.theme.secondaryText)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                                .background(Color.theme.secondaryBackground)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 25)
+                                        .stroke(Color.theme.border, lineWidth: 1)
+                                )
+                        }
+                        .disabled(isLoading)
                     }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 32)
                 }
-                .padding(.bottom, 32)
             }
-            .padding(.top, 50)
+            .navigationBarHidden(true)
+            .onChange(of: selectedPhotoItem) { newItem in
+                Task {
+                    if let data = try? await newItem?.loadTransferable(type: Data.self),
+                       let image = UIImage(data: data) {
+                        await MainActor.run {
+                            self.avatar = image
+                        }
+                    }
+                }
+            }
         }
         .alert(isPresented: $showAlert) {
-            Alert(title: Text("错误"), message: Text(alertMessage), dismissButton: .default(Text("确定")))
+            Alert(
+                title: Text("错误"),
+                message: Text(alertMessage),
+                dismissButton: .default(Text("确定"))
+            )
         }
-        .sheet(isPresented: $showImagePicker) {
-            SingleImagePicker(image: $avatar)
+        .overlay {
+            if isLoading {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                    .overlay {
+                        ProgressView()
+                            .tint(.white)
+                    }
+            }
         }
-        .navigationBarItems(leading: cancelButton)
-        .navigationBarBackButtonHidden(true)
     }
     
-    private var cancelButton: some View {
-        Button("取消") {
-            presentationMode.wrappedValue.dismiss()
-        }
-    }
-    
-    @MainActor
-    private func createGroup()  {
+    private func createGroup() {
         guard !name.isEmpty else {
             showAlert(message: "请输入小组名称")
             return
         }
         
-        // 创建小组的逻辑
-        var result: BranchGroup?
-        var err: Error?
-        Task{
-            (result,err) = await viewModel.createGroup(creatorId: self.viewModel.user.userID ,name: name, description: description, avatar: avatar!)
-        }
-        if err == nil{
-            presentationMode.wrappedValue.dismiss()
-            print("create group success \(result?.info.name ?? name)")
+        guard let avatar = avatar else {
+            showAlert(message: "请选择小组头像")
             return
         }
-        showAlert(message: err!.localizedDescription)
+        
+        isLoading = true
+        
+        Task {
+            do {
+                let imageUrl = try await Task.detached {
+                    try AliyunClient.UploadImage(image: avatar)
+                }.value
+                
+                let (result, err) = await viewModel.createGroup(
+                    creatorId: viewModel.user.userID,
+                    name: name,
+                    description: description,
+                    avatar: imageUrl
+                )
+                
+                await MainActor.run {
+                    isLoading = false
+                    if err == nil {
+                        presentationMode.wrappedValue.dismiss()
+                        print("create group success \(result?.info.name ?? name)")
+                    } else {
+                        showAlert(message: err!.localizedDescription)
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    showAlert(message: "上传图片失败：\(error.localizedDescription)")
+                }
+            }
+        }
     }
     
     private func showAlert(message: String) {
         alertMessage = message
         showAlert = true
+    }
+}
+
+// 自定义输入框样式
+struct CustomTextFieldStyle: TextFieldStyle {
+    func _body(configuration: TextField<Self._Label>) -> some View {
+        configuration
+            .textInputAutocapitalization(.none)
+            .font(.system(size: 16))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .background(Color.theme.tertiaryBackground)
+            .cornerRadius(12)
     }
 }

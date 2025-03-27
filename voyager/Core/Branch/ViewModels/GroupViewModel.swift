@@ -77,13 +77,13 @@ class GroupViewModel: ObservableObject {
     }
     
     @MainActor
-    func createGroup(creatorId: Int64,name: String, description: String, avatar: UIImage)async -> (BranchGroup?,Error?){
+    func createGroup(creatorId: Int64,name: String, description: String, avatar: String)async -> (BranchGroup?,Error?){
         var result: BranchGroup?
         var err: Error?
         // 在这里实现创建 Group 的逻辑
         let userId = creatorId
 
-        (result,err) = await APIClient.shared.CreateGroup(userId: userId, name: name)
+        (result,err) = await APIClient.shared.CreateGroup(userId: userId, name: name,desc: description,avatar: avatar)
         if err != nil {
             return (nil,err)
         }

@@ -117,16 +117,17 @@ extension APIClient {
         }
     }
     
-    func CreateGroup(userId: Int64, name: String) async -> (BranchGroup?, Error?) {
+    func CreateGroup(userId: Int64, name: String,desc: String,avatar: String) async -> (BranchGroup?, Error?) {
         let result = BranchGroup(info: Common_GroupInfo())
         var response :ResponseMessage<Common_CreateGroupResponse>
-        print("CreateGroup params: ",userId,"name ",name)
         do {
             let authClient = Common_TeamsApiClient(client: self.client!)
             // Performed within an async context.
             let request = Common_CreateGroupRequest.with {
-                $0.userID = Int64(userId);
+                $0.userID = Int64(userId)
                 $0.name = name
+                $0.description_p = desc
+                $0.avatar = avatar
             }
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
