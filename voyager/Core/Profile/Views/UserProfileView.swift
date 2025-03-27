@@ -740,6 +740,7 @@ struct PendingTab: View {
                 }
             }
         }
+        .background(Color.theme.background)
         .task {
             if viewModel.unpublishedStoryboards.isEmpty {
                 await viewModel.fetchUnpublishedStoryboards()
@@ -757,7 +758,7 @@ struct PendingTab: View {
             Spacer()
             Text("暂无待发布的故事")
                 .font(.system(size: 16))
-                .foregroundColor(.secondary)
+                .foregroundColor(Color.theme.secondaryText)
             
             Button(action: {
                 // TODO: 实现创作功能
@@ -767,7 +768,7 @@ struct PendingTab: View {
                     .foregroundColor(.white)
                     .frame(width: 120)
                     .padding(.vertical, 12)
-                    .background(Color.blue)
+                    .background(Color.theme.accent)
                     .cornerRadius(22)
             }
             .padding(.top, 16)
@@ -777,7 +778,7 @@ struct PendingTab: View {
     }
     
     private var storyBoardsListView: some View {
-        LazyVStack(spacing: 8) {
+        LazyVStack(spacing: 12) {
             ForEach(viewModel.unpublishedStoryboards) { board in
                 UnpublishedStoryBoardCellView(
                     board: board,
@@ -798,8 +799,7 @@ struct PendingTab: View {
                     .padding()
             }
         }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 12)
+        .padding(.vertical, 12)
     }
 }
 
@@ -833,28 +833,45 @@ struct UnpublishedStoryBoardCellView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             
+            Divider()
+                .background(Color.theme.divider)
+            
             // 交互栏
             HStack(spacing: 16) {
                 // 编辑
-                InteractionStatItem(
-                    icon: "paintbrush.pointed",
-                    count: 10,
-                    color: Color.theme.tertiaryText
-                )
+                Button(action: {
+                    showingEditView = true
+                }) {
+                    InteractionStatItem(
+                        icon: "paintbrush.pointed",
+                        count: 10,
+                        color: Color.theme.tertiaryText
+                    )
+                }
                 
                 // 发布
-                InteractionStatItem(
-                    icon: "mountain.2",
-                    count: 10,
-                    color: Color.theme.tertiaryText
-                )
+                Button(action: {
+                    showingPublishAlert = true
+                }) {
+                    InteractionStatItem(
+                        icon: "mountain.2",
+                        count: 10,
+                        color: Color.theme.tertiaryText
+                    )
+                }
                 
                 // 删除
-                InteractionStatItem(
-                    icon: "trash",
-                    count: 10,
-                    color: Color.theme.tertiaryText
-                )
+                Button(action: {
+                    showingDeleteAlert = true
+                }) {
+                    InteractionStatItem(
+                        icon: "trash",
+                        count: 10,
+                        color: Color.theme.tertiaryText
+                    )
+                }
+                
+                Spacer()
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
@@ -866,15 +883,40 @@ struct UnpublishedStoryBoardCellView: View {
                 .stroke(Color.theme.border.opacity(0.1), lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .padding(.horizontal, 16)
         .overlay(errorToastOverlay)
-        .modifier(AlertModifier(
-            showingPublishAlert: $showingPublishAlert,
-            showingDeleteAlert: $showingDeleteAlert,
-            showingEditView: $showingEditView,
-            board: StoryBoard(id: board.boardActive.storyboard.storyBoardID, boardInfo: board.boardActive.storyboard),
-            userId: userId,
-            viewModel: viewModel
-        ))
+        .fullScreenCover(isPresented: $showingEditView) {
+            NavigationStack {
+                EditStoryBoardView(
+                    storyId: board.boardActive.storyboard.storyID,
+                    boardId: board.boardActive.storyboard.storyBoardID,
+                    userId: userId,
+                    viewModel: viewModel
+                )
+            }
+        }
+        .alert("确认发布", isPresented: $showingPublishAlert) {
+            Button("取消", role: .cancel) { }
+            Button("发布", role: .destructive) {
+                Task {
+                    // TODO: 调用发布API
+                    // await viewModel.publishStoryBoard(boardId: board.id)
+                }
+            }
+        } message: {
+            Text("确定要发布这个故事板吗？发布后将无法修改。")
+        }
+        .alert("确认删除", isPresented: $showingDeleteAlert) {
+            Button("取消", role: .cancel) { }
+            Button("删除", role: .destructive) {
+                Task {
+                    // TODO: 调用删除API
+                    // await viewModel.deleteUnpublishedStoryBoard(boardId: board.id)
+                }
+            }
+        } message: {
+            Text("确定要删除这个故事板吗？此操作无法撤销。")
+        }
     }
     
     private var errorToastOverlay: some View {
@@ -919,57 +961,6 @@ private struct UnpublishedToastView: View {
                 .cornerRadius(8)
         }
         .padding(.top, 20)
-    }
-}
-
-private struct AlertModifier: ViewModifier {
-    @Binding var showingPublishAlert: Bool
-    @Binding var showingDeleteAlert: Bool
-    @Binding var showingEditView: Bool
-    let board: StoryBoard
-    let userId: Int64
-    let viewModel: UnpublishedStoryViewModel
-    
-    func body(content: Content) -> some View {
-        content
-            .alert("确认发布", isPresented: $showingPublishAlert) {
-                Button("取消", role: .cancel) { }
-                Button("发布", role: .destructive) {
-                    Task {
-                        // TODO: 调用发布API
-                        // await viewModel.publishStoryBoard(boardId: board.id)
-                    }
-                }
-            } message: {
-                Text("确定要发布这个故事板吗？发布后将无法修改。")
-            }
-            .alert("确认删除", isPresented: $showingDeleteAlert) {
-                Button("取消", role: .cancel) { }
-                Button("删除", role: .destructive) {
-                    Task {
-                        // TODO: 调用删除API
-                        // await viewModel.deleteUnpublishedStoryBoard(boardId: board.id)
-                    }
-                }
-            } message: {
-                Text("确定要删除这个故事板吗？此操作无法撤销。")
-            }
-            .fullScreenCover(isPresented: $showingEditView) {
-                NavigationStack {
-                    EditStoryBoardView(
-                        storyId: board.boardInfo.storyID,
-                        boardId: board.boardInfo.storyBoardID,
-                        userId: userId,
-                        viewModel: viewModel
-                    )
-                    .navigationBarItems(leading: Button(action: {
-                        showingEditView = false
-                    }) {
-                        Image(systemName: "xmark")
-                            .foregroundColor(.black)
-                    })
-                }
-            }
     }
 }
 

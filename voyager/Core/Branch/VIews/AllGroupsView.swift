@@ -50,19 +50,24 @@ struct AllGroupsView: View {
             
             // 搜索栏
             GroupSearchBar(searchText: $searchText)
-                .padding(.horizontal)
                 .padding(.vertical, 8)
             
             // 使用TabView替换ScrollView来支持滑动切换
             TabView(selection: $selectedTab) {
                 ForEach(tabs, id: \.self) { tab in
                     ScrollView {
-                        LazyVStack(spacing: 12) {
+                        LazyVStack(spacing: 0) {
                             ForEach(viewModel.groups) { group in
-                                GroupListItemView(group: group, viewModel: viewModel)
+                                VStack(spacing: 0) {
+                                    GroupListItemView(group: group, viewModel: viewModel)
+                                    
+                                    if group.id != viewModel.groups.last?.id {
+                                        Divider()
+                                            .background(Color.theme.divider)
+                                    }
+                                }
                             }
                             
-                            // 添加加载更多视图
                             if !viewModel.groups.isEmpty {
                                 LoadMoreView(isLoading: $isLoading)
                                     .onAppear {
@@ -72,10 +77,8 @@ struct AllGroupsView: View {
                                     }
                             }
                         }
-                        .padding(.vertical, 12)
                     }
                     .refreshable {
-                        // 下拉刷新
                         await refreshGroups()
                     }
                     .tag(tab)
@@ -120,9 +123,10 @@ struct GroupSearchBar: View {
                 }
             }
         }
-        .padding(8)
-        .background(Color.theme.inputBackground)
-        .cornerRadius(8)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .background(Color.theme.tertiaryBackground)
+        .clipShape(Capsule())
     }
 }
 
@@ -152,18 +156,18 @@ struct GroupListItemView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(group.info.name)
                             .font(.system(size: 16))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Color.theme.primaryText)
                         
                         Text(formatDate(group.info.mtime))
                             .font(.system(size: 14))
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color.theme.tertiaryText)
                     }
                 }
                 
                 // 小组描述
                 Text(group.info.desc)
                     .font(.system(size: 14))
-                    .foregroundColor(.gray)
+                    .foregroundColor(Color.theme.secondaryText)
                     .lineLimit(2)
                 
                 // 统计信息
@@ -175,11 +179,9 @@ struct GroupListItemView: View {
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.white.opacity(0.95))
-            .cornerRadius(8)
+            .background(Color.theme.secondaryBackground)
         }
         .buttonStyle(PlainButtonStyle())
-        .padding(.horizontal)
         .fullScreenCover(isPresented: $showGroupDetail) {
             NavigationStack {
                 GroupDetailView(user: self.viewModel.user, group: group)

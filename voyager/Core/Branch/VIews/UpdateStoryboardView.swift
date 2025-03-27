@@ -17,6 +17,7 @@ struct EditStoryBoardView: View {
     // 步骤状态控制
     @State private var currentStep = 0
     @State private var isLoading = false
+    @State private var slideDirection: Int = 1 // 1 for forward, -1 for backward
     
     // 编辑故事板数据
     @State private var boardTitle: String = ""
@@ -27,104 +28,134 @@ struct EditStoryBoardView: View {
     var steps = ["编辑故事板", "创建场景", "编辑场景图片", "发布"]
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                // 自定义导航栏
-                CustomNavigationBar(title: "编辑故事板", presentationMode: presentationMode)
-                    .background(Color.white)
-                    .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
-                
-                // 进度指示器
-                StoryboardStepIndicatorView(steps: steps, currentStep: currentStep)
-                    .padding(.vertical, 12)
-                    .background(Color.white)
-                
-                // 主要内容区域
-                ScrollView {
-                    VStack(spacing: 20) {
-                        switch currentStep {
-                        case 0:
-                            EditBoardStepView(
-                                title: $boardTitle,
-                                content: $boardContent,
-                                isLoading: $isLoading
+        VStack(spacing: 0) {
+            // 自定义导航栏
+            CustomNavigationBar(title: "编辑故事板", presentationMode: presentationMode)
+                .background(Color.theme.secondaryBackground)
+                .shadow(color: Color.black.opacity(0.05), radius: 4, y: 2)
+            
+            // 进度指示器
+            StoryboardStepIndicatorView(steps: steps, currentStep: currentStep)
+                .padding(.vertical, 12)
+                .background(Color.theme.secondaryBackground)
+            
+            // 主要内容区域
+            ScrollView {
+                VStack(spacing: 20) {
+                    switch currentStep {
+                    case 0:
+                        EditBoardStepView(
+                            title: $boardTitle,
+                            content: $boardContent,
+                            isLoading: $isLoading
+                        )
+                        .transition(
+                            .asymmetric(
+                                insertion: .move(edge: slideDirection == 1 ? .trailing : .leading)
+                                    .combined(with: .opacity),
+                                removal: .move(edge: slideDirection == 1 ? .leading : .trailing)
+                                    .combined(with: .opacity)
                             )
-                            .transition(.opacity.combined(with: .move(edge: .leading)))
-                        case 1:
-                            CreateScenesStepView(
-                                scenes: $scenes,
-                                isLoading: $isLoading
+                        )
+                    case 1:
+                        CreateScenesStepView(
+                            scenes: $scenes,
+                            isLoading: $isLoading
+                        )
+                        .transition(
+                            .asymmetric(
+                                insertion: .move(edge: slideDirection == 1 ? .trailing : .leading)
+                                    .combined(with: .opacity),
+                                removal: .move(edge: slideDirection == 1 ? .leading : .trailing)
+                                    .combined(with: .opacity)
                             )
-                            .transition(.opacity.combined(with: .move(edge: .leading)))
-                        case 2:
-                            PublishStepView(
-                                generatedImages: $generatedImages,
-                                isLoading: $isLoading
+                        )
+                    case 2:
+                        PublishStepView(
+                            generatedImages: $generatedImages,
+                            isLoading: $isLoading
+                        )
+                        .transition(
+                            .asymmetric(
+                                insertion: .move(edge: slideDirection == 1 ? .trailing : .leading)
+                                    .combined(with: .opacity),
+                                removal: .move(edge: slideDirection == 1 ? .leading : .trailing)
+                                    .combined(with: .opacity)
                             )
-                            .transition(.opacity.combined(with: .move(edge: .leading)))
-                        default:
-                            EmptyView()
-                        }
-                    }
-                    .padding()
-                    .animation(.easeInOut, value: currentStep)
-                }
-                
-                // 底部导航按钮
-                HStack(spacing: 20) {
-                    if currentStep > 0 {
-                        Button(action: { withAnimation { currentStep -= 1 } }) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "chevron.left")
-                                Text("上一步")
-                            }
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.gray)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
-                            .background(Color.gray.opacity(0.1))
-                            .clipShape(Capsule())
-                        }
-                    }
-                    
-                    Spacer()
-                    
-                    if currentStep < steps.count - 1 {
-                        Button(action: { withAnimation { currentStep += 1 } }) {
-                            HStack(spacing: 8) {
-                                Text("下一步")
-                                Image(systemName: "chevron.right")
-                            }
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
-                            .background(Color.blue)
-                            .clipShape(Capsule())
-                        }
-                    } else {
-                        Button(action: handleFinish) {
-                            HStack(spacing: 8) {
-                                Text("完成")
-                                Image(systemName: "checkmark")
-                            }
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
-                            .background(Color.blue)
-                            .clipShape(Capsule())
-                        }
+                        )
+                    default:
+                        EmptyView()
                     }
                 }
                 .padding()
-                .background(Color.white)
-                .shadow(color: .black.opacity(0.05), radius: 8, y: -4)
             }
+            .background(Color.theme.background)
+            
+            // 底部导航按钮
+            HStack(spacing: 20) {
+                if currentStep > 0 {
+                    Button(action: {
+                        slideDirection = -1
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            currentStep -= 1
+                        }
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "chevron.left")
+                            Text("上一步")
+                        }
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(Color.theme.tertiaryText)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(Color.theme.tertiaryBackground)
+                        .clipShape(Capsule())
+                    }
+                }
+                
+                Spacer()
+                
+                if currentStep < steps.count - 1 {
+                    Button(action: {
+                        slideDirection = 1
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            currentStep += 1
+                        }
+                    }) {
+                        HStack(spacing: 8) {
+                            Text("下一步")
+                            Image(systemName: "chevron.right")
+                        }
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(Color.theme.accent)
+                        .clipShape(Capsule())
+                    }
+                } else {
+                    Button(action: handleFinish) {
+                        HStack(spacing: 8) {
+                            Text("完成")
+                            Image(systemName: "checkmark")
+                        }
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(Color.theme.accent)
+                        .clipShape(Capsule())
+                    }
+                }
+            }
+            .padding()
+            .background(Color.theme.secondaryBackground)
+            .shadow(color: Color.black.opacity(0.05), radius: 4, y: -2)
         }
-        .navigationBarHidden(true)
-        .onAppear{
-            Task{
+        .background(Color.theme.background)
+        .ignoresSafeArea(.all, edges: .bottom)
+        .onAppear {
+            Task {
                 //self.$viewModel.restoreStoryboard(self.storyId,self.userId,self.boardId)
             }
         }
@@ -147,11 +178,11 @@ private struct CustomNavigationBar: View {
     var body: some View {
         HStack {
             Button(action: { presentationMode.wrappedValue.dismiss() }) {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.primary)
-                    .frame(width: 36, height: 36)
-                    .background(Color(.systemGray6))
+                Image(systemName: "xmark")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(Color.theme.primaryText)
+                    .frame(width: 28, height: 28)
+                    .background(Color.theme.tertiaryBackground)
                     .clipShape(Circle())
             }
             
@@ -159,15 +190,16 @@ private struct CustomNavigationBar: View {
             
             Text(title)
                 .font(.system(size: 17, weight: .semibold))
+                .foregroundColor(Color.theme.primaryText)
             
             Spacer()
             
             // 保持对称性的占位视图
             Color.clear
-                .frame(width: 36, height: 36)
+                .frame(width: 28, height: 28)
         }
-        .padding(.horizontal)
-        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
     }
 }
 
@@ -179,19 +211,38 @@ struct EditBoardStepView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Edit Your Storyboard")
-                .font(.headline)
+            Text("编辑故事板")
+                .font(.system(size: 22, weight: .bold))
+                .foregroundColor(Color.theme.primaryText)
             
-            TextField("Board Title", text: $title)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+            VStack(alignment: .leading, spacing: 8) {
+                Text("标题")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(Color.theme.secondaryText)
+                
+                TextField("请输入故事板标题", text: $title)
+                    .font(.system(size: 16))
+                    .padding()
+                    .background(Color.theme.tertiaryBackground)
+                    .cornerRadius(12)
+            }
             
-            TextEditor(text: $content)
-                .frame(height: 200)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.gray.opacity(0.2))
-                )
+            VStack(alignment: .leading, spacing: 8) {
+                Text("内容")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(Color.theme.secondaryText)
+                
+                TextEditor(text: $content)
+                    .font(.system(size: 16))
+                    .frame(height: 200)
+                    .padding(8)
+                    .background(Color.theme.tertiaryBackground)
+                    .cornerRadius(12)
+            }
         }
+        .padding()
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(16)
     }
 }
 
@@ -202,22 +253,32 @@ struct CreateScenesStepView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Create Scenes")
-                .font(.headline)
+            Text("创建场景")
+                .font(.system(size: 22, weight: .bold))
+                .foregroundColor(Color.theme.primaryText)
             
-            // 场景列表
             ForEach(scenes.indices, id: \.self) { index in
                 SceneItemView(scene: $scenes[index])
             }
             
-            // 添加场景按钮
             Button(action: {
-                scenes.append(StoryboardScene()) // 添加新场景
+                scenes.append(StoryboardScene())
             }) {
-                Label("Add Scene", systemImage: "plus.circle")
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                    Text("添加场景")
+                }
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(Color.theme.accent)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.theme.tertiaryBackground)
+                .cornerRadius(12)
             }
-            .buttonStyle(.bordered)
         }
+        .padding()
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(16)
     }
 }
 
@@ -228,33 +289,50 @@ struct PublishStepView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Review and Publish")
-                .font(.headline)
+            Text("生成场景图片")
+                .font(.system(size: 22, weight: .bold))
+                .foregroundColor(Color.theme.primaryText)
             
-            // 展示生成的图片
             if !generatedImages.isEmpty {
-                ScrollView(.horizontal) {
-                    HStack {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
                         ForEach(generatedImages, id: \.self) { imageUrl in
                             AsyncImage(url: URL(string: imageUrl)) { image in
                                 image
                                     .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 200)
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 160, height: 160)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
                             } placeholder: {
                                 ProgressView()
+                                    .frame(width: 160, height: 160)
+                                    .background(Color.theme.tertiaryBackground)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                         }
                     }
+                    .padding(.horizontal)
                 }
             }
             
-            // 生成图片按钮
-            Button("生成图片") {
+            Button(action: {
                 // 实现生成图片的逻辑
+            }) {
+                HStack {
+                    Image(systemName: "wand.and.stars")
+                    Text("生成图片")
+                }
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.white)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.theme.accent)
+                .cornerRadius(12)
             }
-            .buttonStyle(.bordered)
         }
+        .padding()
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(16)
     }
 }
 
@@ -270,20 +348,27 @@ struct SceneItemView: View {
     @Binding var scene: StoryboardScene
     
     var body: some View {
-        VStack(alignment: .leading) {
-            TextField("Scene Title", text: $scene.title)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+        VStack(alignment: .leading, spacing: 12) {
+            TextField("场景标题", text: $scene.title)
+                .font(.system(size: 16))
+                .padding()
+                .background(Color.theme.tertiaryBackground)
+                .cornerRadius(12)
             
             TextEditor(text: $scene.description)
+                .font(.system(size: 16))
                 .frame(height: 100)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.gray.opacity(0.2))
-                )
+                .padding(8)
+                .background(Color.theme.tertiaryBackground)
+                .cornerRadius(12)
         }
         .padding()
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(8)
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.theme.border, lineWidth: 1)
+        )
     }
 }
 
@@ -346,14 +431,21 @@ struct StoryboardStepIndicatorView: View {
     let steps: [String]
     let currentStep: Int
     
-    private let lineHeight: CGFloat = 4
-    private let circleSize: CGFloat = 32
+    private let lineHeight: CGFloat = 2
+    private let circleSize: CGFloat = 24
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             // Progress bar with circles
-            HStack(spacing: 0) {
+            HStack {
                 ForEach(0..<steps.count, id: \.self) { index in
+                    if index > 0 {
+                        // Connecting line
+                        Rectangle()
+                            .fill(index <= currentStep ? Color.theme.accent : Color.theme.tertiaryText.opacity(0.3))
+                            .frame(height: lineHeight)
+                    }
+                    
                     // Step circle
                     Circle()
                         .fill(index <= currentStep ? Color.theme.accent : Color.theme.tertiaryText.opacity(0.3))
@@ -362,34 +454,36 @@ struct StoryboardStepIndicatorView: View {
                             Group {
                                 if index <= currentStep {
                                     Image(systemName: index == currentStep ? "\(index + 1).circle.fill" : "checkmark.circle.fill")
+                                        .font(.system(size: 13))
                                         .foregroundColor(Color.theme.buttonText)
                                 } else {
                                     Text("\(index + 1)")
+                                        .font(.system(size: 13))
                                         .foregroundColor(Color.theme.buttonText)
                                 }
                             }
                         )
-                    
-                    // Connecting line
-                    if index < steps.count - 1 {
-                        Rectangle()
-                            .fill(index < currentStep ? Color.theme.accent : Color.theme.tertiaryText.opacity(0.3))
-                            .frame(height: lineHeight)
-                    }
                 }
             }
+            .padding(.horizontal, 24)
             
             // Step labels
-            HStack(spacing: 0) {
+            HStack {
                 ForEach(0..<steps.count, id: \.self) { index in
+                    if index > 0 {
+                        Spacer()
+                    }
                     Text(steps[index])
                         .font(.system(size: 12))
                         .foregroundColor(index <= currentStep ? Color.theme.primaryText : Color.theme.tertiaryText)
-                        .frame(maxWidth: .infinity)
+                    if index < steps.count - 1 {
+                        Spacer()
+                    }
                 }
             }
+            .padding(.horizontal, 16)
         }
-        .padding(.vertical, 12)
+        .padding(.vertical, 8)
         .background(Color.theme.tertiaryBackground)
     }
 }
