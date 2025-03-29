@@ -343,7 +343,39 @@ struct CustomSegmentedControl: View {
 
 struct StoryboardCell: View {
     let board: StoryBoardActive
-    
+    var sceneMediaContents: [SceneMediaContent]
+    init(board: StoryBoardActive) {
+        self.board = board
+        var tempSceneContents: [SceneMediaContent] = []
+        let scenes = board.boardActive.storyboard.sences.list
+        for scene in scenes {
+            let genResult = scene.genResult
+            if let data = genResult.data(using: .utf8),
+               let urls = try? JSONDecoder().decode([String].self, from: data) {
+                
+                var mediaItems: [MediaItem] = []
+                for urlString in urls {
+                    if let url = URL(string: urlString) {
+                        let item = MediaItem(
+                            id: UUID().uuidString,
+                            type: urlString.hasSuffix(".mp4") ? .video : .image,
+                            url: url,
+                            thumbnail: urlString.hasSuffix(".mp4") ? URL(string: urlString) : nil
+                        )
+                        mediaItems.append(item)
+                    }
+                }
+                
+                let sceneContent = SceneMediaContent(
+                    id: UUID().uuidString,
+                    sceneTitle: scene.content,
+                    mediaItems: mediaItems
+                )
+                tempSceneContents.append(sceneContent)
+            }
+        }
+        self.sceneMediaContents = tempSceneContents
+    }
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {    
             // 主要内容
@@ -368,6 +400,48 @@ struct StoryboardCell: View {
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
                 
+                if !self.sceneMediaContents.isEmpty {
+                    VStack(alignment: .leading, spacing: 2) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 2) {
+                                ForEach(self.sceneMediaContents, id: \.id) { sceneContent in
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        // 场景图片（取第一张）
+                                        if let firstMedia = sceneContent.mediaItems.first {
+                                            KFImage(firstMedia.url)
+                                                .placeholder {
+                                                    Rectangle()
+                                                        .fill(Color.theme.tertiaryBackground)
+                                                        .overlay(
+                                                            ProgressView()
+                                                                .progressViewStyle(CircularProgressViewStyle())
+                                                        )
+                                                }
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 140, height: 200)
+                                                .clipped()
+                                                .cornerRadius(6)
+                                                .contentShape(Rectangle())
+                                                .onTapGesture {
+                                                    print("Tapped scene: \(sceneContent.sceneTitle)")
+                                                }
+                                        }
+                                        
+                                        // 场景标题
+                                        Text(sceneContent.sceneTitle)
+                                            .font(.system(size: 12))
+                                            .foregroundColor(Color.theme.secondaryText)
+                                            .lineLimit(2)
+                                            .frame(width: 140)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                        }
+                    }
+                }
                 // 底部统计
                 HStack(spacing: 24) {
                     StatLabel(
@@ -813,7 +887,41 @@ struct UnpublishedStoryBoardCellView: View {
     @State private var errorMessage: String = ""
     @State private var showingErrorToast = false
     @State private var showingErrorAlert = false
-    
+    var sceneMediaContents: [SceneMediaContent]
+    init(board: StoryBoardActive,userId: Int64,viewModel: UnpublishedStoryViewModel) {
+        self.board = board
+        self.userId = userId
+        self.viewModel = viewModel
+        var tempSceneContents: [SceneMediaContent] = []
+        let scenes = board.boardActive.storyboard.sences.list
+        for scene in scenes {
+            let genResult = scene.genResult
+            if let data = genResult.data(using: .utf8),
+               let urls = try? JSONDecoder().decode([String].self, from: data) {
+                
+                var mediaItems: [MediaItem] = []
+                for urlString in urls {
+                    if let url = URL(string: urlString) {
+                        let item = MediaItem(
+                            id: UUID().uuidString,
+                            type: urlString.hasSuffix(".mp4") ? .video : .image,
+                            url: url,
+                            thumbnail: urlString.hasSuffix(".mp4") ? URL(string: urlString) : nil
+                        )
+                        mediaItems.append(item)
+                    }
+                }
+                
+                let sceneContent = SceneMediaContent(
+                    id: UUID().uuidString,
+                    sceneTitle: scene.content,
+                    mediaItems: mediaItems
+                )
+                tempSceneContents.append(sceneContent)
+            }
+        }
+        self.sceneMediaContents = tempSceneContents
+    }
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // 标题和内容区域
@@ -829,12 +937,53 @@ struct UnpublishedStoryBoardCellView: View {
                     .font(.system(size: 14))
                     .foregroundColor(Color.theme.secondaryText)
                     .lineLimit(3)
+                if !self.sceneMediaContents.isEmpty {
+                    VStack(alignment: .leading, spacing: 2) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 2) {
+                                ForEach(self.sceneMediaContents, id: \.id) { sceneContent in
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        // 场景图片（取第一张）
+                                        if let firstMedia = sceneContent.mediaItems.first {
+                                            KFImage(firstMedia.url)
+                                                .placeholder {
+                                                    Rectangle()
+                                                        .fill(Color.theme.tertiaryBackground)
+                                                        .overlay(
+                                                            ProgressView()
+                                                                .progressViewStyle(CircularProgressViewStyle())
+                                                        )
+                                                }
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 140, height: 200)
+                                                .clipped()
+                                                .cornerRadius(6)
+                                                .contentShape(Rectangle())
+                                                .onTapGesture {
+                                                    print("Tapped scene: \(sceneContent.sceneTitle)")
+                                                }
+                                        }
+                                        
+                                        // 场景标题
+                                        Text(sceneContent.sceneTitle)
+                                            .font(.system(size: 12))
+                                            .foregroundColor(Color.theme.secondaryText)
+                                            .lineLimit(2)
+                                            .frame(width: 140)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                        }
+                    }
+                }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             
-            Divider()
-                .background(Color.theme.divider)
+
             
             // 交互栏
             HStack(spacing: 16) {

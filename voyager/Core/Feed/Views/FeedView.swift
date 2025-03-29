@@ -168,7 +168,6 @@ private struct FeedItemCard: View {
         self.viewModel = viewModel
         self.showComments = false
         var tempSceneContents: [SceneMediaContent] = []
-        print("storyBoardActive :",storyBoardActive as Any)
         let scenes = storyBoardActive!.storyboard.sences.list
         for scene in scenes {
             let genResult = scene.genResult
@@ -298,6 +297,7 @@ private struct FeedItemCard: View {
                 // 评论按钮
                 Button(action: {
                     showComments = true
+                    print("comments button taped")
                 }) {
                     HStack(spacing: 4) {
                         Image(systemName: "bubble.left")
@@ -310,6 +310,7 @@ private struct FeedItemCard: View {
                 
                 // 点赞按钮
                 Button(action: {
+                    print("like button taped: ",storyBoardActive.isliked)
                     Task {
                         if storyBoardActive.isliked {
                             await viewModel.unlikeStoryBoard(storyBoardId: storyBoardActive.storyboard.storyBoardID)
@@ -327,8 +328,10 @@ private struct FeedItemCard: View {
                     .foregroundColor(storyBoardActive.isliked ? Color.theme.accent : Color.theme.tertiaryText)
                 }
                 
-                // 分享按钮
-                Button(action: {}) {
+                // fork 按钮
+                Button(action: {
+                    print("fork button taped")
+                }) {
                     Image(systemName: "signpost.right.and.left")
                         .font(.system(size: 16))
                         .foregroundColor(Color.theme.tertiaryText)
