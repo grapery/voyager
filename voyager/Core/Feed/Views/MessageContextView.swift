@@ -29,7 +29,6 @@ struct MessageContextView: View {
         self.currentUserId = userId
         self.currentRoleId = roleId
         self.viewModel = MessageContextViewModel(userId: userId, roleId: roleId,role: role)
-        print("MessageContextView :",userId,roleId)
     }
     
     var body: some View {
@@ -95,7 +94,6 @@ struct MessageContextView: View {
             }
             // 发送消息
             let (relpyMsg, error) = await viewModel.sendMessage(msg: chatMsg)
-            print("relpyMsg : ",relpyMsg as Any)
             if let error = error {
                 // 更新消息状态为失败
                 try CoreDataManager.shared.updateMessageStatusByUUID(uuid: tempMessage.uuid!.uuidString, id:-1, status: .MessageSendFailed)
@@ -157,7 +155,6 @@ struct MessageContextView: View {
         guard !isLoadingHistory && hasMoreMessages else { return }
         isLoadingHistory = true
         defer { isLoadingHistory = false }
-        print("loadMoreMessages ")
         do {
             // 获取最早的消息ID作为分页标记
             let earliestMessageTimestamp = viewModel.messages.first?.msg.timestamp ?? 0
