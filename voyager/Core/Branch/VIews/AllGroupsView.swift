@@ -112,21 +112,23 @@ struct GroupSearchBar: View {
     
     var body: some View {
         HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(Color.theme.tertiaryText)
-            TextField("搜索小组", text: $searchText)
-                .foregroundColor(Color.theme.inputText)
-            if !searchText.isEmpty {
-                Button(action: { searchText = "" }) {
-                    Image(systemName: "xmark.circle.fill")
+                    Image(systemName: "magnifyingglass")
                         .foregroundColor(Color.theme.tertiaryText)
+                    TextField("搜索小组", text: $searchText)
+                        .foregroundColor(Color.theme.inputText)
+                    if !searchText.isEmpty {
+                        Button(action: { searchText = "" }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(Color.theme.tertiaryText)
+                        }
+                    }
                 }
-            }
-        }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 12)
-        .background(Color.theme.tertiaryBackground)
-        .clipShape(Capsule())
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(Color.theme.tertiaryBackground)
+                .clipShape(Capsule())
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
     }
 }
 

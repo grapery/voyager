@@ -29,16 +29,25 @@ struct CommonSearchBar: View {
     var placeholder: String = "搜索"
     
     var body: some View {
-        HStack(spacing: 8) {
+        HStack {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
-            
+                .foregroundColor(Color.theme.tertiaryText)
             TextField(placeholder, text: $searchText)
                 .font(.system(size: 15))
+                .foregroundColor(Color.theme.inputText)
+            if !searchText.isEmpty {
+                Button(action: { searchText = "" }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(Color.theme.tertiaryText)
+                }
+            }
         }
-        .padding(10)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
-        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .background(Color.theme.tertiaryBackground)
+        .clipShape(Capsule())
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
     }
+    
 }

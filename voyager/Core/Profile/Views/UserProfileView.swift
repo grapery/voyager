@@ -403,9 +403,9 @@ struct StoryboardCell: View {
                 if !self.sceneMediaContents.isEmpty {
                     VStack(alignment: .leading, spacing: 2) {
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 2) {
+                            HStack(spacing: 8) {
                                 ForEach(self.sceneMediaContents, id: \.id) { sceneContent in
-                                    VStack(alignment: .leading, spacing: 2) {
+                                    VStack(alignment: .leading, spacing: 4) {
                                         // 场景图片（取第一张）
                                         if let firstMedia = sceneContent.mediaItems.first {
                                             KFImage(firstMedia.url)
@@ -421,24 +421,24 @@ struct StoryboardCell: View {
                                                 .aspectRatio(contentMode: .fill)
                                                 .frame(width: 140, height: 200)
                                                 .clipped()
-                                                .cornerRadius(6)
-                                                .contentShape(Rectangle())
-                                                .onTapGesture {
-                                                    print("Tapped scene: \(sceneContent.sceneTitle)")
-                                                }
+                                                .cornerRadius(8)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 8)
+                                                        .stroke(Color.theme.border, lineWidth: 0.5)
+                                                )
                                         }
                                         
                                         // 场景标题
                                         Text(sceneContent.sceneTitle)
-                                            .font(.system(size: 12))
+                                            .font(.system(size: 13))
                                             .foregroundColor(Color.theme.secondaryText)
                                             .lineLimit(2)
                                             .frame(width: 140)
                                     }
                                 }
                             }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
                         }
                     }
                 }
@@ -473,11 +473,6 @@ struct StoryboardCell: View {
             .padding(.horizontal, 16)
         }
         .background(Color.theme.secondaryBackground)
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.theme.border, lineWidth: 0.5)
-        )
     }
     
     private func formatDate(_ timestamp: Int64) -> String {
@@ -696,7 +691,7 @@ private struct StoriesTab: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 12) {
+            LazyVStack(spacing: 0) {
                 if isLoading {
                     ProgressView()
                         .frame(maxWidth: .infinity, minHeight: 200)
@@ -709,12 +704,17 @@ private struct StoriesTab: View {
                     .padding(.top, 40)
                 } else {
                     ForEach(viewModel.storyboards) { board in
-                        StoryboardCell(board: board)
-                            .padding(.horizontal, 16)
+                        VStack(spacing: 0) {
+                            StoryboardCell(board: board)
+                            
+                            if board.id != viewModel.storyboards.last?.id {
+                                Divider()
+                                    .background(Color.theme.divider)
+                            }
+                        }
                     }
                 }
             }
-            .padding(.top, 16)
         }
         .background(Color.theme.background)
     }
@@ -852,18 +852,25 @@ struct PendingTab: View {
     }
     
     private var storyBoardsListView: some View {
-        LazyVStack(spacing: 12) {
+        LazyVStack(spacing: 0) {
             ForEach(viewModel.unpublishedStoryboards) { board in
-                UnpublishedStoryBoardCellView(
-                    board: board,
-                    userId: viewModel.userId,
-                    viewModel: viewModel
-                )
-                .onAppear {
-                    if board.id == viewModel.unpublishedStoryboards.last?.id {
-                        Task {
-                            await viewModel.fetchUnpublishedStoryboards()
+                VStack(spacing: 0) {
+                    UnpublishedStoryBoardCellView(
+                        board: board,
+                        userId: viewModel.userId,
+                        viewModel: viewModel
+                    )
+                    .onAppear {
+                        if board.id == viewModel.unpublishedStoryboards.last?.id {
+                            Task {
+                                await viewModel.fetchUnpublishedStoryboards()
+                            }
                         }
+                    }
+                    
+                    if board.id != viewModel.unpublishedStoryboards.last?.id {
+                        Divider()
+                            .background(Color.theme.divider)
                     }
                 }
             }
@@ -873,7 +880,6 @@ struct PendingTab: View {
                     .padding()
             }
         }
-        .padding(.vertical, 12)
     }
 }
 
@@ -888,7 +894,8 @@ struct UnpublishedStoryBoardCellView: View {
     @State private var showingErrorToast = false
     @State private var showingErrorAlert = false
     var sceneMediaContents: [SceneMediaContent]
-    init(board: StoryBoardActive,userId: Int64,viewModel: UnpublishedStoryViewModel) {
+    
+    init(board: StoryBoardActive, userId: Int64, viewModel: UnpublishedStoryViewModel) {
         self.board = board
         self.userId = userId
         self.viewModel = viewModel
@@ -922,78 +929,76 @@ struct UnpublishedStoryBoardCellView: View {
         }
         self.sceneMediaContents = tempSceneContents
     }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // 标题和内容区域
             VStack(alignment: .leading, spacing: 8) {
                 // 标题
                 Text(board.boardActive.storyboard.title)
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.system(size: 17, weight: .semibold))
                     .foregroundColor(Color.theme.primaryText)
                     .lineLimit(2)
                 
                 // 内容
                 Text(board.boardActive.storyboard.content)
-                    .font(.system(size: 14))
+                    .font(.system(size: 15))
                     .foregroundColor(Color.theme.secondaryText)
                     .lineLimit(3)
+                
                 if !self.sceneMediaContents.isEmpty {
-                    VStack(alignment: .leading, spacing: 2) {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 2) {
-                                ForEach(self.sceneMediaContents, id: \.id) { sceneContent in
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        // 场景图片（取第一张）
-                                        if let firstMedia = sceneContent.mediaItems.first {
-                                            KFImage(firstMedia.url)
-                                                .placeholder {
-                                                    Rectangle()
-                                                        .fill(Color.theme.tertiaryBackground)
-                                                        .overlay(
-                                                            ProgressView()
-                                                                .progressViewStyle(CircularProgressViewStyle())
-                                                        )
-                                                }
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(width: 140, height: 200)
-                                                .clipped()
-                                                .cornerRadius(6)
-                                                .contentShape(Rectangle())
-                                                .onTapGesture {
-                                                    print("Tapped scene: \(sceneContent.sceneTitle)")
-                                                }
-                                        }
-                                        
-                                        // 场景标题
-                                        Text(sceneContent.sceneTitle)
-                                            .font(.system(size: 12))
-                                            .foregroundColor(Color.theme.secondaryText)
-                                            .lineLimit(2)
-                                            .frame(width: 140)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(self.sceneMediaContents, id: \.id) { sceneContent in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    // 场景图片（取第一张）
+                                    if let firstMedia = sceneContent.mediaItems.first {
+                                        KFImage(firstMedia.url)
+                                            .placeholder {
+                                                Rectangle()
+                                                    .fill(Color.theme.tertiaryBackground)
+                                                    .overlay(
+                                                        ProgressView()
+                                                            .progressViewStyle(CircularProgressViewStyle())
+                                                    )
+                                            }
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 140, height: 200)
+                                            .clipped()
+                                            .cornerRadius(8)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .stroke(Color.theme.border, lineWidth: 0.5)
+                                            )
                                     }
+                                    
+                                    // 场景标题
+                                    Text(sceneContent.sceneTitle)
+                                        .font(.system(size: 13))
+                                        .foregroundColor(Color.theme.secondaryText)
+                                        .lineLimit(2)
+                                        .frame(width: 140)
                                 }
                             }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
                         }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
                     }
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            
-
+            .padding(.vertical, 16)
             
             // 交互栏
-            HStack(spacing: 16) {
+            HStack(spacing: 24) {
                 // 编辑
                 Button(action: {
                     showingEditView = true
                 }) {
                     InteractionStatItem(
                         icon: "paintbrush.pointed",
-                        count: 10,
+                        text: "编辑",
                         color: Color.theme.tertiaryText
                     )
                 }
@@ -1004,7 +1009,7 @@ struct UnpublishedStoryBoardCellView: View {
                 }) {
                     InteractionStatItem(
                         icon: "mountain.2",
-                        count: 10,
+                        text: "发布",
                         color: Color.theme.tertiaryText
                     )
                 }
@@ -1015,7 +1020,7 @@ struct UnpublishedStoryBoardCellView: View {
                 }) {
                     InteractionStatItem(
                         icon: "trash",
-                        count: 10,
+                        text: "删除",
                         color: Color.theme.tertiaryText
                     )
                 }
@@ -1023,16 +1028,9 @@ struct UnpublishedStoryBoardCellView: View {
                 Spacer()
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            .padding(.vertical, 12)
         }
         .background(Color.theme.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.theme.border.opacity(0.1), lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
-        .padding(.horizontal, 16)
         .overlay(errorToastOverlay)
         .fullScreenCover(isPresented: $showingEditView) {
             NavigationStack {
@@ -1082,14 +1080,14 @@ struct UnpublishedStoryBoardCellView: View {
 // MARK: - Interaction Stat Item
 private struct InteractionStatItem: View {
     let icon: String
-    let count: Int
+    let text: String
     let color: Color
     
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 16))
-            Text("\(count)")
+                .font(.system(size: 15))
+            Text(text)
                 .font(.system(size: 14))
         }
         .foregroundColor(color)

@@ -206,6 +206,7 @@ struct StoryBoardCellView: View {
         .padding(16)
         .background(Color.theme.secondaryBackground)
         .cornerRadius(16)
+        Divider()
     }
     
     private func formatDate(timestamp: Int64) -> String {
@@ -213,92 +214,6 @@ struct StoryBoardCellView: View {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .short
         return formatter.localizedString(for: date, relativeTo: Date())
-    }
-}
-
-
-
-// 添加 CommentSheet 视图
-struct CommentSheet: View {
-    @Binding var isPresented: Bool
-    @Binding var commentText: String
-    var onSubmit: () -> Void
-    
-    // 添加键盘相关状态
-    @FocusState private var isFocused: Bool
-    @State private var keyboardHeight: CGFloat = 0
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            // 顶部导航栏
-            HStack {
-                Button(action: {
-                    isPresented = false
-                }) {
-                    Image(systemName: "xmark")
-                        .foregroundColor(.black)
-                }
-                Spacer()
-                Text("讨论")
-                    .font(.headline)
-                Spacer()
-                Button(action: {
-                    onSubmit()
-                    isPresented = false
-                }) {
-                    Text("发布")
-                        .foregroundColor(commentText.isEmpty ? .gray : .blue)
-                }
-                .disabled(commentText.isEmpty)
-            }
-            .padding()
-            
-            Divider()
-            
-            // 评论输入区域
-            TextField("说点什么...", text: $commentText, axis: .vertical)
-                .textFieldStyle(.plain)
-                .padding()
-                .focused($isFocused)
-                .onAppear {
-                    isFocused = true // 自动弹出键盘
-                }
-            
-            Spacer()
-            
-            // 底部工具栏
-            HStack(spacing: 20) {
-                Spacer()
-                Button(action: {}) {
-                    Image(systemName: "photo")
-                        .foregroundColor(.gray)
-                }
-                Spacer()
-                Button(action: {}) {
-                    Image(systemName: "at")
-                        .foregroundColor(.gray)
-                }
-                Spacer()
-                Button(action: {}) {
-                    Image(systemName: "face.smiling")
-                        .foregroundColor(.gray)
-                }
-                Spacer()
-            }
-            .padding()
-            .background(Color(.systemGray6))
-        }
-        .background(Color(.systemBackground))
-        // 添加手势关闭键盘
-        .gesture(
-            TapGesture()
-                .onEnded { _ in
-                    isFocused = false
-                }
-        )
-        // 调整视图位置以适应键盘
-        .animation(.easeOut(duration: 0.16), value: keyboardHeight)
-        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
