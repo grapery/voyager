@@ -51,9 +51,16 @@ struct GroupView: View {
                         }
                         .padding(.horizontal)
                         
-                        LazyVStack(spacing: 8) {
+                        LazyVStack(spacing: 0) {
                             ForEach(viewModel.groups) { group in
-                                GroupDiscussionCell(group: group, viewModel: viewModel)
+                                VStack(spacing: 0) {
+                                    GroupDiscussionCell(group: group, viewModel: viewModel)
+                                    
+                                    if group.id != viewModel.groups.last?.id {
+                                        Divider()
+                                            .background(Color.theme.divider)
+                                    }
+                                }
                             }
                         }
                         .padding(.top, 8)
@@ -241,8 +248,6 @@ struct GroupDiscussionCell: View {
             .padding(.vertical, 16)
             .padding(.horizontal, 16)
             .background(Color.theme.secondaryBackground)
-            .cornerRadius(12)
-            .shadow(color: Color.theme.primaryText.opacity(0.03), radius: 6, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
         .fullScreenCover(isPresented: $showGroupDetail) {
