@@ -29,12 +29,16 @@ class CommentsViewModel: ObservableObject {
         return (nil,nil)
     }
     
-    func fetchStoryboardComments() async -> ([Comment]?,Error?){
+    func fetchStoryboardComments(storyId: Int64,storyboardId: Int64,userId:Int64,content: String,prevId:Int64) async -> ([Comment]?,Error?){
         return (nil,nil)
     }
     
     
-    func likeComments() async ->Error? {
+    func likeComments(userId: Int64,commentId:Int64) async ->Error? {
+        return nil
+    }
+    
+    func dislikeComment(userId: Int64,commentId:Int64) async -> Error?{
         return nil
     }
 }

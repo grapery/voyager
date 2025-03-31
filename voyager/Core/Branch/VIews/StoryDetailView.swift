@@ -15,6 +15,9 @@ struct StoryDetailView: View {
     @State public var story: Story
     @State private var showNewStoryRole = false
     @State var userId: Int64
+    @State private var showImagePicker = false
+    @State private var selectedImage: UIImage?
+    @State private var isUpdatingAvatar = false
     
     init(storyId: Int64, story: Story,userId: Int64) {
         self.storyId = storyId
@@ -52,6 +55,16 @@ struct StoryDetailView: View {
                 }
             }
         }
+        .sheet(isPresented: $showImagePicker) {
+            SingleImagePicker(image: $selectedImage)
+        }
+        .onChange(of: selectedImage) { newImage in
+            if let image = newImage {
+                Task {
+                    await uploadAvatar(image)
+                }
+            }
+        }
         .onAppear {
             Task {
                 await viewModel.fetchStoryDetails()
@@ -61,11 +74,29 @@ struct StoryDetailView: View {
     
     private var storyHeader: some View {
         VStack(alignment: .center) {
-            KFImage(URL(string: viewModel.story?.storyInfo.avatar ?? ""))
-                .resizable()
-                .scaledToFill()
-                .frame(width: 80, height: 80)
-                .clipShape(Circle())
+            Button(action: {
+                showImagePicker = true
+            }) {
+                KFImage(URL(string: viewModel.story?.storyInfo.avatar ?? ""))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 80, height: 80)
+                    .clipShape(Circle())
+                    .overlay(
+                        Circle()
+                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    )
+                    .overlay(
+                        isUpdatingAvatar ? 
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .frame(width: 80, height: 80)
+                            .background(Color.black.opacity(0.3))
+                            .clipShape(Circle())
+                        : nil
+                    )
+            }
+            .disabled(isUpdatingAvatar)
             
             if isEditing {
                 TextField("故事名称", text: Binding(
@@ -377,6 +408,21 @@ struct StoryDetailView: View {
     private func formatDate(timestamp: Int64) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
         return DateFormatter.shortDate.string(from: date)
+    }
+    
+    private func uploadAvatar(_ image: UIImage) async {
+        isUpdatingAvatar = true
+        defer { isUpdatingAvatar = false }
+        
+        do {
+            // 更新故事头像
+            let newUrl = try await viewModel.uploadImage(image)
+            
+        } catch {
+            await MainActor.run {
+                selectedImage = nil
+            }
+        }
     }
 }
 

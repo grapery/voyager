@@ -213,12 +213,11 @@ struct StoryView: View {
                 }
             } else if let roles = viewModel.storyRoles {
                 ScrollView {
-                    LazyVStack(spacing: 16) {
+                    LazyVStack(spacing: 0) {
                         ForEach(roles, id: \.role.roleID) { role in
-                            RoleCard(role: role)
+                            RoleCard(role: role,userid: self.userId)
                         }
                     }
-                    .padding()
                 }
             } else {
                 Text("暂无角色")
@@ -394,53 +393,131 @@ struct StoryInteractionButton: View {
 // 角色卡片视图
 struct RoleCard: View {
     let role: StoryRole
+    let userid: Int64
+    @State private var isLiked = false
+    @State private var showingDetail = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // 角色头像和名称
-            HStack(spacing: 12) {
-                KFImage(URL(string: role.role.characterAvatar))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 50, height: 50)
-                    .clipShape(Circle())
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(role.role.characterName)
-                        .font(.headline)
-                    Text("ID: \(role.role.roleID)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+            // 角色信息区域 - 添加点击手势
+            Button(action: {
+                showingDetail = true
+            }) {
+                HStack(alignment: .top, spacing: 12) { // 改为顶部对齐
+                    // 角色头像
+                    KFImage(URL(string: role.role.characterAvatar))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 120, height: 120)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    
+                    // 右侧信息区域
+                    VStack(alignment: .leading, spacing: 12) { // 增加间距
+                        // 1. 角色名称
+                        Text(role.role.characterName)
+                            .font(.system(size: 20, weight: .semibold)) // 增大字号
+                            .foregroundColor(Color.theme.primaryText)
+                            .lineLimit(1)
+                        
+                        // 2. 角色描述
+                        Text(role.role.characterDescription)
+                            .font(.system(size: 14))
+                            .foregroundColor(Color.theme.secondaryText)
+                            .lineLimit(3)
+                            .multilineTextAlignment(.leading)
+                        
+                        Spacer() // 添加弹性空间
+                        
+                        // 3. 创建者信息
+                        HStack(spacing: 8) {
+                            // 创建者头像
+                            KFImage(URL(string: defaultAvator))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 16, height: 16)
+                                .clipShape(Circle())
+                            
+                            Text("创建者ID: \(role.role.creatorID)")
+                                .font(.system(size: 12))
+                                .foregroundColor(Color.theme.tertiaryText)
+                            
+                            Spacer()
+                            
+                            Text(formatDate(timestamp: role.role.ctime))
+                                .font(.system(size: 12))
+                                .foregroundColor(Color.theme.tertiaryText)
+                        }
+                    }
+                    .frame(height: 120, alignment: .top) // 固定高度，确保与头像等高
                 }
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            // 交互栏
+            HStack(spacing: 24) {
+                // 喜欢按钮
+                StorySubViewInteractionButton(
+                    icon: isLiked ? "heart.fill" : "heart",
+                    count: "\(role.role.likeCount)",
+                    color: isLiked ? Color.theme.error : Color.theme.tertiaryText,
+                    action: {
+                        withAnimation(.spring()) {
+                            isLiked.toggle()
+                        }
+                    }
+                )
+                
+                // 关注按钮
+                StorySubViewInteractionButton(
+                    icon: "person.badge.plus",
+                    count: "关注",
+                    color: Color.theme.tertiaryText,
+                    action: {
+                        // TODO: 处理关注事件
+                    }
+                )
+                
+                // 分享按钮
+                StorySubViewInteractionButton(
+                    icon: "square.and.arrow.up",
+                    count: "分享",
+                    color: Color.theme.tertiaryText,
+                    action: {
+                        // TODO: 处理分享事件
+                    }
+                )
+                
+                // 聊天按钮
+                StorySubViewInteractionButton(
+                    icon: "message",
+                    count: "聊天",
+                    color: Color.theme.tertiaryText,
+                    action: {
+                        // TODO: 处理聊天事件
+                    }
+                )
+                
                 Spacer()
             }
-            
-            // 角色描述
-            Text(role.role.characterDescription)
-                .font(.body)
-                .lineLimit(3)
-            
-//            // 角色标签
-//            if !role.roleInfo.tags.isEmpty {
-//                ScrollView(.horizontal, showsIndicators: false) {
-//                    HStack(spacing: 8) {
-//                        ForEach(role.roleInfo.tags, id: \.self) { tag in
-//                            Text(tag)
-//                                .font(.caption)
-//                                .padding(.horizontal, 8)
-//                                .padding(.vertical, 4)
-//                                .background(Color.blue.opacity(0.1))
-//                                .foregroundColor(.blue)
-//                                .cornerRadius(12)
-//                        }
-//                    }
-//                }
-//            }
+            .padding(.top, 8)
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .padding(16)
+        .background(Color.theme.secondaryBackground)
+        .navigationDestination(isPresented: $showingDetail) {
+            StoryRoleDetailView(
+                roleId: role.role.roleID,
+                userId: userid,
+                role: role
+            )
+        }
+        Divider()
+    }
+    
+    private func formatDate(timestamp: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: date, relativeTo: Date())
     }
 }
 
