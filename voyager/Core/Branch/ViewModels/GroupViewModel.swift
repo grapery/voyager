@@ -37,7 +37,6 @@ class GroupViewModel: ObservableObject {
             page: self.groupPage,
             size: self.groupPageSize
         )
-        print("fetchGroups: \(fetchedGroups.count)")
         self.groups = fetchedGroups
         self.hasMorePages = !fetchedGroups.isEmpty && fetchedGroups.count == self.groupPageSize
     }

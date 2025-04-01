@@ -18,6 +18,7 @@ class CommentsViewModel: ObservableObject {
     }
     
     func submitCommentForStory(storyId: Int64,userId:Int64,content: String,prevId:Int64) async -> Error?{
+        
         return nil
     }
     
