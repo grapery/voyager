@@ -78,8 +78,6 @@ struct GroupDetailView: View {
                                         HStack {
                                             Image(systemName: "chevron.left")
                                                 .font(.system(size: 16, weight: .semibold))
-                                            Text("返回")
-                                                .font(.system(size: 16))
                                         }
                                         .foregroundColor(.white)
                                         .padding(8)
@@ -228,7 +226,7 @@ struct GroupDetailView: View {
                                                 KFImage(URL(string: story.storyInfo.avatar))
                                                     .resizable()
                                                     .aspectRatio(contentMode: .fill)
-                                                    .frame(width: 32, height: 32)
+                                                    .frame(width: 49, height: 49)
                                                     .clipShape(Circle())
                                                     .overlay(
                                                         Circle()
@@ -507,7 +505,7 @@ struct StoryUpdateCell: View {
                         .clipShape(Circle())
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(story.storyInfo.name)
+                        Text(story.storyInfo.title)
                             .font(.system(size: 15, weight: .medium))
                             .foregroundColor(.primary)
                         Text(formatTimeAgo(timestamp: story.storyInfo.ctime))

@@ -1109,8 +1109,6 @@ struct PosterView: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "chevron.left")
                                     .font(.system(size: 18, weight: .medium))
-                                Text("返回")
-                                    .font(.system(size: 17))
                             }
                             .foregroundColor(.white)
                             .padding(8)
