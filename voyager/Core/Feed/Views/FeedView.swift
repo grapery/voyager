@@ -616,8 +616,28 @@ private struct DiscoveryView: View {
         self.messageText = ""
         self.messages = [ChatMessage]()
     }
+    
     var body: some View {
         VStack(spacing: 0) {
+            // 顶部导航栏
+            HStack {
+                Text("动态")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(Color.theme.primaryText)
+                
+                Spacer()
+                
+                Button(action: {
+                    // Add new post action
+                }) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(Color.theme.accent)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            
             // 聊天内容区域
             ScrollView {
                 LazyVStack(spacing: 16) {
@@ -636,11 +656,9 @@ private struct DiscoveryView: View {
             }
             
             // 底部输入框
-            ChatInputBar(text: $messageText) {
-                sendMessage()
-            }
+            ChatInputBar(text: $messageText, onSend: sendMessage)
         }
-        .onAppear(){
+        .onAppear {
             var msg1 = Common_ChatMessage()
             msg1.message = "欢迎您来到AI世界，请问您有什么想要了解的事情呢？"
             msg1.sender = 42
@@ -651,8 +669,8 @@ private struct DiscoveryView: View {
             msg2.sender = 1
             msg2.roleID = 42
             msg2.userID = 1
-            self.messages.append(ChatMessage(id: 1, msg: msg1,status: .MessageSendSuccess))
-            self.messages.append(ChatMessage(id: 1, msg: msg2,status: .MessageSendSuccess))
+            self.messages.append(ChatMessage(id: 1, msg: msg1, status: .MessageSendSuccess))
+            self.messages.append(ChatMessage(id: 1, msg: msg2, status: .MessageSendSuccess))
         }
         .background(Color.theme.background)
     }
@@ -661,40 +679,34 @@ private struct DiscoveryView: View {
         guard !messageText.isEmpty else { return }
         messageText = ""
     }
-
-    private func getChatHistory(){
-        // 获取聊天历史
-    }
 }
 
 // AI助手头部信息
 private struct AIChatHeader: View {
     var body: some View {
-        HStack(spacing: 12) {
-            // 左侧绿色装饰条
-            Rectangle()
-                .fill(Color.primaryGreenBackgroud.opacity(0.3))
-                .frame(width: 4)
+        VStack(spacing: 16) {
+            Text("AI故事助手")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(Color.theme.primaryText)
             
-            // AI头像
+            Text("欢迎大家来一起创作好玩的故事吧！")
+                .font(.system(size: 16))
+                .foregroundColor(Color.theme.secondaryText)
+                .multilineTextAlignment(.center)
+            
             Image("ai_avatar")
                 .resizable()
-                .frame(width: 40, height: 40)
+                .frame(width: 80, height: 80)
                 .clipShape(Circle())
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("AI故事助手")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.primary)
-                
-                Text("欢迎大家来一起创作好玩的故事吧！")
-                    .font(.system(size: 14))
-                    .foregroundColor(.gray)
-            }
+                .overlay(
+                    Circle()
+                        .stroke(Color.theme.accent, lineWidth: 2)
+                )
         }
-        .padding(12)
-        .background(Color.theme.background)
-        .cornerRadius(8)
+        .padding(24)
+        .frame(maxWidth: .infinity)
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(16)
     }
 }
 
@@ -704,27 +716,41 @@ private struct ChatBubble: View {
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            if message.msg.sender == message.msg.roleID{
-                KFImage(URL(string: defaultAvator))
-                    .resizable()
-                    .frame(width: 32, height: 32)
-                    .clipShape(Circle())
-                
-                Text(message.msg.message)
-                    .padding(12)
-                    .background(Color.theme.secondaryBackground)
-                    .cornerRadius(16)
-                    .foregroundColor(Color.theme.primaryText)
-                
-                Spacer()
+            if message.msg.sender == message.msg.roleID {
+                // AI消息
+                HStack(alignment: .top, spacing: 12) {
+                    KFImage(URL(string: defaultAvator))
+                        .resizable()
+                        .frame(width: 36, height: 36)
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(Color.theme.border, lineWidth: 1)
+                        )
+                    
+                    Text(message.msg.message)
+                        .font(.system(size: 16))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(Color.theme.secondaryBackground)
+                        .cornerRadius(20)
+                        .foregroundColor(Color.theme.primaryText)
+                    
+                    Spacer()
+                }
             } else {
-                Spacer()
-                
-                Text(message.msg.message)
-                    .padding(12)
-                    .background(Color.theme.accent)
-                    .cornerRadius(16)
-                    .foregroundColor(Color.theme.buttonText)
+                // 用户消息
+                HStack(alignment: .top, spacing: 12) {
+                    Spacer()
+                    
+                    Text(message.msg.message)
+                        .font(.system(size: 16))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(Color.theme.accent)
+                        .cornerRadius(20)
+                        .foregroundColor(.white)
+                }
             }
         }
     }
@@ -733,26 +759,136 @@ private struct ChatBubble: View {
 // 底部输入框
 private struct ChatInputBar: View {
     @Binding var text: String
+    @State private var isShowingInput = false
+    @State private var isShowingImagePicker = false
+    @State private var selectedImages: [UIImage]? = nil
+    @FocusState private var isFocused: Bool
     let onSend: () -> Void
     
     var body: some View {
-        HStack(spacing: 12) {
-            // 输入框
-            TextField("请输入您的问题...", text: $text)
-                .padding(12)
-                .background(Color.white)
-                .cornerRadius(20)
-            
-            // 发送按钮
-            Button(action: onSend) {
-                Image(systemName: "arrow.up.circle.fill")
-                    .resizable()
-                    .frame(width: 32, height: 32)
-                    .foregroundColor(Color.primaryGreenBackgroud)
+        VStack(spacing: 0) {
+            if !isShowingInput {
+                // 未展开状态 - 显示占位按钮
+                Button(action: {
+                    isShowingInput = true
+                    isFocused = true
+                }) {
+                    HStack {
+                        Image(systemName: "text.bubble")
+                            .foregroundColor(Color.theme.tertiaryText)
+                        Text("请输入您的问题...")
+                            .foregroundColor(Color.theme.tertiaryText)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(Color.theme.secondaryBackground)
+                    .cornerRadius(24)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 24)
+                            .stroke(Color.theme.border, lineWidth: 1)
+                    )
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+            } else {
+                // 展开状态 - 显示完整输入栏
+                VStack(spacing: 12) {
+                    // 选中的图片预览
+                    if let images = selectedImages, !images.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(images.indices, id: \.self) { index in
+                                    ZStack(alignment: .topTrailing) {
+                                        Image(uiImage: images[index])
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 60, height: 60)
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        
+                                        Button(action: {
+                                            selectedImages?.remove(at: index)
+                                        }) {
+                                            Image(systemName: "xmark.circle.fill")
+                                                .foregroundColor(Color.theme.tertiaryText)
+                                                .font(.system(size: 20))
+                                                .background(Color.white)
+                                                .clipShape(Circle())
+                                        }
+                                        .padding(4)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                        }
+                    }
+                    
+                    HStack(spacing: 12) {
+                        // 图片选择按钮
+                        Button(action: {
+                            isShowingImagePicker = true
+                        }) {
+                            Image(systemName: "photo")
+                                .font(.system(size: 20))
+                                .foregroundColor(Color.theme.accent)
+                                .frame(width: 44, height: 44)
+                                .background(Color.theme.secondaryBackground)
+                                .clipShape(Circle())
+                        }
+                        
+                        // 输入框
+                        TextField("请输入您的问题...", text: $text)
+                            .focused($isFocused)
+                            .font(.system(size: 16))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .background(Color.theme.secondaryBackground)
+                            .cornerRadius(24)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 24)
+                                    .stroke(Color.theme.border, lineWidth: 1)
+                            )
+                        
+                        // 发送按钮
+                        Button(action: {
+                            onSend()
+                            if text.isEmpty && (selectedImages?.isEmpty ?? true) {
+                                isShowingInput = false
+                            }
+                        }) {
+                            Image(systemName: "arrow.up")
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(width: 44, height: 44)
+                                .background(
+                                    (text.isEmpty && (selectedImages?.isEmpty ?? true))
+                                        ? Color.theme.tertiaryBackground 
+                                        : Color.theme.accent
+                                )
+                                .clipShape(Circle())
+                        }
+                        .disabled(text.isEmpty && (selectedImages?.isEmpty ?? true))
+                    }
+                    .padding(.horizontal, 16)
+                }
+                .padding(.vertical, 12)
+                .background(Color.theme.background)
+                .overlay(
+                    Rectangle()
+                        .frame(height: 1)
+                        .foregroundColor(Color.theme.border)
+                        .opacity(0.5),
+                    alignment: .top
+                )
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(Color.primaryBackgroud)
+        .onChange(of: isFocused) { focused in
+            if !focused && text.isEmpty && (selectedImages?.isEmpty ?? true) {
+                isShowingInput = false
+            }
+        }
     }
 }
+
+
+

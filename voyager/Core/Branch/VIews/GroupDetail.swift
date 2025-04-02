@@ -165,24 +165,7 @@ struct GroupDetailView: View {
                                             }
                                         }
                                     }
-                                    
-                                    // Join/Leave Button
-                                    Button(action: {
-                                        Task {
-                                            await viewModel.JoinGroup(groupdId: group?.info.groupID ?? 0)
-                                        }
-                                    }) {
-                                        Text(group?.info.currentUserStatus.isJoined ?? false ? "已加入" : "加入小组")
-                                            .font(.system(size: 14, weight: .medium))
-                                            .foregroundColor(group?.info.currentUserStatus.isJoined ?? false ? Color.theme.tertiaryText : .white)
-                                            .frame(maxWidth: .infinity)
-                                            .padding(.vertical, 8)
-                                            .background(group?.info.currentUserStatus.isJoined ?? false ? Color.theme.tertiaryBackground : Color.theme.accent)
-                                            .clipShape(Capsule())
-                                    }
-                                    .padding(.horizontal, 16)
-                                    
-                                    // Group Description
+                                     // Group Description
                                     if let desc = group?.info.desc, !desc.isEmpty {
                                         Text(desc)
                                             .font(.system(size: 15))
@@ -190,6 +173,50 @@ struct GroupDetailView: View {
                                             .lineLimit(3)
                                             .padding(.horizontal, 16)
                                     }
+                                    
+                                    // Action Buttons Row
+                                    HStack(spacing: 12) {
+                                        // Join/Leave Button
+                                        Button(action: {
+                                            Task {
+                                                if group?.info.currentUserStatus.isJoined == false {
+                                                    await viewModel.JoinGroup(groupdId: group?.info.groupID ?? 0)
+                                                }else{
+                                                    await viewModel.LeaveGroup(groupdId: group?.info.groupID ?? 0)
+                                                }
+                                            }
+                                        }) {
+                                            Text(group?.info.currentUserStatus.isJoined ?? false ? "已加入" : "加入小组")
+                                                .font(.system(size: 14, weight: .medium))
+                                                .foregroundColor(group?.info.currentUserStatus.isJoined ?? false ? Color.theme.tertiaryText : .white)
+                                                .frame(maxWidth: .infinity)
+                                                .padding(.vertical, 8)
+                                                .background(group?.info.currentUserStatus.isJoined ?? false ? Color.theme.tertiaryBackground : Color.theme.accent)
+                                                .clipShape(Capsule())
+                                        }
+                                        
+                                        // Follow Button
+                                        Button(action: {
+                                            Task {
+                                                if group?.info.currentUserStatus.isFollowed == false {
+                                                    await viewModel.unFollowGroup(userId: user.userID, groupId: group?.info.groupID ?? 0)
+                                                }else{
+                                                    await viewModel.followGroup(userId: user.userID, groupId: group?.info.groupID ?? 0)
+                                                }
+                                                
+                                            }
+                                        }) {
+                                            Text(group?.info.currentUserStatus.isFollowed ?? false ? "已关注" : "关注")
+                                                .font(.system(size: 14, weight: .medium))
+                                                .foregroundColor(group?.info.currentUserStatus.isFollowed ?? false ? Color.theme.tertiaryText : .white)
+                                                .frame(maxWidth: .infinity)
+                                                .padding(.vertical, 8)
+                                                .background(group?.info.currentUserStatus.isFollowed ?? false ? Color.theme.tertiaryBackground : Color.theme.primary)
+                                                .clipShape(Capsule())
+                                        }
+                                    }
+                                    .padding(.horizontal, 16)
+                        
                                 }
                                 .padding(.bottom, 20)
                             }
