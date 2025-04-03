@@ -175,6 +175,11 @@ struct StoryBoardCellView: View {
                     action: {
                         withAnimation(.spring()) {
                             isLiked.toggle()
+                            print("isliked: ",isLiked)
+                            board.boardActive.totalLikeCount = board.boardActive.totalLikeCount + 1
+                            Task{
+                                await viewModel.likeStoryBoard(storyId: board.boardActive.storyboard.storyID, boardId: board.boardActive.storyboard.storyBoardID, userId: userId)
+                            }
                         }
                     }
                 )

@@ -889,6 +889,3 @@ private struct ChatInputBar: View {
         }
     }
 }
-
-
-
