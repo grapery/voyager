@@ -443,9 +443,9 @@ struct CommentCell: View {
                 Text(comment.realComment.content)
                     .font(.system(size: 14))
                 
-                Text(formatTimeAgo(timestamp: comment.realComment.ctime))
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
+//                Text(formatTimeAgo(timestamp: comment.realComment.ctime))
+//                    .font(.system(size: 12))
+//                    .foregroundColor(.gray)
             }
             
             Spacer()

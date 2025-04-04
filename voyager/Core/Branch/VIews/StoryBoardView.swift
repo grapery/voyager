@@ -17,7 +17,6 @@ struct StoryBoardView: View {
     @State private var currentSceneIndex = 0
     @State var viewModel: StoryViewModel
     @Environment(\.presentationMode) var presentationMode
-    @State private var showCommentSheet = false
     @State private var commentText = ""
     
     var body: some View {
@@ -134,180 +133,22 @@ struct StoryBoardView: View {
                         }
                         .frame(height: 400)
                     }
-                    
+                    Divider()
                     // 评论区域
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
                         // 评论数量
-                        Text("共 160 条评论")
+                        Text("共 \(board?.boardActive.totalCommentCount ?? 0) 条评论")
                             .font(.system(size: 14))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.theme.tertiaryText)
                             .padding(.horizontal, 16)
-                        
-                        // 评论列表
-                        if let comments = board?.boardActive.comments {
-                            ForEach(comments, id: \.comment.commentID) { comment in
-                                VStack(spacing: 0) {
-                                    HStack(alignment: .top, spacing: 12) {
-                                        // 用户头像
-                                        KFImage(URL(string: comment.commentUser.avatar))
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 36, height: 36)
-                                            .clipShape(Circle())
-                                        
-                                        VStack(alignment: .leading, spacing: 6) {
-                                            // 用户名和时间
-                                            HStack {
-                                                Text(comment.commentUser.name)
-                                                    .font(.system(size: 14, weight: .medium))
-                                                
-                                                Spacer()
-                                                
-                                                Text(formatTimeAgo(timestamp: comment.comment.ctime))
-                                                    .font(.system(size: 12))
-                                                    .foregroundColor(.secondary)
-                                            }
-                                            
-                                            // 评论内容
-                                            Text(comment.comment.content)
-                                                .font(.system(size: 14))
-                                                .foregroundColor(.primary)
-                                            
-                                            // 评论操作栏
-                                            HStack(spacing: 16) {
-                                                Button(action: {
-                                                    // 点赞操作
-                                                }) {
-                                                    HStack(spacing: 4) {
-                                                        Image(systemName: "heart")
-                                                            .font(.system(size: 12))
-                                                        Text("254")
-                                                            .font(.system(size: 12))
-                                                    }
-                                                    .foregroundColor(.secondary)
-                                                }
-                                                
-                                                Button(action: {
-                                                    // 回复操作
-                                                }) {
-                                                    Text("回复")
-                                                        .font(.system(size: 12))
-                                                        .foregroundColor(.secondary)
-                                                }
-                                                
-                                                if comment.comment.isAuthor {
-                                                    Text("作者")
-                                                        .font(.system(size: 12))
-                                                        .foregroundColor(.secondary)
-                                                        .padding(.horizontal, 8)
-                                                        .padding(.vertical, 2)
-                                                        .background(Color.secondary.opacity(0.1))
-                                                        .cornerRadius(4)
-                                                }
-                                            }
-                                            .padding(.top, 4)
-                                        }
-                                    }
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 12)
-                                    
-                                    Divider()
-                                        .padding(.leading, 64)
-                                }
-                            }
-                        }
                     }
-                    .padding(.top, 16)
+                    .padding(.top, 8)
+                    // 评论列表
+                    CommentListView(storyId: self.storyId, storyboardId: self.board?.boardActive.storyboard.storyBoardID, userId: self.userId)
                 }
             }
-            
-            // 底部评论输入框
-            HStack(spacing: 12) {
-                TextField("说点什么...", text: $commentText)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(20)
-                
-                Button(action: {
-                    // 图片按钮
-                }) {
-                    Image(systemName: "photo")
-                        .foregroundColor(.gray)
-                }
-                
-                Button(action: {
-                    // @用户按钮
-                }) {
-                    Image(systemName: "at")
-                        .foregroundColor(.gray)
-                }
-                
-                Button(action: {
-                    // 表情按钮
-                }) {
-                    Image(systemName: "face.smiling")
-                        .foregroundColor(.gray)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(Color(.systemBackground))
-            .overlay(
-                Divider(), alignment: .top
-            )
         }
-        .overlay(
-            // 底部交互按钮
-            VStack {
-                Spacer()
-                HStack(spacing: 32) {
-                    StoryboardDetailInteractionButton(
-                        icon: "heart",
-                        count: "405",
-                        action: {
-                            Task {
-                                await viewModel.likeStoryBoard(
-                                    storyId: storyId,
-                                    boardId: board?.boardActive.storyboard.storyBoardID ?? 0,
-                                    userId: userId
-                                )
-                            }
-                        }
-                    )
-                    
-                    StoryboardDetailInteractionButton(
-                        icon: "bubble.left",
-                        count: "160",
-                        action: { showCommentSheet = true }
-                    )
-                    
-                    StoryboardDetailInteractionButton(
-                        icon: "star",
-                        count: "7",
-                        action: {}
-                    )
-                    
-                    StoryboardDetailInteractionButton(
-                        icon: "square.and.arrow.up",
-                        count: "539",
-                        action: {}
-                    )
-                }
-                .padding(.bottom, 80)
-                .padding(.trailing, 16)
-            }
-            .foregroundColor(.white),
-            alignment: .bottomTrailing
-        )
         .navigationBarHidden(true)
-        .sheet(isPresented: $showCommentSheet) {
-            CommentSheetView(
-                storyId: storyId,
-                boardId: board?.boardActive.storyboard.storyBoardID ?? 0,
-                userId: userId
-            )
-        }
     }
     
     private func formatTimeAgo(timestamp: Int64) -> String {
@@ -432,9 +273,9 @@ struct CommentRow: View {
                         .font(.subheadline)
                         .fontWeight(.medium)
                     Spacer()
-                    Text("\(comment.realComment.mtime)")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+//                    Text("\(comment.realComment.mtime)")
+//                        .font(.caption)
+//                        .foregroundColor(.gray)
                 }
                 
                 // 评论内容
