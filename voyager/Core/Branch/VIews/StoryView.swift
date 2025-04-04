@@ -245,13 +245,21 @@ struct StoryView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(boards, id: \.id) { board in
-                            StoryBoardCellView(
+                            NavigationLink(destination: StoryBoardView(
                                 board: board,
                                 userId: userId,
                                 groupId: self.viewModel.story?.storyInfo.groupID ?? 0,
                                 storyId: storyId,
                                 viewModel: self.viewModel
-                            )
+                            )) {
+                                StoryBoardCellView(
+                                    board: board,
+                                    userId: userId,
+                                    groupId: self.viewModel.story?.storyInfo.groupID ?? 0,
+                                    storyId: storyId,
+                                    viewModel: self.viewModel
+                                )
+                            }
                         }
                     }
                     .padding(.horizontal, 4)
@@ -388,7 +396,6 @@ struct StoryInteractionButton: View {
     }
 }
 
-// Story Board Cell View
 
 // 角色卡片视图
 struct RoleCard: View {
@@ -520,5 +527,3 @@ struct RoleCard: View {
         return formatter.localizedString(for: date, relativeTo: Date())
     }
 }
-
-

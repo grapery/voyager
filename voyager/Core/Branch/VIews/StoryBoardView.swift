@@ -10,147 +10,328 @@ import Kingfisher
 import Combine
 
 struct StoryBoardView: View {
-    @State var board: StoryBoard?
+    @State var board: StoryBoardActive?
     @State var userId: Int64
     @State var groupId: Int64
     @State var storyId: Int64
     @State private var currentSceneIndex = 0
     @State var viewModel: StoryViewModel
     @Environment(\.presentationMode) var presentationMode
-    @State private var showCommentSheet = false  // 添加状态变量
+    @State private var showCommentSheet = false
+    @State private var commentText = ""
     
     var body: some View {
-        ZStack {
-            // 背景色
-            Color.black.edgesIgnoringSafeArea(.all)
-            
-            VStack(spacing: 0) {
-                // 顶部导航栏
-                HStack {
-                    Button(action: { presentationMode.wrappedValue.dismiss() }) {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(.white)
-                            .imageScale(.large)
-                    }
-                    Spacer()
+        VStack(spacing: 0) {
+            // 顶部导航栏
+            HStack(spacing: 12) {
+                // 返回按钮
+                Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.primary)
+                        .imageScale(.large)
+                }
+                
+                // 用户信息
+                HStack(spacing: 8) {
+                    KFImage(URL(string: (board?.boardActive.creator.userAvatar)!))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 40, height: 40)
+                        .clipShape(Circle())
                     
-                    Text(board?.boardInfo.title ?? "")
-                        .foregroundColor(.white)
-                        .font(.headline)
-                    Spacer()
-                    
-                    Button(action: {
-                        
-                    }) {
-                        Image(systemName: "square.and.arrow.up")
-                            .foregroundColor(.white)
-                            .imageScale(.large)
-                    }
-                    
-                    Button(action: { /* 更多操作 */ }) {
-                        Image(systemName: "ellipsis")
-                            .foregroundColor(.white)
-                            .imageScale(.large)
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 4) {
+                            Text((board?.boardActive.creator.userName)!)
+                                .font(.system(size: 16, weight: .medium))
+                        }
                     }
                 }
-                .padding()
                 
-                // 主要内容区域
-                if let scenes = board?.boardInfo.sences.list, !scenes.isEmpty {
-                    // 添加主容器
-                    VStack(spacing: 8) {
+                Spacer()
+                
+                // 关注按钮
+                Button(action: {
+                    // 关注操作
+                }) {
+                    Text("关注")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 6)
+                        .background(Color.theme.error)
+                        .cornerRadius(16)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            
+            // 内容区域
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    // 标题和内容
+                    Text(board?.boardActive.storyboard.title ?? "")
+                        .font(.system(size: 16, weight: .medium))
+                        .padding(.horizontal, 16)
+                    
+                    Text(board?.boardActive.storyboard.content ?? "")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 16)
+                    
+                    // 图片区域
+                    if let scenes = board?.boardActive.storyboard.sences.list, !scenes.isEmpty {
                         ZStack(alignment: .bottom) {
-                            // TabView
                             TabView(selection: $currentSceneIndex) {
                                 ForEach(Array(scenes.enumerated()), id: \.offset) { index, scene in
-                                    ScenePageView(scene: scene)
-                                        .tag(index)
+                                    if let data = scene.genResult.data(using: .utf8),
+                                       let urls = try? JSONDecoder().decode([String].self, from: data),
+                                       let firstUrl = urls.first {
+                                        KFImage(URL(string: firstUrl))
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(maxWidth: .infinity)
+                                            .frame(height: 400)
+                                            .clipped()
+                                            .tag(index)
+                                    }
                                 }
                             }
                             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                             
-                            // 底部进度指示器
+                            // 进度指示器
                             VStack(spacing: 8) {
+                                // 进度线
                                 HStack(spacing: 4) {
                                     ForEach(0..<scenes.count, id: \.self) { index in
                                         Capsule()
                                             .fill(Color.white)
                                             .frame(height: 4)
-                                            .opacity(currentSceneIndex >= index ? 1.0 : 0.3)
+                                            .opacity(currentSceneIndex == index ? 1.0 : 0.3)
                                     }
                                 }
                                 .padding(.horizontal)
+                                .padding(.bottom, 8)
                                 
-                                // 场景内容文字
-                                if let scene = board?.boardInfo.sences.list[currentSceneIndex] {
-                                    Text(scene.content)
-                                        .foregroundColor(.white)
-                                        .font(.system(size: 16))
-                                        .padding(.horizontal)
-                                        .lineLimit(2)
+                                // 场景描述
+                                let scene = scenes[currentSceneIndex]
+                                Text(scene.content)
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 16)
+                                    .padding(.bottom, 16)
+                                    .lineLimit(2)
+                            }
+                            .background(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color.black.opacity(0),
+                                        Color.black.opacity(0.5)
+                                    ]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                        }
+                        .frame(height: 400)
+                    }
+                    
+                    // 评论区域
+                    VStack(alignment: .leading, spacing: 16) {
+                        // 评论数量
+                        Text("共 160 条评论")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 16)
+                        
+                        // 评论列表
+                        if let comments = board?.boardActive.comments {
+                            ForEach(comments, id: \.comment.commentID) { comment in
+                                VStack(spacing: 0) {
+                                    HStack(alignment: .top, spacing: 12) {
+                                        // 用户头像
+                                        KFImage(URL(string: comment.commentUser.avatar))
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 36, height: 36)
+                                            .clipShape(Circle())
+                                        
+                                        VStack(alignment: .leading, spacing: 6) {
+                                            // 用户名和时间
+                                            HStack {
+                                                Text(comment.commentUser.name)
+                                                    .font(.system(size: 14, weight: .medium))
+                                                
+                                                Spacer()
+                                                
+                                                Text(formatTimeAgo(timestamp: comment.comment.ctime))
+                                                    .font(.system(size: 12))
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            
+                                            // 评论内容
+                                            Text(comment.comment.content)
+                                                .font(.system(size: 14))
+                                                .foregroundColor(.primary)
+                                            
+                                            // 评论操作栏
+                                            HStack(spacing: 16) {
+                                                Button(action: {
+                                                    // 点赞操作
+                                                }) {
+                                                    HStack(spacing: 4) {
+                                                        Image(systemName: "heart")
+                                                            .font(.system(size: 12))
+                                                        Text("254")
+                                                            .font(.system(size: 12))
+                                                    }
+                                                    .foregroundColor(.secondary)
+                                                }
+                                                
+                                                Button(action: {
+                                                    // 回复操作
+                                                }) {
+                                                    Text("回复")
+                                                        .font(.system(size: 12))
+                                                        .foregroundColor(.secondary)
+                                                }
+                                                
+                                                if comment.comment.isAuthor {
+                                                    Text("作者")
+                                                        .font(.system(size: 12))
+                                                        .foregroundColor(.secondary)
+                                                        .padding(.horizontal, 8)
+                                                        .padding(.vertical, 2)
+                                                        .background(Color.secondary.opacity(0.1))
+                                                        .cornerRadius(4)
+                                                }
+                                            }
+                                            .padding(.top, 4)
+                                        }
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 12)
+                                    
+                                    Divider()
+                                        .padding(.leading, 64)
                                 }
                             }
-                            .padding(.bottom, 8)
                         }
                     }
-                    // 底部信息栏
-                    VStack(alignment: .leading, spacing: 8) {
-                        // 交互按钮
-                        HStack(spacing: 20) {
-                            Spacer().scaledToFit()
-                            
-                            Button(action: {
-                                Task{
-                                    let err = await viewModel.likeStoryBoard(storyId: self.storyId, boardId: (self.board?.boardInfo.storyBoardID)!, userId: self.userId)
-                                }
-                            }) {
-                                VStack {
-                                    Image(systemName: "heart")
-                                        .foregroundColor(.white)
-                                    Text("270")
-                                        .foregroundColor(.white)
-                                        .font(.caption)
-                                }
-                            }
-                            Spacer().scaledToFit()
-                            
-                            Button(action: {
-                                showCommentSheet = true
-                            }) {
-                                VStack {
-                                    Image(systemName: "bubble.left")
-                                        .foregroundColor(.white)
-                                    Text("41")
-                                        .foregroundColor(.white)
-                                        .font(.caption)
-                                }
-                            }
-                            Spacer().scaledToFit()
-                            
-                            Button(action: {
-                                Task{
-                                    let err = await viewModel.likeStoryBoard(storyId: self.storyId, boardId: self.board?.id ?? 0, userId: self.userId)
-                                }
-                            }) {
-                                VStack {
-                                    Image(systemName: "star")
-                                        .foregroundColor(.white)
-                                    Text("94")
-                                        .foregroundColor(.white)
-                                        .font(.caption)
-                                }
-                            }
-                            Spacer().scaledToFit()
-                        }
-                        .padding(.vertical)
-                    }
-                    .background(Color.black.opacity(0.5))
+                    .padding(.top, 16)
                 }
             }
+            
+            // 底部评论输入框
+            HStack(spacing: 12) {
+                TextField("说点什么...", text: $commentText)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(20)
+                
+                Button(action: {
+                    // 图片按钮
+                }) {
+                    Image(systemName: "photo")
+                        .foregroundColor(.gray)
+                }
+                
+                Button(action: {
+                    // @用户按钮
+                }) {
+                    Image(systemName: "at")
+                        .foregroundColor(.gray)
+                }
+                
+                Button(action: {
+                    // 表情按钮
+                }) {
+                    Image(systemName: "face.smiling")
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color(.systemBackground))
+            .overlay(
+                Divider(), alignment: .top
+            )
         }
+        .overlay(
+            // 底部交互按钮
+            VStack {
+                Spacer()
+                HStack(spacing: 32) {
+                    StoryboardDetailInteractionButton(
+                        icon: "heart",
+                        count: "405",
+                        action: {
+                            Task {
+                                await viewModel.likeStoryBoard(
+                                    storyId: storyId,
+                                    boardId: board?.boardActive.storyboard.storyBoardID ?? 0,
+                                    userId: userId
+                                )
+                            }
+                        }
+                    )
+                    
+                    StoryboardDetailInteractionButton(
+                        icon: "bubble.left",
+                        count: "160",
+                        action: { showCommentSheet = true }
+                    )
+                    
+                    StoryboardDetailInteractionButton(
+                        icon: "star",
+                        count: "7",
+                        action: {}
+                    )
+                    
+                    StoryboardDetailInteractionButton(
+                        icon: "square.and.arrow.up",
+                        count: "539",
+                        action: {}
+                    )
+                }
+                .padding(.bottom, 80)
+                .padding(.trailing, 16)
+            }
+            .foregroundColor(.white),
+            alignment: .bottomTrailing
+        )
         .navigationBarHidden(true)
         .sheet(isPresented: $showCommentSheet) {
-            CommentSheetView(storyId: storyId, boardId: board?.boardInfo.storyBoardID ?? 0, userId: self.userId)
+            CommentSheetView(
+                storyId: storyId,
+                boardId: board?.boardActive.storyboard.storyBoardID ?? 0,
+                userId: userId
+            )
+        }
+    }
+    
+    private func formatTimeAgo(timestamp: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: date, relativeTo: Date())
+    }
+}
+
+// 交互按钮组件
+private struct StoryboardDetailInteractionButton: View {
+    let icon: String
+    let count: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 24))
+                Text(count)
+                    .font(.system(size: 12))
+            }
         }
     }
 }
