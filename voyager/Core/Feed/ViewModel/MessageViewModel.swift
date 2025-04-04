@@ -158,7 +158,6 @@ class MessageContextViewModel: ObservableObject{
                 print("MessageContextViewModel init error: ",err as Any)
             }
             await self.loadMessages(userId: userId, roleId: roleId, chatCtxId: self.msgContext.chatID, timestamp: 0)
-            print("init 2",userId,roleId,self.msgContext.chatID)
         }
     }
 
