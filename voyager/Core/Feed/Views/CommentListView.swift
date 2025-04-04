@@ -38,7 +38,7 @@ struct CommentListView: View {
                                     content: commentText
                                 )
                                 if err == nil {
-                                    await viewModel.fetchStoryboardComments(storyboardId: boardId, userId: userId)
+                                    await viewModel.fetchStoryboardComments(storyId: storyId, storyboardId: boardId, userId: userId)
                                 }
                             } else {
                                 let err = await viewModel.submitCommentForStory(
@@ -60,7 +60,7 @@ struct CommentListView: View {
         .onAppear {
             Task {
                 if let boardId = storyboardId {
-                    await viewModel.fetchStoryboardComments(storyboardId: boardId, userId: userId)
+                    await viewModel.fetchStoryboardComments(storyId: storyId, storyboardId: boardId, userId: userId)
                 } else {
                     await viewModel.fetchStoryComments(storyId: storyId, userId: userId)
                 }

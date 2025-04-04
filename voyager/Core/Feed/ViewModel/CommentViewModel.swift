@@ -48,6 +48,7 @@ class CommentsViewModel: ObservableObject {
         self.pageSize = 10
         self.pageNum = self.pageNum + 1
         print("fetchStoryComments success")
+        
         // 将 Common_StoryComment 列表转换为 Comment 列表
         if let storyComments = comments {
             let convertedComments = storyComments.map { storyComment in
@@ -57,13 +58,19 @@ class CommentsViewModel: ObservableObject {
                     commentUser: User(userID: storyComment.creator.userID, name: storyComment.creator.name, avatar: storyComment.creator.avatar)
                 )
             }
+            // 如果是第一页，替换列表；否则追加到现有列表
+            if self.pageNum == 1 || convertedComments.count < 10{
+                self.comments = convertedComments
+            } else {
+                self.comments.append(contentsOf: convertedComments)
+            }
             return (convertedComments, nil)
         }
         
         return (nil, nil)
     }
     
-    func fetchStoryboardComments(storyboardId: Int64, userId: Int64) async -> ([Comment]?, Error?) {
+    func fetchStoryboardComments(storyId: Int64, storyboardId: Int64, userId: Int64) async -> ([Comment]?, Error?) {
         let (comments, total, pageNum, pageSize, err) = await APIClient.shared.GetStoryBoardComments(storyBoardId: storyboardId, user_id: userId, page: self.pageNum, page_size: self.pageSize)
         
         if err != nil {
@@ -82,7 +89,14 @@ class CommentsViewModel: ObservableObject {
                     id: "\(boardComment.commentID)",
                     realComment: boardComment,
                     commentUser: User(userID: boardComment.creator.userID, name: boardComment.creator.name, avatar: boardComment.creator.avatar)
+
                 )
+            }
+            // 如果是第一页，替换列表；否则追加到现有列表
+            if self.pageNum == 1 || convertedComments.count < 10{
+                self.comments = convertedComments
+            } else {
+                self.comments.append(contentsOf: convertedComments)
             }
             return (convertedComments, nil)
         }
