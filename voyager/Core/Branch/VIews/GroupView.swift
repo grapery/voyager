@@ -130,8 +130,7 @@ struct GroupGridItemView: View {
                             .font(.system(size: 15, weight: .medium))
                             .foregroundColor(Color.theme.primaryText)
                             .lineLimit(1)
-                        
-                        Text("\(999) 成员")
+                        Text("\(group.info.profile.groupMemberNum) 成员")
                             .font(.system(size: 12))
                             .foregroundColor(Color.theme.tertiaryText)
                     }
@@ -208,19 +207,14 @@ struct GroupDiscussionCell: View {
                         action: {
                             Task{
                                 print("send sub request")
-                                await self.viewModel.followGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
+                                let err = await self.viewModel.followGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
+                                if err != nil{
+                                    print("followGroup faileld: ",err as Any)
+                                }
                             }
                         }
                     )
-                    
-                    InteractionButton(
-                        icon: "bubble.left",
-                        count: 30,
-                        isActive: false,
-                        action: { 
-                            print("Comment tapped")
-                        }
-                    )
+
                     
                     InteractionButton(
                         icon: "heart",
@@ -234,14 +228,6 @@ struct GroupDiscussionCell: View {
                             }
                         }
                     )
-                    
-                    Spacer()
-                    
-                    Button(action: {}) {
-                        Image(systemName: "square.and.arrow.up")
-                            .foregroundColor(Color.theme.tertiaryText)
-                            .font(.system(size: 14))
-                    }
                 }
                 .padding(.top, 4)
             }

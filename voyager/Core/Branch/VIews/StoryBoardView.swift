@@ -18,6 +18,7 @@ struct StoryBoardView: View {
     @State var viewModel: StoryViewModel
     @Environment(\.presentationMode) var presentationMode
     @State private var commentText = ""
+    @State private var isLiked = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -137,17 +138,22 @@ struct StoryBoardView: View {
                     HStack(spacing: 8) {
                         // 点赞
                         Button(action: {
-                            Task{
-                                await self.viewModel.likeStoryBoard(storyId: self.storyId, boardId: (self.board?.boardActive.storyboard.storyBoardID)!, userId: userId)
+                            Task {
+                                let err = await self.viewModel.likeStoryBoard(storyId: self.storyId, boardId: (self.board?.boardActive.storyboard.storyBoardID)!, userId: userId)
+                                if err != nil {
+                                    withAnimation(.spring()) {
+                                        isLiked = true
+                                        board?.boardActive.totalLikeCount = (board?.boardActive.totalLikeCount ?? 0) + 1
+                                    }
+                                }
                             }
                         }) {
                             HStack(spacing: 4) {
-                                Image(systemName: "heart")
-                                    .foregroundColor(.theme.tertiaryText)
+                                Image(systemName: isLiked ? "heart.fill" : "heart")
+                                    .foregroundColor(isLiked ? .theme.error : .theme.tertiaryText)
                                 Text("\(board?.boardActive.totalLikeCount ?? 0)")
                                     .font(.system(size: 14))
                                     .foregroundColor(.theme.tertiaryText)
-                                
                             }
                         }
                         
@@ -185,6 +191,9 @@ struct StoryBoardView: View {
             }
         }
         .navigationBarHidden(true)
+        .onAppear {
+            isLiked = board?.boardActive.isliked ?? false
+        }
     }
     
     private func formatTimeAgo(timestamp: Int64) -> String {
