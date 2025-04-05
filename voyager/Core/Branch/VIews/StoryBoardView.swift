@@ -133,6 +133,39 @@ struct StoryBoardView: View {
                         }
                         .frame(height: 400)
                     }
+                    // 交互栏
+                    HStack(spacing: 8) {
+                        // 点赞
+                        Button(action: {
+                            // TODO: 处理点赞事件
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "heart")
+                                    .foregroundColor(.theme.tertiaryText)
+                                Text("\(board?.boardActive.totalLikeCount ?? 0)")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.theme.tertiaryText)
+                                
+                            }
+                        }
+                        
+                        // 分支数
+                        Button(action: {
+                            // TODO: 处理查看分支事件
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.triangle.branch")
+                                    .foregroundColor(.theme.tertiaryText)
+                                Text("\(board?.boardActive.totalForkCount ?? 0)")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.theme.tertiaryText)
+                            }
+                        }
+                        
+                        
+                    }
+                    .padding(.horizontal, 16)
+                    
                     Divider()
                     // 评论区域
                     VStack(alignment: .leading, spacing: 8) {
@@ -142,7 +175,7 @@ struct StoryBoardView: View {
                             .foregroundColor(.theme.tertiaryText)
                             .padding(.horizontal, 16)
                     }
-                    .padding(.top, 8)
+                    .padding(.top, 4)
                     // 评论列表
                     CommentListView(storyId: self.storyId, storyboardId: self.board?.boardActive.storyboard.storyBoardID, userId: self.userId)
                 }
