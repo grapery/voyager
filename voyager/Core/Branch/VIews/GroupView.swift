@@ -130,7 +130,13 @@ struct GroupGridItemView: View {
                             .font(.system(size: 15, weight: .medium))
                             .foregroundColor(Color.theme.primaryText)
                             .lineLimit(1)
-                        Text("\(group.info.profile.groupMemberNum) 成员")
+                        Text("\(group.info.profile.groupMemberNum) 个成员")
+                            .font(.system(size: 12))
+                            .foregroundColor(Color.theme.tertiaryText)
+                        Text("\(group.info.profile.groupStoryNum) 个故事")
+                            .font(.system(size: 12))
+                            .foregroundColor(Color.theme.tertiaryText)
+                        Text("\(group.info.profile.groupFollowerNum) 个关注者")
                             .font(.system(size: 12))
                             .foregroundColor(Color.theme.tertiaryText)
                     }
@@ -182,11 +188,7 @@ struct GroupDiscussionCell: View {
                         Text(group.info.name)
                             .font(.system(size: 15, weight: .medium))
                             .foregroundColor(Color.theme.primaryText)
-                        Text("成员: \(999)")
-                            .font(.system(size: 12))
-                            .foregroundColor(Color.theme.tertiaryText)
                     }
-                    
                     Spacer()
                 }
                 
@@ -202,7 +204,7 @@ struct GroupDiscussionCell: View {
                 HStack(spacing: 24) {
                     InteractionButton(
                         icon: "bell",
-                        count: 20,
+                        count: Int(group.info.profile.groupFollowerNum),
                         isActive: false,
                         action: {
                             Task{
@@ -217,15 +219,18 @@ struct GroupDiscussionCell: View {
 
                     
                     InteractionButton(
-                        icon: "heart",
-                        count: 40,
+                        icon: "book",
+                        count: Int(group.info.profile.groupMemberNum),
                         isActive: false,
                         action: {
-                            print("Heart tapped")
-                            Task{
-                                print("send like request")
-                                await viewModel.likeGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
-                            }
+                        }
+                    )
+                    
+                    InteractionButton(
+                        icon: "person",
+                        count: Int(group.info.profile.groupStoryNum),
+                        isActive: false,
+                        action: {
                         }
                     )
                 }

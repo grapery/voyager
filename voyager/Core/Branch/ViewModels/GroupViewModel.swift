@@ -104,22 +104,6 @@ class GroupViewModel: ObservableObject {
         }
         return nil
     }
-    
-    func likeGroup(userId:Int64,groupId:Int64)async -> Error?{
-        let err = await APIClient.shared.followGroup(userId: userId, groupID: groupId)
-        if err != nil {
-            return err
-        }
-        return nil
-    }
-    
-    func unlikeGroup(userId:Int64,groupId:Int64)async -> Error?{
-        let err = await APIClient.shared.unfollowGroup(userId: userId, groupId: groupId)
-        if err != nil {
-            return err
-        }
-        return nil
-    }
 }
 
 class GroupDetailViewModel: ObservableObject {
