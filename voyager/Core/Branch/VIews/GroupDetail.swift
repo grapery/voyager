@@ -58,7 +58,7 @@ struct GroupDetailView: View {
                             KFImage(URL(string: group?.info.avatar ?? defaultAvator))
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .frame(height: 220)
+                                .frame(height: 220)  // 减小头部区域高度
                                 .clipped()
                                 .overlay(
                                     LinearGradient(
@@ -84,115 +84,102 @@ struct GroupDetailView: View {
                                     }
                                     
                                     Spacer()
-                                    
-                                    // Action Buttons
-                                    HStack(spacing: 12) {
-                                        // Create Story Button
-                                        Button(action: { showNewStoryView = true }) {
-                                            Image(systemName: "plus")
-                                                .foregroundColor(.white)
-                                                .padding(8)
-                                                .background(Color.theme.accent)
-                                                .clipShape(Circle())
-                                        }
-                                        
-                                        // Settings Button
-                                        Button(action: { showUpdateGroupView = true }) {
-                                            Image(systemName: "gearshape")
-                                                .foregroundColor(.white)
-                                                .padding(8)
-                                                .background(Color.theme.secondary.opacity(0.3))
-                                                .clipShape(Circle())
-                                        }
+
+                                    // Settings Button
+                                    Button(action: { showUpdateGroupView = true }) {
+                                        Image(systemName: "gearshape")
+                                            .foregroundColor(.white)
+                                            .frame(width: 32, height: 32)
+                                            .background(Color.theme.secondary.opacity(0.3))
+                                            .clipShape(Circle())
                                     }
                                 }
                                 .padding(.horizontal, 16)
                                 .padding(.top, 8)
                                 
-                                Spacer()
-                                
-                                // Group Info Content
-                                VStack(alignment: .leading, spacing: 16) {
-                                    // Group Avatar and Basic Info
-                                    Button(action: { showUpdateGroupView = true }) {
-                                        HStack(spacing: 16) {
+                                // Main Content Area
+                                HStack(alignment: .top, spacing: 8) {  // 减小主要内容区域的间距
+                                    // Left Side: Group Info
+                                    VStack(alignment: .leading, spacing: 12) {  // 减小垂直间距
+                                        // Group Avatar and Name
+                                        HStack(spacing: 12) {  // 减小水平间距
                                             // Group Avatar
                                             KFImage(URL(string: group?.info.avatar ?? defaultAvator))
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fill)
-                                                .frame(width: 80, height: 80)
+                                                .frame(width: 72, height: 72)  // 稍微减小头像尺寸
                                                 .clipShape(Circle())
                                                 .overlay(Circle().stroke(Color.white, lineWidth: 2))
                                             
                                             // Group Name and Stats
-                                            VStack(alignment: .leading, spacing: 6) {
+                                            VStack(alignment: .leading, spacing: 8) {  // 减小垂直间距
                                                 Text(group?.info.name ?? "")
-                                                    .font(.title2)
+                                                    .font(.title3)  // 减小字体大小
                                                     .fontWeight(.bold)
                                                     .foregroundColor(.white)
                                                 
                                                 // Stats Row
-                                                HStack(spacing: 20) {
+                                                VStack(alignment: .leading, spacing: 4) {  // 减小统计信息间距
                                                     // Stories Count
                                                     HStack(spacing: 4) {
                                                         Image(systemName: "book.fill")
-                                                        Text("\(group?.info.profile.groupStoryNum ?? 0)")
-                                                        Text("故事")
+                                                            .foregroundColor(.white.opacity(0.9))
+                                                        Text("\(group?.info.profile.groupStoryNum ?? 0) 故事")
+                                                            .foregroundColor(.white.opacity(0.9))
                                                     }
-                                                    .font(.system(size: 14))
+                                                    .font(.system(size: 12))
                                                     
-                                                    // Members Count (Tappable)
-                                                    Button(action: {
-                                                        // Navigate to members list
-                                                    }) {
-                                                        HStack(spacing: 4) {
-                                                            Image(systemName: "person.2.fill")
-                                                            Text("\(group?.info.profile.groupMemberNum ?? 0)")
-                                                            Text("成员")
-                                                        }
+                                                    // Members Count
+                                                    HStack(spacing: 4) {
+                                                        Image(systemName: "person.2.fill")
+                                                            .foregroundColor(.white.opacity(0.9))
+                                                        Text("\(group?.info.profile.groupMemberNum ?? 0) 成员")
+                                                            .foregroundColor(.white.opacity(0.9))
                                                     }
-                                                    .font(.system(size: 14))
+                                                    .font(.system(size: 12))
                                                     
                                                     // Followers Count
                                                     HStack(spacing: 4) {
                                                         Image(systemName: "heart.fill")
-                                                        Text("\(group?.info.profile.groupFollowerNum ?? 0)")
-                                                        Text("关注")
+                                                            .foregroundColor(.white.opacity(0.9))
+                                                        Text("\(group?.info.profile.groupFollowerNum ?? 0) 关注")
+                                                            .foregroundColor(.white.opacity(0.9))
                                                     }
-                                                    .font(.system(size: 14))
+                                                    .font(.system(size: 12))
                                                 }
-                                                .foregroundColor(.white.opacity(0.9))
                                             }
                                         }
                                     }
-                                     // Group Description
-                                    if let desc = group?.info.desc, !desc.isEmpty {
-                                        Text(desc)
-                                            .font(.system(size: 15))
-                                            .foregroundColor(.white)
-                                            .lineLimit(3)
-                                            .padding(.horizontal, 16)
-                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)  // 确保左侧内容占据可用空间
                                     
-                                    // Action Buttons Row
-                                    HStack(spacing: 12) {
+                                    // Right Side: Action Buttons Column
+                                    VStack(spacing: 4) {  // 减小按钮间距
+                                        // Create Story Button
+                                        Button(action: { showNewStoryView = true }) {
+                                            Image(systemName: "plus")
+                                                .foregroundColor(.white)
+                                                .frame(width: 32, height: 32)  // 减小按钮尺寸
+                                                .background(Color.theme.accent)
+                                                .clipShape(Circle())
+                                        }
+                                        
+                                        
+                                        
                                         // Join/Leave Button
                                         Button(action: {
                                             Task {
                                                 if group?.info.currentUserStatus.isJoined == false {
                                                     await viewModel.JoinGroup(groupdId: group?.info.groupID ?? 0)
-                                                }else{
+                                                } else {
                                                     await viewModel.LeaveGroup(groupdId: group?.info.groupID ?? 0)
                                                 }
                                             }
                                         }) {
-                                            Text(group?.info.currentUserStatus.isJoined ?? false ? "已加入" : "加入小组")
-                                                .font(.system(size: 14, weight: .medium))
-                                                .foregroundColor(group?.info.currentUserStatus.isJoined ?? false ? Color.theme.tertiaryText : .white)
-                                                .frame(maxWidth: .infinity)
-                                                .padding(.vertical, 8)
+                                            Image(systemName: group?.info.currentUserStatus.isJoined ?? false ? "person.badge.minus" : "person.badge.plus")
+                                                .foregroundColor(.white)
+                                                .frame(width: 32, height: 32)
                                                 .background(group?.info.currentUserStatus.isJoined ?? false ? Color.theme.tertiaryBackground : Color.theme.accent)
-                                                .clipShape(Capsule())
+                                                .clipShape(Circle())
                                         }
                                         
                                         // Follow Button
@@ -200,25 +187,24 @@ struct GroupDetailView: View {
                                             Task {
                                                 if group?.info.currentUserStatus.isFollowed == false {
                                                     await viewModel.unFollowGroup(userId: user.userID, groupId: group?.info.groupID ?? 0)
-                                                }else{
+                                                } else {
                                                     await viewModel.followGroup(userId: user.userID, groupId: group?.info.groupID ?? 0)
                                                 }
-                                                
                                             }
                                         }) {
-                                            Text(group?.info.currentUserStatus.isFollowed ?? false ? "已关注" : "关注")
-                                                .font(.system(size: 14, weight: .medium))
-                                                .foregroundColor(group?.info.currentUserStatus.isFollowed ?? false ? Color.theme.tertiaryText : .white)
-                                                .frame(maxWidth: .infinity)
-                                                .padding(.vertical, 8)
+                                            Image(systemName: group?.info.currentUserStatus.isFollowed ?? false ? "heart.fill" : "heart")
+                                                .foregroundColor(.white)
+                                                .frame(width: 32, height: 32)
                                                 .background(group?.info.currentUserStatus.isFollowed ?? false ? Color.theme.tertiaryBackground : Color.theme.primary)
-                                                .clipShape(Capsule())
+                                                .clipShape(Circle())
                                         }
                                     }
-                                    .padding(.horizontal, 16)
-                        
+                                    .padding(.trailing, 12)  // 减小右侧边距
                                 }
-                                .padding(.bottom, 20)
+                                .padding(.horizontal, 16)
+                                .padding(.top, 12)  // 减小顶部边距
+                                
+                                Spacer()
                             }
                         }
                         
