@@ -137,7 +137,9 @@ struct StoryBoardView: View {
                     HStack(spacing: 8) {
                         // 点赞
                         Button(action: {
-                            // TODO: 处理点赞事件
+                            Task{
+                                await self.viewModel.likeStoryBoard(storyId: self.storyId, boardId: (self.board?.boardActive.storyboard.storyBoardID)!, userId: userId)
+                            }
                         }) {
                             HStack(spacing: 4) {
                                 Image(systemName: "heart")
@@ -152,6 +154,7 @@ struct StoryBoardView: View {
                         // 分支数
                         Button(action: {
                             // TODO: 处理查看分支事件
+                            
                         }) {
                             HStack(spacing: 4) {
                                 Image(systemName: "arrow.triangle.branch")

@@ -7,6 +7,7 @@ struct CommentListView: View {
     let userId: Int64
     @StateObject private var viewModel = CommentsViewModel()
     @State private var commentText = ""
+    @State private var isLoadingMore = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -14,12 +15,41 @@ struct CommentListView: View {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(viewModel.comments) { comment in
-                        CommentItemView(comment: comment)
+                        CommentItemView(comment: comment, userId: userId, viewModel: viewModel)
                         
                         if comment.id != viewModel.comments.last?.id {
                             Divider()
                                 .padding(.leading, 64)
                         }
+                    }
+                    
+                    // 加载更多按钮
+                    if viewModel.hasMoreComments {
+                        Button(action: {
+                            Task {
+                                isLoadingMore = true
+                                if let boardId = storyboardId {
+                                    await viewModel.fetchStoryboardComments(storyId: storyId, storyboardId: boardId, userId: userId)
+                                } else {
+                                    await viewModel.fetchStoryComments(storyId: storyId, userId: userId)
+                                }
+                                isLoadingMore = false
+                            }
+                        }) {
+                            HStack {
+                                if isLoadingMore {
+                                    ProgressView()
+                                        .scaleEffect(0.8)
+                                } else {
+                                    Text("加载更多评论")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.theme.tertiaryText)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                        }
+                        .disabled(isLoadingMore)
                     }
                 }
             }
@@ -38,6 +68,8 @@ struct CommentListView: View {
                                     content: commentText
                                 )
                                 if err == nil {
+                                    // 重置页码并重新加载第一页
+                                    viewModel.resetPagination()
                                     await viewModel.fetchStoryboardComments(storyId: storyId, storyboardId: boardId, userId: userId)
                                 }
                             } else {
@@ -48,6 +80,8 @@ struct CommentListView: View {
                                     prevId: 0
                                 )
                                 if err == nil {
+                                    // 重置页码并重新加载第一页
+                                    viewModel.resetPagination()
                                     await viewModel.fetchStoryComments(storyId: storyId, userId: userId)
                                 }
                             }
@@ -59,6 +93,8 @@ struct CommentListView: View {
         }
         .onAppear {
             Task {
+                // 重置页码并加载第一页
+                viewModel.resetPagination()
                 if let boardId = storyboardId {
                     await viewModel.fetchStoryboardComments(storyId: storyId, storyboardId: boardId, userId: userId)
                 } else {
@@ -72,7 +108,17 @@ struct CommentListView: View {
 // 单个评论项视图
 private struct CommentItemView: View {
     let comment: Comment
-    @State private var isLiked = false
+    @State private var isLiked: Bool
+    let userId: Int64
+    @ObservedObject var viewModel: CommentsViewModel
+    
+    init(comment: Comment, userId: Int64, viewModel: CommentsViewModel) {
+        self.comment = comment
+        self.userId = userId
+        self.viewModel = viewModel
+        // 初始化点赞状态
+        _isLiked = State(initialValue: (comment.realComment.isLiked != 0))
+    }
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -92,9 +138,9 @@ private struct CommentItemView: View {
                     
                     Spacer()
                     
-//                    Text(formatTimeAgo(timestamp: comment.realComment.ctime))
-//                        .font(.system(size: 12))
-//                        .foregroundColor(.theme.tertiaryText)
+                    Text(formatTimeAgo(timestamp: comment.realComment.createdAt))
+                        .font(.system(size: 12))
+                        .foregroundColor(.theme.tertiaryText)
                 }
                 
                 // 评论内容
@@ -104,7 +150,16 @@ private struct CommentItemView: View {
                 
                 // 评论操作栏
                 HStack(spacing: 16) {
-                    Button(action: { isLiked.toggle() }) {
+                    Button(action: {
+                        Task {
+                            isLiked.toggle()
+                            if isLiked {
+                                await viewModel.likeComments(userId: userId, commentId: comment.realComment.commentID)
+                            } else {
+                                await viewModel.dislikeComment(userId: userId, commentId: comment.realComment.commentID)
+                            }
+                        }
+                    }) {
                         HStack(spacing: 4) {
                             Image(systemName: isLiked ? "heart.fill" : "heart")
                                 .font(.system(size: 12))
@@ -112,6 +167,7 @@ private struct CommentItemView: View {
                                 .font(.system(size: 12))
                         }
                         .foregroundColor(isLiked ? .theme.error : .theme.tertiaryText)
+                        .animation(.easeInOut(duration: 0.2), value: isLiked)
                     }
                     
                     Button(action: {}) {

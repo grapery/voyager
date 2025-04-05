@@ -9,12 +9,17 @@ import Foundation
 
 @MainActor
 class CommentsViewModel: ObservableObject {
-    var pageSize: Int64
-    var pageNum: Int64
-    @Published var comments = [Comment]()
-    init() {
-        self.pageSize = 10
-        self.pageNum = 0
+    @Published var comments: [Comment] = []
+    @Published var hasMoreComments = false
+    private var pageNum: Int = 1
+    private var pageSize: Int = 10
+    private var totalCount: Int = 0
+    
+    func resetPagination() {
+        pageNum = 1
+        comments = []
+        hasMoreComments = false
+        totalCount = 0
     }
     
     func submitCommentForStory(storyId: Int64,userId:Int64,content: String,prevId:Int64) async -> Error?{
@@ -46,8 +51,7 @@ class CommentsViewModel: ObservableObject {
         }
         
         self.pageSize = 10
-        self.pageNum = self.pageNum + 1
-        print("fetchStoryComments success")
+        self.totalCount = Int(total!)
         
         // 将 Common_StoryComment 列表转换为 Comment 列表
         if let storyComments = comments {
@@ -58,12 +62,22 @@ class CommentsViewModel: ObservableObject {
                     commentUser: User(userID: storyComment.creator.userID, name: storyComment.creator.name, avatar: storyComment.creator.avatar)
                 )
             }
+            
             // 如果是第一页，替换列表；否则追加到现有列表
-            if self.pageNum == 1 || convertedComments.count < 10{
+            if self.pageNum == 1 {
                 self.comments = convertedComments
             } else {
                 self.comments.append(contentsOf: convertedComments)
             }
+            
+            // 检查是否还有更多评论
+            self.hasMoreComments = self.comments.count < self.totalCount
+            
+            // 更新页码
+            if !convertedComments.isEmpty {
+                self.pageNum += 1
+            }
+            
             return (convertedComments, nil)
         }
         
@@ -71,7 +85,7 @@ class CommentsViewModel: ObservableObject {
     }
     
     func fetchStoryboardComments(storyId: Int64, storyboardId: Int64, userId: Int64) async -> ([Comment]?, Error?) {
-        let (comments, total, pageNum, pageSize, err) = await APIClient.shared.GetStoryBoardComments(storyBoardId: storyboardId, user_id: userId, page: self.pageNum, page_size: self.pageSize)
+        let (comments, total, pageNum, pageSize, err) = await APIClient.shared.GetStoryBoardComments(storyBoardId: storyboardId, user_id: userId, page: Int64(self.pageNum), page_size: Int64(self.pageSize))
         
         if err != nil {
             print("fetchStoryboardComments failed: ", err!)
@@ -79,8 +93,7 @@ class CommentsViewModel: ObservableObject {
         }
         
         self.pageSize = 10
-        self.pageNum = self.pageNum + 1
-        print("fetchStoryboardComments success")
+        self.totalCount = Int(total!)
         
         // 将 Common_StoryComment 列表转换为 Comment 列表
         if let boardComments = comments {
@@ -89,15 +102,24 @@ class CommentsViewModel: ObservableObject {
                     id: "\(boardComment.commentID)",
                     realComment: boardComment,
                     commentUser: User(userID: boardComment.creator.userID, name: boardComment.creator.name, avatar: boardComment.creator.avatar)
-
                 )
             }
+            
             // 如果是第一页，替换列表；否则追加到现有列表
-            if self.pageNum == 1 || convertedComments.count < 10{
+            if self.pageNum == 1 {
                 self.comments = convertedComments
             } else {
                 self.comments.append(contentsOf: convertedComments)
             }
+            
+            // 检查是否还有更多评论
+            self.hasMoreComments = self.comments.count < self.totalCount
+            
+            // 更新页码
+            if !convertedComments.isEmpty {
+                self.pageNum += 1
+            }
+            
             return (convertedComments, nil)
         }
         
