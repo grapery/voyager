@@ -129,33 +129,6 @@ struct StoryDetailView: View {
             Stat(title: "Shares", value: viewModel.shares)
         }
     }
-
-    private var configurationSection: some View {
-        VStack(alignment: .leading) {
-            Text("配置信息")
-                .font(.headline)
-            if isEditing {
-                TextEditor(text: Binding(
-                    get: { story.storyInfo.params.background },
-                    set: { story.storyInfo.params.background = $0 }
-                ))
-                .frame(height: 150)
-                .border(Color.gray.opacity(0.2))
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-            } else {
-                Text(story.storyInfo.params.background)
-            }
-            HStack {
-                ForEach(["角色", "游戏", "画图", "工具"], id: \.self) { tag in
-                    Text(tag)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(15)
-                }
-            }
-        }
-    }
     
     private var storyDetails: some View {
         VStack(alignment: .leading, spacing: 8) {

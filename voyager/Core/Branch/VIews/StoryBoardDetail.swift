@@ -35,6 +35,7 @@ struct StoryBoardCellView: View {
     @ObservedObject var viewModel: StoryViewModel
     @State private var isLiked = false
     @State private var showDetail = false
+    @State private var showStoryBoard = false  // 控制全屏展示
     
     // 添加评论相关状态
     @State private var commentText: String = ""
@@ -190,7 +191,7 @@ struct StoryBoardCellView: View {
                     count: "\(board.boardActive.totalCommentCount)",
                     color: Color.theme.tertiaryText,
                     action: {
-                        showDetail = true
+                        showStoryBoard = true
                     }
                 )
                 
@@ -211,6 +212,15 @@ struct StoryBoardCellView: View {
         .padding(16)
         .background(Color.theme.secondaryBackground)
         .cornerRadius(16)
+        .fullScreenCover(isPresented: $showStoryBoard) {
+            StoryBoardView(
+                board: board,
+                userId: userId,
+                groupId: groupId,
+                storyId: storyId,
+                viewModel: viewModel
+            )
+        }
         Divider()
     }
     
