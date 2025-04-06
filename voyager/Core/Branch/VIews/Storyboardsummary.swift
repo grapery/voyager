@@ -115,9 +115,6 @@ private struct StoryboardContentView: View {
                     storyboard: storyboard,
                     dismiss: dismiss
                 )
-                
-                StoryboardStatsView(storyboard: storyboard)
-                
                 StoryboardSummaryDetailsView(
                     storyboard: storyboard,
                     userId: userId,
@@ -142,16 +139,23 @@ private struct StoryboardHeaderView: View {
                     .imageScale(.large)
             }
             
-            VStack(alignment: .leading, spacing: 4) {
-                Text(storyboard.boardActive.storyboard.title)
-                    .font(.system(size: 18, weight: .bold))
+            // 用户信息
+            HStack(spacing: 8) {
+                // 故事头像
+                KFImage(URL(string: storyboard.boardActive.summary.storyAvatar))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 32, height: 32)
+                    .clipShape(Circle())
+                Text(storyboard.boardActive.summary.storyTitle)
+                    .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.theme.primaryText)
             }
             
             Spacer()
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 8)
     }
 }
 
@@ -172,17 +176,17 @@ private struct StoryboardStatsView: View {
             StatItem(
                 count: Int(storyboard.boardActive.totalCommentCount),
                 title: "评论",
-                icon: "heart.fill"
+                icon: "bubble.left"
             )
             
             // 总分支数
             StatItem(
                 count: Int(storyboard.boardActive.totalForkCount),
                 title: "分支",
-                icon: "heart.fill"
+                icon: "arrow.triangle.branch"
             )
         }
-        .padding(.vertical, 16)
+        .padding(.vertical, 8)
         .background(Color.theme.secondaryBackground)
     }
 }
@@ -195,12 +199,14 @@ private struct StoryboardSummaryDetailsView: View {
     @Binding var currentSceneIndex: Int
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 8) {
             // 故事板标题和内容
-            Text(storyboard.boardActive.storyboard.title)
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(.theme.primaryText)
-                .padding(.horizontal, 16)
+            HStack{
+                Text(storyboard.boardActive.storyboard.title)
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(.theme.primaryText)
+            }
+            .padding(.horizontal, 16)
             
             Text(storyboard.boardActive.storyboard.content)
                 .font(.system(size: 14))
@@ -212,13 +218,40 @@ private struct StoryboardSummaryDetailsView: View {
                 scenes: storyboard.boardActive.storyboard.sences.list,
                 currentIndex: $currentSceneIndex
             )
+            .padding(.horizontal, 16)
             
-            // 交互按钮
-            InteractionButtonsView(
-                storyboard: storyboard,
-                userId: userId,
-                viewModel: viewModel
-            )
+            HStack(spacing: 8) {
+                // 交互按钮
+                InteractionButtonsView(
+                    storyboard: storyboard,
+                    userId: userId,
+                    viewModel: viewModel
+                )
+                
+                Spacer()
+                
+                // 创建者信息区域
+                HStack(alignment: .center, spacing: 8) {
+                    Label("创建者:", systemImage: "person.circle")
+                        .font(.system(size: 12))
+                        .foregroundColor(.theme.secondaryText)
+                    
+                    KFImage(URL(string: storyboard.boardActive.creator.userAvatar))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 24, height: 24)
+                        .clipShape(Circle())
+                    
+                    Text("\(storyboard.boardActive.creator.userName)")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.theme.primaryText)
+                        .lineLimit(1)
+                }
+            }
+            .padding(.horizontal, 16)
+            
+            Divider()
+                .padding(.vertical, 4)
             
             // 评论列表
             CommentListView(
@@ -227,7 +260,7 @@ private struct StoryboardSummaryDetailsView: View {
                 userId: userId
             )
         }
-        .padding(.top, 16)
+        .padding(.top, 12)
     }
 }
 
@@ -259,7 +292,7 @@ private struct ScenesListView: View {
                         }
                     }
                     .padding(.horizontal)
-                    .padding(.bottom, 8)
+                    .padding(.bottom, 4)
                     
                     // 场景描述
                     let scene = scenes[currentIndex]
@@ -267,7 +300,7 @@ private struct ScenesListView: View {
                         .font(.system(size: 14))
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
-                        .padding(.bottom, 16)
+                        .padding(.bottom, 12)
                         .lineLimit(2)
                 }
                 .background(
@@ -299,6 +332,7 @@ private struct SceneView: View {
                 .aspectRatio(contentMode: .fill)
                 .frame(maxWidth: .infinity)
                 .frame(height: 400)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
                 .clipped()
         }
     }

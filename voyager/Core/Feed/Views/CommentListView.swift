@@ -121,7 +121,7 @@ private struct CommentItemView: View {
     }
     
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: 6) {
             // 用户头像
             KFImage(URL(string: comment.commentUser.avatar))
                 .placeholder { CommentAvatarPlaceholder() }
