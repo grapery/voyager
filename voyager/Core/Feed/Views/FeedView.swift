@@ -160,13 +160,13 @@ private struct FeedItemCard: View {
     let storyBoardActive: Common_StoryBoardActive
     let userId: Int64
     @ObservedObject var viewModel: FeedViewModel
-    @State private var showComments = false
+    @State private var showStoryboardSummary = false
     let sceneMediaContents: [SceneMediaContent]
     init(storyBoardActive: Common_StoryBoardActive?=nil, userId: Int64, viewModel: FeedViewModel) {
         self.storyBoardActive = storyBoardActive!
         self.userId = userId
         self.viewModel = viewModel
-        self.showComments = false
+        self.showStoryboardSummary = false
         var tempSceneContents: [SceneMediaContent] = []
         let scenes = storyBoardActive!.storyboard.sences.list
         for scene in scenes {
@@ -196,108 +196,110 @@ private struct FeedItemCard: View {
             }
         }
         self.sceneMediaContents = tempSceneContents
-        print("self.sceneMediaContents: ",self.sceneMediaContents as Any)
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // 顶部信息：创建者和故事信息
-            HStack(spacing: 8) {
-                // 故事缩略图和名称
-                HStack(spacing: 4) {
-                    KFImage(URL(string: storyBoardActive.summary.storyAvatar))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 32, height: 32)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
+            Button(action: {
+                showStoryboardSummary = true
+            }) {
+                VStack(alignment: .leading, spacing: 12) {
+                    // 顶部信息：创建者和故事信息
+                    HStack(spacing: 8) {
+                        // 故事缩略图和名称
+                        HStack(spacing: 4) {
+                            KFImage(URL(string: storyBoardActive.summary.storyAvatar))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 32, height: 32)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
+                            
+                            Text(storyBoardActive.summary.storyTitle)
+                                .font(.system(size: 14))
+                                .foregroundColor(Color.theme.accent)
+                            Text("@")
+                                .foregroundColor(Color.theme.tertiaryText)
+                            // 创建者头像
+                            KFImage(URL(string: storyBoardActive.creator.userAvatar))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 20, height: 20)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
+                            
+                            Text(storyBoardActive.creator.userName)
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(Color.theme.primaryText)
+                        }
+                        
+                        Spacer()
+                        
+                        // 发布时间
+                        Text(formatTimeAgo(timestamp: storyBoardActive.storyboard.ctime))
+                            .font(.system(size: 12))
+                            .foregroundColor(Color.theme.tertiaryText)
+                    }
+                    .padding(.horizontal)
                     
-                    Text(storyBoardActive.summary.storyTitle)
-                        .font(.system(size: 14))
-                        .foregroundColor(Color.theme.accent)
-                    Text("@")
-                        .foregroundColor(Color.theme.tertiaryText)
-                    // 创建者头像
-                    KFImage(URL(string: storyBoardActive.creator.userAvatar))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 20, height: 20)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
-                    
-                    Text(storyBoardActive.creator.userName)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color.theme.primaryText)
-                }
-                
-                Spacer()
-                
-                // 发布时间
-                Text(formatTimeAgo(timestamp: storyBoardActive.storyboard.ctime))
-                    .font(.system(size: 12))
-                    .foregroundColor(Color.theme.tertiaryText)
-            }
-            .padding(.horizontal)
-            
-            // 故事板内容
-            VStack(alignment: .leading, spacing: 8) {
-                Text(storyBoardActive.storyboard.content)
-                    .font(.system(size: 15))
-                    .foregroundColor(Color.theme.primaryText)
-                    .lineLimit(3)
-                if !self.sceneMediaContents.isEmpty {
-                    VStack(alignment: .leading, spacing: 2) {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 2) {
-                                ForEach(self.sceneMediaContents, id: \.id) { sceneContent in
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        // 场景图片（取第一张）
-                                        if let firstMedia = sceneContent.mediaItems.first {
-                                            KFImage(firstMedia.url)
-                                                .placeholder {
-                                                    Rectangle()
-                                                        .fill(Color.theme.tertiaryBackground)
-                                                        .overlay(
-                                                            ProgressView()
-                                                                .progressViewStyle(CircularProgressViewStyle())
-                                                        )
+                    // 故事板内容
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(storyBoardActive.storyboard.content)
+                            .font(.system(size: 15))
+                            .foregroundColor(Color.theme.primaryText)
+                            .lineLimit(3)
+                        if !self.sceneMediaContents.isEmpty {
+                            VStack(alignment: .leading, spacing: 2) {
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 2) {
+                                        ForEach(self.sceneMediaContents, id: \.id) { sceneContent in
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                // 场景图片（取第一张）
+                                                if let firstMedia = sceneContent.mediaItems.first {
+                                                    KFImage(firstMedia.url)
+                                                        .placeholder {
+                                                            Rectangle()
+                                                                .fill(Color.theme.tertiaryBackground)
+                                                                .overlay(
+                                                                    ProgressView()
+                                                                        .progressViewStyle(CircularProgressViewStyle())
+                                                                )
+                                                        }
+                                                        .resizable()
+                                                        .aspectRatio(contentMode: .fill)
+                                                        .frame(width: 140, height: 200)
+                                                        .clipped()
+                                                        .cornerRadius(6)
+                                                        .contentShape(Rectangle())
+                                                        .onTapGesture {
+                                                            print("Tapped scene: \(sceneContent.sceneTitle)")
+                                                        }
                                                 }
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(width: 140, height: 200)
-                                                .clipped()
-                                                .cornerRadius(6)
-                                                .contentShape(Rectangle())
-                                                .onTapGesture {
-                                                    print("Tapped scene: \(sceneContent.sceneTitle)")
-                                                }
+                                                
+                                                // 场景标题
+                                                Text(sceneContent.sceneTitle)
+                                                    .font(.system(size: 12))
+                                                    .foregroundColor(Color.theme.secondaryText)
+                                                    .lineLimit(2)
+                                                    .frame(width: 140)
+                                            }
                                         }
-                                        
-                                        // 场景标题
-                                        Text(sceneContent.sceneTitle)
-                                            .font(.system(size: 12))
-                                            .foregroundColor(Color.theme.secondaryText)
-                                            .lineLimit(2)
-                                            .frame(width: 140)
                                     }
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
                                 }
                             }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
                         }
                     }
+                    .padding(.horizontal)
                 }
-                
-                
             }
-            .padding(.horizontal)
+            .buttonStyle(PlainButtonStyle())
             
             // 交互按钮
             HStack(spacing: 24) {
                 // 评论按钮
                 Button(action: {
-                    showComments = true
-                    print("comments button taped")
                 }) {
                     HStack(spacing: 4) {
                         Image(systemName: "bubble.left")
@@ -313,9 +315,9 @@ private struct FeedItemCard: View {
                     print("like button taped: ",storyBoardActive.isliked)
                     Task {
                         if storyBoardActive.isliked {
-                            await viewModel.unlikeStoryBoard(storyBoardId: storyBoardActive.storyboard.storyBoardID)
+                            await viewModel.unlikeStoryBoard(storyId:storyBoardActive.storyboard.storyID, boardId: storyBoardActive.storyboard.storyBoardID,userId: self.userId)
                         } else {
-                            await viewModel.likeStoryBoard(storyBoardId: storyBoardActive.storyboard.storyBoardID)
+                            await viewModel.likeStoryBoard(storyId:storyBoardActive.storyboard.storyID,boardId: storyBoardActive.storyboard.storyBoardID,userId: self.userId)
                         }
                     }
                 }) {
@@ -349,109 +351,16 @@ private struct FeedItemCard: View {
                 .stroke(Color.theme.border, lineWidth: 0.5)
         )
         .shadow(color: Color.theme.primaryText.opacity(0.05), radius: 4, y: 2)
-        .sheet(isPresented: $showComments) {
-            CommentsView(
+        .fullScreenCover(isPresented: $showStoryboardSummary) {
+            StoryboardSummary(
                 storyBoardId: storyBoardActive.storyboard.storyBoardID,
                 userId: userId,
-                viewModel: viewModel
+                viewModel: self.viewModel
             )
         }
     }
 }
 
-// 评论视图
-struct CommentsView: View {
-    let storyBoardId: Int64
-    let userId: Int64
-    @ObservedObject var viewModel: FeedViewModel
-    @Environment(\.dismiss) private var dismiss
-    @State private var commentText = ""
-    @State private var isLoading = false
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                // 评论列表
-                ScrollView {
-                    LazyVStack(spacing: 16) {
-                        ForEach(viewModel.comments) { comment in
-                            CommentCell(comment: comment)
-                        }
-                    }
-                    .padding()
-                }
-                
-                // 评论输入框
-                HStack {
-                    TextField("添加评论...", text: $commentText)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding(.horizontal)
-                    
-                    Button(action: {
-                        Task {
-                            await sendComment()
-                        }
-                    }) {
-                        Text("发送")
-                            .foregroundColor(.blue)
-                    }
-                    .padding(.trailing)
-                    .disabled(commentText.isEmpty || isLoading)
-                }
-                .padding(.vertical, 8)
-                .background(Color(.systemBackground))
-                .shadow(radius: 2)
-            }
-            .navigationTitle("评论")
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarItems(leading: Button("关闭") {
-                dismiss()
-            })
-            .onAppear {
-                Task {
-                    await viewModel.fetchComments(storyBoardId: storyBoardId)
-                }
-            }
-        }
-    }
-    
-    private func sendComment() async {
-        guard !commentText.isEmpty else { return }
-        isLoading = true
-        await viewModel.addComment(storyBoardId: storyBoardId, content: commentText)
-        commentText = ""
-        isLoading = false
-    }
-}
-
-// 评论单元格
-struct CommentCell: View {
-    let comment: Comment
-    
-    var body: some View {
-        HStack(alignment: .top, spacing: 8) {
-            KFImage(URL(string: comment.commentUser.avatar))
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 32, height: 32)
-                .clipShape(Circle())
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(comment.commentUser.name)
-                    .font(.system(size: 14, weight: .medium))
-                
-                Text(comment.realComment.content)
-                    .font(.system(size: 14))
-                
-               Text(formatTimeAgo(timestamp: comment.realComment.createdAt))
-                   .font(.system(size: 12))
-                   .foregroundColor(.gray)
-            }
-            
-            Spacer()
-        }
-    }
-}
 
 // 优化搜索栏组件
 struct SearchBar: View {

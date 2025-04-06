@@ -181,32 +181,32 @@ extension APIClient {
         }
     }
     
-    func GetStoryboard(boardId: Int64) async -> (StoryBoard, Error?) {
-        let result = StoryBoard(id: -1, boardInfo: Common_StoryBoard())
+    func GetStoryboardActive(boardId: Int64) async -> (StoryBoardActive?, Error?) {
+        let result = StoryBoardActive(id: -1, boardActive: Common_StoryBoardActive())
         do {
-            let authClient = Common_TeamsApiClient(client: self.client!)
+            let apiClient = Common_TeamsApiClient(client: self.client!)
             let request = Common_GetStoryboardRequest.with {
                 $0.boardID = boardId
             }
             var header = Connect.Headers()
             header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
             
-            let resp = await authClient.getStoryboard(request: request, headers: header)
+            let resp = await apiClient.getStoryboard(request: request, headers: header)
             
             if resp.message?.code != 0 {
                 // If the response code is not 1, it indicates an error
-                return (result, NSError(domain: "GetStoryboardError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
+                return (nil, NSError(domain: "GetStoryboardError", code: Int(resp.message?.code ?? 0), userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
             }
             
             if let boardData = resp.message?.data {
-                result.id = Int64(boardData.info.storyBoardID)
-                result.boardInfo = boardData.info
+                result.id = Int64(boardData.boardInfo.storyboard.storyBoardID)
+                result.boardActive = boardData.boardInfo
             }
             
             return (result, nil)
         } catch {
             // If an exception occurs during the API call, return it as the error
-            return (result, error)
+            return (nil, error)
         }
     }
     

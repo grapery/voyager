@@ -98,7 +98,6 @@ class ProfileViewModel: ObservableObject {
     
     func fetchUserProfile() async -> UserProfile {
         let profile = await APIClient.shared.fetchUserProfile(userId: self.user?.userID ?? -1)
-        print("fetchUserProfile: ", profile as Any)
         return profile
     }
     
@@ -118,7 +117,6 @@ class ProfileViewModel: ObservableObject {
             location: user!.location,
             email: user!.email
         )
-        print("updateProfile: ", newProfile as Any)
         
         // 在主线程更新 profile
         let updatedProfile = await self.fetchUserProfile()
@@ -152,7 +150,6 @@ class ProfileViewModel: ObservableObject {
     @MainActor
     public func updateAvator(userId:Int64,newAvatorUrl: String) async -> Error?{
         let err = await APIClient.shared.updateUserAvator(userId: userId, avatorUrl: newAvatorUrl)
-        print("updateAvator err:", err?.localizedDescription as Any)
         if err != nil {
             return err
         }
@@ -161,7 +158,6 @@ class ProfileViewModel: ObservableObject {
     
     func updateUserbackgroud(userId: Int64,backgroundImageUrl: String) async -> Error?{
         let err = await APIClient.shared.updateUserBackgroud(userId: userId, backgrouUrl: backgroundImageUrl)
-        print("updateUserbackgroud err:", err?.localizedDescription as Any)
         if err != nil {
             return err
         }
@@ -209,13 +205,11 @@ class ProfileViewModel: ObservableObject {
     
     func fetchUserCreatedStoryboards(userId: Int64,groupId:Int64,storyId:Int64) async throws -> ([StoryBoardActive]?,Error?){
         let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryboardsSize), storyId: storyId)
-        print("fetchUserCreatedStoryboards params",self.StoryboardsPage, self.StoryboardsSize)
         if result.3 != nil {
             self.StoryboardsPage = 0
             self.StoryboardsSize = 10
             return (nil,result.3)
         }
-        print("fetchUserCreatedStoryboards result: ",result as Any)
         self.StoryboardsPage = Int(result.1)
         self.StoryboardsSize = 10
         return (result.0,nil)
@@ -223,7 +217,6 @@ class ProfileViewModel: ObservableObject {
     
     func fetchUserCreatedStoryRoles(userId: Int64,groupId:Int64,storyId:Int64) async throws -> ([StoryRole]?,Error?){
         let result = await APIClient.shared.fetchUserCreatedStoryRoles(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryRoleSize), storyid: storyId)
-        print("fetchUserCreatedStoryRoles params",self.StoryboardsPage, self.StoryRoleSize)
         if result.3 != nil {
             self.StoryRolePage = 0
             self.StoryRoleSize = 10
@@ -231,19 +224,16 @@ class ProfileViewModel: ObservableObject {
         }
         self.StoryRolePage = Int(result.1)
         self.StoryRoleSize = 10
-        print("fetchUserCreatedStoryRoles result: ",result as Any)
         return (result.0,nil)
     }
     
     func fetchUserUnPublishedStoryboards(userId: Int64,groupId:Int64,storyId:Int64,status: Int64) async throws -> ([StoryBoardActive]?,Error?){
         let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: userId, page: Int64(self.StoryboardsPage), size: Int64(self.StoryboardsSize), storyId: storyId)
-        print("fetchUserUnPublishedStoryboards params",self.StoryboardsPage, self.StoryboardsSize)
         if result.3 != nil {
             self.StoryboardsPage = 0
             self.StoryboardsSize = 10
             return (nil,result.3)
         }
-        print("fetchUserUnPublishedStoryboards result",result as Any)
         self.StoryboardsPage = Int(result.1)
         self.StoryboardsSize = 10
         return (result.0,nil)

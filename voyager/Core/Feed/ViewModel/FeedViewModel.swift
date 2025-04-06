@@ -234,21 +234,31 @@ class FeedViewModel: ObservableObject {
         isLoading = false
     }
 
-    
-    func fetchComments(storyBoardId: Int64) async{
+    func likeStoryBoard(storyId: Int64, boardId: Int64, userId: Int64) async -> Error? {
+        let result = await APIClient.shared.LikeStoryboard(boardId: boardId, storyId: storyId, userId: userId)
         
+        if let error = result {
+            // 如果API返回错误，返回该错误
+            return error
+        }
+        return nil
     }
     
-    func addComment(storyBoardId: Int64, content: String) async{
-        
+    func unlikeStoryBoard(storyId: Int64, boardId: Int64, userId: Int64) async -> Error? {
+        let result = await APIClient.shared.UnLikeStoryboard(boardId: boardId, storyId: storyId, userId: userId)
+        if let error = result {
+            // 如果API返回错误，返回该错误
+            return error
+        }
+        return nil
     }
     
-    func unlikeStoryBoard(storyBoardId: Int64) async{
-        
-    }
-    
-    func likeStoryBoard(storyBoardId: Int64) async{
-        
+    func fetchStoryboardDetail(storyboardId: Int64) async -> (StoryBoardActive?,Error?) {
+        let (storyboard, err) = await APIClient.shared.GetStoryboardActive(boardId: storyboardId)
+        if err != nil {
+            return (nil,err)
+        }
+        return (storyboard,nil)
     }
 }
 
