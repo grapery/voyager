@@ -157,13 +157,14 @@ private struct CategoryTabs: View {
 
 // Feed 内容卡片
 private struct FeedItemCard: View {
-    let storyBoardActive: Common_StoryBoardActive
+    @State var storyBoardActive: Common_StoryBoardActive
     let userId: Int64
     @ObservedObject var viewModel: FeedViewModel
     @State private var showStoryboardSummary = false
     let sceneMediaContents: [SceneMediaContent]
+    
     init(storyBoardActive: Common_StoryBoardActive?=nil, userId: Int64, viewModel: FeedViewModel) {
-        self.storyBoardActive = storyBoardActive!
+        self._storyBoardActive = State(initialValue: storyBoardActive!)
         self.userId = userId
         self.viewModel = viewModel
         self.showStoryboardSummary = false
@@ -298,26 +299,17 @@ private struct FeedItemCard: View {
             
             // 交互按钮
             HStack(spacing: 24) {
-                // 评论按钮
-                Button(action: {
-                }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "bubble.left")
-                            .font(.system(size: 16))
-                        Text("\(storyBoardActive.totalCommentCount)")
-                            .font(.system(size: 14))
-                    }
-                    .foregroundColor(Color.theme.tertiaryText)
-                }
-                
                 // 点赞按钮
                 Button(action: {
-                    print("like button taped: ",storyBoardActive.isliked)
                     Task {
                         if storyBoardActive.isliked {
                             await viewModel.unlikeStoryBoard(storyId:storyBoardActive.storyboard.storyID, boardId: storyBoardActive.storyboard.storyBoardID,userId: self.userId)
+                            storyBoardActive.isliked = false
+                            storyBoardActive.totalLikeCount -= 1
                         } else {
                             await viewModel.likeStoryBoard(storyId:storyBoardActive.storyboard.storyID,boardId: storyBoardActive.storyboard.storyBoardID,userId: self.userId)
+                            storyBoardActive.isliked = true
+                            storyBoardActive.totalLikeCount += 1
                         }
                     }
                 }) {
@@ -328,6 +320,18 @@ private struct FeedItemCard: View {
                             .font(.system(size: 14))
                     }
                     .foregroundColor(storyBoardActive.isliked ? Color.theme.accent : Color.theme.tertiaryText)
+                }
+                
+                // 评论按钮
+                Button(action: {
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "bubble.left")
+                            .font(.system(size: 16))
+                        Text("\(storyBoardActive.totalCommentCount)")
+                            .font(.system(size: 14))
+                    }
+                    .foregroundColor(Color.theme.tertiaryText)
                 }
                 
                 // fork 按钮

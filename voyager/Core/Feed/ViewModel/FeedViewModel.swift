@@ -30,8 +30,8 @@ class FeedViewModel: ObservableObject {
     @Published var hasError = false
     @Published var errorMessage = ""
     
-    private var currentOffset: Int64 = 0
-    private let pageSize: Int64 = 10
+    private var currentPage: Int64 = 0
+    private let defaultPageSize: Int64 = 10
     private var hasMoreData = true
     private let storyService = APIClient.shared
    
@@ -50,7 +50,7 @@ class FeedViewModel: ObservableObject {
         self.roles = [StoryRole]()
         self.boards = [StoryBoardActive]()
         
-        self.currentOffset = 0
+        self.currentPage = 0
         self.user = user
         
         self.comments = [Comment]()
@@ -59,44 +59,74 @@ class FeedViewModel: ObservableObject {
     
     @MainActor
     func fetchStorys() async -> Void{
-        let result = await APIClient.shared.fetchUserTakepartinStorys(userId: self.userId, offset: self.currentOffset, size: self.pageSize, filter: self.filters)
+        let result = await APIClient.shared.fetchUserTakepartinStorys(userId: self.userId, offset: self.currentPage * self.defaultPageSize, size: self.defaultPageSize, filter: self.filters)
         if result.3 != nil {
             print("fetchStorys failed: ",result.3!)
             return
         }
         self.storys = result.0
-        self.currentOffset = result.1
+        self.currentPage = result.1
         return
     }
     
     @MainActor
     func fetchStoryRoles() async -> Void{
-        let result = await APIClient.shared.fetchStoryRoles(userId: self.userId, offset: self.currentOffset, size: self.pageSize, filter: self.filters)
+        let result = await APIClient.shared.fetchStoryRoles(userId: self.userId, offset: self.currentPage * self.defaultPageSize, size: self.defaultPageSize, filter: self.filters)
         if result.3 != nil {
             print("fetchStoryRoles failed: ",result.3!)
             return
         }
         self.roles = result.0
-        self.currentOffset = result.1
+        self.currentPage = result.1
         return
     }
 
     @MainActor
     func fetchUserCreatedStoryBoards() async -> Void{
-        let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: self.userId, page: self.currentOffset, size: self.pageSize, storyId:0)
+        let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: self.userId, page: self.currentPage, size: self.defaultPageSize, storyId:0)
         if result.3 != nil {
             print("fetchUserCreatedStoryBoards failed: ",result.3!)
             return
         }
         self.boards = result.0!
-        self.currentOffset = result.1
+        self.currentPage = result.1
         return
     }
     
+    // 统一错误处理
+    private func handleError(_ error: Error) {
+        hasError = true
+        errorMessage = error.localizedDescription
+    }
+    
+    // 统一更新故事板数据
+    private func updateStoryBoards(_ boards: [Common_StoryBoardActive]?, _ offset: Int64?) {
+        if let boards = boards {
+            storyBoardActives = boards
+            currentPage = offset ?? 0
+            hasMoreData = boards.count >= defaultPageSize
+        }
+    }
+    
+    // 统一追加故事板数据
+    private func appendStoryBoards(_ boards: [Common_StoryBoardActive]?, _ offset: Int64?) {
+        if let boards = boards {
+            // 防止重复数据
+            let newBoards = boards.filter { newBoard in
+                !storyBoardActives.contains { $0.storyboard.storyBoardID == newBoard.storyboard.storyBoardID }
+            }
+            storyBoardActives.append(contentsOf: newBoards)
+            currentPage = offset ?? currentPage
+            hasMoreData = boards.count >= defaultPageSize
+        }
+    }
+    
     // 重置分页参数
-    func resetPagination() {
-        self.currentOffset = 0
-        self.timeStamp = 0
+    private func resetPagination() {
+        currentPage = 0
+        timeStamp = 0
+        hasMoreData = true
+        storyBoardActives.removeAll()
     }
     
     // 根据 FeedType 设置对应的 activeFlowType
@@ -117,57 +147,43 @@ class FeedViewModel: ObservableObject {
         
         isLoading = true
         hasError = false
-        currentOffset = 0
+        resetPagination()
         
         do {
-            switch type{
+            switch type {
             case .Story:
-                // 获取用户关注的故事动态
-                let (boards, offset, size, error) = await storyService.storyActiveStoryBoards(
+                print("storyActiveStoryBoards :",currentPage ,defaultPageSize)
+                let (boards, offset, _, error) = await storyService.storyActiveStoryBoards(
                     userId: userId,
                     storyId: 0,
-                    offset: 0,
-                    pageSize: pageSize,
+                    offset: currentPage ,
+                    pageSize: defaultPageSize,
                     filter: ""
                 )
                 if let error = error {
-                    hasError = true
-                    errorMessage = error.localizedDescription
+                    handleError(error)
                     return
                 }
-                
-                if let boards = boards {
-                    storyBoardActives = boards
-                    currentOffset = offset ?? 0
-                    hasMoreData = boards.count >= pageSize
-                }
+                updateStoryBoards(boards, offset)
             case .StoryRole:
-                // 获取用户关注的角色参与的故事板信息
-                let (boards, offset, size, error) = await storyService.userWatchRoleActiveStoryBoards(
+                print("userWatchRoleActiveStoryBoards :",currentPage ,defaultPageSize)
+                let (boards, offset, _, error) = await storyService.userWatchRoleActiveStoryBoards(
                     userId: userId,
                     roleId: 0,
-                    offset: 0,
-                    pageSize: pageSize,
+                    offset: currentPage ,
+                    pageSize: defaultPageSize,
                     filter: ""
                 )
                 if let error = error {
-                    hasError = true
-                    errorMessage = error.localizedDescription
+                    handleError(error)
                     return
                 }
-                
-                if let boards = boards {
-                    storyBoardActives = boards
-                    currentOffset = offset ?? 0
-                    hasMoreData = boards.count >= pageSize
-                }
+                updateStoryBoards(boards, offset)
             case .Groups:
                 print("not support")
             }
-            
         } catch {
-            hasError = true
-            errorMessage = error.localizedDescription
+            handleError(error)
         }
         
         isLoading = false
@@ -181,54 +197,38 @@ class FeedViewModel: ObservableObject {
         hasError = false
         
         do {
-            switch type{
+            switch type {
             case .Story:
-                let (boards, offset, size, error) = await storyService.storyActiveStoryBoards(
+                let (boards, offset, _, error) = await storyService.storyActiveStoryBoards(
                     userId: userId,
                     storyId: 0,
-                    offset: currentOffset + pageSize,
-                    pageSize: pageSize,
+                    offset: (currentPage + 1) ,
+                    pageSize: defaultPageSize,
                     filter: ""
                 )
-                print("loadMoreData: \(String(describing: boards))")
                 if let error = error {
-                    hasError = true
-                    errorMessage = error.localizedDescription
+                    handleError(error)
                     return
                 }
-                
-                if let boards = boards {
-                    storyBoardActives.append(contentsOf: boards)
-                    currentOffset = offset ?? currentOffset
-                    hasMoreData = boards.count >= pageSize
-                }
+                appendStoryBoards(boards, offset)
             case .StoryRole:
-                let (boards, offset, size, error) = await storyService.userWatchRoleActiveStoryBoards(
+                let (boards, offset, _, error) = await storyService.userWatchRoleActiveStoryBoards(
                     userId: userId,
-                    roleId:  0,
-                    offset: currentOffset + pageSize,
-                    pageSize: pageSize,
+                    roleId: 0,
+                    offset: (currentPage + 1) ,
+                    pageSize: defaultPageSize,
                     filter: ""
                 )
-                print("loadMoreData: \(String(describing: boards))")
                 if let error = error {
-                    hasError = true
-                    errorMessage = error.localizedDescription
+                    handleError(error)
                     return
                 }
-                
-                if let boards = boards {
-                    storyBoardActives.append(contentsOf: boards)
-                    currentOffset = offset ?? currentOffset
-                    hasMoreData = boards.count >= pageSize
-                }
+                appendStoryBoards(boards, offset)
             case .Groups:
                 print("not support")
             }
-            
         } catch {
-            hasError = true
-            errorMessage = error.localizedDescription
+            handleError(error)
         }
         
         isLoading = false
