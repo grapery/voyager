@@ -123,18 +123,30 @@ private struct CommentItemView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 6) {
             // 用户头像
-            KFImage(URL(string: comment.commentUser.avatar))
-                .placeholder { CommentAvatarPlaceholder() }
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 36, height: 36)
-                .clipShape(Circle())
+            NavigationLink(destination: UserProfileView(user: User(
+                userID: comment.commentUser.userID,
+                name: comment.commentUser.name,
+                avatar: comment.commentUser.avatar
+            ))) {
+                KFImage(URL(string: comment.commentUser.avatar))
+                    .placeholder { CommentAvatarPlaceholder() }
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 36, height: 36)
+                    .clipShape(Circle())
+            }
             
             VStack(alignment: .leading, spacing: 6) {
                 // 用户名和时间
                 HStack {
-                    Text(comment.commentUser.name)
-                        .font(.system(size: 14, weight: .medium))
+                    NavigationLink(destination: UserProfileView(user: User(
+                        userID: comment.commentUser.userID,
+                        name: comment.commentUser.name,
+                        avatar: comment.commentUser.avatar
+                    ))) {
+                        Text(comment.commentUser.name)
+                            .font(.system(size: 14, weight: .medium))
+                    }
                     
                     Spacer()
                     
@@ -170,7 +182,9 @@ private struct CommentItemView: View {
                         .animation(.easeInOut(duration: 0.2), value: isLiked)
                     }
                     
-                    Button(action: {}) {
+                    Button(action: {
+                        print("回复")
+                    }) {
                         Text("回复")
                             .font(.system(size: 12))
                             .foregroundColor(.theme.tertiaryText)

@@ -236,16 +236,24 @@ private struct StoryboardSummaryDetailsView: View {
                         .font(.system(size: 12))
                         .foregroundColor(.theme.secondaryText)
                     
-                    KFImage(URL(string: storyboard.boardActive.creator.userAvatar))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 24, height: 24)
-                        .clipShape(Circle())
-                    
-                    Text("\(storyboard.boardActive.creator.userName)")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.theme.primaryText)
-                        .lineLimit(1)
+                    NavigationLink(destination: UserProfileView(user: User(
+                        userID: storyboard.boardActive.creator.userID,
+                        name: storyboard.boardActive.creator.userName,
+                        avatar: storyboard.boardActive.creator.userAvatar
+                    ))) {
+                        HStack(spacing: 4) {
+                            KFImage(URL(string: storyboard.boardActive.creator.userAvatar))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 24, height: 24)
+                                .clipShape(Circle())
+                            
+                            Text("\(storyboard.boardActive.creator.userName)")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.theme.primaryText)
+                                .lineLimit(1)
+                        }
+                    }
                 }
             }
             .padding(.horizontal, 16)
