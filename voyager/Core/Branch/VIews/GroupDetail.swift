@@ -14,6 +14,7 @@ struct GroupHeaderView: View {
     let group: BranchGroup?
     var currentUser: User
     @Binding var viewModel: GroupDetailViewModel
+    @Binding var showNewStoryView: Bool
     let onBack: () -> Void
     let onSettings: () -> Void
     
@@ -60,7 +61,7 @@ struct GroupHeaderView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
                 
-                GroupInfoView(group: group,currentUser: currentUser, viewModel: $viewModel)
+                GroupInfoView(group: group, currentUser: currentUser, viewModel: $viewModel, showNewStoryView: $showNewStoryView)
                     .padding(.horizontal, 16)
                     .padding(.top, 12)
                 
@@ -75,6 +76,8 @@ struct GroupInfoView: View {
     let group: BranchGroup?
     var currentUser: User
     @Binding var viewModel: GroupDetailViewModel
+    @Binding var showNewStoryView: Bool
+    
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
             VStack(alignment: .leading, spacing: 12) {
@@ -98,7 +101,7 @@ struct GroupInfoView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             
-            GroupActionButtonsView(group: group,viewModel: viewModel,user: currentUser)
+            GroupActionButtonsView(group: group, viewModel: viewModel, user: currentUser, showNewStoryView: $showNewStoryView)
                 .padding(.trailing, 12)
         }
     }
@@ -142,17 +145,19 @@ struct GroupActionButtonsView: View {
     let group: BranchGroup?
     @StateObject var viewModel: GroupDetailViewModel
     var user: User
+    @Binding var showNewStoryView: Bool
     
-    init(group: BranchGroup?, viewModel: GroupDetailViewModel, user: User) {
+    init(group: BranchGroup?, viewModel: GroupDetailViewModel, user: User, showNewStoryView: Binding<Bool>) {
         self.group = group
         self._viewModel = StateObject(wrappedValue: viewModel)
         self.user = user
+        self._showNewStoryView = showNewStoryView
     }
     
     var body: some View {
         VStack(spacing: 4) {
             Button(action: {
-                
+                showNewStoryView = true
             }) {
                 HStack(spacing: 2) {
                     Image(systemName: "plus")
@@ -171,8 +176,12 @@ struct GroupActionButtonsView: View {
                 Task {
                     if group?.info.currentUserStatus.isJoined == false {
                         await viewModel.JoinGroup(groupdId: group?.info.groupID ?? 0)
+                        group?.info.currentUserStatus.isJoined = true
+                        group?.info.profile.groupMemberNum = (group?.info.profile.groupMemberNum)! + 1
                     } else {
                         await viewModel.LeaveGroup(groupdId: group?.info.groupID ?? 0)
+                        group?.info.currentUserStatus.isJoined = false
+                        group?.info.profile.groupMemberNum = (group?.info.profile.groupMemberNum)! - 1
                     }
                 }
             }) {
@@ -192,9 +201,13 @@ struct GroupActionButtonsView: View {
             Button(action: {
                 Task {
                     if group?.info.currentUserStatus.isFollowed == false {
-                        await viewModel.unFollowGroup(userId: user.userID, groupId: group?.info.groupID ?? 0)
-                    } else {
                         await viewModel.followGroup(userId: user.userID, groupId: group?.info.groupID ?? 0)
+                        group?.info.currentUserStatus.isFollowed = true
+                        group?.info.profile.groupFollowerNum = (group?.info.profile.groupFollowerNum)! + 1
+                    } else {
+                        await viewModel.unFollowGroup(userId: user.userID, groupId: group?.info.groupID ?? 0)
+                        group?.info.currentUserStatus.isFollowed = false
+                        group?.info.profile.groupFollowerNum = (group?.info.profile.groupFollowerNum)! - 1
                     }
                 }
             }) {
@@ -344,6 +357,7 @@ struct GroupDetailView: View {
                             group: group,
                             currentUser: user,
                             viewModel: $viewModel,
+                            showNewStoryView: $showNewStoryView,
                             onBack: { dismiss() },
                             onSettings: { showUpdateGroupView = true }
                         )
