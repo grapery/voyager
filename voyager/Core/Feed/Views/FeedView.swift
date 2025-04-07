@@ -472,13 +472,6 @@ private struct FeedContentSection: View {
                 )
             }
         }
-        .overlay {
-            if viewModel.isRefreshing {
-                ProgressView()
-                    .scaleEffect(1.5)
-                    .progressViewStyle(CircularProgressViewStyle(tint: Color.theme.accent))
-            }
-        }
     }
 }
 
