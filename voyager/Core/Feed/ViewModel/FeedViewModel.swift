@@ -33,7 +33,7 @@ class FeedViewModel: ObservableObject {
     
     private var currentPage: Int64 = 0
     private let defaultPageSize: Int64 = 10
-    private var hasMoreData = true
+    public  var hasMoreData = true
     private let storyService = APIClient.shared
    
     @MainActor

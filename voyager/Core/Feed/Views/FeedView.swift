@@ -503,6 +503,13 @@ private struct FeedItemList: View {
             if viewModel.isLoading && !viewModel.isRefreshing {
                 LoadingIndicator()
             }
+            
+            if !viewModel.hasMoreData && !viewModel.storyBoardActives.isEmpty {
+                Text("没有更多数据了")
+                    .font(.system(size: 14))
+                    .foregroundColor(Color.theme.tertiaryText)
+                    .padding()
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -520,8 +527,13 @@ private struct FeedItemList: View {
 // 加载指示器
 private struct LoadingIndicator: View {
     var body: some View {
-        ProgressView()
-            .padding()
+        HStack {
+            Spacer()
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: Color.theme.accent))
+            Spacer()
+        }
+        .padding()
     }
 }
 
