@@ -97,7 +97,7 @@ class GroupViewModel: ObservableObject {
         return nil
     }
     
-    func unollowGroup(userId:Int64,groupId:Int64)async -> Error?{
+    func unfollowGroup(userId:Int64,groupId:Int64)async -> Error?{
         let err = await APIClient.shared.unfollowGroup(userId: userId, groupId: groupId)
         if err != nil {
             return err

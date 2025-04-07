@@ -203,15 +203,25 @@ struct GroupDiscussionCell: View {
                 // 更新互动栏实现
                 HStack(spacing: 24) {
                     InteractionButton(
-                        icon: "bell",
+                        icon: group.info.currentUserStatus.isFollowed ? "bell.fill" : "bell",
                         count: Int(group.info.profile.groupFollowerNum),
-                        isActive: false,
+                        isActive: group.info.currentUserStatus.isFollowed,
                         action: {
-                            Task{
-                                print("send sub request")
-                                let err = await self.viewModel.followGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
-                                if err != nil{
-                                    print("followGroup faileld: ",err as Any)
+                            Task {
+                                if group.info.currentUserStatus.isFollowed{
+                                    // 取消订阅
+                                    let err = await self.viewModel.unfollowGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
+                                    if err == nil {
+                                        group.info.currentUserStatus.isFollowed = false
+                                        group.info.profile.groupFollowerNum -= 1
+                                    }
+                                } else {
+                                    // 订阅
+                                    let err = await self.viewModel.followGroup(userId: self.viewModel.user.userID, groupId: self.group.info.groupID)
+                                    if err == nil {
+                                        group.info.currentUserStatus.isFollowed  = true
+                                        group.info.profile.groupFollowerNum += 1
+                                    }
                                 }
                             }
                         }
@@ -220,7 +230,7 @@ struct GroupDiscussionCell: View {
                     
                     InteractionButton(
                         icon: "book",
-                        count: Int(group.info.profile.groupMemberNum),
+                        count: Int(group.info.profile.groupStoryNum),
                         isActive: false,
                         action: {
                         }
@@ -228,7 +238,7 @@ struct GroupDiscussionCell: View {
                     
                     InteractionButton(
                         icon: "person",
-                        count: Int(group.info.profile.groupStoryNum),
+                        count: Int(group.info.profile.groupMemberNum),
                         isActive: false,
                         action: {
                         }

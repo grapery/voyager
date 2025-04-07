@@ -9,6 +9,294 @@ import SwiftUI
 import Kingfisher
 import Combine
 
+// MARK: - Group Header View
+struct GroupHeaderView: View {
+    let group: BranchGroup?
+    var currentUser: User
+    @Binding var viewModel: GroupDetailViewModel
+    let onBack: () -> Void
+    let onSettings: () -> Void
+    
+    var body: some View {
+        ZStack(alignment: .top) {
+            // Background Image with Gradient
+            KFImage(URL(string: group?.info.avatar ?? defaultAvator))
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(height: 220)
+                .clipped()
+                .overlay(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.black.opacity(0.1),
+                            Color.black.opacity(0.7)
+                        ]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+            
+            VStack(spacing: 0) {
+                // Top Navigation Bar
+                HStack {
+                    Button(action: onBack) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.white)
+                            .padding(8)
+                            .background(Color.theme.secondary.opacity(0.3))
+                            .clipShape(Circle())
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: onSettings) {
+                        Image(systemName: "gearshape")
+                            .foregroundColor(.white)
+                            .frame(width: 32, height: 32)
+                            .background(Color.theme.secondary.opacity(0.3))
+                            .clipShape(Circle())
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                
+                GroupInfoView(group: group,currentUser: currentUser, viewModel: $viewModel)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
+                
+                Spacer()
+            }
+        }
+    }
+}
+
+// MARK: - Group Info View
+struct GroupInfoView: View {
+    let group: BranchGroup?
+    var currentUser: User
+    @Binding var viewModel: GroupDetailViewModel
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 12) {
+                    KFImage(URL(string: group?.info.avatar ?? defaultAvator))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 72, height: 72)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(group?.info.name ?? "")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        GroupStatsView(group: group)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
+            GroupActionButtonsView(group: group,viewModel: viewModel,user: currentUser)
+                .padding(.trailing, 12)
+        }
+    }
+}
+
+// MARK: - Group Stats View
+struct GroupStatsView: View {
+    let group: BranchGroup?
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 4) {
+                Image(systemName: "book.fill")
+                    .foregroundColor(.white.opacity(0.9))
+                Text("\(group?.info.profile.groupStoryNum ?? 0) 故事")
+                    .foregroundColor(.white.opacity(0.9))
+            }
+            .font(.system(size: 12))
+            
+            HStack(spacing: 4) {
+                Image(systemName: "person.2.fill")
+                    .foregroundColor(.white.opacity(0.9))
+                Text("\(group?.info.profile.groupMemberNum ?? 0) 成员")
+                    .foregroundColor(.white.opacity(0.9))
+            }
+            .font(.system(size: 12))
+            
+            HStack(spacing: 4) {
+                Image(systemName: "heart.fill")
+                    .foregroundColor(.white.opacity(0.9))
+                Text("\(group?.info.profile.groupFollowerNum ?? 0) 关注")
+                    .foregroundColor(.white.opacity(0.9))
+            }
+            .font(.system(size: 12))
+        }
+    }
+}
+
+// MARK: - Group Action Buttons View
+struct GroupActionButtonsView: View {
+    let group: BranchGroup?
+    @StateObject var viewModel: GroupDetailViewModel
+    var user: User
+    
+    init(group: BranchGroup?, viewModel: GroupDetailViewModel, user: User) {
+        self.group = group
+        self._viewModel = StateObject(wrappedValue: viewModel)
+        self.user = user
+    }
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Button(action: {
+                
+            }) {
+                HStack(spacing: 2) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 10))
+                    Text("创建故事")
+                        .font(.system(size: 10))
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 4)
+                .background(Color.theme.accent)
+                .cornerRadius(12)
+            }
+            
+            Button(action: {
+                Task {
+                    if group?.info.currentUserStatus.isJoined == false {
+                        await viewModel.JoinGroup(groupdId: group?.info.groupID ?? 0)
+                    } else {
+                        await viewModel.LeaveGroup(groupdId: group?.info.groupID ?? 0)
+                    }
+                }
+            }) {
+                HStack(spacing: 2) {
+                    Image(systemName: group?.info.currentUserStatus.isJoined ?? false ? "person.badge.minus" : "person.badge.plus")
+                        .font(.system(size: 10))
+                    Text(group?.info.currentUserStatus.isJoined ?? false ? "已加入" : "加入小组")
+                        .font(.system(size: 10))
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 4)
+                .background(group?.info.currentUserStatus.isJoined ?? false ? Color.theme.tertiaryBackground : Color.theme.accent)
+                .cornerRadius(12)
+            }
+            
+            Button(action: {
+                Task {
+                    if group?.info.currentUserStatus.isFollowed == false {
+                        await viewModel.unFollowGroup(userId: user.userID, groupId: group?.info.groupID ?? 0)
+                    } else {
+                        await viewModel.followGroup(userId: user.userID, groupId: group?.info.groupID ?? 0)
+                    }
+                }
+            }) {
+                HStack(spacing: 2) {
+                    Image(systemName: group?.info.currentUserStatus.isFollowed ?? false ? "heart.fill" : "heart")
+                        .font(.system(size: 10))
+                    Text(group?.info.currentUserStatus.isFollowed ?? false ? "已关注" : "关注小组")
+                        .font(.system(size: 10))
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 4)
+                .background(group?.info.currentUserStatus.isFollowed ?? false ? Color.theme.tertiaryBackground : Color.theme.accent)
+                .cornerRadius(12)
+            }
+        }
+    }
+}
+
+// MARK: - Story List Header View
+struct StoryListHeaderView: View {
+    let stories: [Story]
+    @Binding var selectedStoryId: Int64?
+    let isHeaderSticky: Bool
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    Button(action: {
+                        selectedStoryId = nil
+                    }) {
+                        VStack {
+                            Circle()
+                                .fill(selectedStoryId == nil ? Color.blue : Color.gray.opacity(0.3))
+                                .frame(width: 49, height: 49)
+                                .overlay(
+                                    Image(systemName: "timelapse")
+                                        .foregroundColor(.white)
+                                )
+                            Text("全部")
+                                .font(.system(size: 12))
+                        }
+                    }
+                    
+                    ForEach(stories) { story in
+                        Button(action: {
+                            selectedStoryId = story.storyInfo.id
+                        }) {
+                            VStack {
+                                KFImage(URL(string: story.storyInfo.avatar))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 49, height: 49)
+                                    .clipShape(Circle())
+                                    .overlay(
+                                        Circle()
+                                            .stroke(selectedStoryId == story.storyInfo.id ? Color.orange : Color.gray, lineWidth: 2)
+                                    )
+                                Text(story.storyInfo.title.prefix(4))
+                                    .font(.system(size: 12))
+                                    .lineLimit(1)
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+            }
+            .background(Color(UIColor.systemBackground))
+            
+            Divider()
+        }
+        .opacity(isHeaderSticky ? 0 : 1)
+    }
+}
+
+// MARK: - Story List Content View
+struct StoryListContentView: View {
+    let stories: [Story]
+    let selectedStoryId: Int64?
+    let userId: Int64
+    let viewModel: GroupDetailViewModel
+    let isHeaderSticky: Bool
+    
+    var body: some View {
+        LazyVStack(spacing: 0) {
+            if let selectedId = selectedStoryId {
+                ForEach(stories.filter { $0.storyInfo.id == selectedId }) { story in
+                    StoryUpdateCell(story: story, userId: userId, viewModel: viewModel)
+                }
+            } else {
+                ForEach(stories.sorted { $0.storyInfo.ctime > $1.storyInfo.ctime }) { story in
+                    StoryUpdateCell(story: story, userId: userId, viewModel: viewModel)
+                }
+            }
+        }
+        .padding(.top, isHeaderSticky ? 100 : 0)
+    }
+}
+
+// MARK: - Main Group Detail View
 struct GroupDetailView: View {
     var user: User
     var currentUser: User
@@ -20,7 +308,7 @@ struct GroupDetailView: View {
     @State private var selectedTab = 0
     @State private var needsRefresh = false
     @State private var isRefreshing = false
-    @State private var isLoading = true  // 添加加载状态
+    @State private var isLoading = true
     @Environment(\.dismiss) private var dismiss
     @State private var selectedStoryId: Int64? = nil
     @State private var scrollOffset: CGFloat = 0
@@ -52,228 +340,27 @@ struct GroupDetailView: View {
                     .frame(height: 0)
                     
                     VStack(spacing: 0) {
-                        // Group Info Header with Background
-                        ZStack(alignment: .top) {
-                            // Background Image with Gradient
-                            KFImage(URL(string: group?.info.avatar ?? defaultAvator))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(height: 220)  // 减小头部区域高度
-                                .clipped()
-                                .overlay(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            Color.black.opacity(0.1),
-                                            Color.black.opacity(0.7)
-                                        ]),
-                                        startPoint: .top,
-                                        endPoint: .bottom
-                                    )
-                                )
-                            
-                            VStack(spacing: 0) {
-                                // Top Navigation Bar
-                                HStack {
-                                    // Back Button
-                                    Button(action: { dismiss() }) {
-                                        Image(systemName: "chevron.left")
-                                            .foregroundColor(.white)
-                                            .padding(8)
-                                            .background(Color.theme.secondary.opacity(0.3))
-                                            .clipShape(Circle())
-                                    }
-                                    
-                                    Spacer()
-
-                                    // Settings Button
-                                    Button(action: { showUpdateGroupView = true }) {
-                                        Image(systemName: "gearshape")
-                                            .foregroundColor(.white)
-                                            .frame(width: 32, height: 32)
-                                            .background(Color.theme.secondary.opacity(0.3))
-                                            .clipShape(Circle())
-                                    }
-                                }
-                                .padding(.horizontal, 16)
-                                .padding(.top, 8)
-                                
-                                // Main Content Area
-                                HStack(alignment: .top, spacing: 8) {  // 减小主要内容区域的间距
-                                    // Left Side: Group Info
-                                    VStack(alignment: .leading, spacing: 12) {  // 减小垂直间距
-                                        // Group Avatar and Name
-                                        HStack(spacing: 12) {  // 减小水平间距
-                                            // Group Avatar
-                                            KFImage(URL(string: group?.info.avatar ?? defaultAvator))
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(width: 72, height: 72)  // 稍微减小头像尺寸
-                                                .clipShape(Circle())
-                                                .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                                            
-                                            // Group Name and Stats
-                                            VStack(alignment: .leading, spacing: 8) {  // 减小垂直间距
-                                                Text(group?.info.name ?? "")
-                                                    .font(.title3)  // 减小字体大小
-                                                    .fontWeight(.bold)
-                                                    .foregroundColor(.white)
-                                                
-                                                // Stats Row
-                                                VStack(alignment: .leading, spacing: 4) {  // 减小统计信息间距
-                                                    // Stories Count
-                                                    HStack(spacing: 4) {
-                                                        Image(systemName: "book.fill")
-                                                            .foregroundColor(.white.opacity(0.9))
-                                                        Text("\(group?.info.profile.groupStoryNum ?? 0) 故事")
-                                                            .foregroundColor(.white.opacity(0.9))
-                                                    }
-                                                    .font(.system(size: 12))
-                                                    
-                                                    // Members Count
-                                                    HStack(spacing: 4) {
-                                                        Image(systemName: "person.2.fill")
-                                                            .foregroundColor(.white.opacity(0.9))
-                                                        Text("\(group?.info.profile.groupMemberNum ?? 0) 成员")
-                                                            .foregroundColor(.white.opacity(0.9))
-                                                    }
-                                                    .font(.system(size: 12))
-                                                    
-                                                    // Followers Count
-                                                    HStack(spacing: 4) {
-                                                        Image(systemName: "heart.fill")
-                                                            .foregroundColor(.white.opacity(0.9))
-                                                        Text("\(group?.info.profile.groupFollowerNum ?? 0) 关注")
-                                                            .foregroundColor(.white.opacity(0.9))
-                                                    }
-                                                    .font(.system(size: 12))
-                                                }
-                                            }
-                                        }
-                                    }
-                                    .frame(maxWidth: .infinity, alignment: .leading)  // 确保左侧内容占据可用空间
-                                    
-                                    // Right Side: Action Buttons Column
-                                    VStack(spacing: 4) {  // 减小按钮间距
-                                        // Create Story Button
-                                        Button(action: { showNewStoryView = true }) {
-                                            Image(systemName: "plus")
-                                                .foregroundColor(.white)
-                                                .frame(width: 32, height: 32)  // 减小按钮尺寸
-                                                .background(Color.theme.accent)
-                                                .clipShape(Circle())
-                                        }
-                                        
-                                        
-                                        
-                                        // Join/Leave Button
-                                        Button(action: {
-                                            Task {
-                                                if group?.info.currentUserStatus.isJoined == false {
-                                                    await viewModel.JoinGroup(groupdId: group?.info.groupID ?? 0)
-                                                } else {
-                                                    await viewModel.LeaveGroup(groupdId: group?.info.groupID ?? 0)
-                                                }
-                                            }
-                                        }) {
-                                            Image(systemName: group?.info.currentUserStatus.isJoined ?? false ? "person.badge.minus" : "person.badge.plus")
-                                                .foregroundColor(.white)
-                                                .frame(width: 32, height: 32)
-                                                .background(group?.info.currentUserStatus.isJoined ?? false ? Color.theme.tertiaryBackground : Color.theme.accent)
-                                                .clipShape(Circle())
-                                        }
-                                        
-                                        // Follow Button
-                                        Button(action: {
-                                            Task {
-                                                if group?.info.currentUserStatus.isFollowed == false {
-                                                    await viewModel.unFollowGroup(userId: user.userID, groupId: group?.info.groupID ?? 0)
-                                                } else {
-                                                    await viewModel.followGroup(userId: user.userID, groupId: group?.info.groupID ?? 0)
-                                                }
-                                            }
-                                        }) {
-                                            Image(systemName: group?.info.currentUserStatus.isFollowed ?? false ? "heart.fill" : "heart")
-                                                .foregroundColor(.white)
-                                                .frame(width: 32, height: 32)
-                                                .background(group?.info.currentUserStatus.isFollowed ?? false ? Color.theme.tertiaryBackground : Color.theme.primary)
-                                                .clipShape(Circle())
-                                        }
-                                    }
-                                    .padding(.trailing, 12)  // 减小右侧边距
-                                }
-                                .padding(.horizontal, 16)
-                                .padding(.top, 12)  // 减小顶部边距
-                                
-                                Spacer()
-                            }
-                        }
+                        GroupHeaderView(
+                            group: group,
+                            currentUser: user,
+                            viewModel: $viewModel,
+                            onBack: { dismiss() },
+                            onSettings: { showUpdateGroupView = true }
+                        )
                         
-                        // Story List Section (Non-sticky version)
-                        VStack(spacing: 0) {
-                            // Horizontal Story List
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 16) {
-                                    Button(action: {
-                                        selectedStoryId = nil
-                                    }) {
-                                        VStack {
-                                            Circle()
-                                                .fill(selectedStoryId == nil ? Color.blue : Color.gray.opacity(0.3))
-                                                .frame(width: 49, height: 49)
-                                                .overlay(
-                                                    Image(systemName: "timelapse")
-                                                        .foregroundColor(.white)
-                                                )
-                                            Text("全部")
-                                                .font(.system(size: 12))
-                                        }
-                                    }
-                                    
-                                    ForEach(viewModel.storys) { story in
-                                        Button(action: {
-                                            selectedStoryId = story.storyInfo.id
-                                        }) {
-                                            VStack {
-                                                KFImage(URL(string: story.storyInfo.avatar))
-                                                    .resizable()
-                                                    .aspectRatio(contentMode: .fill)
-                                                    .frame(width: 49, height: 49)
-                                                    .clipShape(Circle())
-                                                    .overlay(
-                                                        Circle()
-                                                            .stroke(selectedStoryId == story.storyInfo.id ? Color.orange : Color.gray, lineWidth: 2)
-                                                    )
-                                                Text(story.storyInfo.title.prefix(4))
-                                                    .font(.system(size: 12))
-                                                    .lineLimit(1)
-                                            }
-                                        }
-                                    }
-                                }
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
-                            }
-                            .background(Color(UIColor.systemBackground))
-                            
-                            Divider()
-                        }
-                        .opacity(isHeaderSticky ? 0 : 1)
+                        StoryListHeaderView(
+                            stories: viewModel.storys,
+                            selectedStoryId: $selectedStoryId,
+                            isHeaderSticky: isHeaderSticky
+                        )
                         
-                        // Story Updates List
-                        LazyVStack(spacing: 0) {
-                            if let selectedId = selectedStoryId {
-                                // Show updates for selected story
-                                ForEach(viewModel.storys.filter { $0.storyInfo.id == selectedId }) { story in
-                                    StoryUpdateCell(story: story, userId: user.userID, viewModel: viewModel)
-                                }
-                            } else {
-                                // Show all updates
-                                ForEach(viewModel.storys.sorted { $0.storyInfo.ctime > $1.storyInfo.ctime }) { story in
-                                    StoryUpdateCell(story: story, userId: user.userID, viewModel: viewModel)
-                                }
-                            }
-                        }
-                        .padding(.top, isHeaderSticky ? 100 : 0) // Add padding when header is sticky
+                        StoryListContentView(
+                            stories: viewModel.storys,
+                            selectedStoryId: selectedStoryId,
+                            userId: user.userID,
+                            viewModel: viewModel,
+                            isHeaderSticky: isHeaderSticky
+                        )
                     }
                 }
                 .navigationBarHidden(true)
