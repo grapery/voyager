@@ -29,6 +29,7 @@ class FeedViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var hasError = false
     @Published var errorMessage = ""
+    @Published var isRefreshing = false
     
     private var currentPage: Int64 = 0
     private let defaultPageSize: Int64 = 10
@@ -146,17 +147,17 @@ class FeedViewModel: ObservableObject {
         guard !isLoading else { return }
         
         isLoading = true
+        isRefreshing = true
         hasError = false
         resetPagination()
         
         do {
             switch type {
             case .Story:
-                print("storyActiveStoryBoards :",currentPage ,defaultPageSize)
                 let (boards, offset, _, error) = await storyService.storyActiveStoryBoards(
                     userId: userId,
                     storyId: 0,
-                    offset: currentPage ,
+                    offset: currentPage * defaultPageSize,
                     pageSize: defaultPageSize,
                     filter: ""
                 )
@@ -166,11 +167,10 @@ class FeedViewModel: ObservableObject {
                 }
                 updateStoryBoards(boards, offset)
             case .StoryRole:
-                print("userWatchRoleActiveStoryBoards :",currentPage ,defaultPageSize)
                 let (boards, offset, _, error) = await storyService.userWatchRoleActiveStoryBoards(
                     userId: userId,
                     roleId: 0,
-                    offset: currentPage ,
+                    offset: currentPage * defaultPageSize,
                     pageSize: defaultPageSize,
                     filter: ""
                 )
@@ -187,6 +187,7 @@ class FeedViewModel: ObservableObject {
         }
         
         isLoading = false
+        isRefreshing = false
     }
     
     @MainActor
