@@ -102,11 +102,19 @@ private struct LoadingErrorView: View {
 
 // MARK: - Main Content View
 private struct StoryboardContentView: View {
-    let storyboard: StoryBoardActive
+    @State var storyboard: StoryBoardActive
     let userId: Int64
     let viewModel: FeedViewModel
     @Binding var currentSceneIndex: Int
     let dismiss: DismissAction
+    
+    init(storyboard: StoryBoardActive, userId: Int64, viewModel: FeedViewModel, currentSceneIndex: Binding<Int>, dismiss: DismissAction) {
+        self.storyboard = storyboard
+        self.userId = userId
+        self.viewModel = viewModel
+        self._currentSceneIndex = currentSceneIndex
+        self.dismiss = dismiss
+    }
     
     var body: some View {
         ScrollView {
@@ -116,7 +124,7 @@ private struct StoryboardContentView: View {
                     dismiss: dismiss
                 )
                 StoryboardSummaryDetailsView(
-                    storyboard: storyboard,
+                    storyboard: $storyboard,
                     userId: userId,
                     viewModel: viewModel,
                     currentSceneIndex: $currentSceneIndex
@@ -193,7 +201,7 @@ private struct StoryboardStatsView: View {
 
 // MARK: - Details View
 private struct StoryboardSummaryDetailsView: View {
-    let storyboard: StoryBoardActive
+    @Binding var storyboard: StoryBoardActive
     let userId: Int64
     let viewModel: FeedViewModel
     @Binding var currentSceneIndex: Int
@@ -223,7 +231,7 @@ private struct StoryboardSummaryDetailsView: View {
             HStack(spacing: 8) {
                 // 交互按钮
                 InteractionButtonsView(
-                    storyboard: storyboard,
+                    storyboard: $storyboard,
                     userId: userId,
                     viewModel: viewModel
                 )
@@ -348,7 +356,7 @@ private struct SceneView: View {
 
 // MARK: - Interaction Buttons View
 private struct InteractionButtonsView: View {
-    let storyboard: StoryBoardActive
+    @Binding var storyboard: StoryBoardActive
     let userId: Int64
     let viewModel: FeedViewModel
     
@@ -361,11 +369,15 @@ private struct InteractionButtonsView: View {
                 isActive: storyboard.boardActive.isliked
             ) {
                 Task {
-                    await viewModel.likeStoryBoard(
-                        storyId: storyboard.boardActive.storyboard.storyID,
-                        boardId: storyboard.boardActive.storyboard.storyBoardID,
-                        userId: userId
-                    )
+                    if !storyboard.boardActive.isliked {
+                        await viewModel.likeStoryBoard(
+                            storyId: storyboard.boardActive.storyboard.storyID,
+                            boardId: storyboard.boardActive.storyboard.storyBoardID,
+                            userId: userId
+                        )
+                        storyboard.boardActive.isliked = true
+                        storyboard.boardActive.totalLikeCount = storyboard.boardActive.totalLikeCount + 1
+                    }
                 }
             }
             

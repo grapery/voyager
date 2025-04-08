@@ -209,29 +209,33 @@ private struct FeedItemCard: View {
                     HStack(spacing: 8) {
                         // 故事缩略图和名称
                         HStack(spacing: 4) {
-                            KFImage(URL(string: storyBoardActive.summary.storyAvatar))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 32, height: 32)
-                                .clipShape(Circle())
-                                .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
-                            
-                            Text(storyBoardActive.summary.storyTitle)
-                                .font(.system(size: 14))
-                                .foregroundColor(Color.theme.accent)
+                            HStack{
+                                KFImage(URL(string: storyBoardActive.summary.storyAvatar))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 32, height: 32)
+                                    .clipShape(Circle())
+                                    .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
+                                
+                                Text(storyBoardActive.summary.storyTitle)
+                                    .font(.system(size: 14))
+                                    .foregroundColor(Color.theme.accent)
+                            }
                             Text("@")
                                 .foregroundColor(Color.theme.tertiaryText)
-                            // 创建者头像
-                            KFImage(URL(string: storyBoardActive.creator.userAvatar))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 20, height: 20)
-                                .clipShape(Circle())
-                                .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
-                            
-                            Text(storyBoardActive.creator.userName)
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(Color.theme.primaryText)
+                            HStack{
+                                // 创建者头像
+                                KFImage(URL(string: storyBoardActive.creator.userAvatar))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 20, height: 20)
+                                    .clipShape(Circle())
+                                    .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
+                                
+                                Text(storyBoardActive.creator.userName)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(Color.theme.primaryText)
+                            }
                         }
                         
                         Spacer()
