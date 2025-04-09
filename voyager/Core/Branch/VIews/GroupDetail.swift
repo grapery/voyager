@@ -25,6 +25,8 @@ struct GroupHeaderView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(height: 220)
+                .frame(maxWidth: .infinity)
+                .ignoresSafeArea(edges: .top)
                 .clipped()
                 .overlay(
                     LinearGradient(
