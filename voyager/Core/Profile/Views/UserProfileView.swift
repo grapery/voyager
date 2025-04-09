@@ -180,7 +180,7 @@ struct UserProfileView: View {
         VStack(spacing: 0) {
             CustomSegmentedControl(
                 selectedIndex: $selectedTab,
-                titles: ["故事", "角色", "待发布"]
+                titles: ["故事", "角色", "草稿"]
             )
             
             TabView(selection: $selectedTab) {
@@ -830,7 +830,7 @@ struct PendingTab: View {
     private var emptyStateView: some View {
         VStack {
             Spacer()
-            Text("暂无待发布的故事")
+            Text("草稿箱是空的")
                 .font(.system(size: 16))
                 .foregroundColor(Color.theme.secondaryText)
             

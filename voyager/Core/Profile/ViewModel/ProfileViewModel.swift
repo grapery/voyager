@@ -21,7 +21,7 @@ enum UserProfileFilterViewModel: Int, CaseIterable {
         switch self {
         case .storyboards: return "创建的故事板"
         case .roles: return  "创建的角色"
-        case .waitPublish: return "待发布"
+        case .waitPublish: return "草稿"
         }
     }
 }
