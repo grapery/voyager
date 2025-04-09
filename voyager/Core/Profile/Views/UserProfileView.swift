@@ -32,11 +32,33 @@ struct UserProfileView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                headerView
-                userInfoSection
+                // 头部区域
+                ZStack(alignment: .top) {
+                    // 背景图片层
+                    backgroundImageView
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 350)
+                        .ignoresSafeArea(edges: .top)
+                    
+                    // 顶部按钮和用户信息层
+                    VStack(spacing: 0) {
+                        // 顶部按钮
+                        headerView
+                            .padding(.top, 16)
+                        
+                        Spacer()
+                        
+                        // 用户信息
+                        userProfileInfo
+                            .padding(.bottom, 16)
+                    }
+                }
+                
+                // Tab 部分
                 tabsSection
             }
         }
+        .ignoresSafeArea(edges: .top)
         .background(Color.theme.background)
         .sheet(isPresented: $showingEditProfile) {
             EditUserProfileView(user: user)
@@ -92,28 +114,21 @@ struct UserProfileView: View {
             Spacer()
             Button(action: { showingEditProfile = true }) {
                 Image(systemName: "line.3.horizontal")
-                    .foregroundColor(Color.theme.tertiaryText)
+                    .foregroundColor(.white)
+                    .font(.system(size: 18))
+                    .shadow(color: .black.opacity(0.3), radius: 2)
             }
-            .padding(.horizontal, 16)
+            .padding(.trailing, 12)
             
             Button(action: { showSettings = true }) {
                 Image(systemName: "gearshape")
-                    .foregroundColor(Color.theme.tertiaryText)
+                    .foregroundColor(.white)
+                    .font(.system(size: 18))
+                    .shadow(color: .black.opacity(0.3), radius: 2)
             }
-            .padding(.trailing, 16)
+            .padding(.trailing, 20)
         }
-        .padding(.vertical, 8)
-        .background(Color.theme.background)
-    }
-    
-    private var userInfoSection: some View {
-        ZStack {
-            backgroundImageView
-            userProfileInfo
-        }
-        .onLongPressGesture {
-            showingImagePicker = true
-        }
+        .padding(.horizontal)
     }
     
     private var backgroundImageView: some View {
@@ -122,13 +137,11 @@ struct UserProfileView: View {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(height: 260)
-                    .clipped()
                     .overlay(backgroundGradient)
             } else {
                 Rectangle()
                     .fill(Color.theme.tertiaryBackground)
-                    .frame(height: 260)
+                    .overlay(backgroundGradient)
             }
         }
     }
@@ -136,8 +149,9 @@ struct UserProfileView: View {
     private var backgroundGradient: some View {
         LinearGradient(
             gradient: Gradient(colors: [
-                Color.black.opacity(0.3),
-                Color.black.opacity(0.1)
+                Color.black.opacity(0.4),
+                Color.black.opacity(0.2),
+                Color.black.opacity(0.4)
             ]),
             startPoint: .top,
             endPoint: .bottom
@@ -145,7 +159,7 @@ struct UserProfileView: View {
     }
     
     private var userProfileInfo: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 8) {
             RectProfileImageView(
                 avatarUrl: viewModel.user?.avatar ?? user.avatar,
                 size: .InProfile2
@@ -153,27 +167,25 @@ struct UserProfileView: View {
             .frame(width: 88, height: 88)
             .clipShape(Circle())
             .overlay(Circle().stroke(Color.white, lineWidth: 2))
-            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+            .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
             
             Text(viewModel.user?.name ?? user.name)
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundColor(.white)
+                .shadow(color: .black.opacity(0.3), radius: 2)
             
             userStats
         }
-        .padding(.vertical, 24)
+        .padding(.bottom, 32)
     }
     
     private var userStats: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 32) {
             StatItem(count: Int(viewModel.profile.watchingStoryNum), title: "创建", icon: "bell.fill")
-                .frame(maxWidth: .infinity)
             StatItem(count: Int(viewModel.profile.createdStoryNum), title: "关注", icon: "person.2.fill")
-                .frame(maxWidth: .infinity)
             StatItem(count: Int(viewModel.profile.contributStoryNum), title: "参与", icon: "heart.fill")
-                .frame(maxWidth: .infinity)
         }
-        .padding(.top, 8)
+        .padding(.top, 4)
     }
     
     private var tabsSection: some View {
@@ -187,16 +199,20 @@ struct UserProfileView: View {
                 StoriesTab(viewModel: viewModel, isLoading: isLoading)
                     .tag(0)
                     .id("stories")
+                    .frame(maxWidth: .infinity)
                 
                 RolesTab(viewModel: viewModel, isLoading: isLoading)
                     .tag(1)
                     .id("roles")
+                    .frame(maxWidth: .infinity)
                 
                 PendingTab(userId: viewModel.user?.userID ?? 0)
                     .tag(2)
                     .id("pending")
+                    .frame(maxWidth: .infinity)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            .frame(maxWidth: .infinity)
             .frame(minHeight: UIScreen.main.bounds.height * 0.6)
         }
     }
@@ -310,7 +326,7 @@ struct CustomSegmentedControl: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 0) {
+            HStack(spacing: 24) {
                 ForEach(0..<titles.count, id: \.self) { index in
                     Button(action: {
                         withAnimation {
@@ -327,10 +343,12 @@ struct CustomSegmentedControl: View {
                                 .fill(selectedIndex == index ? Color.theme.accent : Color.clear)
                                 .frame(height: 2)
                         }
-                        .frame(maxWidth: .infinity)
                     }
+                    .frame(maxWidth: .infinity)
                 }
             }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
             
             Divider()
                 .background(Color.theme.divider)
@@ -706,6 +724,7 @@ private struct StoriesTab: View {
                     ForEach(viewModel.storyboards) { board in
                         VStack(spacing: 0) {
                             StoryboardCell(board: board)
+                                .frame(maxWidth: .infinity)
                             
                             if board.id != viewModel.storyboards.last?.id {
                                 Divider()
@@ -715,7 +734,9 @@ private struct StoriesTab: View {
                     }
                 }
             }
+            .frame(maxWidth: .infinity)
         }
+        .frame(maxWidth: .infinity)
         .background(Color.theme.background)
     }
 }
@@ -741,11 +762,14 @@ private struct RolesTab: View {
                 } else {
                     ForEach(viewModel.storyRoles) { role in
                         ProfileRoleCell(role: role, viewModel: viewModel)
+                            .frame(maxWidth: .infinity)
                     }
                 }
             }
             .padding(.top, 16)
+            .frame(maxWidth: .infinity)
         }
+        .frame(maxWidth: .infinity)
         .background(Color.theme.background)
     }
 }
