@@ -1569,5 +1569,27 @@ extension APIClient {
         return nil
     }
     
+    func getNextStoryboard(userId:Int64,storyId:Int64,boardId:Int64,offset: Int64,pageSize: Int64,filter: Common_MultiBranchOrderBy) async ->  ([Common_StoryBoardActive]?,Int64?,Int64?,Error?){
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_GetNextStoryboardRequest.with {
+            $0.userID = userId
+            $0.storyboardID = boardId
+            $0.storyID = storyId
+            $0.offset = offset
+            $0.pageSize = pageSize
+            $0.orderBy = filter
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.getNextStoryboard(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return (nil,offset,pageSize,NSError(domain: "getNextStoryboard", code: 0, userInfo: [NSLocalizedDescriptionKey: "get board branchs"]))
+        }
+        let boardActiveInfo = response.message?.storyboards
+        let offset = response.message?.offset
+        let pageSize = response.message?.pageSize
+        return (boardActiveInfo,offset,pageSize,nil)
+    }
+    
 }
 

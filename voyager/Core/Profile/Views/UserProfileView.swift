@@ -44,7 +44,7 @@ struct UserProfileView: View {
                     VStack(spacing: 0) {
                         // 顶部按钮
                         headerView
-                            .padding(.top, 16)
+                            .padding(.top, 50)
                         
                         Spacer()
                         

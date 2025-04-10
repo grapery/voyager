@@ -252,13 +252,15 @@ struct StoryView: View {
                                 storyId: storyId,
                                 viewModel: self.viewModel
                             )) {
-                                StoryBoardCellView(
-                                    board: board,
-                                    userId: userId,
-                                    groupId: self.viewModel.story?.storyInfo.groupID ?? 0,
-                                    storyId: storyId,
-                                    viewModel: self.viewModel
-                                )
+                                HStack{
+                                    StoryBoardCellView(
+                                        board: board,
+                                        userId: userId,
+                                        groupId: self.viewModel.story?.storyInfo.groupID ?? 0,
+                                        storyId: storyId,
+                                        viewModel: self.viewModel
+                                    )
+                                }
                             }
                         }
                     }

@@ -195,9 +195,9 @@ struct StoryBoardCellView: View {
                     }
                 )
                 
-                // Share Button
+                // fork Button
                 StorySubViewInteractionButton(
-                    icon: "square.and.arrow.up",
+                    icon: "signpost.right.and.left",
                     count: "\(board.boardActive.totalForkCount)",
                     color: Color.theme.tertiaryText,
                     action: {
@@ -208,6 +208,7 @@ struct StoryBoardCellView: View {
                 Spacer()
             }
             .padding(.top, 8)
+            Divider().background(Color.theme.divider)
         }
         .padding(16)
         .background(Color.theme.secondaryBackground)
@@ -221,7 +222,7 @@ struct StoryBoardCellView: View {
                 viewModel: viewModel
             )
         }
-        Divider()
+        
     }
     
     private func formatDate(timestamp: Int64) -> String {

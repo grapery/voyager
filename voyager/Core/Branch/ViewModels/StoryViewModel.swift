@@ -25,6 +25,10 @@ class StoryViewModel: ObservableObject {
     var userId: Int64
     @Published var storyScenes: [StoryBoardSence] = []
     @Published var storyRoles: [StoryRole]? = []
+    @Published var forkStoryboards: [StoryBoardActive]? = nil
+    @Published var hasMoreForkStoryboards = true
+    @Published var currentForkPage: Int64 = 0
+    private let forkPageSize: Int64 = 10
     
     init(story: Story,userId: Int64) {
         self.story = story
@@ -62,8 +66,83 @@ class StoryViewModel: ObservableObject {
                 self.isLoading = false
             }
         }
+    }
+    
+    func fetchStoryboardForkList(userId: Int64, storyId: Int64, boardId: Int64, forceRefresh: Bool = false) async {
+        guard !isLoading else { return }
         
+        // 如果强制刷新，重置分页状态
+        if forceRefresh {
+            currentForkPage = 0
+            forkStoryboards = nil
+            hasMoreForkStoryboards = true
+        }
         
+        // 如果没有更多数据，直接返回
+        if !hasMoreForkStoryboards && !forceRefresh {
+            return
+        }
+        
+        DispatchQueue.main.async {
+            self.isLoading = true
+            self.err = nil
+        }
+        
+        do {
+            let offset = currentForkPage
+            let (fetchedBoards,pageNum,pageSize, error) = await apiClient.getNextStoryboard(
+                userId: userId,
+                storyId: storyId,
+                boardId: boardId,
+                offset: offset,
+                pageSize: forkPageSize,
+                filter: .likes
+            )
+            
+            await MainActor.run {
+                if let error = error {
+                    self.err = error
+                    self.isLoading = false
+                    return
+                }
+                
+                if let boards = fetchedBoards {
+                    // 更新分页状态
+                    hasMoreForkStoryboards = boards.count >= forkPageSize
+                    currentForkPage += 1
+                    
+                    // 将 Common_StoryBoardActive 转换为 StoryBoardActive
+                    let convertedBoards = boards.map { commonBoard -> StoryBoardActive in
+                        return StoryBoardActive(id: commonBoard.storyboard.storyBoardID, boardActive: commonBoard)
+                    }
+                    
+                    // 更新数据
+                    if self.forkStoryboards == nil {
+                        self.forkStoryboards = convertedBoards
+                    } else {
+                        self.forkStoryboards?.append(contentsOf: convertedBoards)
+                    }
+                }
+                
+                self.isLoading = false
+            }
+        } catch {
+            await MainActor.run {
+                self.err = error
+                self.isLoading = false
+            }
+        }
+    }
+    
+    // 加载更多分支故事板
+    func loadMoreForkStoryboards(userId: Int64, storyId: Int64, boardId: Int64) async {
+        guard !isLoading && hasMoreForkStoryboards else { return }
+        await fetchStoryboardForkList(userId: userId, storyId: storyId, boardId: boardId)
+    }
+    
+    // 刷新分支故事板列表
+    func refreshForkStoryboards(userId: Int64, storyId: Int64, boardId: Int64) async {
+        await fetchStoryboardForkList(userId: userId, storyId: storyId, boardId: boardId, forceRefresh: true)
     }
     
     // 添加一个方法来获取当前的 storyId
