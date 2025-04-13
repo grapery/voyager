@@ -754,6 +754,17 @@ class StoryViewModel: ObservableObject {
         }
         return nil
     }
+    
+    func getStoryRoleList(storyId: Int64,userId: Int64,name: String) async -> ([StoryRole]?,Error?){
+        do {
+            let (roles,_,_,err) = await apiClient.getStoryRoleList(userId: userId, storyId: storyId, query: name, offset: 0, pageSize: 20)
+            if err != nil {
+                self.err = err
+                return (nil,err)
+            }
+            return (roles,nil)
+        }
+    }
 }
 
 

@@ -15,10 +15,11 @@ struct NewStoryBoardView: View {
     
     
     // params
+    @State public var userId: Int64
     @State public var storyId: Int64
     @State public var boardId: Int64
     @State public var prevBoardId: Int64
-    @Binding var viewModel: StoryViewModel
+    @ObservedObject var viewModel: StoryViewModel
     
     // input
     @State public var title: String = ""
@@ -73,8 +74,7 @@ struct NewStoryBoardView: View {
     @State private var isRegenerating: Bool = false
     @State private var showError: Bool = false
     @State private var errorMessage: String = ""
-    
-    @State public var isForkingStory = false
+
     @Binding var isPresented: Bool
 
     var body: some View {
@@ -100,6 +100,9 @@ struct NewStoryBoardView: View {
                         generatedStoryTitle: $generatedStoryTitle,
                         generatedStoryContent: $generatedStoryContent,
                         isGenerated:$isStoryGenerated,
+                        userId: userId,
+                        storyId: storyId,
+                        viewModel: viewModel,
                         onGenerate: {
                             // 处理生成逻辑
                             Task{
@@ -138,7 +141,7 @@ struct NewStoryBoardView: View {
                     .tag(TimelineStep.complete)
                     
                     SceneGenerationView(
-                        viewModel: $viewModel,
+                        viewModel: viewModel,
                         onGenerateImage: handleGenerateImageAction,
                         onGenerateAllImage: GenerateAllSenseImageAction,
                         moreSenseDetail: moreSenseDetailAction
@@ -146,7 +149,7 @@ struct NewStoryBoardView: View {
                     .tag(TimelineStep.draw)
                     
                     StoryPublishView(
-                        viewModel: $viewModel,
+                        viewModel: viewModel,
                         onSaveOnly:{
                         // 仅保存
                         },
@@ -884,7 +887,7 @@ struct StepProgressView: View {
 
 
 struct StoryPublishView: View {
-    @Binding var viewModel: StoryViewModel
+    @ObservedObject var viewModel: StoryViewModel
     let onSaveOnly: () async -> Void
     let onPublish: () async -> Void
     
@@ -1103,7 +1106,7 @@ private struct CharacterButton: View {
 
 
 struct SceneGenerationView: View {
-    @Binding var viewModel: StoryViewModel
+    @ObservedObject var viewModel: StoryViewModel
     let onGenerateImage: (Int) async -> Void
     let onGenerateAllImage: () async -> Void
     let moreSenseDetail: (Int) async -> Void
@@ -1382,15 +1385,19 @@ struct StoryInputView: View {
     @Binding var description: String
     @Binding var background: String
     @Binding var roles: [StoryRole]
+    @State private var isShowingRoleSelection = false
     
     // 添加生成内容的状态
     @Binding var generatedStoryTitle: String
     @Binding var generatedStoryContent: String
     @Binding var isGenerated: Bool
+    let userId: Int64
+    let storyId: Int64
+    @ObservedObject var viewModel: StoryViewModel
     
     // 添加回调函数
-    var onGenerate: () async -> Void// 返回生成的标题和内容
-    var onSave: () async -> Void // 保存编辑后的标题和内容
+    var onGenerate: () async -> Void
+    var onSave: () async -> Void
     
     var body: some View {
         ScrollView {
@@ -1401,9 +1408,16 @@ struct StoryInputView: View {
         }
         .background(Color(.systemBackground))
         .ignoresSafeArea(.keyboard)
+        .sheet(isPresented: $isShowingRoleSelection) {
+            RoleSelectionView(
+                viewModel: viewModel,
+                selectedRoles: $roles,
+                storyId: storyId,
+                userId: userId
+            )
+        }
     }
     
-    // 输入部分视图
     private var inputSection: some View {
         VStack(spacing: 24) {
             InputField(
@@ -1468,8 +1482,6 @@ struct StoryInputView: View {
         }
     }
     
-    
-    // 角色设定部分
     private var roleSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("角色设定")
@@ -1477,15 +1489,35 @@ struct StoryInputView: View {
                 .foregroundColor(.primary)
             
             Button(action: {
-                // 添加新角色的操作
+                isShowingRoleSelection = true
             }) {
                 VStack {
-                    Image(systemName: "plus")
-                        .frame(width: 50, height: 50)
-                        .background(Color.gray.opacity(0.2))
-                        .clipShape(Circle())
-                    Text("添加角色")
-                        .font(.caption)
+                    if roles.isEmpty {
+                        Image(systemName: "plus")
+                            .frame(width: 50, height: 50)
+                            .background(Color.gray.opacity(0.2))
+                            .clipShape(Circle())
+                        Text("添加角色")
+                            .font(.caption)
+                    } else {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 12) {
+                                ForEach(roles, id: \.role.roleID) { role in
+                                    VStack {
+                                        KFImage(URL(string: role.role.characterAvatar))
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 50, height: 50)
+                                            .clipShape(Circle())
+                                        Text(role.role.characterName)
+                                            .font(.caption)
+                                            .lineLimit(1)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
                 }
             }
             .frame(maxWidth: .infinity)
@@ -1622,6 +1654,120 @@ struct ActionButton: View {
             .background(color)
             .cornerRadius(20)
         }
+    }
+}
+
+struct RoleSelectionView: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var viewModel: StoryViewModel
+    @Binding var selectedRoles: [StoryRole]
+    let storyId: Int64
+    let userId: Int64
+    @State private var isLoading = true
+    @State private var errorMessage: String?
+    
+    var body: some View {
+        NavigationView {
+            Group {
+                if isLoading {
+                    VStack {
+                        Spacer()
+                        ProgressView()
+                            .scaleEffect(2.0)
+                            .padding()
+                        Text("加载中...")
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 14))
+                        Spacer()
+                    }
+                } else if let error = errorMessage {
+                    VStack {
+                        Spacer()
+                        Text(error)
+                            .foregroundColor(.red)
+                            .padding()
+                        Spacer()
+                    }
+                } else {
+                    List {
+                        ForEach(viewModel.storyRoles ?? [], id: \.role.roleID) { role in
+                            RoleSelectionRow(
+                                role: role,
+                                isSelected: selectedRoles.contains { $0.role.roleID == role.role.roleID },
+                                onSelect: {
+                                    if let index = selectedRoles.firstIndex(where: { $0.role.roleID == role.role.roleID }) {
+                                        selectedRoles.remove(at: index)
+                                    } else {
+                                        selectedRoles.append(role)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            .navigationTitle("选择角色")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("完成") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+        .task {
+            await loadStoryRoles()
+        }
+    }
+    
+    private func loadStoryRoles() async {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let err = await viewModel.getStoryRoles(storyId: storyId, userId: userId)
+            if let error = err {
+                errorMessage = error.localizedDescription
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        
+        isLoading = false
+    }
+}
+
+struct RoleSelectionRow: View {
+    let role: StoryRole
+    let isSelected: Bool
+    let onSelect: () -> Void
+    
+    var body: some View {
+        Button(action: onSelect) {
+            HStack {
+                KFImage(URL(string: role.role.characterAvatar))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
+                
+                VStack(alignment: .leading) {
+                    Text(role.role.characterName)
+                        .font(.headline)
+                    Text(role.role.characterDescription)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
+                
+                Spacer()
+                
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .foregroundColor(isSelected ? .blue : .gray)
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

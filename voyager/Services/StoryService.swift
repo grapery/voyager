@@ -1586,6 +1586,24 @@ extension APIClient {
         let pageSize = response.message?.pageSize
         return (boardActiveInfo,offset,pageSize,nil)
     }
-    
+
+    func getStoryRoleList(userId:Int64,storyId: Int64,query: String,offset: Int64,pageSize: Int64) async -> ([StoryRole]?,Int64?,Int64?,Error?){
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_GetStoryRoleListRequest.with {
+            $0.userID = userId
+            $0.offset = offset
+            $0.storyID = storyId
+            $0.pageSize = pageSize
+            $0.searchKey = query
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.getStoryRoleList(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return (nil,offset,pageSize,NSError(domain: "getStoryRoleList", code: 0, userInfo: [NSLocalizedDescriptionKey: "get story role list failed"]))
+        }
+        let roles = response.message?.roles.map { StoryRole(Id: $0.roleID, role: $0) }
+        return (roles,offset,pageSize,nil)
+    }
 }
 

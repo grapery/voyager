@@ -14,9 +14,9 @@
             filePath = "voyager/Core/Branch/ViewModels/StoryViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "326"
-            endingLineNumber = "326"
-            landmarkName = "applyStorySummry(storyId:theme:summry:userId:)"
+            startingLineNumber = "349"
+            endingLineNumber = "349"
+            landmarkName = "CreateStory(groupId:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -46,9 +46,9 @@
             filePath = "voyager/Core/Profile/ViewModel/ProfileViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "167"
-            endingLineNumber = "167"
-            landmarkName = "fetchUserCreatedStoryboards(userId:groupId:storyId:)"
+            startingLineNumber = "177"
+            endingLineNumber = "177"
+            landmarkName = "ResetStoryRolesParams()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

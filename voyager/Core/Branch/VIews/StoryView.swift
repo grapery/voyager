@@ -234,14 +234,13 @@ struct StoryView: View {
     
     private var storyLineView: some View {
         VStack(alignment: .leading, spacing: 0) {
-            
             if viewModel.isLoading {
                 VStack {
                     Spacer()
                     ProgressView()
                     Spacer()
                 }
-            } else if let boards = viewModel.storyboards {
+            } else if let boards = viewModel.storyboards, !boards.isEmpty {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(boards, id: \.id) { board in
@@ -266,9 +265,44 @@ struct StoryView: View {
                     }
                     .padding(.horizontal, 4)
                 }
+            } else {
+                VStack {
+                    Spacer()
+                    Button(action: {
+                        isShowingNewStoryBoard = true
+                    }) {
+                        VStack {
+                            Image(systemName: "plus")
+                                .font(.system(size: 30))
+                                .foregroundColor(Color.theme.tertiaryText)
+                        }
+                        .frame(width: 120, height: 120)
+                        .background(Color.theme.tertiaryBackground)
+                        .cornerRadius(12)
+                    }
+                    Text("创建新的故事板")
+                        .font(.system(size: 16))
+                        .foregroundColor(Color.theme.secondaryText)
+                        .padding(.top, 8)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
             }
         }
         .background(Color(.systemBackground))
+        .sheet(isPresented: $isShowingNewStoryBoard) {
+            NavigationView {
+                NewStoryBoardView(
+                    userId: userId,
+                    storyId: storyId,
+                    boardId: -1,
+                    prevBoardId: 0,
+                    viewModel: viewModel,
+                    roles: [StoryRole](),
+                    isPresented: $isShowingNewStoryBoard
+                )
+            }
+        }
     }
     
     private func generateStory() {
