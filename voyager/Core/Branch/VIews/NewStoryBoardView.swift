@@ -461,7 +461,7 @@ struct NewStoryBoardView: View {
                         .tag(0)
                     
                     // 参与人物
-                    contentSection("参与人物", content: scene.characters)
+                    characterSection("参与人物", characters: scene.characters)
                         .tag(1)
                     
                     // 图片提示词
@@ -497,7 +497,26 @@ struct NewStoryBoardView: View {
             }
             .padding(.horizontal, 4)
         }
+        
+        private func characterSection(_ title: String, characters: [Common_Character]) -> some View {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(title)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.secondary)
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(characters, id: \.id) { character in
+                            CharacterButton(character: character)
+                        }
+                    }
+                    .padding(.horizontal, 4)
+                }
+            }
+        }
     }
+    
+    
 
     // 2. 修改控制按钮样式
     private func SenceGenControlView(idx: Int, senceId:Int64) -> some View {
@@ -588,22 +607,15 @@ extension NewStoryBoardView {
                 backgroud: self.background
             )
             
-            if let firstResult = ret.0.result.values.first {
-                self.generatedStoryTitle = firstResult.data["章节题目"]?.text ?? ""
-                self.generatedStoryContent = firstResult.data["章节内容"]?.text ?? ""
-                //hideLoading()
-                if self.generatedStoryTitle.count == 0 || self.generatedStoryContent.count == 0 {
-                    throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "生成故事失败"])
-                }else{
-                    showNotification(message: "故事生成成功", type: .success)
-                    print("故事生成成功")
-                }
+            let chapterSummary = ret.0!.result.chapterSummary
+            if !chapterSummary.title.isEmpty && !chapterSummary.content.isEmpty {
+                self.generatedStoryTitle = chapterSummary.title
+                self.generatedStoryContent = chapterSummary.content
+                showNotification(message: "故事生成成功", type: .success)
             } else {
                 throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "生成故事失败"])
             }
         } catch {
-//            hideLoading()
-//            // 传入重试操作
             showNotification(
                 message: "操作失败: \(error.localizedDescription)", 
                 type: .error,
@@ -1002,7 +1014,7 @@ private struct ScenePreviewCard: View {
             // 场景信息
             VStack(alignment: .leading, spacing: 12) {
                 InfoSection(title: "场景描述", content: scene.content)
-                InfoSection(title: "参与人物", content: scene.characters)
+                InfoSection(title: "参与人物", content: "", characters: scene.characters)
                 if !scene.imagePrompt.isEmpty {
                     InfoSection(title: "图片提示词", content: scene.imagePrompt)
                 }
@@ -1017,22 +1029,74 @@ private struct ScenePreviewCard: View {
     }
 }
 
-// 信息展示组件
+// 修改 InfoSection 组件
 private struct InfoSection: View {
     let title: String
     let content: String
+    let characters: [Common_Character]?
+    
+    init(title: String, content: String, characters: [Common_Character]? = nil) {
+        self.title = title
+        self.content = content
+        self.characters = characters
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
-            Text(content)
-                .font(.body)
-                .padding(12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
+            
+            if let characters = characters {
+                // 角色按钮列表
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(characters, id: \.id) { character in
+                            CharacterButton(character: character)
+                        }
+                    }
+                    .padding(.horizontal, 4)
+                }
+            } else {
+                // 普通文本内容
+                Text(content)
+                    .font(.body)
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
+            }
+        }
+    }
+}
+
+// 添加角色按钮组件
+private struct CharacterButton: View {
+    let character: Common_Character
+    
+    var body: some View {
+        Button(action: {
+            // 点击角色按钮的操作（如果需要的话）
+        }) {
+            HStack(spacing: 4) {
+                // 角色头像（如果有的话）
+//                if let avatarUrl = character.avatarUrl {
+//                    KFImage(URL(string: avatarUrl))
+//                        .resizable()
+//                        .aspectRatio(contentMode: .fill)
+//                        .frame(width: 20, height: 20)
+//                        .clipShape(Circle())
+//                }
+                
+                // 角色名称
+                Text(character.name)
+                    .font(.system(size: 12))
+                    .foregroundColor(Color.theme.buttonText)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Color.theme.accent)
+            .cornerRadius(16)
         }
     }
 }
@@ -1170,7 +1234,7 @@ struct SceneCard: View {
             // Content sections
             VStack(alignment: .leading, spacing: 16) {
                 contentSection("场景故事", content: scene.content)
-                contentSection("参与人物", content: scene.characters)
+                characterSection("参与人物", characters: scene.characters)
                 contentSection("图片提示词", content: scene.imagePrompt)
             }
             if !scene.imageUrl.isEmpty{
@@ -1204,6 +1268,23 @@ struct SceneCard: View {
                 .padding(12)
                 .background(Color(.systemGray6))
                 .cornerRadius(8)
+        }
+    }
+    
+    private func characterSection(_ title: String, characters: [Common_Character]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.secondary)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(characters, id: \.id) { character in
+                        CharacterButton(character: character)
+                    }
+                }
+                .padding(.horizontal, 4)
+            }
         }
     }
 }

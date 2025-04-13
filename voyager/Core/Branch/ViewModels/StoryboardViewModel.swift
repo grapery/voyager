@@ -11,12 +11,12 @@ import Combine
 class StoryBoardSence{
     var senceIndex: Int
     var content: String
-    var characters: String
+    var characters: [Common_Character]
     var imagePrompt: String
     var senceId: Int64
     var imageUrl: String
     
-    init(index: Int, content: String, characters: String, imagePrompt: String) {
+    init(index: Int, content: String, characters: [Common_Character], imagePrompt: String) {
         self.senceIndex = index
         self.content = content
         self.characters = characters
@@ -26,10 +26,10 @@ class StoryBoardSence{
     }
     
     // 从API响应数据创建场景
-    static func fromResponse(_ data: Common_RenderStoryStructure, index: Int) -> StoryBoardSence? {
-        let content = data.data["情节内容"]!.text
-        let characters = data.data["参与人物"]!.text
-        let imagePrompt = data.data["图片提示词"]!.text
+    static func fromResponse(_ data: Common_DetailScene, index: Int) -> StoryBoardSence? {
+        let content = data.content
+        let characters = data.characters
+        let imagePrompt = data.imagePrompt
         
         return StoryBoardSence(
             index: index,

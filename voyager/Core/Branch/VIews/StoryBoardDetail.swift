@@ -41,6 +41,8 @@ struct StoryBoardCellView: View {
     @State private var commentText: String = ""
     @State var commentViewModel = CommentsViewModel()
     
+    @State private var showChildNodes = false
+    
     let columns = [
         GridItem(.flexible(), spacing: 8),
         GridItem(.flexible(), spacing: 8)
@@ -55,7 +57,7 @@ struct StoryBoardCellView: View {
         self.groupId = groupId
         self.storyId = storyId
         self.viewModel = viewModel
-        
+        self.showChildNodes = false
         // 初始化 sceneMediaContents
         var tempSceneContents: [SceneMediaContent] = []
         
@@ -201,13 +203,46 @@ struct StoryBoardCellView: View {
                     count: "\(board.boardActive.totalForkCount)",
                     color: Color.theme.tertiaryText,
                     action: {
-                        // Share action
+                        withAnimation(.spring()) {
+                            showChildNodes.toggle()
+                        }
                     }
                 )
                 
                 Spacer()
             }
             .padding(.top, 8)
+            if showChildNodes {
+                Divider()
+                VStack(alignment: .leading) {
+                    HStack {
+                        if viewModel.isLoadingForkList(for: board.boardActive.storyboard.storyBoardID) {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal)
+                    
+                    StoryboardForkListView(
+                        userId: userId,
+                        currentBoard: board,
+                        viewModel: viewModel
+                    )
+                }
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .task {
+                    // 只在首次显示时加载数据
+                    if viewModel.getForkList(for: board.boardActive.storyboard.storyBoardID).isEmpty {
+                        await viewModel.refreshForkStoryboards(
+                            userId: userId,
+                            storyId: board.boardActive.storyboard.storyID,
+                            boardId: board.boardActive.storyboard.storyBoardID
+                        )
+                    }
+                }
+            }
             Divider().background(Color.theme.divider)
         }
         .padding(16)

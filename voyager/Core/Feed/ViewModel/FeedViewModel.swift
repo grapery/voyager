@@ -36,6 +36,17 @@ class FeedViewModel: ObservableObject {
     public  var hasMoreData = true
     private let storyService = APIClient.shared
    
+    // 添加分支故事板相关的状态
+    @Published var currentForkPage: Int64 = 0
+    @Published var hasMoreForkStoryboards = true
+    private let forkPageSize: Int64 = 10
+   
+    // 使用字典存储每个故事板的分支列表
+    @Published private var forkListsMap: [Int64: [StoryBoardActive]] = [:]
+    @Published private var forkListsLoadingMap: [Int64: Bool] = [:]
+    @Published private var forkListsHasMoreMap: [Int64: Bool] = [:]
+    @Published private var forkListsPageMap: [Int64: Int64] = [:]
+    
     @MainActor
     func performSearch() async {
        // Implement search logic here based on the selected tab and searchText
@@ -260,6 +271,105 @@ class FeedViewModel: ObservableObject {
             return (nil,err)
         }
         return (storyboard,nil)
+    }
+
+    // 获取特定故事板的分支列表
+    func getForkList(for boardId: Int64) -> [StoryBoardActive] {
+        return forkListsMap[boardId] ?? []
+    }
+    
+    // 获取特定故事板的加载状态
+    func isLoadingForkList(for boardId: Int64) -> Bool {
+        return forkListsLoadingMap[boardId] ?? false
+    }
+    
+    // 获取特定故事板是否有更多数据
+    func hasMoreForkList(for boardId: Int64) -> Bool {
+        return forkListsHasMoreMap[boardId] ?? true
+    }
+    
+    // 清理特定故事板的分支列表
+    func clearForkList(for boardId: Int64) {
+        forkListsMap.removeValue(forKey: boardId)
+        forkListsLoadingMap.removeValue(forKey: boardId)
+        forkListsHasMoreMap.removeValue(forKey: boardId)
+        forkListsPageMap.removeValue(forKey: boardId)
+    }
+    
+    @MainActor
+    func fetchStoryboardForkList(userId: Int64, storyId: Int64, boardId: Int64, forceRefresh: Bool = false) async {
+        guard !forkListsLoadingMap[boardId, default: false] else { return }
+        
+        // 如果强制刷新，重置状态
+        if forceRefresh {
+            forkListsPageMap[boardId] = 0
+            forkListsMap[boardId] = []
+            forkListsHasMoreMap[boardId] = true
+        }
+        
+        // 如果没有更多数据，直接返回
+        if !forkListsHasMoreMap[boardId, default: true] && !forceRefresh {
+            return
+        }
+        
+        forkListsLoadingMap[boardId] = true
+        hasError = false
+        
+        do {
+            let offset = forkListsPageMap[boardId, default: 0]
+            let (fetchedBoards, pageNum, pageSize, error) = await APIClient.shared.getNextStoryboard(
+                userId: userId,
+                storyId: storyId,
+                boardId: boardId,
+                offset: offset,
+                pageSize: forkPageSize,
+                filter: .likes
+            )
+            
+            if let error = error {
+                hasError = true
+                errorMessage = error.localizedDescription
+                forkListsLoadingMap[boardId] = false
+                return
+            }
+            
+            if let boards = fetchedBoards {
+                // 更新分页状态
+                forkListsHasMoreMap[boardId] = boards.count >= forkPageSize
+                forkListsPageMap[boardId, default: 0] += 1
+                
+                // 将 Common_StoryBoardActive 转换为 StoryBoardActive
+                let convertedBoards = boards.map { commonBoard -> StoryBoardActive in
+                    return StoryBoardActive(id: commonBoard.storyboard.storyBoardID, boardActive: commonBoard)
+                }
+                
+                // 更新数据
+                if forceRefresh {
+                    forkListsMap[boardId] = convertedBoards
+                } else {
+                    forkListsMap[boardId, default: []].append(contentsOf: convertedBoards)
+                }
+            }
+            
+            forkListsLoadingMap[boardId] = false
+        } catch {
+            hasError = true
+            errorMessage = error.localizedDescription
+            forkListsLoadingMap[boardId] = false
+        }
+    }
+    
+    // 加载更多分支故事板
+    @MainActor
+    func loadMoreForkStoryboards(userId: Int64, storyId: Int64, boardId: Int64) async {
+        guard !forkListsLoadingMap[boardId, default: false] && forkListsHasMoreMap[boardId, default: true] else { return }
+        await fetchStoryboardForkList(userId: userId, storyId: storyId, boardId: boardId)
+    }
+    
+    // 刷新分支故事板列表
+    @MainActor
+    func refreshForkStoryboards(userId: Int64, storyId: Int64, boardId: Int64) async {
+        await fetchStoryboardForkList(userId: userId, storyId: storyId, boardId: boardId, forceRefresh: true)
     }
 }
 

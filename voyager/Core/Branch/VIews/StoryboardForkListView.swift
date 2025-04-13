@@ -24,38 +24,53 @@ struct StoryboardForkListView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // 标题
-            Text("分支故事")
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(Color.theme.primaryText)
-                .padding(.horizontal, 16)
-            
+        VStack(alignment: .leading, spacing: 8) {            
             // 分支列表
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 12) {
-                    ForEach(viewModel.forkStoryboards!) { board in
+                    let boardId = currentBoard.boardActive.storyboard.storyBoardID
+                    let forkList = viewModel.getForkList(for: boardId)
+                    
+                    ForEach(forkList) { board in
                         ForkStoryBoardCard(board: board)
                             .onTapGesture {
                                 selectedBoard = board
                                 showingStoryBoard = true
                             }
                     }
+                    
+                    // 如果有更多数据，显示加载更多按钮
+                    if viewModel.hasMoreForkList(for: boardId) && !viewModel.isLoadingForkList(for: boardId) {
+                        Button(action: {
+                            Task {
+                                await viewModel.loadMoreForkStoryboards(
+                                    userId: userId,
+                                    storyId: currentBoard.boardActive.summary.storyID,
+                                    boardId: boardId
+                                )
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "arrow.clockwise")
+                                Text("加载更多")
+                            }
+                            .font(.system(size: 12))
+                            .foregroundColor(Color.theme.accent)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(Color.theme.secondaryBackground)
+                            .cornerRadius(16)
+                        }
+                    }
+                    
+                    // 加载状态指示器
+                    if viewModel.isLoadingForkList(for: boardId) {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                            .padding(.horizontal)
+                    }
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-            }
-        }
-        .fullScreenCover(isPresented: $showingStoryBoard) {
-            if let board = selectedBoard {
-                NavigationStack {
-                    StoryBoardView(
-                        userId: (selectedBoard?.boardActive.creator.userID)!,
-                        groupId: (selectedBoard?.boardActive.summary.storyID)!,
-                        storyId: (selectedBoard?.boardActive.summary.storyID)!,
-                        viewModel: viewModel
-                    )
-                }
             }
         }
         .task {
@@ -120,6 +135,120 @@ private struct ForkStoryBoardCard: View {
         }
         .frame(width: 140)
         .background(Color.theme.background)
+    }
+}
+
+struct FeedStoryboardForkListView: View {
+    @ObservedObject var viewModel: FeedViewModel
+    @State private var showingStoryBoard = false
+    @State private var selectedBoard: StoryBoardActive?
+    let currentBoard: StoryBoardActive
+    let userId: Int64
+    
+    init(userId: Int64, currentBoard: StoryBoardActive, viewModel: FeedViewModel) {
+        self.viewModel = viewModel
+        self.currentBoard = currentBoard
+        self.userId = userId
+    }
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack() {
+                let boardId = currentBoard.boardActive.storyboard.storyBoardID
+                let forkList = viewModel.getForkList(for: boardId)
+                
+                ForEach(forkList) { board in
+                    FeedForkStoryBoardCard(board: board)
+                        .onTapGesture {
+                            selectedBoard = board
+                            showingStoryBoard = true
+                        }
+                }
+                
+                // 如果有更多数据，显示加载更多按钮
+                if viewModel.hasMoreForkList(for: boardId) && !viewModel.isLoadingForkList(for: boardId) {
+                    Button(action: {
+                        Task {
+                            await viewModel.loadMoreForkStoryboards(
+                                userId: userId,
+                                storyId: currentBoard.boardActive.summary.storyID,
+                                boardId: boardId
+                            )
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "arrow.clockwise")
+                            Text("加载更多")
+                        }
+                        .font(.system(size: 12))
+                        .foregroundColor(Color.theme.accent)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color.theme.secondaryBackground)
+                        .cornerRadius(16)
+                    }
+                }
+                
+                // 加载状态指示器
+                if viewModel.isLoadingForkList(for: boardId) {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                        .padding(.horizontal)
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+        .onDisappear {
+            viewModel.clearForkList(for: currentBoard.boardActive.storyboard.storyBoardID)
+        }
+    }
+}
+
+// 分支故事板卡片
+private struct FeedForkStoryBoardCard: View {
+    let board: StoryBoardActive
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            // 故事板内容预览
+            Text(board.boardActive.storyboard.content)
+                .font(.system(size: 14))
+                .foregroundColor(Color.theme.primaryText)
+                .lineLimit(5)
+                .frame(width: 80)
+                .frame(height: 150)
+                .padding(.bottom, 4)
+            
+            // 创建者信息
+            HStack(spacing: 4) {
+                KFImage(URL(string: defaultAvator))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 20, height: 20)
+                    .clipShape(Circle())
+                
+                Text(board.boardActive.creator.userName)
+                    .font(.system(size: 12))
+                    .foregroundColor(Color.theme.secondaryText)
+            }
+            
+            // 互动信息
+            HStack(spacing: 16) {
+                Label("\(board.boardActive.totalLikeCount)", systemImage: "heart")
+                Label("\(board.boardActive.totalCommentCount)", systemImage: "bubble.left")
+                Label("\(board.boardActive.totalForkCount)", systemImage: "arrow.triangle.branch")
+            }
+            .font(.system(size: 12))
+            .foregroundColor(Color.theme.tertiaryText)
+        }
+        .padding(12)
+        .frame(width: 220)
+        .background(Color.theme.background)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.theme.border, lineWidth: 0.5)
+        )
     }
 }
 

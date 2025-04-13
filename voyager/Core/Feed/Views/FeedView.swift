@@ -161,6 +161,7 @@ private struct FeedItemCard: View {
     let userId: Int64
     @ObservedObject var viewModel: FeedViewModel
     @State private var showStoryboardSummary = false
+    @State private var showChildNodes = false
     let sceneMediaContents: [SceneMediaContent]
     
     init(storyBoardActive: Common_StoryBoardActive?=nil, userId: Int64, viewModel: FeedViewModel) {
@@ -168,6 +169,7 @@ private struct FeedItemCard: View {
         self.userId = userId
         self.viewModel = viewModel
         self.showStoryboardSummary = false
+        self.showChildNodes = false
         var tempSceneContents: [SceneMediaContent] = []
         let scenes = storyBoardActive!.storyboard.sences.list
         for scene in scenes {
@@ -323,7 +325,7 @@ private struct FeedItemCard: View {
                         Text("\(storyBoardActive.totalLikeCount)")
                             .font(.system(size: 14))
                     }
-                    .foregroundColor(storyBoardActive.isliked ? Color.theme.accent : Color.theme.tertiaryText)
+                    .foregroundColor(storyBoardActive.isliked ? Color.red : Color.theme.tertiaryText)
                 }
                 
                 // 评论按钮
@@ -340,13 +342,17 @@ private struct FeedItemCard: View {
                 
                 // fork 按钮
                 Button(action: {
-                    print("fork button taped")
+                    withAnimation(.spring()) {
+                        showChildNodes.toggle()
+                    }
                 }) {
-                    Image(systemName: "signpost.right.and.left")
-                        .font(.system(size: 16))
-                        .foregroundColor(Color.theme.tertiaryText)
-                    Text("\(storyBoardActive.totalForkCount)")
-                        .font(.system(size: 14))
+                    HStack(spacing: 4) {
+                        Image(systemName: "signpost.right.and.left")
+                            .font(.system(size: 16))
+                        Text("\(storyBoardActive.totalForkCount)")
+                            .font(.system(size: 14))
+                    }
+                    .foregroundColor(showChildNodes ? Color.theme.accent : Color.theme.tertiaryText)
                 }
             }
             .padding(.horizontal)

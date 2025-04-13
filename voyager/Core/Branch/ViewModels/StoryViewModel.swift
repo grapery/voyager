@@ -25,10 +25,15 @@ class StoryViewModel: ObservableObject {
     var userId: Int64
     @Published var storyScenes: [StoryBoardSence] = []
     @Published var storyRoles: [StoryRole]? = []
-    @Published var forkStoryboards: [StoryBoardActive]? = nil
-    @Published var hasMoreForkStoryboards = true
+    
     @Published var currentForkPage: Int64 = 0
     private let forkPageSize: Int64 = 10
+    
+    // 使用字典存储每个故事板的分支列表
+    @Published public var forkListsMap: [Int64: [StoryBoardActive]] = [:]
+    @Published public var forkListsLoadingMap: [Int64: Bool] = [:]
+    @Published public var forkListsHasMoreMap: [Int64: Bool] = [:]
+    @Published public var forkListsPageMap: [Int64: Int64] = [:]
     
     init(story: Story,userId: Int64) {
         self.story = story
@@ -68,29 +73,51 @@ class StoryViewModel: ObservableObject {
         }
     }
     
+    // 获取特定故事板的分支列表
+    func getForkList(for boardId: Int64) -> [StoryBoardActive] {
+        return forkListsMap[boardId] ?? []
+    }
+    
+    // 获取特定故事板的加载状态
+    func isLoadingForkList(for boardId: Int64) -> Bool {
+        return forkListsLoadingMap[boardId] ?? false
+    }
+    
+    // 获取特定故事板是否有更多数据
+    func hasMoreForkList(for boardId: Int64) -> Bool {
+        return forkListsHasMoreMap[boardId] ?? true
+    }
+    
+    // 清理特定故事板的分支列表
+    func clearForkList(for boardId: Int64) {
+        forkListsMap.removeValue(forKey: boardId)
+        forkListsLoadingMap.removeValue(forKey: boardId)
+        forkListsHasMoreMap.removeValue(forKey: boardId)
+        forkListsPageMap.removeValue(forKey: boardId)
+    }
+    
+    @MainActor
     func fetchStoryboardForkList(userId: Int64, storyId: Int64, boardId: Int64, forceRefresh: Bool = false) async {
-        guard !isLoading else { return }
+        guard !forkListsLoadingMap[boardId, default: false] else { return }
         
-        // 如果强制刷新，重置分页状态
+        // 如果强制刷新，重置状态
         if forceRefresh {
-            currentForkPage = 0
-            forkStoryboards = nil
-            hasMoreForkStoryboards = true
+            forkListsPageMap[boardId] = 0
+            forkListsMap[boardId] = []
+            forkListsHasMoreMap[boardId] = true
         }
         
         // 如果没有更多数据，直接返回
-        if !hasMoreForkStoryboards && !forceRefresh {
+        if !forkListsHasMoreMap[boardId, default: true] && !forceRefresh {
             return
         }
         
-        DispatchQueue.main.async {
-            self.isLoading = true
-            self.err = nil
-        }
+        forkListsLoadingMap[boardId] = true
+        err = nil
         
         do {
-            let offset = currentForkPage
-            let (fetchedBoards,pageNum,pageSize, error) = await apiClient.getNextStoryboard(
+            let offset = forkListsPageMap[boardId, default: 0]
+            let (fetchedBoards, pageNum, pageSize, error) = await apiClient.getNextStoryboard(
                 userId: userId,
                 storyId: storyId,
                 boardId: boardId,
@@ -99,48 +126,46 @@ class StoryViewModel: ObservableObject {
                 filter: .likes
             )
             
-            await MainActor.run {
-                if let error = error {
-                    self.err = error
-                    self.isLoading = false
-                    return
-                }
-                
-                if let boards = fetchedBoards {
-                    // 更新分页状态
-                    hasMoreForkStoryboards = boards.count >= forkPageSize
-                    currentForkPage += 1
-                    
-                    // 将 Common_StoryBoardActive 转换为 StoryBoardActive
-                    let convertedBoards = boards.map { commonBoard -> StoryBoardActive in
-                        return StoryBoardActive(id: commonBoard.storyboard.storyBoardID, boardActive: commonBoard)
-                    }
-                    
-                    // 更新数据
-                    if self.forkStoryboards == nil {
-                        self.forkStoryboards = convertedBoards
-                    } else {
-                        self.forkStoryboards?.append(contentsOf: convertedBoards)
-                    }
-                }
-                
-                self.isLoading = false
+            if let error = error {
+                err = error
+                forkListsLoadingMap[boardId] = false
+                return
             }
+            
+            if let boards = fetchedBoards {
+                // 更新分页状态
+                forkListsHasMoreMap[boardId] = boards.count >= forkPageSize
+                forkListsPageMap[boardId, default: 0] += 1
+                
+                // 将 Common_StoryBoardActive 转换为 StoryBoardActive
+                let convertedBoards = boards.map { commonBoard -> StoryBoardActive in
+                    return StoryBoardActive(id: commonBoard.storyboard.storyBoardID, boardActive: commonBoard)
+                }
+                
+                // 更新数据
+                if forceRefresh {
+                    forkListsMap[boardId] = convertedBoards
+                } else {
+                    forkListsMap[boardId, default: []].append(contentsOf: convertedBoards)
+                }
+            }
+            
+            forkListsLoadingMap[boardId] = false
         } catch {
-            await MainActor.run {
-                self.err = error
-                self.isLoading = false
-            }
+            err = error
+            forkListsLoadingMap[boardId] = false
         }
     }
     
     // 加载更多分支故事板
+    @MainActor
     func loadMoreForkStoryboards(userId: Int64, storyId: Int64, boardId: Int64) async {
-        guard !isLoading && hasMoreForkStoryboards else { return }
+        guard !forkListsLoadingMap[boardId, default: false] && forkListsHasMoreMap[boardId, default: true] else { return }
         await fetchStoryboardForkList(userId: userId, storyId: storyId, boardId: boardId)
     }
     
     // 刷新分支故事板列表
+    @MainActor
     func refreshForkStoryboards(userId: Int64, storyId: Int64, boardId: Int64) async {
         await fetchStoryboardForkList(userId: userId, storyId: storyId, boardId: boardId, forceRefresh: true)
     }
@@ -384,15 +409,15 @@ class StoryViewModel: ObservableObject {
         return (resp,nil as Error?)
     }
     
-    func conintueGenStory(storyId:Int64,userId:Int64,prevBoardId: Int64,prompt: String, title: String, desc: String, backgroud: String) async -> (Common_RenderStoryDetail,Error?) {
-        var resp: Common_RenderStoryDetail
+    func conintueGenStory(storyId:Int64,userId:Int64,prevBoardId: Int64,prompt: String, title: String, desc: String, backgroud: String) async -> (Common_RenderStoryboardDetail?,Error?) {
+        var resp: Common_RenderStoryboardDetail?
         var err: Error?
         self.err = nil
         self.isGenerate = true
         do {
             (resp,err) = await apiClient.ContinueRenderStory(prevBoardId: prevBoardId, storyId: storyId, userId: userId, is_regenerate: true, prompt: prompt, title: title, desc: desc, backgroud: backgroud)
             if err != nil {
-                return (Common_RenderStoryDetail(),err)
+                return (Common_RenderStoryboardDetail(),err)
             }
         }
         self.isGenerate = false
@@ -445,16 +470,14 @@ class StoryViewModel: ObservableObject {
             
             // 解析响应数据
             DispatchQueue.main.async {
-                if resp.result.count > 1 {
+                if resp.result.chapterDetailInfo.details.count > 1 {
                     var scenes: [StoryBoardSence] = []
                     
                     // 遍历所有详细情节
-                    for i in 1...(resp.result.count-1) {
-                        let key = "详细情节-\(i)"
-                        if let sceneData = resp.result[key]{
-                            let scene = StoryBoardSence.fromResponse(sceneData, index: i)
-                            scenes.append(scene!)
-                        }
+                    for i in 1...(resp.result.chapterDetailInfo.details.count-1) {
+                        let sceneData = resp.result.chapterDetailInfo.details[i]
+                        let scene = StoryBoardSence.fromResponse(sceneData, index: i)
+                        scenes.append(scene!)
                     }
                     self.storyScenes = scenes
                 }
