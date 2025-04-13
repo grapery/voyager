@@ -11,7 +11,6 @@ import Foundation
 
 class BranchGroup: Identifiable, Hashable, Equatable {
     var info: Common_GroupInfo
-    
     init(info: Common_GroupInfo) {
         self.info = info
     }

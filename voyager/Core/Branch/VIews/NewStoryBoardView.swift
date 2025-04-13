@@ -25,7 +25,7 @@ struct NewStoryBoardView: View {
     @State public var title: String = ""
     @State public var description: String = ""
     @State public var background: String = ""
-    @State public var roles: [StoryRole]
+    @State public var roles: [StoryRole]?
     @State public var images: [UIImage]?
     
     // tech detail
@@ -607,7 +607,8 @@ extension NewStoryBoardView {
                 prompt: self.prompt,
                 title: self.title,
                 desc: self.description,
-                backgroud: self.background
+                backgroud: self.background,
+                roles: self.roles
             )
             
             let chapterSummary = ret.0!.result.chapterSummary
@@ -640,7 +641,8 @@ extension NewStoryBoardView {
                 backgroud: self.background,
                 params: Common_StoryBoardParams()
             )
-            
+            print("createStoryBoard resp:",ret.0?.id as Any)
+            self.boardId = (ret.0?.id)!
             if let error = ret.1 {
                 throw error
             } else {
@@ -653,6 +655,7 @@ extension NewStoryBoardView {
     
     private func generateStoryboardPrompt() async {
         do {
+            print("故事板的提示词: ",self.storyId,self.boardId,)
             let ret = await self.viewModel.genStoryBoardPrompt(
                 storyId: self.storyId, 
                 boardId: self.boardId, 
@@ -720,20 +723,20 @@ extension NewStoryBoardView {
     // 修改加载消息
     private var loadingMessages: [TimelineStep: String] {
         [
-            .write: "正在生成故事内容...",
+            .write: "正在生成故事板内容...",
             .complete: "正在创建故事板...",
             .draw: "正在生成场景图...",
-            .narrate: "正在发布故事..."
+            .narrate: "正在发布故事板..."
         ]
     }
 
     // 修改成功消息
     private var successMessages: [TimelineStep: String] {
         [
-            .write: "故事生成成功",
+            .write: "故事板生成成功",
             .complete: "故事板创建成功",
             .draw: "场景图片生成成功",
-            .narrate: "故事发布成功"
+            .narrate: "故事板发布成功"
         ]
     }
 
@@ -1384,7 +1387,7 @@ struct StoryInputView: View {
     @Binding var title: String
     @Binding var description: String
     @Binding var background: String
-    @Binding var roles: [StoryRole]
+    @Binding var roles: [StoryRole]?
     @State private var isShowingRoleSelection = false
     
     // 添加生成内容的状态
@@ -1492,7 +1495,7 @@ struct StoryInputView: View {
                 isShowingRoleSelection = true
             }) {
                 VStack {
-                    if roles.isEmpty {
+                    if roles!.isEmpty {
                         Image(systemName: "plus")
                             .frame(width: 50, height: 50)
                             .background(Color.gray.opacity(0.2))
@@ -1502,7 +1505,7 @@ struct StoryInputView: View {
                     } else {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
-                                ForEach(roles, id: \.role.roleID) { role in
+                                ForEach(roles!, id: \.role.roleID) { role in
                                     VStack {
                                         KFImage(URL(string: role.role.characterAvatar))
                                             .resizable()
@@ -1657,10 +1660,68 @@ struct ActionButton: View {
     }
 }
 
+// Loading View Component
+private struct LoadingView: View {
+    var body: some View {
+        VStack {
+            Spacer()
+            ProgressView()
+                .scaleEffect(2.0)
+                .padding()
+            Text("加载中...")
+                .foregroundColor(.secondary)
+                .font(.system(size: 14))
+            Spacer()
+        }
+    }
+}
+
+// Error View Component
+private struct ErrorView: View {
+    let message: String
+    
+    var body: some View {
+        VStack {
+            Spacer()
+            Text(message)
+                .foregroundColor(.red)
+                .padding()
+            Spacer()
+        }
+    }
+}
+
+// Role List View Component
+private struct RoleListView: View {
+    let roles: [StoryRole]
+    @Binding var selectedRoles: [StoryRole]?
+    
+    var body: some View {
+        List {
+            ForEach(roles, id: \.role.roleID) { role in
+                RoleSelectionRow(
+                    role: role,
+                    isSelected: selectedRoles?.contains { $0.role.roleID == role.role.roleID } ?? false,
+                    onSelect: {
+                        if selectedRoles == nil {
+                            selectedRoles = []
+                        }
+                        if let index = selectedRoles?.firstIndex(where: { $0.role.roleID == role.role.roleID }) {
+                            selectedRoles?.remove(at: index)
+                        } else {
+                            selectedRoles?.append(role)
+                        }
+                    }
+                )
+            }
+        }
+    }
+}
+
 struct RoleSelectionView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var viewModel: StoryViewModel
-    @Binding var selectedRoles: [StoryRole]
+    @Binding var selectedRoles: [StoryRole]?
     let storyId: Int64
     let userId: Int64
     @State private var isLoading = true
@@ -1670,40 +1731,11 @@ struct RoleSelectionView: View {
         NavigationView {
             Group {
                 if isLoading {
-                    VStack {
-                        Spacer()
-                        ProgressView()
-                            .scaleEffect(2.0)
-                            .padding()
-                        Text("加载中...")
-                            .foregroundColor(.secondary)
-                            .font(.system(size: 14))
-                        Spacer()
-                    }
+                    LoadingView()
                 } else if let error = errorMessage {
-                    VStack {
-                        Spacer()
-                        Text(error)
-                            .foregroundColor(.red)
-                            .padding()
-                        Spacer()
-                    }
+                    ErrorView(message: error)
                 } else {
-                    List {
-                        ForEach(viewModel.storyRoles ?? [], id: \.role.roleID) { role in
-                            RoleSelectionRow(
-                                role: role,
-                                isSelected: selectedRoles.contains { $0.role.roleID == role.role.roleID },
-                                onSelect: {
-                                    if let index = selectedRoles.firstIndex(where: { $0.role.roleID == role.role.roleID }) {
-                                        selectedRoles.remove(at: index)
-                                    } else {
-                                        selectedRoles.append(role)
-                                    }
-                                }
-                            )
-                        }
-                    }
+                    RoleListView(roles: viewModel.storyRoles ?? [], selectedRoles: $selectedRoles)
                 }
             }
             .navigationTitle("选择角色")

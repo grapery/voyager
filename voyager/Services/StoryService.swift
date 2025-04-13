@@ -134,10 +134,6 @@ extension APIClient {
     }
     
     func CreateStoryboard(storyId: Int64, prevBoardId: Int64, nextBoardId: Int64, creator: Int64, title: String, content: String, isAiGen: Bool, background: String, params: Common_StoryBoardParams) async -> (StoryBoard, Error?) {
-        print("CreateStoryboard request parameters:")
-        print("storyId: \(storyId), prevBoardId: \(prevBoardId), nextBoardId: \(nextBoardId), creator: \(creator)")
-        print("title: \(title), content: \(content), isAiGen: \(isAiGen), background: \(background)")
-        print("params: \(params)")
 
         let result = StoryBoard(id: -1, boardInfo: Common_StoryBoard())
         do {
@@ -169,6 +165,7 @@ extension APIClient {
             
             if let boardData = resp.message?.data {
                 result.id = Int64(boardData.boardID)
+                result.boardInfo.storyBoardID = boardData.boardID
             }
             
             print("CreateStoryboard response:")
@@ -553,14 +550,22 @@ extension APIClient {
         }
     }
     
-    func ContinueRenderStory(prevBoardId: Int64, storyId: Int64, userId: Int64, is_regenerate: Bool,prompt:String,title: String,desc:String,backgroud: String) async -> (Common_RenderStoryboardDetail?, Error?) {
+    func ContinueRenderStory(prevBoardId: Int64, storyId: Int64, userId: Int64, is_regenerate: Bool,prompt:String,title: String,desc:String,backgroud: String,roles: [StoryRole]?) async -> (Common_RenderStoryboardDetail?, Error?) {
         let authClient = Common_TeamsApiClient(client: self.client!)
+        var apiRoles = [Common_StoryRole]()
+        
+        // Convert StoryRole array to Common_StoryRole array
+        if let roles = roles {
+            apiRoles = roles.map { $0.role }
+        }
+        
         let request = Common_ContinueRenderStoryRequest.with {
             $0.prevBoardID = prevBoardId
             $0.storyID = storyId
             $0.userID = userId
             $0.prompt = prompt
             $0.title = title
+            $0.roles = apiRoles
             $0.description_p = desc
             $0.background = backgroud
         }

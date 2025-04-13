@@ -409,13 +409,13 @@ class StoryViewModel: ObservableObject {
         return (resp,nil as Error?)
     }
     
-    func conintueGenStory(storyId:Int64,userId:Int64,prevBoardId: Int64,prompt: String, title: String, desc: String, backgroud: String) async -> (Common_RenderStoryboardDetail?,Error?) {
+    func conintueGenStory(storyId:Int64,userId:Int64,prevBoardId: Int64,prompt: String, title: String, desc: String, backgroud: String,roles: [StoryRole]?) async -> (Common_RenderStoryboardDetail?,Error?) {
         var resp: Common_RenderStoryboardDetail?
         var err: Error?
         self.err = nil
         self.isGenerate = true
         do {
-            (resp,err) = await apiClient.ContinueRenderStory(prevBoardId: prevBoardId, storyId: storyId, userId: userId, is_regenerate: true, prompt: prompt, title: title, desc: desc, backgroud: backgroud)
+            (resp,err) = await apiClient.ContinueRenderStory(prevBoardId: prevBoardId, storyId: storyId, userId: userId, is_regenerate: true, prompt: prompt, title: title, desc: desc, backgroud: backgroud,roles:roles)
             if err != nil {
                 return (Common_RenderStoryboardDetail(),err)
             }

@@ -72,6 +72,7 @@ class GroupViewModel: ObservableObject {
             print("fetchGroupProfile err",err!)
             return (nil,err)
         }
+        print("group profile: ",profileInfo!)
         return (profileInfo,nil)
     }
     
