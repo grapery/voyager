@@ -32,7 +32,7 @@ struct StoryCardView: View {
                     .clipShape(Circle())
                 
                 // 作者名称
-                Text("teller")
+                Text("创作者")
                     .font(.system(size: 12))
                     .foregroundColor(.gray)
                 

@@ -171,14 +171,14 @@ struct StoryDetailView: View {
                         .cornerRadius(14)
                 }
             }
-//            Group{
-//                Toggle("是否AI生成描述", isOn: Binding(
-//                    get: { viewModel.story?.storyInfo.isAiGen ?? false },
-//                    set: { viewModel.story?.storyInfo.isAiGen = $0 }
-//                ))
-//                .disabled(!isEditing)
-//                .padding(.vertical)
-//            }
+            Group{
+                Toggle("是否AI生成描述", isOn: Binding(
+                    get: { viewModel.story?.storyInfo.isAiGen ?? false },
+                    set: { viewModel.story?.storyInfo.isAiGen = $0 }
+                ))
+                .disabled(!isEditing)
+                .padding(.vertical)
+            }
         }
     }
     

@@ -174,8 +174,9 @@ struct GroupListItemView: View {
                 
                 // 统计信息
                 HStack(spacing: 16) {
-                    GroupStatLabel(title: "成员", count: 10, icon: "person.2.fill")
-                    GroupStatLabel(title: "故事", count: 10, icon: "doc.text.fill")
+                    GroupStatLabel(title: "成员", count: Int(group.info.profile.groupMemberNum), icon: "person.2.fill")
+                    GroupStatLabel(title: "故事", count: Int(group.info.profile.groupStoryNum), icon: "doc.text.fill")
+                    GroupStatLabel(title: "关注者", count: Int(group.info.profile.groupFollowerNum), icon: "person.2.fill")
                     GroupStatLabel(title: "活跃", text: formatTimeAgo(group.info.mtime), icon: "clock.fill")
                 }
             }
