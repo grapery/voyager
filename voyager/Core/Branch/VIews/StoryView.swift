@@ -36,6 +36,8 @@ struct StoryView: View {
     @State private var showingErrorToast = false
     @State private var showingErrorAlert = false
     
+    @State private var showingParticipants = false
+    
     init(story: Story, userId: Int64) {
         self.story = story
         self.userId = userId
@@ -86,7 +88,7 @@ struct StoryView: View {
                 // 交互按钮栏
                 HStack(spacing: 24) {
                     StoryInteractionButton(
-                        count: "10",
+                        count: "\(story.storyInfo.likeCount)",
                         icon: "heart",
                         color: .red,
                         action: {
@@ -109,7 +111,7 @@ struct StoryView: View {
                     )
                     
                     StoryInteractionButton(
-                        count: "1",
+                        count: "\(story.storyInfo.followCount)",
                         icon: "bell",
                         color: .blue,
                         action: {
@@ -130,23 +132,13 @@ struct StoryView: View {
                             }
                         }
                     )
-                    
+                    // 参与人员个数
                     StoryInteractionButton(
-                        count: "分享",
-                        icon: "square.and.arrow.up",
+                        count: "\(story.storyInfo.totalMembers)",
+                        icon: "person",
                         color: .green,
                         action: {
-                            // 处理分享事件
-                            print("Share button tapped")
-                            Task {
-                                let err = await self.viewModel.likeStory(storyId: self.storyId, userId: self.userId)
-                                if let error = err {
-                                    DispatchQueue.main.async {
-                                        self.errorMessage = error.localizedDescription
-                                        self.showingErrorAlert = true
-                                    }
-                                }
-                            }
+                            showingParticipants = true
                         }
                     )
                 }
@@ -184,8 +176,29 @@ struct StoryView: View {
                         .animation(.easeInOut)
                         .transition(.move(edge: .top))
                 }
+                if showingParticipants {
+                    ZStack {
+                        Color.black.opacity(0.3)
+                            .edgesIgnoringSafeArea(.all)
+                            .onTapGesture {
+                                showingParticipants = false
+                            }
+                        
+                        StoryParticipantsView(
+                            story: story,
+                            isPresented: $showingParticipants,
+                            viewModel: viewModel,
+                            userId: userId,
+                            storyId: storyId
+                        )
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 40)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                }
             }
         )
+        .animation(.spring(), value: showingParticipants)
         .alert("操作失败", isPresented: $showingErrorAlert) {
             Button("确定", role: .cancel) {
                 showingErrorAlert = false
@@ -561,5 +574,208 @@ struct RoleCard: View {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .short
         return formatter.localizedString(for: date, relativeTo: Date())
+    }
+}
+
+// 参与者头像组件
+private struct ParticipantAvatar: View {
+    let avatarUrl: String
+    let isCreator: Bool
+    
+    var body: some View {
+        KFImage(URL(string: avatarUrl))
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: 40, height: 40)
+            .clipShape(Circle())
+            .overlay(
+                Circle()
+                    .stroke(
+                        isCreator ? Color.theme.accent.opacity(0.3) : Color.clear,
+                        lineWidth: 2
+                    )
+            )
+            .background(
+                isCreator ? Color.theme.accent.opacity(0.1) : Color.clear
+            )
+            .clipShape(Circle())
+    }
+}
+
+// 参与者项组件
+private struct ParticipantItem: View {
+    let member: User
+    let isCreator: Bool
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            ParticipantAvatar(avatarUrl: member.avatar, isCreator: isCreator)
+            
+            Text(member.name)
+                .font(.system(size: 16))
+                .foregroundColor(.theme.primaryText)
+            
+            Spacer()
+            
+            if isCreator {
+                Text("创建者")
+                    .font(.system(size: 12))
+                    .foregroundColor(.theme.accent)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.theme.accent.opacity(0.1))
+                    .cornerRadius(4)
+            }
+        }
+        .padding(.horizontal, 16)
+    }
+}
+
+// 参与者列表组件
+private struct ParticipantsList: View {
+    let story: Story
+    @ObservedObject var viewModel: StoryViewModel
+    let userId: Int64
+    let storyId: Int64
+    @State private var isLoading = true
+    @State private var errorMessage: String?
+    @State private var members: [User] = []
+    
+    init(story: Story, viewModel: StoryViewModel, userId: Int64, storyId: Int64, members: [User] = []) {
+        self.story = story
+        self.viewModel = viewModel
+        self.userId = userId
+        self.storyId = storyId
+        self.members = members
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            if isLoading {
+                Spacer()
+                ProgressView()
+                    .scaleEffect(1.5)
+                Text("加载中...")
+                    .foregroundColor(.theme.secondaryText)
+                    .padding(.top, 8)
+                Spacer()
+            } else if let error = errorMessage {
+                Spacer()
+                Text(error)
+                    .foregroundColor(.theme.error)
+                    .multilineTextAlignment(.center)
+                    .padding()
+                Spacer()
+            } else if members.isEmpty {
+                Spacer()
+                Text("暂无参与者")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.theme.secondaryText)
+                Spacer()
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 16) {
+                        ForEach(members, id: \.userID) { member in
+                            ParticipantItem(
+                                member: member,
+                                isCreator: member.userID == story.storyInfo.creatorID
+                            )
+                        }
+                    }
+                    .padding(.vertical, 12)
+                }
+            }
+        }
+        .task {
+            await loadParticipants()
+        }
+    }
+    
+    private func loadParticipants() async {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            // 直接调用 viewModel 方法并使用其返回类型
+            let (users, error) = await viewModel.getStoryMembers(storyId: storyId, userId: userId)
+            
+            if let error = error {
+                errorMessage = error.localizedDescription
+            } else if let users = users {
+                members = users
+            } else {
+                errorMessage = "获取参与者失败"
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        
+        isLoading = false
+    }
+}
+
+// 标题栏组件
+private struct ParticipantsHeader: View {
+    let storyName: String
+    let onClose: () -> Void
+    
+    var body: some View {
+        ZStack(alignment: .top) {
+            // 标题文本居中
+            Text("\(storyName)的参与者")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.theme.primaryText)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+            
+            // 关闭按钮放在右上角
+            VStack {
+                HStack {
+                    Spacer()
+                    Button(action: onClose) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.theme.primaryText)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                }
+                Spacer()
+            }
+        }
+        .frame(height: 44)
+        .background(Color.theme.secondaryBackground)
+    }
+}
+
+// 主视图组件
+struct StoryParticipantsView: View {
+    let story: Story
+    @Binding var isPresented: Bool
+    @ObservedObject var viewModel: StoryViewModel
+    let userId: Int64
+    let storyId: Int64
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            ParticipantsHeader(
+                storyName: story.storyInfo.name,
+                onClose: { isPresented = false }
+            )
+            
+            ParticipantsList(
+                story: story,
+                viewModel: viewModel,
+                userId: userId,
+                storyId: storyId,
+                members: [User]()
+            )
+            .padding(.top, 4)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: UIScreen.main.bounds.height * 0.6) // 使用屏幕高度的60%
+        .background(Color.theme.background)
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
     }
 }

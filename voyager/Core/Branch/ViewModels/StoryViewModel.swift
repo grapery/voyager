@@ -765,6 +765,10 @@ class StoryViewModel: ObservableObject {
             return (roles,nil)
         }
     }
+    
+    func getStoryMembers(storyId: Int64, userId: Int64) async -> ([User]?,Error?){
+        return ([User](),nil)
+    }
 }
 
 
