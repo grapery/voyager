@@ -105,6 +105,8 @@ struct StoryView: View {
                                             self.showingErrorToast = false
                                         }
                                     }
+                                }else{
+                                    self.viewModel.story?.storyInfo.likeCount = story.storyInfo.likeCount + 1
                                 }
                             }
                         }
@@ -128,6 +130,8 @@ struct StoryView: View {
                                             self.showingErrorToast = false
                                         }
                                     }
+                                }else{
+                                    self.viewModel.story?.storyInfo.followCount = story.storyInfo.followCount + 1
                                 }
                             }
                         }
