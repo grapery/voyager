@@ -97,6 +97,7 @@ struct StoryView: View {
                             Task {
                                 let err = await self.viewModel.likeStory(storyId: self.storyId, userId: self.userId)
                                 if let error = err {
+                                    print("error: \(error)")
                                     DispatchQueue.main.async {
                                         self.errorMessage = error.localizedDescription
                                         self.showingErrorToast = true
@@ -122,6 +123,7 @@ struct StoryView: View {
                             Task {
                                 let err = await self.viewModel.watchStory(storyId: self.storyId, userId: self.userId)
                                 if let error = err {
+                                    print("error: \(error)")
                                     DispatchQueue.main.async {
                                         self.errorMessage = error.localizedDescription
                                         self.showingErrorToast = true
