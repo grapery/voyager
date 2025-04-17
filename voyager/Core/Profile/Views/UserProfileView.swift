@@ -176,7 +176,7 @@ struct UserProfileView: View {
             
             userStats
         }
-        .padding(.bottom, 32)
+        .padding(.bottom, 16)
     }
     
     private var userStats: some View {
@@ -654,17 +654,17 @@ struct StatItem: View {
     let icon: String
     
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 4) {
             Image(systemName: icon)
-                .font(.system(size: 18))
+                .font(.system(size: 16))
                 .foregroundColor(.white)
             
             Text("\(count)")
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.white)
             
             Text(title)
-                .font(.system(size: 14))
+                .font(.system(size: 12))
                 .foregroundColor(.white.opacity(0.8))
         }
     }
