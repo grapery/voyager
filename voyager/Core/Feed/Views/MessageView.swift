@@ -32,6 +32,7 @@ struct MessageView: View {
     @State var user: User?
     @State private var showingDeleteAlert = false
     @State private var messageToDelete: Int64? = nil
+    @State private var isLoading = false
     
     init(user: User? = nil) {
         self.user = user
@@ -101,7 +102,7 @@ struct MessageView: View {
                 Button("删除", role: .destructive) {
                     if let id = messageToDelete {
                         Task {
-                        //await viewModel.deleteMessageContext(msgCtxId: id)
+                            //await viewModel.deleteMessageContext(msgCtxId: id)
                         }
                     }
                 }
@@ -110,12 +111,41 @@ struct MessageView: View {
             }
             .onAppear {
                 Task {
+                    isLoading = true
                     await self.viewModel.initUserChatContext()
+                    isLoading = false
                 }
             }
             .background(Color.theme.background)
+            .overlay {
+                if isLoading {
+                    loadingOverlay
+                }
+            }
         }
         .background(Color.theme.background)
+    }
+    
+    private var loadingOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.3)
+                .edgesIgnoringSafeArea(.all)
+            
+            VStack(spacing: 12) {
+                ProgressView()
+                    .scaleEffect(1.2)
+                    .tint(.white)
+                
+                Text("正在获取消息...")
+                    .font(.system(size: 14))
+                    .foregroundColor(.white)
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+            .background(Color.theme.secondary.opacity(0.8))
+            .cornerRadius(12)
+        }
+        .transition(.opacity.animation(.easeInOut(duration: 0.2)))
     }
 }
 

@@ -710,10 +710,7 @@ private struct StoriesTab: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-                if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 200)
-                } else if viewModel.storyboards.isEmpty {
+                if viewModel.storyboards.isEmpty {
                     EmptyStateView(
                         image: "doc.text",
                         title: "还没有故事",
@@ -749,10 +746,7 @@ private struct RolesTab: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
-                if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 200)
-                } else if viewModel.storyRoles.isEmpty {
+                if viewModel.storyRoles.isEmpty {
                     EmptyStateView(
                         image: "person.circle",
                         title: "还没有角色",
@@ -834,7 +828,7 @@ struct PendingTab: View {
                 if viewModel.unpublishedStoryboards.isEmpty && !viewModel.isLoading {
                     emptyStateView
                 } else {
-                    storyBoardsListView
+                    UnPublishedstoryBoardsListView
                 }
             }
         }
@@ -857,25 +851,12 @@ struct PendingTab: View {
             Text("草稿箱是空的")
                 .font(.system(size: 16))
                 .foregroundColor(Color.theme.secondaryText)
-            
-            Button(action: {
-                // TODO: 实现创作功能
-            }) {
-                Text("去创作")
-                    .font(.system(size: 16))
-                    .foregroundColor(.white)
-                    .frame(width: 120)
-                    .padding(.vertical, 12)
-                    .background(Color.theme.accent)
-                    .cornerRadius(22)
-            }
-            .padding(.top, 16)
             Spacer()
         }
         .frame(minHeight: 300)
     }
     
-    private var storyBoardsListView: some View {
+    private var UnPublishedstoryBoardsListView: some View {
         LazyVStack(spacing: 0) {
             ForEach(viewModel.unpublishedStoryboards) { board in
                 VStack(spacing: 0) {
@@ -914,6 +895,7 @@ struct UnpublishedStoryBoardCellView: View {
     @State private var showingPublishAlert = false
     @State private var showingDeleteAlert = false
     @State private var showingEditView = false
+    @State private var isAnimating = false
     @State private var errorMessage: String = ""
     @State private var showingErrorToast = false
     @State private var showingErrorAlert = false
@@ -1018,7 +1000,13 @@ struct UnpublishedStoryBoardCellView: View {
             HStack(spacing: 24) {
                 // 编辑
                 Button(action: {
-                    showingEditView = true
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        isAnimating = true
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        showingEditView = true
+                        isAnimating = false
+                    }
                 }) {
                     InteractionStatItem(
                         icon: "paintbrush.pointed",
@@ -1026,10 +1014,17 @@ struct UnpublishedStoryBoardCellView: View {
                         color: Color.theme.tertiaryText
                     )
                 }
+                .scaleEffect(isAnimating ? 0.9 : 1)
                 
                 // 发布
                 Button(action: {
-                    showingPublishAlert = true
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        isAnimating = true
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        showingPublishAlert = true
+                        isAnimating = false
+                    }
                 }) {
                     InteractionStatItem(
                         icon: "mountain.2",
@@ -1037,10 +1032,17 @@ struct UnpublishedStoryBoardCellView: View {
                         color: Color.theme.tertiaryText
                     )
                 }
+                .scaleEffect(isAnimating ? 0.9 : 1)
                 
                 // 删除
                 Button(action: {
-                    showingDeleteAlert = true
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        isAnimating = true
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        showingDeleteAlert = true
+                        isAnimating = false
+                    }
                 }) {
                     InteractionStatItem(
                         icon: "trash",
@@ -1048,6 +1050,7 @@ struct UnpublishedStoryBoardCellView: View {
                         color: Color.theme.tertiaryText
                     )
                 }
+                .scaleEffect(isAnimating ? 0.9 : 1)
                 
                 Spacer()
             }
@@ -1064,6 +1067,8 @@ struct UnpublishedStoryBoardCellView: View {
                     userId: userId,
                     viewModel: viewModel
                 )
+                .transition(.move(edge: .bottom))
+                .animation(.spring(response: 0.5, dampingFraction: 0.8), value: showingEditView)
             }
         }
         .alert("确认发布", isPresented: $showingPublishAlert) {
@@ -1115,6 +1120,7 @@ private struct InteractionStatItem: View {
                 .font(.system(size: 14))
         }
         .foregroundColor(color)
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: color)
     }
 }
 

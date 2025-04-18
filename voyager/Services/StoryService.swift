@@ -1485,7 +1485,6 @@ extension APIClient {
             $0.pageSize = pageSize
             $0.filter = filter
         }
-        print("storyActiveStoryBoards: ",request as Any)
         var header = Connect.Headers()
         header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
         let response = await apiClient.getUserWatchStoryActiveStoryBoards(request: request, headers: header)

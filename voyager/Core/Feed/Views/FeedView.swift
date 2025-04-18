@@ -223,8 +223,7 @@ private struct FeedItemCard: View {
                                     .font(.system(size: 14))
                                     .foregroundColor(Color.theme.accent)
                             }
-                            Text("@")
-                                .foregroundColor(Color.theme.tertiaryText)
+                            Divider()
                             HStack{
                                 // 创建者头像
                                 KFImage(URL(string: storyBoardActive.creator.userAvatar))
@@ -238,6 +237,8 @@ private struct FeedItemCard: View {
                                     .font(.system(size: 14, weight: .medium))
                                     .foregroundColor(Color.theme.primaryText)
                             }
+                            Text("创建")
+                                .foregroundColor(Color.theme.tertiaryText)
                         }
                         
                         Spacer()
