@@ -211,7 +211,7 @@ private struct FeedItemCard: View {
                     HStack(spacing: 8) {
                         // 故事缩略图和名称
                         HStack(spacing: 4) {
-                            HStack{
+                            HStack(spacing: 8) {
                                 KFImage(URL(string: storyBoardActive.summary.storyAvatar))
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
@@ -220,9 +220,10 @@ private struct FeedItemCard: View {
                                     .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
                                 
                                 Text(storyBoardActive.summary.storyTitle)
-                                    .font(.system(size: 14))
+                                    .font(.system(size: 15))
                                     .foregroundColor(Color.theme.accent)
                             }
+                            
                             Divider()
                             HStack{
                                 // 创建者头像
@@ -236,11 +237,14 @@ private struct FeedItemCard: View {
                                 Text(storyBoardActive.creator.userName)
                                     .font(.system(size: 14, weight: .medium))
                                     .foregroundColor(Color.theme.primaryText)
+                                Text("创建")
+                                    .font(.system(size: 14, weight: .regular))
+                                    .foregroundColor(Color.theme.primaryText)
                             }
-                            Text("创建")
-                                .foregroundColor(Color.theme.tertiaryText)
+                            .alignmentGuide(.bottom) { d in d[.bottom] }
+                            
                         }
-                        
+                    
                         Spacer()
                         
                         // 发布时间
@@ -293,9 +297,9 @@ private struct FeedItemCard: View {
                                             }
                                         }
                                     }
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
                                 }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
                             }
                         }
                     }

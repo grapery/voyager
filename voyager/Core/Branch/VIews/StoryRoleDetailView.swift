@@ -122,14 +122,12 @@ struct StoryRoleDetailView: View {
     
     // MARK: - Initialization
     init(roleId: Int64, userId: Int64, role: StoryRole? = nil) {
-        print("StoryRoleDetailView init - roleId: \(roleId), userId: \(userId)")
         self.roleId = roleId
         self.userId = userId
         self._viewModel = StateObject(wrappedValue: StoryRoleModel(userId: userId))
         
         // 如果提供了初始角色数据，使用它
         if let role = role {
-            print("Using provided role data - name: \(role.role.characterName)")
             self._role = State(initialValue: role)
         } else {
             print("No initial role data, will fetch from API")
@@ -306,7 +304,7 @@ struct RoleActionButtons: View {
     let onPoster: () -> Void
     
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 12) {
             StoryRoleActionButton(
                 title: "聊天",
                 icon: "message.fill",
@@ -336,7 +334,7 @@ struct StoryRoleActionButton: View {
                 .font(.system(size: 14))
                 .foregroundColor(.white)
                 .frame(height: 32)
-                .frame(maxWidth: .infinity)
+                .frame(width: 120)
                 .background(color)
                 .cornerRadius(16)
         }
@@ -348,7 +346,7 @@ struct RoleStatsCard: View {
     let role: StoryRole
     
     var body: some View {
-        HStack(spacing: 24) {
+        HStack(spacing: 20) {
             StoryRoleStatItem(
                 icon: "heart.fill",
                 color: Color.theme.error,
@@ -370,7 +368,7 @@ struct RoleStatsCard: View {
                 title: "故事"
             )
         }
-        .padding(16)
+        .padding(12)
         .background(Color.theme.secondaryBackground)
         .cornerRadius(12)
     }
@@ -385,16 +383,15 @@ struct StoryRoleStatItem: View {
     var body: some View {
         VStack(spacing: 4) {
             Image(systemName: icon)
+                .font(.system(size: 16))
                 .foregroundColor(color)
-                .font(.system(size: 20))
             Text("\(value)")
-                .font(.system(size: 16, weight: .bold))
+                .font(.system(size: 15, weight: .medium))
                 .foregroundColor(Color.theme.primaryText)
             Text(title)
-                .font(.system(size: 14))
+                .font(.system(size: 12))
                 .foregroundColor(Color.theme.secondaryText)
         }
-        .frame(maxWidth: .infinity)
     }
 }
 
