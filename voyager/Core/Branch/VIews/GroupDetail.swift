@@ -229,7 +229,7 @@ struct GroupActionButtonsView: View {
                 }
             }) {
                 HStack(spacing: 2) {
-                    Image(systemName: group?.info.currentUserStatus.isFollowed ?? false ? "heart.fill" : "heart")
+                    Image(systemName: group?.info.currentUserStatus.isFollowed ?? false ? "bell.fill" : "bell")
                         .font(.system(size: 15))
                     Text(group?.info.currentUserStatus.isFollowed ?? false ? "已关注" : "关注小组")
                         .font(.system(size: 15))
