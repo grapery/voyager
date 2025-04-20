@@ -163,6 +163,9 @@ struct GroupActionButtonsView: View {
     @StateObject var viewModel: GroupDetailViewModel
     var user: User
     @Binding var showNewStoryView: Bool
+    @State private var showError = false
+    @State private var errorTitle = ""
+    @State private var errorMessage = ""
     
     init(group: BranchGroup?, viewModel: GroupDetailViewModel, user: User, showNewStoryView: Binding<Bool>) {
         self.group = group
@@ -218,13 +221,27 @@ struct GroupActionButtonsView: View {
             Button(action: {
                 Task {
                     if group?.info.currentUserStatus.isFollowed == false {
-                        await viewModel.followGroup(userId: user.userID, groupId: group?.info.groupID ?? 0)
-                        group?.info.currentUserStatus.isFollowed = true
-                        group?.info.profile.groupFollowerNum = (group?.info.profile.groupFollowerNum)! + 1
+                        if let err = await viewModel.followGroup(userId: user.userID, groupId: group?.info.groupID ?? 0) {
+                            await MainActor.run {
+                                errorTitle = "关注 \(group?.info.name ?? "小组") 失败"
+                                errorMessage = err.localizedDescription
+                                showError = true
+                            }
+                        } else {
+                            group?.info.currentUserStatus.isFollowed = true
+                            group?.info.profile.groupFollowerNum = (group?.info.profile.groupFollowerNum)! + 1
+                        }
                     } else {
-                        await viewModel.unFollowGroup(userId: user.userID, groupId: group?.info.groupID ?? 0)
-                        group?.info.currentUserStatus.isFollowed = false
-                        group?.info.profile.groupFollowerNum = (group?.info.profile.groupFollowerNum)! - 1
+                        if let err = await viewModel.unFollowGroup(userId: user.userID, groupId: group?.info.groupID ?? 0) {
+                            await MainActor.run {
+                                errorTitle = "取消关注 \(group?.info.name ?? "小组") 失败"
+                                errorMessage = err.localizedDescription
+                                showError = true
+                            }
+                        } else {
+                            group?.info.currentUserStatus.isFollowed = false
+                            group?.info.profile.groupFollowerNum = (group?.info.profile.groupFollowerNum)! - 1
+                        }
                     }
                 }
             }) {
@@ -240,6 +257,11 @@ struct GroupActionButtonsView: View {
                 .background(group?.info.currentUserStatus.isFollowed ?? false ? Color.theme.tertiaryBackground : Color.theme.accent)
                 .cornerRadius(12)
             }
+        }
+        .alert(errorTitle, isPresented: $showError) {
+            Button("确定", role: .cancel) {}
+        } message: {
+            Text(errorMessage)
         }
     }
 }

@@ -641,7 +641,7 @@ struct StatLabel: View {
                 .font(.system(size: 14))
                 .foregroundColor(iconColor)
             Text("\(count)")
-                .font(.system(size: 13))
+                .font(.system(size: 14))
                 .foregroundColor(countColor)
         }
     }
@@ -984,7 +984,7 @@ struct UnpublishedStoryBoardCellView: View {
                                     Text(sceneContent.sceneTitle)
                                         .font(.system(size: 13))
                                         .foregroundColor(Color.theme.secondaryText)
-                                        .lineLimit(2)
+                                        .lineLimit(3)
                                         .frame(width: 140)
                                 }
                             }
@@ -1015,7 +1015,7 @@ struct UnpublishedStoryBoardCellView: View {
                         color: Color.theme.tertiaryText
                     )
                 }
-                .scaleEffect(isAnimating ? 0.9 : 1)
+                .scaleEffect(isAnimating ? 0.8 : 1)
                 
                 // 发布
                 Button(action: {
@@ -1033,7 +1033,7 @@ struct UnpublishedStoryBoardCellView: View {
                         color: Color.theme.tertiaryText
                     )
                 }
-                .scaleEffect(isAnimating ? 0.9 : 1)
+                .scaleEffect(isAnimating ? 0.8 : 1)
                 
                 // 删除
                 Button(action: {
@@ -1051,7 +1051,7 @@ struct UnpublishedStoryBoardCellView: View {
                         color: Color.theme.tertiaryText
                     )
                 }
-                .scaleEffect(isAnimating ? 0.9 : 1)
+                .scaleEffect(isAnimating ? 0.8 : 1)
                 
                 Spacer()
             }
@@ -1116,7 +1116,7 @@ private struct InteractionStatItem: View {
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 15))
+                .font(.system(size: 14))
             Text(text)
                 .font(.system(size: 14))
         }
