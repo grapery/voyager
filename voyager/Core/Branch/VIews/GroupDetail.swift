@@ -129,7 +129,7 @@ struct GroupStatsView: View {
             )
             
             StatItemView(
-                icon: "heart.fill",
+                icon: "bell.fill",
                 value: Int64(group?.info.profile.groupFollowerNum ?? 0),
                 title: "关注"
             )
@@ -630,7 +630,7 @@ struct StoryUpdateCell: View {
                     KFImage(URL(string: story.storyInfo.avatar))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 49, height: 49)
                         .clipShape(Circle())
                     
                     VStack(alignment: .leading, spacing: 2) {
