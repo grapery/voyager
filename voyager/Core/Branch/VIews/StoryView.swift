@@ -93,7 +93,6 @@ struct StoryView: View {
                         color: .red,
                         action: {
                             // 处理点赞事件
-                            print("Like button tapped")
                             Task {
                                 let err = await self.viewModel.likeStory(storyId: self.storyId, userId: self.userId)
                                 if let error = err {
@@ -119,7 +118,6 @@ struct StoryView: View {
                         color: .blue,
                         action: {
                             // 处理关注事件
-                            print("Follow button tapped")
                             Task {
                                 let err = await self.viewModel.watchStory(storyId: self.storyId, userId: self.userId)
                                 if let error = err {
@@ -144,7 +142,6 @@ struct StoryView: View {
                         icon: "person",
                         color: .green,
                         action: {
-                            showingParticipants = true
                         }
                     )
                 }
@@ -181,26 +178,6 @@ struct StoryView: View {
                     ToastView(message: errorMessage ?? "")
                         .animation(.easeInOut)
                         .transition(.move(edge: .top))
-                }
-                if showingParticipants {
-                    ZStack {
-                        Color.black.opacity(0.3)
-                            .edgesIgnoringSafeArea(.all)
-                            .onTapGesture {
-                                showingParticipants = false
-                            }
-                        
-                        StoryParticipantsView(
-                            story: story,
-                            isPresented: $showingParticipants,
-                            viewModel: viewModel,
-                            userId: userId,
-                            storyId: storyId
-                        )
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 40)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                    }
                 }
             }
         )

@@ -83,13 +83,14 @@ struct GroupInfoView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
             VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 12) {
+                HStack(spacing: 16) {
                     KFImage(URL(string: group?.info.avatar ?? defaultAvator))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 72, height: 72)
                         .clipShape(Circle())
                         .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                        .padding(.leading, 4)
                     
                     VStack(alignment: .leading, spacing: 8) {
                         Text(group?.info.name ?? "")
@@ -114,30 +115,44 @@ struct GroupStatsView: View {
     let group: BranchGroup?
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 4) {
-                Image(systemName: "book.fill")
-                    .foregroundColor(.white.opacity(0.9))
-                Text("\(group?.info.profile.groupStoryNum ?? 0) 故事")
-                    .foregroundColor(.white.opacity(0.9))
-            }
-            .font(.system(size: 12))
+        HStack(spacing: 16) {
+            StatItemView(
+                icon: "book.fill",
+                value: Int64(group?.info.profile.groupStoryNum ?? 0),
+                title: "故事"
+            )
             
-            HStack(spacing: 4) {
-                Image(systemName: "person.2.fill")
-                    .foregroundColor(.white.opacity(0.9))
-                Text("\(group?.info.profile.groupMemberNum ?? 0) 成员")
-                    .foregroundColor(.white.opacity(0.9))
-            }
-            .font(.system(size: 12))
+            StatItemView(
+                icon: "person.2.fill",
+                value: Int64(group?.info.profile.groupMemberNum ?? 0),
+                title: "成员"
+            )
             
-            HStack(spacing: 4) {
-                Image(systemName: "heart.fill")
-                    .foregroundColor(.white.opacity(0.9))
-                Text("\(group?.info.profile.groupFollowerNum ?? 0) 关注")
-                    .foregroundColor(.white.opacity(0.9))
-            }
-            .font(.system(size: 12))
+            StatItemView(
+                icon: "heart.fill",
+                value: Int64(group?.info.profile.groupFollowerNum ?? 0),
+                title: "关注"
+            )
+        }
+    }
+}
+
+struct StatItemView: View {
+    let icon: String
+    let value: Int64
+    let title: String
+    
+    var body: some View {
+        VStack(alignment: .center, spacing: 4) {
+            Image(systemName: icon)
+                .foregroundColor(.white.opacity(0.9))
+                .font(.system(size: 14))
+            Text("\(value)")
+                .foregroundColor(.white.opacity(0.9))
+                .font(.system(size: 14))
+            Text(title)
+                .foregroundColor(.white.opacity(0.9))
+                .font(.system(size: 12))
         }
     }
 }
@@ -163,9 +178,9 @@ struct GroupActionButtonsView: View {
             }) {
                 HStack(spacing: 2) {
                     Image(systemName: "plus")
-                        .font(.system(size: 10))
+                        .font(.system(size: 15))
                     Text("创建故事")
-                        .font(.system(size: 10))
+                        .font(.system(size: 15))
                 }
                 .foregroundColor(.white)
                 .padding(.horizontal, 6)
@@ -189,9 +204,9 @@ struct GroupActionButtonsView: View {
             }) {
                 HStack(spacing: 2) {
                     Image(systemName: group?.info.currentUserStatus.isJoined ?? false ? "person.badge.minus" : "person.badge.plus")
-                        .font(.system(size: 10))
+                        .font(.system(size: 15))
                     Text(group?.info.currentUserStatus.isJoined ?? false ? "已加入" : "加入小组")
-                        .font(.system(size: 10))
+                        .font(.system(size: 15))
                 }
                 .foregroundColor(.white)
                 .padding(.horizontal, 6)
@@ -215,9 +230,9 @@ struct GroupActionButtonsView: View {
             }) {
                 HStack(spacing: 2) {
                     Image(systemName: group?.info.currentUserStatus.isFollowed ?? false ? "heart.fill" : "heart")
-                        .font(.system(size: 10))
+                        .font(.system(size: 15))
                     Text(group?.info.currentUserStatus.isFollowed ?? false ? "已关注" : "关注小组")
-                        .font(.system(size: 10))
+                        .font(.system(size: 15))
                 }
                 .foregroundColor(.white)
                 .padding(.horizontal, 6)
