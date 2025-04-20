@@ -586,16 +586,16 @@ struct ProfileRoleCell: View {
     var body: some View {
         Button(action: { showRoleDetail = true }) {
             VStack(alignment: .leading, spacing: 0) {
-                HStack(spacing: 12) {
+                HStack(alignment: .top, spacing: 12) {
                     // 角色头像
                     KFImage(URL(string: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 60, height: 60)
+                        .frame(width: 72, height: 72)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     
                     // 角色信息
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text(role.role.characterName)
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(Color.theme.primaryText)
@@ -605,9 +605,10 @@ struct ProfileRoleCell: View {
                             .foregroundColor(Color.theme.secondaryText)
                             .lineLimit(2)
                     }
+                    .padding(.top, 4)
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.vertical, 16)
                 
                 Divider()
                     .background(Color.theme.divider)
