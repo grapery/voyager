@@ -17,59 +17,91 @@ enum FeedType{
 // 获取用户的关注以及用户参与的故事，以及用户关注或者参与的小组的故事动态。不可以用户关注用户，只可以关注小组或者故事,以及故事的角色
 struct FeedView: View {
     @StateObject var viewModel: FeedViewModel
-    @State private var selectedTab: FeedType = .Story
-    @State private var searchText = ""
     @State private var selectedIndex: Int = 0
-    @State private var isRefreshing = false
+    @State private var searchText = ""
+    @State private var errorTitle: String = ""
+    @State private var errorMessage: String = ""
+    @State private var showError: Bool = false
     
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: FeedViewModel(user: user))
     }
     
-    // 定义标签页数组
-    let tabs: [(type: FeedType, title: String)] = [
-        (.Story, "故事"),
-        (.StoryRole, "角色")
-    ]
-    
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // 使用通用导航栏
-                CommonNavigationBar(
-                    title: "动态",
-                    onAddTapped: {
-                        selectedIndex = 0
+                // 顶部导航栏
+                HStack(spacing: 32) {
+                    Button(action: { selectedIndex = 0 }) {
+                        Text("动态")
+                            .font(.system(size: 17))
+                            .foregroundColor(selectedIndex == 0 ? Color.theme.primaryText : Color.theme.tertiaryText)
+                            .fontWeight(selectedIndex == 0 ? .semibold : .regular)
                     }
-                )
+                    
+                    Button(action: { selectedIndex = 1 }) {
+                        Text("热点")
+                            .font(.system(size: 17))
+                            .foregroundColor(selectedIndex == 1 ? Color.theme.primaryText : Color.theme.tertiaryText)
+                            .fontWeight(selectedIndex == 1 ? .semibold : .regular)
+                    }
+                    
+                    Button(action: { selectedIndex = 2 }) {
+                        Text("发现")
+                            .font(.system(size: 17))
+                            .foregroundColor(selectedIndex == 2 ? Color.theme.primaryText : Color.theme.tertiaryText)
+                            .fontWeight(selectedIndex == 2 ? .semibold : .regular)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 12)
                 
                 // 页面内容
                 TabView(selection: $selectedIndex) {
-                    // 最新动态页面
+                    // 动态页面
                     ScrollView {
-                        // 使用通用搜索栏
-                        CommonSearchBar(
-                            searchText: $searchText,
-                            placeholder: "发生了什么......."
-                        )
-                        LatestUpdatesView(
-                            searchText: $searchText,
-                            selectedTab: $selectedTab,
-                            tabs: tabs,
-                            viewModel: viewModel
-                        )
-                        .tag(0)
+                        VStack {
+                            // 搜索栏
+                            CommonSearchBar(
+                                searchText: $searchText,
+                                placeholder: "发生了什么......."
+                            )
+                            
+                            // 动态内容
+                            LatestUpdatesView(
+                                searchText: $searchText,
+                                selectedTab: .constant(.Story),
+                                tabs: [(type: FeedType.Story, title: "故事"), (type: FeedType.StoryRole, title: "角色")],
+                                viewModel: viewModel,
+                                errorTitle: $errorTitle,
+                                errorMessage: $errorMessage,
+                                showError: $showError
+                            )
+                        }
                     }
+                    .tag(0)
+                    
+                    // 热点页面
+                    ScrollView {
+                        Text("热点内容")
+                            .padding()
+                    }
+                    .tag(1)
                     
                     // 发现页面
                     ScrollView {
                         DiscoveryView(viewModel: viewModel, messageText: "最近那边发生了什么事情？")
-                        .tag(1)
                     }
+                    .tag(2)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
             .background(Color.theme.background)
+        }
+        .alert(errorTitle, isPresented: $showError) {
+            Button("确定", role: .cancel) { }
+        } message: {
+            Text(errorMessage)
         }
     }
 }
@@ -162,14 +194,20 @@ private struct FeedItemCard: View {
     @ObservedObject var viewModel: FeedViewModel
     @State private var showStoryboardSummary = false
     @State private var showChildNodes = false
+    @Binding var errorTitle: String
+    @Binding var errorMessage: String
+    @Binding var showError: Bool
     let sceneMediaContents: [SceneMediaContent]
     
-    init(storyBoardActive: Common_StoryBoardActive?=nil, userId: Int64, viewModel: FeedViewModel) {
+    init(storyBoardActive: Common_StoryBoardActive?=nil, userId: Int64, viewModel: FeedViewModel, errorTitle: Binding<String>, errorMessage: Binding<String>, showError: Binding<Bool>) {
         self._storyBoardActive = State(initialValue: storyBoardActive!)
         self.userId = userId
         self.viewModel = viewModel
         self.showStoryboardSummary = false
         self.showChildNodes = false
+        self._errorTitle = errorTitle
+        self._errorMessage = errorMessage
+        self._showError = showError
         var tempSceneContents: [SceneMediaContent] = []
         let scenes = storyBoardActive!.storyboard.sences.list
         for scene in scenes {
@@ -314,13 +352,27 @@ private struct FeedItemCard: View {
                 Button(action: {
                     Task {
                         if storyBoardActive.isliked {
-                            await viewModel.unlikeStoryBoard(storyId:storyBoardActive.storyboard.storyID, boardId: storyBoardActive.storyboard.storyBoardID,userId: self.userId)
-                            storyBoardActive.isliked = false
-                            storyBoardActive.totalLikeCount -= 1
+                            if let err = await viewModel.unlikeStoryBoard(storyId: storyBoardActive.storyboard.storyID, boardId: storyBoardActive.storyboard.storyBoardID, userId: self.userId) {
+                                await MainActor.run {
+                                    errorTitle = "取消点赞失败"
+                                    errorMessage = err.localizedDescription
+                                    showError = true
+                                }
+                            } else {
+                                storyBoardActive.isliked = false
+                                storyBoardActive.totalLikeCount -= 1
+                            }
                         } else {
-                            await viewModel.likeStoryBoard(storyId:storyBoardActive.storyboard.storyID,boardId: storyBoardActive.storyboard.storyBoardID,userId: self.userId)
-                            storyBoardActive.isliked = true
-                            storyBoardActive.totalLikeCount += 1
+                            if let err = await viewModel.likeStoryBoard(storyId: storyBoardActive.storyboard.storyID, boardId: storyBoardActive.storyboard.storyBoardID, userId: self.userId) {
+                                await MainActor.run {
+                                    errorTitle = "点赞失败"
+                                    errorMessage = err.localizedDescription
+                                    showError = true
+                                }
+                            } else {
+                                storyBoardActive.isliked = true
+                                storyBoardActive.totalLikeCount += 1
+                            }
                         }
                     }
                 }) {
@@ -416,12 +468,18 @@ private struct LatestUpdatesView: View {
     let tabs: [(type: FeedType, title: String)]
     @ObservedObject var viewModel: FeedViewModel
     @State private var isRefreshing = false
+    @Binding var errorTitle: String
+    @Binding var errorMessage: String
+    @Binding var showError: Bool
     
-    init(searchText: Binding<String>, selectedTab: Binding<FeedType>, tabs: [(type: FeedType, title: String)], viewModel: FeedViewModel) {
+    init(searchText: Binding<String>, selectedTab: Binding<FeedType>, tabs: [(type: FeedType, title: String)], viewModel: FeedViewModel, errorTitle: Binding<String>, errorMessage: Binding<String>, showError: Binding<Bool>) {
         self._searchText = searchText
         self._selectedTab = selectedTab
         self.tabs = tabs
         self._viewModel = ObservedObject(wrappedValue: viewModel)
+        self._errorTitle = errorTitle
+        self._errorMessage = errorMessage
+        self._showError = showError
     }
     
     var body: some View {
@@ -430,7 +488,10 @@ private struct LatestUpdatesView: View {
             FeedContentSection(
                 selectedTab: $selectedTab,
                 isRefreshing: $isRefreshing,
-                viewModel: viewModel
+                viewModel: viewModel,
+                errorTitle: $errorTitle,
+                errorMessage: $errorMessage,
+                showError: $showError
             )
         }
         .background(Color.theme.background)
@@ -469,6 +530,9 @@ private struct FeedContentSection: View {
     @Binding var selectedTab: FeedType
     @Binding var isRefreshing: Bool
     @ObservedObject var viewModel: FeedViewModel
+    @Binding var errorTitle: String
+    @Binding var errorMessage: String
+    @Binding var showError: Bool
     
     var body: some View {
         ScrollView {
@@ -483,7 +547,10 @@ private struct FeedContentSection: View {
             ) {
                 FeedItemList(
                     viewModel: viewModel,
-                    selectedTab: $selectedTab
+                    selectedTab: $selectedTab,
+                    errorTitle: $errorTitle,
+                    errorMessage: $errorMessage,
+                    showError: $showError
                 )
             }
         }
@@ -494,6 +561,9 @@ private struct FeedContentSection: View {
 private struct FeedItemList: View {
     @ObservedObject var viewModel: FeedViewModel
     @Binding var selectedTab: FeedType
+    @Binding var errorTitle: String
+    @Binding var errorMessage: String
+    @Binding var showError: Bool
     
     var body: some View {
         LazyVStack(spacing: 4) {
@@ -501,7 +571,10 @@ private struct FeedItemList: View {
                 FeedItemCard(
                     storyBoardActive: active,
                     userId: viewModel.user.userID,
-                    viewModel: viewModel
+                    viewModel: viewModel,
+                    errorTitle: $errorTitle,
+                    errorMessage: $errorMessage,
+                    showError: $showError
                 )
                 .onAppear {
                     checkAndLoadMore(active)
@@ -559,25 +632,6 @@ private struct DiscoveryView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // 顶部导航栏
-            HStack {
-                Text("动态")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(Color.theme.primaryText)
-                
-                Spacer()
-                
-                Button(action: {
-                    // Add new post action
-                }) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 24))
-                        .foregroundColor(Color.theme.accent)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            
             // 聊天内容区域
             ScrollView {
                 LazyVStack(spacing: 16) {
@@ -625,15 +679,6 @@ private struct DiscoveryView: View {
 private struct AIChatHeader: View {
     var body: some View {
         VStack(spacing: 16) {
-            Text("AI故事助手")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(Color.theme.primaryText)
-            
-            Text("欢迎大家来一起创作好玩的故事吧！")
-                .font(.system(size: 16))
-                .foregroundColor(Color.theme.secondaryText)
-                .multilineTextAlignment(.center)
-            
             Image("ai_avatar")
                 .resizable()
                 .frame(width: 80, height: 80)
