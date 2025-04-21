@@ -24,10 +24,10 @@ struct GroupHeaderView: View {
             KFImage(URL(string: group?.info.avatar ?? defaultAvator))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(height: 220)
+                .frame(height: 270)
                 .frame(maxWidth: .infinity)
                 .ignoresSafeArea(edges: .top)
-                .clipped()
+                //.clipped()
                 .overlay(
                     LinearGradient(
                         gradient: Gradient(colors: [

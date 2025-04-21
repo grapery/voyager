@@ -586,24 +586,46 @@ struct ProfileRoleCell: View {
     var body: some View {
         Button(action: { showRoleDetail = true }) {
             VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .top, spacing: 12) {
+                HStack(alignment: .top, spacing: 16) {
                     // 角色头像
                     KFImage(URL(string: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 72, height: 72)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .frame(width: 88, height: 88)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.theme.border, lineWidth: 0.5)
+                        )
                     
                     // 角色信息
                     VStack(alignment: .leading, spacing: 8) {
+                        // 角色名称
                         Text(role.role.characterName)
-                            .font(.system(size: 16, weight: .medium))
+                            .font(.system(size: 17, weight: .medium))
                             .foregroundColor(Color.theme.primaryText)
                         
+                        // 故事信息
+                        HStack(spacing: 4) {
+                            Text("参与故事：")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color.theme.tertiaryText)
+                            Text("\(role.role.storyID)")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color.theme.accent)
+                                .lineLimit(1)
+                        }
+                        
+                        // 角色描述
                         Text(role.role.characterDescription)
                             .font(.system(size: 14))
                             .foregroundColor(Color.theme.secondaryText)
                             .lineLimit(2)
+                        
+                        // 创建时间
+                        Text("创建于：\(formatDate(timestamp: role.role.ctime))")
+                            .font(.system(size: 12))
+                            .foregroundColor(Color.theme.tertiaryText)
                     }
                     .padding(.top, 4)
                 }
@@ -623,8 +645,20 @@ struct ProfileRoleCell: View {
                     userId: viewModel.user?.userID ?? 0,
                     role: role
                 )
+                .transition(.asymmetric(
+                    insertion: .move(edge: .trailing).combined(with: .opacity),
+                    removal: .move(edge: .leading).combined(with: .opacity)
+                ))
+                .animation(.spring(response: 0.3, dampingFraction: 0.8), value: showRoleDetail)
             }
         }
+    }
+    
+    private func formatDate(timestamp: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        return formatter.string(from: date)
     }
 }
 
@@ -941,11 +975,29 @@ struct UnpublishedStoryBoardCellView: View {
         VStack(alignment: .leading, spacing: 0) {
             // 标题和内容区域
             VStack(alignment: .leading, spacing: 8) {
-                // 标题
-                Text(board.boardActive.storyboard.title)
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(Color.theme.primaryText)
-                    .lineLimit(2)
+                // 标题和时间
+                HStack {
+                    Text(board.boardActive.storyboard.title)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(Color.theme.primaryText)
+                        .lineLimit(2)
+                    
+                    Spacer()
+                    
+                    Text(formatDate(board.boardActive.storyboard.ctime))
+                        .font(.system(size: 13))
+                        .foregroundColor(Color.theme.tertiaryText)
+                }
+                
+                // 故事信息
+                HStack(spacing: 4) {
+                    Text("所属故事：")
+                        .font(.system(size: 14))
+                        .foregroundColor(Color.theme.tertiaryText)
+                    Text(board.boardActive.summary.storyTitle)
+                        .font(.system(size: 14))
+                        .foregroundColor(Color.theme.accent)
+                }
                 
                 // 内容
                 Text(board.boardActive.storyboard.content)
@@ -1104,6 +1156,13 @@ struct UnpublishedStoryBoardCellView: View {
                     .transition(.move(edge: .top))
             }
         }
+    }
+    
+    private func formatDate(_ timestamp: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        return formatter.string(from: date)
     }
 }
 
