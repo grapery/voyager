@@ -89,9 +89,7 @@ struct FeedView: View {
                     .tag(1)
                     
                     // 发现页面
-                    ScrollView {
-                        DiscoveryView(viewModel: viewModel, messageText: "最近那边发生了什么事情？")
-                    }
+                    DiscoveryView(viewModel: viewModel, messageText: "最近那边发生了什么事情？")
                     .tag(2)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
@@ -623,6 +621,9 @@ private struct DiscoveryView: View {
     @ObservedObject var viewModel: FeedViewModel
     @State private var messageText: String = ""
     @State private var messages: [ChatMessage]
+    @State private var keyboardHeight: CGFloat = 0
+    @FocusState private var isFocused: Bool
+    @State private var isShowingKeyboard = false
     
     init(viewModel: FeedViewModel, messageText: String) {
         self.viewModel = viewModel
@@ -631,246 +632,273 @@ private struct DiscoveryView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // 聊天内容区域
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    // AI助手头部信息
-                    AIChatHeader()
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                    
-                    // 聊天消息列表
-                    ForEach(messages) { message in
-                        ChatBubble(message: message)
-                            .padding(.horizontal, 16)
+        ZStack(alignment: .bottom) {
+            // 内容区域
+            VStack(spacing: 0) {
+                // 聊天消息列表
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(spacing: 16) {
+                            ForEach(messages) { message in
+                                ChatBubble(message: message)
+                                    .padding(.horizontal, 16)
+                                    .id(message.id)
+                                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+                            }
+                            
+                            Color.clear
+                                .frame(height: 10)
+                                .id("bottom")
+                        }
+                        .padding(.top, 12)
+                        .padding(.bottom, 8)
+                        .onChange(of: messages.count) { _ in
+                            withAnimation {
+                                proxy.scrollTo("bottom", anchor: .bottom)
+                            }
+                        }
+                    }
+                    .background(Color.theme.background)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        if isFocused {
+                            isFocused = false
+                        }
                     }
                 }
-                .padding(.vertical, 12)
+                
+                Spacer(minLength: 0)
             }
             
-            // 底部输入框
-            ChatInputBar(text: $messageText, onSend: sendMessage)
+            // 键盘隐藏按钮 - 只在键盘显示时出现
+            if isFocused {
+                VStack {
+                    Spacer()
+                    
+                    HStack {
+                        Spacer()
+                        
+                        Button(action: {
+                            isFocused = false
+                        }) {
+                            Image(systemName: "keyboard.chevron.compact.down")
+                                .font(.system(size: 20))
+                                .foregroundColor(.white)
+                                .padding(8)
+                                .background(Color.gray.opacity(0.7))
+                                .clipShape(Circle())
+                        }
+                        .padding(.trailing, 16)
+                        .padding(.bottom, 8)
+                    }
+                    
+                    // 调整键盘高度的空间
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(height: keyboardHeight > 0 ? keyboardHeight - 45 : 0)
+                }
+                .transition(.opacity)
+                .animation(.easeInOut(duration: 0.2), value: isFocused)
+            }
+            
+            // 输入栏 - 固定在底部
+            VStack(spacing: 0) {
+                Divider()
+                
+                HStack(alignment: .center, spacing: 8) {
+                    // 左侧附加按钮
+                    Button(action: {}) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.leading, 8)
+                    
+                    // 输入框
+                    ZStack(alignment: .leading) {
+                        if messageText.isEmpty {
+                            Text("请输入您的问题...")
+                                .foregroundColor(Color.gray.opacity(0.8))
+                                .padding(.leading, 8)
+                                .padding(.top, 8)
+                                .padding(.bottom, 8)
+                        }
+                        
+                        TextField("", text: $messageText)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 8)
+                            .focused($isFocused)
+                            .onChange(of: isFocused) { focused in
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    isShowingKeyboard = focused
+                                }
+                            }
+                    }
+                    .background(Color(.systemGray6))
+                    .cornerRadius(18)
+                    .padding(.vertical, 6)
+                    
+                    // 发送按钮
+                    Button(action: sendMessage) {
+                        Image(systemName: "paperplane.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(messageText.isEmpty ? Color.gray.opacity(0.6) : .blue)
+                            .rotationEffect(.degrees(45))
+                            .padding(8)
+                    }
+                    .disabled(messageText.isEmpty)
+                    .padding(.trailing, 4)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.white)
+            }
+            .padding(.bottom, isFocused ? (keyboardHeight > 0 ? 0 : 0) : 0)
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear {
-            var msg1 = Common_ChatMessage()
-            msg1.message = "欢迎您来到AI世界，请问您有什么想要了解的事情呢？"
-            msg1.sender = 42
-            msg1.roleID = 42
-            msg1.userID = 1
-            var msg2 = Common_ChatMessage()
-            msg2.message = "你叫什么名字？"
-            msg2.sender = 1
-            msg2.roleID = 42
-            msg2.userID = 1
-            self.messages.append(ChatMessage(id: 1, msg: msg1, status: .MessageSendSuccess))
-            self.messages.append(ChatMessage(id: 1, msg: msg2, status: .MessageSendSuccess))
+            setupInitialMessages()
+            setupKeyboardNotifications()
         }
-        .background(Color.theme.background)
+        .onDisappear {
+            NotificationCenter.default.removeObserver(self)
+        }
+    }
+    
+    private func setupKeyboardNotifications() {
+        NotificationCenter.default.addObserver(
+            forName: UIResponder.keyboardWillShowNotification,
+            object: nil,
+            queue: .main
+        ) { notification in
+            if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    self.keyboardHeight = keyboardFrame.height
+                }
+            }
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: UIResponder.keyboardWillHideNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            withAnimation(.easeInOut(duration: 0.25)) {
+                self.keyboardHeight = 0
+            }
+        }
+    }
+    
+    private func setupInitialMessages() {
+        var msg1 = Common_ChatMessage()
+        msg1.message = "欢迎您来到AI世界，请问您有什么想要了解的事情呢？"
+        msg1.sender = 42
+        msg1.roleID = 42
+        msg1.userID = 1
+        self.messages.append(ChatMessage(id: 1, msg: msg1, status: .MessageSendSuccess))
     }
     
     private func sendMessage() {
-        guard !messageText.isEmpty else { return }
-        messageText = ""
-    }
-}
-
-// AI助手头部信息
-private struct AIChatHeader: View {
-    var body: some View {
-        VStack(spacing: 16) {
-            Image("ai_avatar")
-                .resizable()
-                .frame(width: 80, height: 80)
-                .clipShape(Circle())
-                .overlay(
-                    Circle()
-                        .stroke(Color.theme.accent, lineWidth: 2)
-                )
+        guard !messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        
+        // 创建用户消息
+        var userMsg = Common_ChatMessage()
+        userMsg.message = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
+        userMsg.sender = 1
+        userMsg.roleID = 42
+        userMsg.userID = 1
+        
+        // 添加用户消息到列表
+        withAnimation {
+            self.messages.append(ChatMessage(id: Int64(Date().timeIntervalSince1970), msg: userMsg, status: .MessageSendSuccess))
         }
-        .padding(24)
-        .frame(maxWidth: .infinity)
-        .background(Color.theme.secondaryBackground)
-        .cornerRadius(16)
+        
+        // 清空输入框
+        let sentMessage = messageText
+        messageText = ""
+        
+        // 模拟AI回复
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            var aiMsg = Common_ChatMessage()
+            aiMsg.message = getAIResponse(to: sentMessage)
+            aiMsg.sender = 42
+            aiMsg.roleID = 42
+            aiMsg.userID = 1
+            
+            withAnimation {
+                self.messages.append(ChatMessage(id: Int64(Date().timeIntervalSince1970), msg: aiMsg, status: .MessageSendSuccess))
+            }
+        }
+    }
+    
+    // 简单的AI回复逻辑
+    private func getAIResponse(to message: String) -> String {
+        let lowercasedMessage = message.lowercased()
+        
+        if lowercasedMessage.contains("你好") || lowercasedMessage.contains("嗨") || lowercasedMessage.contains("hi") {
+            return "你好！我是AI助手，很高兴为您服务。"
+        } else if lowercasedMessage.contains("名字") {
+            return "我是AI助手，您可以叫我小助手。"
+        } else if lowercasedMessage.contains("天气") {
+            return "抱歉，我目前无法获取实时天气信息。不过我可以回答您其他方面的问题。"
+        } else if lowercasedMessage.contains("谢谢") || lowercasedMessage.contains("感谢") {
+            return "不客气！有什么问题随时问我。"
+        } else {
+            return "我理解您说的是'你好'。请问还有其他我能帮助您的吗？"
+        }
     }
 }
 
-// 聊天气泡
+// 更新聊天气泡组件
 private struct ChatBubble: View {
     let message: ChatMessage
     
-    var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            if message.msg.sender == message.msg.roleID {
-                // AI消息
-                HStack(alignment: .top, spacing: 12) {
-                    KFImage(URL(string: defaultAvator))
-                        .resizable()
-                        .frame(width: 36, height: 36)
-                        .clipShape(Circle())
-                        .overlay(
-                            Circle()
-                                .stroke(Color.theme.border, lineWidth: 1)
-                        )
-                    
-                    Text(message.msg.message)
-                        .font(.system(size: 16))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        .background(Color.theme.secondaryBackground)
-                        .cornerRadius(20)
-                        .foregroundColor(Color.theme.primaryText)
-                    
-                    Spacer()
-                }
-            } else {
-                // 用户消息
-                HStack(alignment: .top, spacing: 12) {
-                    Spacer()
-                    
-                    Text(message.msg.message)
-                        .font(.system(size: 16))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        .background(Color.theme.accent)
-                        .cornerRadius(20)
-                        .foregroundColor(.white)
-                }
-            }
-        }
+    private var isFromCurrentUser: Bool {
+        return message.msg.sender == 1 // 假设1是当前用户ID
     }
-}
-
-// 底部输入框
-private struct ChatInputBar: View {
-    @Binding var text: String
-    @State private var isShowingInput = false
-    @State private var isShowingImagePicker = false
-    @State private var selectedImages: [UIImage]? = nil
-    @FocusState private var isFocused: Bool
-    let onSend: () -> Void
     
     var body: some View {
-        VStack(spacing: 0) {
-            if !isShowingInput {
-                // 未展开状态 - 显示占位按钮
-                Button(action: {
-                    isShowingInput = true
-                    isFocused = true
-                }) {
-                    HStack {
-                        Image(systemName: "text.bubble")
-                            .foregroundColor(Color.theme.tertiaryText)
-                        Text("请输入您的问题...")
-                            .foregroundColor(Color.theme.tertiaryText)
-                        Spacer()
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color.theme.secondaryBackground)
-                    .cornerRadius(24)
+        HStack(alignment: .bottom, spacing: 8) {
+            if !isFromCurrentUser {
+                // AI头像
+                Circle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 36, height: 36)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 24)
-                            .stroke(Color.theme.border, lineWidth: 1)
+                        Text("AI")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.white)
                     )
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
             } else {
-                // 展开状态 - 显示完整输入栏
-                VStack(spacing: 12) {
-                    // 选中的图片预览
-                    if let images = selectedImages, !images.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(images.indices, id: \.self) { index in
-                                    ZStack(alignment: .topTrailing) {
-                                        Image(uiImage: images[index])
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 60, height: 60)
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                                        
-                                        Button(action: {
-                                            selectedImages?.remove(at: index)
-                                        }) {
-                                            Image(systemName: "xmark.circle.fill")
-                                                .foregroundColor(Color.theme.tertiaryText)
-                                                .font(.system(size: 20))
-                                                .background(Color.white)
-                                                .clipShape(Circle())
-                                        }
-                                        .padding(4)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, 16)
-                        }
-                    }
-                    
-                    HStack(spacing: 12) {
-                        // 图片选择按钮
-                        Button(action: {
-                            isShowingImagePicker = true
-                        }) {
-                            Image(systemName: "photo")
-                                .font(.system(size: 20))
-                                .foregroundColor(Color.theme.accent)
-                                .frame(width: 44, height: 44)
-                                .background(Color.theme.secondaryBackground)
-                                .clipShape(Circle())
-                        }
-                        
-                        // 输入框
-                        TextField("请输入您的问题...", text: $text)
-                            .focused($isFocused)
-                            .font(.system(size: 16))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-                            .background(Color.theme.secondaryBackground)
-                            .cornerRadius(24)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 24)
-                                    .stroke(Color.theme.border, lineWidth: 1)
-                            )
-                        
-                        // 发送按钮
-                        Button(action: {
-                            onSend()
-                            if text.isEmpty && (selectedImages?.isEmpty ?? true) {
-                                isShowingInput = false
-                            }
-                        }) {
-                            Image(systemName: "arrow.up")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundColor(.white)
-                                .frame(width: 44, height: 44)
-                                .background(
-                                    (text.isEmpty && (selectedImages?.isEmpty ?? true))
-                                        ? Color.theme.tertiaryBackground 
-                                        : Color.theme.accent
-                                )
-                                .clipShape(Circle())
-                        }
-                        .disabled(text.isEmpty && (selectedImages?.isEmpty ?? true))
-                    }
-                    .padding(.horizontal, 16)
-                }
-                .padding(.vertical, 12)
-                .background(Color.theme.background)
-                .overlay(
-                    Rectangle()
-                        .frame(height: 1)
-                        .foregroundColor(Color.theme.border)
-                        .opacity(0.5),
-                    alignment: .top
+                Spacer()
+            }
+            
+            // 消息气泡
+            Text(message.msg.message)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .background(
+                    isFromCurrentUser 
+                        ? Color.blue.opacity(0.8)
+                        : Color(.systemGray5)
                 )
+                .foregroundColor(isFromCurrentUser ? .white : .black)
+                .cornerRadius(18)
+            
+            if isFromCurrentUser {
+                // 用户头像
+                Circle()
+                    .fill(Color.blue.opacity(0.7))
+                    .frame(width: 36, height: 36)
+                    .overlay(
+                        Text("我")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.white)
+                    )
+            } else {
+                Spacer()
             }
         }
-        .onChange(of: isFocused) { focused in
-            if !focused && text.isEmpty && (selectedImages?.isEmpty ?? true) {
-                isShowingInput = false
-            }
-        }
+        .padding(.vertical, 4)
     }
 }
