@@ -371,5 +371,23 @@ class FeedViewModel: ObservableObject {
     func refreshForkStoryboards(userId: Int64, storyId: Int64, boardId: Int64) async {
         await fetchStoryboardForkList(userId: userId, storyId: storyId, boardId: boardId, forceRefresh: true)
     }
+    
+    func TrendingStoris(userId: Int64,starttime: Int64,endTime: Int64,pageNum: Int64,pageSize: Int64) async -> ([Story]?,Error?){
+        let (stories,_,_,err) = await APIClient.shared.getTrendingStoris(userId: userId, starttime: starttime, endtime: endTime, pageNum: pageNum, pageSize: pageSize)
+        
+        if err != nil { 
+            return (nil,err)
+        }   
+        return (stories,nil)
+    }
+    
+    func TrendingStoryRole(userId: Int64,starttime: Int64,endTime: Int64,pageNum: Int64,pageSize: Int64) async -> ([StoryRole]?,Error?){
+        let (roles,_,_,err) = await APIClient.shared.getTrendingStoryRole(userId: userId, starttime: starttime, endtime: endTime, pageNum: pageNum, pageSize: pageSize)
+        if err != nil { 
+            return (nil,err)
+        }   
+        return (roles,nil)
+    }
+    
 }
 

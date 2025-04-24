@@ -24,7 +24,7 @@ struct MainTabView: View {
         // 调整 TabBar 的高度
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
-        UITabBar.appearance().frame.size.height = 49 // 设置标准高度
+        UITabBar.appearance().frame.size.height = 30 // 设置标准高度
     }
     var body: some View {
         TabView (selection: $selectedItem){

@@ -1609,5 +1609,51 @@ extension APIClient {
         let roles = response.message?.roles.map { StoryRole(Id: $0.roleID, role: $0) }
         return (roles,offset,pageSize,nil)
     }
+    
+    func getTrendingStoris(userId: Int64,starttime: Int64,endtime: Int64,pageNum: Int64,pageSize: Int64) async -> ([Story]?,Int64,Int64,Error?){
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_TrendingStoryRequest.with {
+            $0.start = starttime
+            $0.end = endtime
+            $0.pageNumber = pageNum
+            $0.pageSize = pageSize
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.trendingStory(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return (nil,0,0,NSError(domain: "getTrendingStoris", code: 0, userInfo: [NSLocalizedDescriptionKey: "get trending storis failed"])) 
+        }
+        
+        // Convert Common_Story array to Story array
+        let stories = response.message?.data.list.map { storyInfo in
+            let story = Story(Id: storyInfo.id, storyInfo: storyInfo)
+            return story
+        }
+        
+        return (stories, pageNum, pageSize, nil)
+    }
+
+    func getTrendingStoryRole(userId: Int64,starttime: Int64,endtime: Int64,pageNum: Int64,pageSize: Int64) async -> ([StoryRole]?,Int64,Int64,Error?){
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_TrendingStoryRoleRequest.with {
+            $0.start = starttime
+            $0.end = endtime
+            $0.pageNumber = pageNum
+            $0.pageSize = pageSize
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.trendingStoryRole(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return (nil,0,0,NSError(domain: "getTrendingStoryRole", code: 0, userInfo: [NSLocalizedDescriptionKey: "get trending story role failed"]))
+        }
+        // Convert Common_StoryRole array to StoryRole array
+        let storyRoles = response.message?.data.list.map { storyRoleInfo in
+            let storyRole = StoryRole(Id: storyRoleInfo.roleID, role: storyRoleInfo)
+            return storyRole
+        }
+        return (storyRoles,pageNum,pageSize,nil)
+    }
 }
 

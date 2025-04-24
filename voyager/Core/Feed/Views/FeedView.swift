@@ -624,6 +624,8 @@ private struct DiscoveryView: View {
     @State private var keyboardHeight: CGFloat = 0
     @FocusState private var isFocused: Bool
     @State private var isShowingKeyboard = false
+    @State private var navigateToStory = false
+    @State private var selectedStory: Story?
     
     init(viewModel: FeedViewModel, messageText: String) {
         self.viewModel = viewModel
@@ -644,6 +646,11 @@ private struct DiscoveryView: View {
                                     .padding(.horizontal, 16)
                                     .id(message.id)
                                     .transition(.opacity.combined(with: .move(edge: .bottom)))
+                                    .onTapGesture {
+                                        if message.msg.sender == 42 { // AI消息可点击查看故事
+                                            handleMessageTap(message)
+                                        }
+                                    }
                             }
                             
                             Color.clear
@@ -756,6 +763,14 @@ private struct DiscoveryView: View {
             .padding(.bottom, isFocused ? (keyboardHeight > 0 ? 0 : 0) : 0)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        .background(
+            // 导航链接跳转到故事页
+            NavigationLink(
+                destination: selectedStory.map { StoryView(story: $0, userId: viewModel.user.userID) },
+                isActive: $navigateToStory,
+                label: { EmptyView() }
+            )
+        )
         .onAppear {
             setupInitialMessages()
             setupKeyboardNotifications()
@@ -763,6 +778,10 @@ private struct DiscoveryView: View {
         .onDisappear {
             NotificationCenter.default.removeObserver(self)
         }
+    }
+    
+    private func handleMessageTap(_ message: ChatMessage) {
+        print("tap message: ",message as Any)
     }
     
     private func setupKeyboardNotifications() {
@@ -836,7 +855,7 @@ private struct DiscoveryView: View {
         let lowercasedMessage = message.lowercased()
         
         if lowercasedMessage.contains("你好") || lowercasedMessage.contains("嗨") || lowercasedMessage.contains("hi") {
-            return "你好！我是AI助手，很高兴为您服务。"
+            return "你好！我是AI助手，很高兴为您服务。点击此消息可以查看推荐故事。"
         } else if lowercasedMessage.contains("名字") {
             return "我是AI助手，您可以叫我小助手。"
         } else if lowercasedMessage.contains("天气") {
@@ -855,6 +874,10 @@ private struct ChatBubble: View {
     
     private var isFromCurrentUser: Bool {
         return message.msg.sender == 1 // 假设1是当前用户ID
+    }
+    
+    private var isClickable: Bool {
+        return !isFromCurrentUser // 只有AI消息可点击
     }
     
     var body: some View {
@@ -884,6 +907,12 @@ private struct ChatBubble: View {
                 )
                 .foregroundColor(isFromCurrentUser ? .white : .black)
                 .cornerRadius(18)
+                .overlay(
+                    isClickable ? 
+                        RoundedRectangle(cornerRadius: 18)
+                            .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                        : nil
+                )
             
             if isFromCurrentUser {
                 // 用户头像
