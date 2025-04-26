@@ -37,7 +37,7 @@ struct UserProfileView: View {
                     // 背景图片层
                     backgroundImageView
                         .frame(maxWidth: .infinity)
-                        .frame(height: 350)
+                        .frame(height: 300)
                         .ignoresSafeArea(edges: .top)
                     
                     // 顶部按钮和用户信息层
@@ -403,7 +403,6 @@ struct StoryboardCell: View {
                     Text(board.boardActive.storyboard.title)
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(Color.theme.primaryText)
-                    
                     Spacer()
                     
                     Text(formatDate(board.boardActive.storyboard.ctime))
@@ -484,6 +483,14 @@ struct StoryboardCell: View {
                     )
                     
                     Spacer()
+                    HStack{
+                        Text("故事：")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(Color.theme.primaryText)
+                        Text(board.boardActive.summary.storyTitle)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(Color.theme.primaryText)
+                    }
                 }
                 .padding(.top, 4)
             }
