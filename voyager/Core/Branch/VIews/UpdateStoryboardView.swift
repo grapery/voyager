@@ -12,8 +12,16 @@ struct EditStoryBoardView: View {
     public var storyId: Int64
     public var boardId: Int64
     public var userId: Int64
-    
+    public var storyboardActive: StoryBoardActive
     @State var viewModel: UnpublishedStoryViewModel
+    init(storyId: Int64, boardId: Int64, userId: Int64, storyboardActive: StoryBoardActive, viewModel: UnpublishedStoryViewModel) {
+        self.storyId = storyId
+        self.boardId = boardId
+        self.userId = userId
+        self.storyboardActive = storyboardActive
+        self.viewModel = viewModel
+        self.currentStep = Int(storyboardActive.boardActive.storyboard.stage.rawValue)
+    }
     // 步骤状态控制
     @State private var currentStep = 0
     @State private var isLoading = false

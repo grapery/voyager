@@ -31,6 +31,17 @@ class FeedViewModel: ObservableObject {
     @Published var errorMessage = ""
     @Published var isRefreshing = false
     
+    // 热点内容相关属性
+    @Published var trendingStories: [Story] = []
+    @Published var trendingRoles: [StoryRole] = []
+    @Published var isLoadingTrending = false
+    @Published var isLoadingMoreTrending = false
+    @Published var hasMoreTrendingStories = true
+    @Published var hasMoreTrendingRoles = true
+    private var trendingStoriesPage: Int64 = 0
+    private var trendingRolesPage: Int64 = 0
+    private let trendingPageSize: Int64 = 10
+    
     private var currentPage: Int64 = 0
     private let defaultPageSize: Int64 = 10
     public  var hasMoreData = true
@@ -389,5 +400,196 @@ class FeedViewModel: ObservableObject {
         return (roles,nil)
     }
     
+    // MARK: - 热点内容方法
+    
+    // 加载热门故事
+    @MainActor
+    func loadTrendingStories() async {
+        guard !isLoadingTrending else { return }
+        
+        isLoadingTrending = true
+        trendingStoriesPage = 0
+        hasMoreTrendingStories = true
+        trendingStories.removeAll()
+        
+        await fetchTrendingStories()
+        
+        isLoadingTrending = false
+    }
+    
+    // 加载更多热门故事
+    @MainActor
+    func loadMoreTrendingStories() async {
+        guard !isLoadingMoreTrending && hasMoreTrendingStories else { return }
+        
+        isLoadingMoreTrending = true
+        trendingStoriesPage += 1
+        
+        await fetchTrendingStories()
+        
+        isLoadingMoreTrending = false
+    }
+    
+    // 实际获取热门故事的方法
+    @MainActor
+    private func fetchTrendingStories() async {
+        do {
+            // 获取当前时间和一周前的时间戳
+            let now = Int64(Date().timeIntervalSince1970)
+            let oneWeekAgo = now - 7 * 24 * 60 * 60
+            
+            let (stories, total, _, error) = await storyService.getTrendingStoris(
+                userId: userId,
+                starttime: oneWeekAgo,
+                endtime: now,
+                pageNum: trendingStoriesPage,
+                pageSize: trendingPageSize
+            )
+            
+            if let error = error {
+                hasError = true
+                errorMessage = error.localizedDescription
+                return
+            }
+            
+            if let stories = stories {
+                if trendingStoriesPage == 0 {
+                    trendingStories = stories
+                } else {
+                    // 过滤掉重复故事
+                    let newStories = stories.filter { newStory in
+                        !trendingStories.contains { $0.Id == newStory.Id }
+                    }
+                    trendingStories.append(contentsOf: newStories)
+                }
+                
+                // 检查是否还有更多数据
+                hasMoreTrendingStories = stories.count >= trendingPageSize && trendingStories.count < total
+            } else {
+                trendingStories = []
+                hasMoreTrendingStories = false
+            }
+        } catch {
+            hasError = true
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    // 加载热门角色
+    @MainActor
+    func loadTrendingRoles() async {
+        guard !isLoadingTrending else { return }
+        
+        isLoadingTrending = true
+        trendingRolesPage = 0
+        hasMoreTrendingRoles = true
+        trendingRoles.removeAll()
+        
+        await fetchTrendingRoles()
+        
+        isLoadingTrending = false
+    }
+    
+    // 加载更多热门角色
+    @MainActor
+    func loadMoreTrendingRoles() async {
+        guard !isLoadingMoreTrending && hasMoreTrendingRoles else { return }
+        
+        isLoadingMoreTrending = true
+        trendingRolesPage += 1
+        
+        await fetchTrendingRoles()
+        
+        isLoadingMoreTrending = false
+    }
+    
+    // 实际获取热门角色的方法
+    @MainActor
+    private func fetchTrendingRoles() async {
+        do {
+            // 获取当前时间和一周前的时间戳
+            let now = Int64(Date().timeIntervalSince1970)
+            let oneWeekAgo = now - 7 * 24 * 60 * 60
+            
+            let (roles, total, _, error) = await storyService.getTrendingStoryRole(
+                userId: userId,
+                starttime: oneWeekAgo,
+                endtime: now,
+                pageNum: trendingRolesPage,
+                pageSize: trendingPageSize
+            )
+            
+            if let error = error {
+                hasError = true
+                errorMessage = error.localizedDescription
+                return
+            }
+            
+            if let roles = roles {
+                if trendingRolesPage == 0 {
+                    trendingRoles = roles
+                } else {
+                    // 过滤掉重复角色
+                    let newRoles = roles.filter { newRole in
+                        !trendingRoles.contains { $0.Id == newRole.Id }
+                    }
+                    trendingRoles.append(contentsOf: newRoles)
+                }
+                
+                // 检查是否还有更多数据
+                hasMoreTrendingRoles = roles.count >= trendingPageSize && trendingRoles.count < total
+            } else {
+                trendingRoles = []
+                hasMoreTrendingRoles = false
+            }
+        } catch {
+            hasError = true
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    // 关注角色
+    @MainActor
+    func followStoryRole(userId: Int64, roleId: Int64, storyId: Int64) async -> Bool {
+        let (success, error) = await storyService.FollowStoryRole(userId: userId, roleId: roleId, storyId: storyId)
+        
+        if let error = error {
+            hasError = true
+            errorMessage = error.localizedDescription
+            return false
+        }
+        
+        // 更新本地角色状态
+        if success {
+            if let index = trendingRoles.firstIndex(where: { $0.Id == roleId }) {
+                trendingRoles[index].role.currentUserStatus.isFollowed = true
+                trendingRoles[index].role.followCount += 1
+            }
+        }
+        
+        return success
+    }
+    
+    // 取消关注角色
+    @MainActor
+    func unfollowStoryRole(userId: Int64, roleId: Int64, storyId: Int64) async -> Bool {
+        let (success, error) = await storyService.UnFollowStoryRole(userId: userId, roleId: roleId, storyId: storyId)
+        
+        if let error = error {
+            hasError = true
+            errorMessage = error.localizedDescription
+            return false
+        }
+        
+        // 更新本地角色状态
+        if success {
+            if let index = trendingRoles.firstIndex(where: { $0.Id == roleId }) {
+                trendingRoles[index].role.currentUserStatus.isFollowed = false
+                trendingRoles[index].role.followCount -= 1
+            }
+        }
+        
+        return success
+    }
 }
 

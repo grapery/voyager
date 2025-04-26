@@ -464,21 +464,21 @@ struct StoryboardCell: View {
                 HStack(spacing: 24) {
                     StatLabel(
                         icon: "bubble.left.fill",
-                        count: 10,
+                        count: Int(board.boardActive.totalCommentCount),
                         iconColor: Color.theme.tertiaryText,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     StatLabel(
                         icon: "heart.fill",
-                        count: 10,
+                        count: Int(board.boardActive.totalLikeCount),
                         iconColor: Color.theme.tertiaryText,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     StatLabel(
-                        icon: "arrow.triangle.2.circlepath",
-                        count: 10,
+                        icon: "signpost.right.and.left",
+                        count: Int(board.boardActive.totalForkCount),
                         iconColor: Color.theme.tertiaryText,
                         countColor: Color.theme.tertiaryText
                     )
@@ -535,21 +535,21 @@ struct StoryboardActiveCell: View {
                 HStack(spacing: 24) {
                     StatLabel(
                         icon: "bubble.left.fill",
-                        count: 10,
+                        count: Int(board.boardActive.totalCommentCount),
                         iconColor: Color.theme.tertiaryText,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     StatLabel(
                         icon: "heart.fill",
-                        count: 10,
+                        count: Int(board.boardActive.totalLikeCount),
                         iconColor: Color.theme.tertiaryText,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     StatLabel(
-                        icon: "arrow.triangle.2.circlepath",
-                        count: 10,
+                        icon: "signpost.right.and.left",
+                        count: Int(board.boardActive.totalForkCount),
                         iconColor: Color.theme.tertiaryText,
                         countColor: Color.theme.tertiaryText
                     )
@@ -1118,6 +1118,7 @@ struct UnpublishedStoryBoardCellView: View {
                     storyId: board.boardActive.storyboard.storyID,
                     boardId: board.boardActive.storyboard.storyBoardID,
                     userId: userId,
+                    storyboardActive: board,
                     viewModel: viewModel
                 )
                 .transition(.move(edge: .bottom))
