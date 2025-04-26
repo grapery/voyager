@@ -435,8 +435,6 @@ struct StoryUser: View {
     }
 }
 
-
-
 // 假设的全部角色视图
 struct AllCharactersView: View {
     @ObservedObject var viewModel: StoryDetailViewModel

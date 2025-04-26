@@ -28,6 +28,7 @@ struct StoryView: View {
     @State private var isShowingCommentView = false
     @State private var isForkingStory = false
     @State private var isLiked = false
+    @State private var isShowingNewRole = false
     
     @State private var selectedBoard: StoryBoard?
     @State private var isShowingBoardDetail = false
@@ -207,7 +208,7 @@ struct StoryView: View {
                     .frame(maxWidth: .infinity)
                     Spacer()
                 }
-            } else if let roles = viewModel.storyRoles {
+            } else if let roles = viewModel.storyRoles, !roles.isEmpty {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(roles, id: \.role.roleID) { role in
@@ -216,14 +217,42 @@ struct StoryView: View {
                     }
                 }
             } else {
-                Text("暂无角色")
-                    .foregroundColor(.secondary)
-                    .padding()
+                // 角色列表为空，显示创建新角色的按钮
+                VStack {
+                    Spacer()
+                    Button(action: {
+                        isShowingNewRole = true
+                    }) {
+                        VStack {
+                            Image(systemName: "plus")
+                                .font(.system(size: 30))
+                                .foregroundColor(Color.theme.tertiaryText)
+                        }
+                        .frame(width: 120, height: 120)
+                        .background(Color.theme.tertiaryBackground)
+                        .cornerRadius(12)
+                    }
+                    Text("创建新的角色")
+                        .font(.system(size: 16))
+                        .foregroundColor(Color.theme.secondaryText)
+                        .padding(.top, 8)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
             }
         }
         .onAppear{
             Task{
                 await self.viewModel.getStoryRoles(storyId: self.storyId, userId: self.userId)
+            }
+        }
+        .sheet(isPresented: $isShowingNewRole) {
+            NavigationView {
+                NewStoryRole(
+                    storyId: self.storyId,
+                    userId: self.userId,
+                    viewModel: StoryDetailViewModel(story: story, storyId: storyId, userId: userId),
+                )
             }
         }
     }
