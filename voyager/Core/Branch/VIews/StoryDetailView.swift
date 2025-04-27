@@ -77,7 +77,7 @@ struct StoryDetailView: View {
             Button(action: {
                 showImagePicker = true
             }) {
-                KFImage(URL(string: viewModel.story?.storyInfo.avatar ?? ""))
+                KFImage(URL(string: convertImagetoSenceImage(url: viewModel.story?.storyInfo.avatar ?? "", scene: .content)))
                     .resizable()
                     .scaledToFill()
                     .frame(width: 80, height: 80)

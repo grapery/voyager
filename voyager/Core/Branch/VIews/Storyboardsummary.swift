@@ -19,6 +19,7 @@ struct StoryboardSummary: View {
     @State private var storyBoardActive: StoryBoardActive?
     @State private var isLoading = true
     @State private var errorMessage: String = ""
+    @State private var apiClient = APIClient()
     
     init(storyBoardId: Int64, userId: Int64, viewModel: FeedViewModel) {
         self.storyBoardId = storyBoardId
@@ -150,7 +151,7 @@ private struct StoryboardHeaderView: View {
             // 用户信息
             HStack(spacing: 8) {
                 // 故事头像
-                KFImage(URL(string: storyboard.boardActive.summary.storyAvatar))
+                KFImage(URL(string: convertImagetoSenceImage(url: storyboard.boardActive.summary.storyAvatar, scene: .small)))
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 32, height: 32)
@@ -343,7 +344,7 @@ private struct SceneView: View {
         if let data = scene.genResult.data(using: .utf8),
            let urls = try? JSONDecoder().decode([String].self, from: data),
            let firstUrl = urls.first {
-            KFImage(URL(string: firstUrl))
+            KFImage(URL(string: convertImagetoSenceImage(url: firstUrl, scene: .content)))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(maxWidth: .infinity)

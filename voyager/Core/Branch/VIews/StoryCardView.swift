@@ -8,7 +8,7 @@ struct StoryCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // 故事封面图
-            KFImage(URL(string: defaultAvator))
+            KFImage(URL(string: convertImagetoSenceImage(url: defaultAvator, scene: .preview)))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(height: 160)
@@ -25,7 +25,7 @@ struct StoryCardView: View {
             // 作者信息
             HStack {
                 // 作者头像
-                KFImage(URL(string: defaultAvator))
+                KFImage(URL(string: convertImagetoSenceImage(url: defaultAvator, scene: .small)))
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 20, height: 20)

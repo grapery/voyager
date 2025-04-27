@@ -14,6 +14,7 @@ struct NewStoryRole: View {
     let userId: Int64
     @ObservedObject var viewModel: StoryDetailViewModel
     @Environment(\.dismiss) private var dismiss
+    @State private var apiClient = APIClient()
     
     @State private var roleName: String = ""
     @State private var roleDescription: String = ""
@@ -162,7 +163,7 @@ private struct AvatarSectionView: View {
                     Text("😊")
                         .font(.system(size: 40))
                 } else {
-                    KFImage(URL(string: roleAvatar))
+                    KFImage(URL(string: convertImagetoSenceImage(url: roleAvatar, scene: .content)))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 100, height: 100)
@@ -401,7 +402,7 @@ private struct ReferenceImageItem: View {
     
     var body: some View {
         VStack {
-            KFImage(URL(string: imageUrl))
+            KFImage(URL(string: convertImagetoSenceImage(url: imageUrl, scene: .preview)))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 80, height: 80)

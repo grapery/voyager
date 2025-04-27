@@ -16,6 +16,71 @@ enum ImageUploadError: Error {
     case invalidResponse
 }
 
+// 阿里云图片处理质量枚举
+enum ImageQuality {
+    case relative(Int)    // 相对质量 1-100
+    case absolute(Int)    // 绝对质量 1-100
+    
+    var processParam: String {
+        switch self {
+        case .relative(let quality):
+            return "quality,q_\(max(1, min(100, quality)))"
+        case .absolute(let quality):
+            return "quality,Q_\(max(1, min(100, quality)))"
+        }
+    }
+}
+
+// 阿里云图片处理格式枚举
+enum ImageFormat {
+    case jpg
+    case png
+    case webp
+    case original
+    
+    var processParam: String {
+        switch self {
+        case .original:
+            return ""
+        default:
+            return "format,\(self)"
+        }
+    }
+}
+
+// 图片使用场景枚举
+enum ImageScene {
+    case small      // 小图
+    case thumbnail  // 缩略图
+    case preview    // 预览图
+    case content    // 内容图
+    case original   // 原始图
+}
+
+// 阿里云图片规格枚举
+enum ImageSpec {
+    case fixedWidth(Int)         // 固定宽度，高度自适应
+    case fixedHeight(Int)        // 固定高度，宽度自适应
+    case fixedSize(width: Int, height: Int)  // 固定尺寸
+    case fixedScale(width: Int, height: Int) // 固定比例缩放
+    case original                // 原始尺寸
+    
+    var processParam: String {
+        switch self {
+        case .fixedWidth(let width):
+            return "resize,m_lfit,w_\(width)"
+        case .fixedHeight(let height):
+            return "resize,m_lfit,h_\(height)"
+        case .fixedSize(let width, let height):
+            return "resize,m_fill,h_\(height),w_\(width)"
+        case .fixedScale(let width, let height):
+            return "resize,m_lfit,h_\(height),w_\(width)"
+        case .original:
+            return ""
+        }
+    }
+}
+
 extension APIClient {
     func uploadImage(image: UIImage, filename: String) async throws -> String {
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
@@ -65,3 +130,69 @@ extension APIClient {
         }
     }
 }
+
+
+func convertImagetoSenceImage(
+    url: String?,
+    scene: ImageScene,
+    format: ImageFormat = .original,
+    quality: ImageQuality? = nil,
+    customSpec: ImageSpec? = nil
+) -> String {
+    // 如果URL为空，返回空字符串
+    if url!.isEmpty {
+        return ""
+    }
+    
+    // 根据场景获取对应的图片规格
+    let spec: ImageSpec
+    switch scene {
+    case .small:
+        spec = .fixedWidth(200)  // 小图使用200宽度，自适应高度
+    case .thumbnail:
+        spec = .fixedScale(width: 400, height: 300)  // 缩略图使用400x300比例
+    case .preview:
+        spec = .fixedWidth(800)  // 预览图使用800宽度，自适应高度
+    case .content:
+        spec = .fixedWidth(1200)  // 内容图使用1200宽度，自适应高度
+    case .original:
+        spec = .original  // 原始图不做处理
+    }
+    
+    // 使用自定义规格或场景默认规格
+    let finalSpec = customSpec ?? spec
+    
+    // 如果是原始图且没有其他处理参数，直接返回原始URL
+    if case .original = finalSpec, case .original = format, quality == nil {
+        return url!
+    }
+    
+    // 构建处理参数数组
+    var processes: [String] = []
+    
+    // 添加规格处理参数
+    if finalSpec.processParam.isEmpty == false {
+        processes.append(finalSpec.processParam)
+    }
+    
+    // 添加格式转换参数
+    if format.processParam.isEmpty == false {
+        processes.append(format.processParam)
+    }
+    
+    // 添加质量参数
+    if let quality = quality {
+        processes.append(quality.processParam)
+    }
+    
+    // 如果没有处理参数，返回原始URL
+    if processes.isEmpty {
+        return url!
+    }
+    
+    // 组合所有处理参数
+    let finnalUrl = url! + "?x-oss-process=image/" + processes.joined(separator: "/")
+    print("convert finnal url: ",finnalUrl)
+    return finnalUrl
+}
+

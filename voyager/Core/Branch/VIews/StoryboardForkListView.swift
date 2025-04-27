@@ -14,6 +14,7 @@ struct StoryboardForkListView: View {
     @State var selectedBoard: StoryBoardActive?
     let currentBoard: StoryBoardActive
     let userId: Int64
+    @State private var apiClient = APIClient()
     
     init(userId:Int64, currentBoard: StoryBoardActive, viewModel: StoryViewModel, showingStoryBoard: Bool = false, selectedBoard: StoryBoardActive? = nil) {
         self.viewModel = viewModel
@@ -221,7 +222,7 @@ private struct FeedForkStoryBoardCard: View {
             
             // 创建者信息
             HStack(spacing: 4) {
-                KFImage(URL(string: defaultAvator))
+                KFImage(URL(string: convertImagetoSenceImage(url: defaultAvator, scene: .small)))
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 20, height: 20)

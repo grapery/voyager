@@ -99,7 +99,7 @@ struct StoryBoardCellView: View {
         VStack(alignment: .leading, spacing: 12) {
             // Header
             HStack {
-                KFImage(URL(string: defaultAvator))
+                KFImage(URL(string: convertImagetoSenceImage(url: defaultAvator, scene: .small)))
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 44, height: 44)
@@ -133,7 +133,7 @@ struct StoryBoardCellView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     // 场景图片（取第一张）
                                     if let firstMedia = sceneContent.mediaItems.first {
-                                        KFImage(firstMedia.url)
+                                        KFImage(URL(string: convertImagetoSenceImage(url: firstMedia.url.absoluteString, scene: .preview)))
                                             .placeholder {
                                                 Rectangle()
                                                     .fill(Color.theme.tertiaryBackground)

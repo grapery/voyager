@@ -173,7 +173,7 @@ class StoryDetailViewModel: ObservableObject {
     func uploadImage(_ image: UIImage) async throws -> String {
         // 实现图片上传逻辑
         // 1. 压缩图片
-        guard let imageData = image.jpegData(compressionQuality: 0.6) else {
+        guard image.jpegData(compressionQuality: 0.6) != nil else {
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to compress image"])
         }
         

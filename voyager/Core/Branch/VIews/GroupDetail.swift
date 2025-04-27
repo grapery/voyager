@@ -21,7 +21,7 @@ struct GroupHeaderView: View {
     var body: some View {
         ZStack(alignment: .top) {
             // Background Image with Gradient
-            KFImage(URL(string: group?.info.avatar ?? defaultAvator))
+            KFImage(URL(string: convertImagetoSenceImage(url: group?.info.avatar, scene: .small)))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(height: 270)
@@ -84,7 +84,7 @@ struct GroupInfoView: View {
         HStack(alignment: .top, spacing: 8) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 16) {
-                    KFImage(URL(string: group?.info.avatar ?? defaultAvator))
+                    KFImage(URL(string: convertImagetoSenceImage(url: group?.info.avatar, scene: .small)))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 72, height: 72)
@@ -297,7 +297,7 @@ struct StoryListHeaderView: View {
                             selectedStoryId = story.storyInfo.id
                         }) {
                             VStack {
-                                KFImage(URL(string: story.storyInfo.avatar))
+                                KFImage(URL(string: convertImagetoSenceImage(url: story.storyInfo.avatar, scene: .small)))
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 49, height: 49)
@@ -513,7 +513,7 @@ struct StoryCellView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                KFImage(URL(string: story.storyInfo.avatar))
+                KFImage(URL(string: convertImagetoSenceImage(url: story.storyInfo.avatar, scene: .small)))
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 36, height: 36)
@@ -536,7 +536,7 @@ struct StoryCellView: View {
             Text(story.storyInfo.origin)
                 .font(.body)
             
-            KFImage(URL(string: story.storyInfo.avatar))
+            KFImage(URL(string: convertImagetoSenceImage(url: story.storyInfo.avatar, scene: .preview)))
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 200)
@@ -649,7 +649,7 @@ struct StoryUpdateCell: View {
             VStack(alignment: .leading, spacing: 12) {
                 // Header
                 HStack {
-                    KFImage(URL(string: story.storyInfo.avatar))
+                    KFImage(URL(string: convertImagetoSenceImage(url: story.storyInfo.avatar, scene: .small)))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 49, height: 49)
@@ -678,7 +678,7 @@ struct StoryUpdateCell: View {
                     .foregroundColor(.primary)
                 
                 if let imageUrl = URL(string: story.storyInfo.avatar) {
-                    KFImage(imageUrl)
+                    KFImage(URL(string: convertImagetoSenceImage(url: story.storyInfo.avatar, scene: .preview)))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(height: 180)

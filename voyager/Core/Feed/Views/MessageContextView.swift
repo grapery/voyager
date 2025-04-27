@@ -24,6 +24,7 @@ struct MessageContextView: View {
     @State private var isLoadingHistory = false
     @State private var hasMoreMessages = true  // 新增：标记是否还有更多消息
     
+    
     init(userId: Int64, roleId: Int64, role: StoryRole) {
         self.role = role
         self.currentUserId = userId
@@ -481,7 +482,7 @@ struct MessageCellView: View {
     // 图片消息气泡
     private var imageBubble: some View {
         if let url = message.mediaURL {
-            KFImage(URL(string: url))
+            KFImage(URL(string: convertImagetoSenceImage(url: url, scene: .content)))
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: 200, maxHeight: 200)

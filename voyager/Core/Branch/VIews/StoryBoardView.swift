@@ -33,7 +33,7 @@ struct StoryBoardView: View {
                 
                 // 用户信息
                 HStack(spacing: 8) {
-                    KFImage(URL(string: (board?.boardActive.creator.userAvatar)!))
+                    KFImage(URL(string: convertImagetoSenceImage(url: (board?.boardActive.creator.userAvatar)!, scene: .small)))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 40, height: 40)
@@ -86,7 +86,7 @@ struct StoryBoardView: View {
                                     if let data = scene.genResult.data(using: .utf8),
                                        let urls = try? JSONDecoder().decode([String].self, from: data),
                                        let firstUrl = urls.first {
-                                        KFImage(URL(string: firstUrl))
+                                        KFImage(URL(string: convertImagetoSenceImage(url: firstUrl, scene: .content)))
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
                                             .frame(maxWidth: .infinity)

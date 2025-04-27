@@ -22,13 +22,13 @@ struct AllGroupsView: View {
                 
                 Spacer().scaledToFit()
                 if viewModel.user.avatar.isEmpty {
-                    KFImage(URL(string: defaultAvator))
+                    KFImage(URL(string: convertImagetoSenceImage(url: defaultAvator, scene: .small)))
                         .resizable()
                         .scaledToFill()
                         .frame(width: 40, height: 40)
                         .clipShape(Circle())
                 }else{
-                    KFImage(URL(string: viewModel.user.avatar))
+                    KFImage(URL(string: convertImagetoSenceImage(url: viewModel.user.avatar, scene: .small)))
                         .resizable()
                         .scaledToFill()
                         .frame(width: 40, height: 40)
@@ -144,7 +144,7 @@ struct GroupListItemView: View {
                 // 头部：头像和名称
                 HStack(spacing: 12) {
                     // 小组头像
-                    KFImage(URL(string: group.info.avatar))
+                    KFImage(URL(string: convertImagetoSenceImage(url: group.info.avatar, scene: .small)))
                         .placeholder {
                             Image(systemName: "person.2.circle.fill")
                                 .resizable()
