@@ -120,16 +120,17 @@ class GroupDetailViewModel: ObservableObject {
     @State var memberPage: Int32 = 0
     @State var memberPageSize: Int32 = 10
     
-    init(user: User,groupId:Int64) {
+    init(user: User, groupId: Int64) {
         self.user = user
         self.storys = [Story]()
         self.members = [User]()
         self.groupId = groupId
-        Task{
-            await self.fetchGroupStorys(groupdId:groupId)
+        Task { @MainActor in
+            await self.fetchGroupStorys(groupdId: groupId)
         }
     }
     
+    @MainActor
     func fetchGroupProfile(groupdId: Int64) async {
         var err: Error?
         var profileInfo: Common_GroupProfileInfo?
@@ -141,6 +142,7 @@ class GroupDetailViewModel: ObservableObject {
         self.profile = GroupProfile(profile: profileInfo!)
     }
     
+    @MainActor
     func fetchGroupMembers(groupdId: Int64) async  {
         var err: Error?
         var users: [User]?
@@ -156,6 +158,7 @@ class GroupDetailViewModel: ObservableObject {
         self.members = users!
     }
     
+    @MainActor
     func fetchGroupStorys(groupdId: Int64) async  {
         var err: Error?
         var storys: [Story]?
@@ -166,11 +169,15 @@ class GroupDetailViewModel: ObservableObject {
             print("fetchGroupStorys err: ",err as Any)
             return
         }
+        if storys == nil {
+            return
+        }
         self.storyPage = Int32(page)
         self.storyPageSize = Int32(pageSize)
         self.storys = storys!
     }
     
+    @MainActor
     func JoinGroup(groupdId: Int64) async  {
         var err: Error?
         var joined: Bool = false
@@ -187,6 +194,7 @@ class GroupDetailViewModel: ObservableObject {
         print("JoinGroup success")
     }
     
+    @MainActor
     func LeaveGroup(groupdId: Int64) async -> Error?{
         var err: Error?
         var leaved: Bool = false
@@ -204,6 +212,7 @@ class GroupDetailViewModel: ObservableObject {
         return nil
     }
     
+    @MainActor
     func followGroup(userId: Int64,groupId: Int64) async -> Error?{
         var err: Error?
         (err) = await APIClient.shared.followGroup(userId: self.user.userID, groupID: self.groupId)
@@ -215,6 +224,7 @@ class GroupDetailViewModel: ObservableObject {
         return nil
     }
     
+    @MainActor
     func unFollowGroup(userId: Int64,groupId: Int64) async -> Error?{
         var err: Error?
         (err) = await APIClient.shared.unfollowGroup(userId: self.user.userID, groupId: self.groupId)
@@ -226,6 +236,7 @@ class GroupDetailViewModel: ObservableObject {
         return nil
     }
     
+    @MainActor
     func watchStory(storyId: Int64,userId: Int64) async -> Error?{
         let (_,err) = await APIClient.shared.WatchStory(storyId: storyId, userId: userId)
         if err != nil {
@@ -234,6 +245,7 @@ class GroupDetailViewModel: ObservableObject {
         return nil
     }
 
+    @MainActor
     func unWatchStory(storyId: Int64,userId: Int64) async -> Error?{
         let (_,err) = await APIClient.shared.WatchStory(storyId: storyId, userId: userId)
         if err != nil {
@@ -242,6 +254,7 @@ class GroupDetailViewModel: ObservableObject {
         return nil
     }
     
+    @MainActor
     func likeStory(userId: Int64,storyId:Int64) async -> Error?{
         let (err) = await APIClient.shared.LikeStory(storyId: storyId, userId: userId)
         if err != nil {
@@ -250,6 +263,7 @@ class GroupDetailViewModel: ObservableObject {
         return nil
     }
     
+    @MainActor
     func unlikeStory(userId: Int64,storyId:Int64) async -> Error?{
         let (err) = await APIClient.shared.UnLikeStory(storyId: storyId, userId: userId)
         if err != nil {
