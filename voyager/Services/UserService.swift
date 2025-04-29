@@ -53,22 +53,20 @@ extension APIClient {
         if (globalUserToken == nil){
             return UserProfile()
         }
+        
         var resp :ResponseMessage<Common_GetUserProfileResponse>
-        do {
-            let authClient = Common_TeamsApiClient(client: self.client!)
-            // Performed within an async context.
-            let request = Common_GetUserProfileRequest.with {
-                $0.userID = Int64(userId)
-            }
-            var header = Connect.Headers()
-            header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
-            resp = await authClient.getUserProfile(request:request, headers: header)
-            if resp.code.rawValue != 0 {
-                return UserProfile()
-            }
-            return resp.message!.info
+        let authClient = Common_TeamsApiClient(client: self.client!)
+        // Performed within an async context.
+        let request = Common_GetUserProfileRequest.with {
+            $0.userID = Int64(userId)
         }
-        return UserProfile()
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        resp = await authClient.getUserProfile(request:request, headers: header)
+        if resp.code.rawValue != 0 {
+            return UserProfile()
+        }
+        return resp.message!.info
     }
     
     func updateUserProfile(userId: Int64,backgroundImage:String,avatar: String,name: String,description_p:String,location: String,email: String) async -> Error?{
