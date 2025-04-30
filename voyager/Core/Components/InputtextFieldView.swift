@@ -54,6 +54,7 @@ struct InteractionButton: View {
     let count: Int
     let isActive: Bool
     let action: () -> Void
+    let color: Color
     
     var body: some View {
         Button(action: action) {
@@ -63,7 +64,7 @@ struct InteractionButton: View {
                 Text("\(count)")
                     .font(.system(size: 14))
             }
-            .foregroundColor(isActive ? Color.theme.accent : Color.theme.tertiaryText)
+            .foregroundColor(isActive ? color : Color.theme.tertiaryText)
         }
     }
 }

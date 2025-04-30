@@ -346,7 +346,7 @@ private struct FeedItemCard: View {
                 // 点赞按钮
                 Button(action: {
                     Task {
-                        if storyBoardActive.isliked {
+                        if storyBoardActive.storyboard.currentUserStatus.isLiked{
                             if let err = await viewModel.unlikeStoryBoard(storyId: storyBoardActive.storyboard.storyID, boardId: storyBoardActive.storyboard.storyBoardID, userId: self.userId) {
                                 await MainActor.run {
                                     errorTitle = "取消点赞失败"
@@ -354,7 +354,7 @@ private struct FeedItemCard: View {
                                     showError = true
                                 }
                             } else {
-                                storyBoardActive.isliked = false
+                                storyBoardActive.storyboard.currentUserStatus.isLiked = false
                                 storyBoardActive.totalLikeCount -= 1
                             }
                         } else {
@@ -365,19 +365,19 @@ private struct FeedItemCard: View {
                                     showError = true
                                 }
                             } else {
-                                storyBoardActive.isliked = true
+                                storyBoardActive.storyboard.currentUserStatus.isLiked = true
                                 storyBoardActive.totalLikeCount += 1
                             }
                         }
                     }
                 }) {
                     HStack(spacing: 4) {
-                        Image(systemName: storyBoardActive.isliked ? "heart.fill" : "heart")
+                        Image(systemName: storyBoardActive.storyboard.currentUserStatus.isLiked ? "heart.fill" : "heart")
                             .font(.system(size: 16))
                         Text("\(storyBoardActive.totalLikeCount)")
                             .font(.system(size: 14))
                     }
-                    .foregroundColor(storyBoardActive.isliked ? Color.red : Color.theme.tertiaryText)
+                    .foregroundColor(storyBoardActive.storyboard.currentUserStatus.isLiked ? Color.red : Color.theme.tertiaryText)
                 }
                 
                 // 评论按钮
@@ -404,7 +404,7 @@ private struct FeedItemCard: View {
                         Text("\(storyBoardActive.totalForkCount)")
                             .font(.system(size: 14))
                     }
-                    .foregroundColor(showChildNodes ? Color.theme.accent : Color.theme.tertiaryText)
+                    //.foregroundColor(showChildNodes ? Color.theme.accent : Color.theme.tertiaryText)
                 }
             }
             .padding(.horizontal)

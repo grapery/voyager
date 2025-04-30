@@ -146,12 +146,12 @@ private struct StoryBoardInteractionBar: View {
     var body: some View {
         HStack(spacing: 24) {
             StoryboardShowInteractionButton(
-                icon: board.boardActive.isliked ? "heart.fill" : "heart",
+                icon: board.boardActive.storyboard.currentUserStatus.isLiked ? "heart.fill" : "heart",
                 count: "\(board.boardActive.totalLikeCount)",
-                color: board.boardActive.isliked ? Color.theme.error : Color.theme.tertiaryText
+                color: board.boardActive.storyboard.currentUserStatus.isLiked ? Color.theme.error : Color.theme.tertiaryText
             ) {
                 Task {
-                    if board.boardActive.isliked {
+                    if board.boardActive.storyboard.currentUserStatus.isLiked {
                         await viewModel.unlikeStoryBoard(
                             storyId: board.boardActive.storyboard.storyID,
                             boardId: board.boardActive.storyboard.storyBoardID,

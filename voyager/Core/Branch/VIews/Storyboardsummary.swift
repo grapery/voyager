@@ -168,37 +168,6 @@ private struct StoryboardHeaderView: View {
     }
 }
 
-// MARK: - Stats View
-private struct StoryboardStatsView: View {
-    let storyboard: StoryBoardActive
-    
-    var body: some View {
-        HStack(spacing: 24) {
-            // 总点赞数
-            StatItem(
-                count: Int(storyboard.boardActive.totalLikeCount),
-                title: "点赞",
-                icon: "heart.fill"
-            )
-            
-            // 总评论数
-            StatItem(
-                count: Int(storyboard.boardActive.totalCommentCount),
-                title: "评论",
-                icon: "bubble.left"
-            )
-            
-            // 总分支数
-            StatItem(
-                count: Int(storyboard.boardActive.totalForkCount),
-                title: "分支",
-                icon: "arrow.triangle.branch"
-            )
-        }
-        .padding(.vertical, 8)
-        .background(Color.theme.secondaryBackground)
-    }
-}
 
 // MARK: - Details View
 private struct StoryboardSummaryDetailsView: View {
@@ -206,6 +175,7 @@ private struct StoryboardSummaryDetailsView: View {
     let userId: Int64
     let viewModel: FeedViewModel
     @Binding var currentSceneIndex: Int
+    @State private var isShowingUserProfile = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -245,18 +215,13 @@ private struct StoryboardSummaryDetailsView: View {
                         .font(.system(size: 12))
                         .foregroundColor(.theme.secondaryText)
                     
-                    NavigationLink(destination: UserProfileView(user: User(
-                        userID: storyboard.boardActive.creator.userID,
-                        name: storyboard.boardActive.creator.userName,
-                        avatar: storyboard.boardActive.creator.userAvatar
-                    ))) {
+                      Button(action: { isShowingUserProfile = true }) {
                         HStack(spacing: 4) {
                             KFImage(URL(string: storyboard.boardActive.creator.userAvatar))
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .frame(width: 24, height: 24)
+                                .frame(width: 20, height: 20)
                                 .clipShape(Circle())
-                            
                             Text("\(storyboard.boardActive.creator.userName)")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(.theme.primaryText)
@@ -276,8 +241,24 @@ private struct StoryboardSummaryDetailsView: View {
                 storyboardId: storyboard.boardActive.storyboard.storyBoardID,
                 userId: userId
             )
+            .padding(.horizontal, 16)
         }
         .padding(.top, 12)
+        .fullScreenCover(isPresented: $isShowingUserProfile) {
+            NavigationView {
+                UserProfileView(user: User(
+                    userID: storyboard.boardActive.creator.userID,
+                    name: storyboard.boardActive.creator.userName,
+                    avatar: storyboard.boardActive.creator.userAvatar
+                ))
+                .navigationBarItems(leading: Button(action: {
+                    isShowingUserProfile = false
+                }) {
+                    Image(systemName: "xmark")
+                        .foregroundColor(.theme.primaryText)
+                })
+            }
+        }
     }
 }
 
@@ -365,40 +346,54 @@ private struct InteractionButtonsView: View {
         HStack(spacing: 24) {
             // 点赞按钮
             InteractionButton(
-                icon: storyboard.boardActive.isliked ? "heart.fill" : "heart",
+                icon: storyboard.boardActive.storyboard.currentUserStatus.isLiked ? "heart.fill" : "heart",
                 count: Int(storyboard.boardActive.totalLikeCount),
-                isActive: storyboard.boardActive.isliked
-            ) {
-                Task {
-                    if !storyboard.boardActive.isliked {
-                        await viewModel.likeStoryBoard(
-                            storyId: storyboard.boardActive.storyboard.storyID,
-                            boardId: storyboard.boardActive.storyboard.storyBoardID,
-                            userId: userId
-                        )
-                        storyboard.boardActive.isliked = true
-                        storyboard.boardActive.totalLikeCount = storyboard.boardActive.totalLikeCount + 1
+                isActive: storyboard.boardActive.storyboard.currentUserStatus.isLiked,
+                action: {
+                    Task {
+                        if !storyboard.boardActive.storyboard.currentUserStatus.isLiked {
+                            await viewModel.likeStoryBoard(
+                                storyId: storyboard.boardActive.storyboard.storyID,
+                                boardId: storyboard.boardActive.storyboard.storyBoardID,
+                                userId: userId
+                            )
+                            storyboard.boardActive.storyboard.currentUserStatus.isLiked = true
+                            storyboard.boardActive.totalLikeCount = storyboard.boardActive.totalLikeCount + 1
+                        }else{
+                            await viewModel.unlikeStoryBoard(
+                                storyId: storyboard.boardActive.storyboard.storyID,
+                                boardId: storyboard.boardActive.storyboard.storyBoardID,
+                                userId: userId
+                            )
+                            storyboard.boardActive.storyboard.currentUserStatus.isLiked = false
+                            storyboard.boardActive.totalLikeCount = storyboard.boardActive.totalLikeCount - 1
+                        }
                     }
-                }
-            }
+                },
+                color: Color.red
+            )
             
             // 评论按钮
             InteractionButton(
                 icon: "bubble.left",
                 count: Int(storyboard.boardActive.totalCommentCount),
-                isActive: false
-            ) {
-                // 评论操作
-            }
+                isActive: false,
+                action: {
+                    print("add some comment")
+                },
+                color: Color.red
+            )
             
             // 分支按钮
             InteractionButton(
                 icon: "arrow.triangle.branch",
                 count: Int(storyboard.boardActive.totalForkCount),
-                isActive: false
-            ) {
-                // 分支操作
-            }
+                isActive: false,
+                action: {
+                    print("add some comment")
+                },
+                color: Color.red
+            )
             
             Spacer()
         }

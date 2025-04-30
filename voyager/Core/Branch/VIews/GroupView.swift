@@ -223,7 +223,8 @@ struct GroupInteractionButtonsView: View {
                     Task {
                         await handleFollowAction()
                     }
-                }
+                },
+                color: Color.red
             )
             
             InteractionButton(
@@ -232,14 +233,16 @@ struct GroupInteractionButtonsView: View {
                 isActive: false,
                 action: {
                     showingStoryInfo = true
-                }
+                },
+                color: Color.theme.accent
             )
             
             InteractionButton(
                 icon: "person",
                 count: Int(group.info.profile.groupMemberNum),
                 isActive: false,
-                action: {}
+                action: {},
+                color: Color.theme.accent
             )
         }
         .padding(.top, 4)

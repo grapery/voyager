@@ -19,7 +19,7 @@ struct CommentListView: View {
                         
                         if comment.id != viewModel.comments.last?.id {
                             Divider()
-                                .padding(.leading, 64)
+                                .padding(.leading, 32)
                         }
                     }
                     

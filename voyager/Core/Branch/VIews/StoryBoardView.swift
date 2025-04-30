@@ -192,7 +192,7 @@ struct StoryBoardView: View {
         }
         .navigationBarHidden(true)
         .onAppear {
-            isLiked = board?.boardActive.isliked ?? false
+            isLiked = board?.boardActive.storyboard.currentUserStatus.isLiked ?? false
         }
     }
     
