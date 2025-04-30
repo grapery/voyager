@@ -595,7 +595,9 @@ struct ProfileRoleCell: View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .top, spacing: 16) {
                     // 角色头像
-                    KFImage(URL(string: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar))
+                    KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 88, height: 88)

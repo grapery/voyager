@@ -208,7 +208,9 @@ struct FollowGroupActivityView: View {
                 
                 // 小组信息
                 HStack {
-                    KFImage(URL(string: activity.activity.groupInfo.avatar))
+                    KFImage(URL(string: convertImagetoSenceImage(url: activity.activity.groupInfo.avatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 24, height: 24)
@@ -255,7 +257,9 @@ struct CreateStoryActivityView: View {
                 
                 // 故事信息
                 HStack {
-                    KFImage(URL(string: activity.activity.storyInfo.avatar))
+                    KFImage(URL(string: convertImagetoSenceImage(url: activity.activity.storyInfo.avatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 24, height: 24)
@@ -302,7 +306,9 @@ struct CreateStoryboardActivityView: View {
                 
                 // 故事板信息
                 HStack {
-                    KFImage(URL(string:activity.activity.storyInfo.name))
+                    KFImage(URL(string:convertImagetoSenceImage(url: activity.activity.storyInfo.avatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 24, height: 24)
@@ -349,7 +355,9 @@ struct ShareStoryActivityView: View {
                 
                 // 故事信息
                 HStack {
-                    KFImage(URL(string: activity.activity.storyInfo.avatar ?? defaultAvator))
+                    KFImage(URL(string: convertImagetoSenceImage(url: activity.activity.storyInfo.avatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 24, height: 24)
@@ -396,7 +404,9 @@ struct ShareStoryboardActivityView: View {
                 
                 // 故事板信息
                 HStack {
-                    KFImage(URL(string: activity.activity.storyInfo.avatar))
+                    KFImage(URL(string: convertImagetoSenceImage(url: activity.activity.storyInfo.avatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 24, height: 24)
@@ -443,7 +453,9 @@ struct CreateCharacterActivityView: View {
                 
                 // 角色信息
                 HStack {
-                    KFImage(URL(string:activity.activity.roleInfo.characterAvatar))
+                    KFImage(URL(string:convertImagetoSenceImage(url: activity.activity.roleInfo.characterAvatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 24, height: 24)

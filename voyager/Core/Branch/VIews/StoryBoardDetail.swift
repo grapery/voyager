@@ -100,6 +100,8 @@ struct StoryBoardCellView: View {
             // Header
             HStack {
                 KFImage(URL(string: convertImagetoSenceImage(url: defaultAvator, scene: .small)))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 44, height: 44)
@@ -134,6 +136,8 @@ struct StoryBoardCellView: View {
                                     // 场景图片（取第一张）
                                     if let firstMedia = sceneContent.mediaItems.first {
                                         KFImage(URL(string: convertImagetoSenceImage(url: firstMedia.url.absoluteString, scene: .preview)))
+                                            .cacheMemoryOnly()
+                                            .fade(duration: 0.25)
                                             .placeholder {
                                                 Rectangle()
                                                     .fill(Color.theme.tertiaryBackground)
@@ -178,7 +182,6 @@ struct StoryBoardCellView: View {
                     action: {
                         withAnimation(.spring()) {
                             isLiked.toggle()
-                            print("isliked: ",isLiked)
                             board.boardActive.totalLikeCount = board.boardActive.totalLikeCount + 1
                             Task{
                                 await viewModel.likeStoryBoard(storyId: board.boardActive.storyboard.storyID, boardId: board.boardActive.storyboard.storyBoardID, userId: userId)
@@ -208,7 +211,17 @@ struct StoryBoardCellView: View {
                         }
                     }
                 )
-                
+                // 续写
+                StorySubViewInteractionButton(
+                    icon: "pencil",
+                    count: "\(board.boardActive.totalForkCount)",
+                    color: Color.theme.tertiaryText,
+                    action: {
+                        withAnimation(.spring()) {
+                            showChildNodes.toggle()
+                        }
+                    }
+                )
                 Spacer()
             }
             .padding(.top, 8)

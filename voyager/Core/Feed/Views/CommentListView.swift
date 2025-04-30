@@ -128,7 +128,9 @@ private struct CommentItemView: View {
                 name: comment.commentUser.name,
                 avatar: comment.commentUser.avatar
             ))) {
-                KFImage(URL(string: comment.commentUser.avatar))
+                KFImage(URL(string: convertImagetoSenceImage(url: comment.commentUser.avatar, scene: .small)))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .placeholder { CommentAvatarPlaceholder() }
                     .resizable()
                     .aspectRatio(contentMode: .fill)

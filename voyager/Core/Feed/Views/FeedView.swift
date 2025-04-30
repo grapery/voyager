@@ -245,7 +245,9 @@ private struct FeedItemCard: View {
                         // 故事缩略图和名称
                         HStack(spacing: 4) {
                             HStack(spacing: 8) {
-                                KFImage(URL(string: storyBoardActive.summary.storyAvatar))
+                                KFImage(URL(string: convertImagetoSenceImage(url: storyBoardActive.summary.storyAvatar, scene: .small)))
+                                    .cacheMemoryOnly()
+                                    .fade(duration: 0.25)
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 32, height: 32)
@@ -260,7 +262,9 @@ private struct FeedItemCard: View {
                             Divider()
                             HStack{
                                 // 创建者头像
-                                KFImage(URL(string: storyBoardActive.creator.userAvatar))
+                                KFImage(URL(string: convertImagetoSenceImage(url: storyBoardActive.creator.userAvatar, scene: .small)))
+                                    .cacheMemoryOnly()
+                                    .fade(duration: 0.25)
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 20, height: 20)
@@ -1196,7 +1200,9 @@ private struct TrendingStoryCard: View {
                 // 故事头部信息
                 HStack(spacing: 12) {
                     // 故事缩略图
-                    KFImage(URL(string: story.storyInfo.avatar))
+                    KFImage(URL(string: convertImagetoSenceImage(url: story.storyInfo.avatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .placeholder {
                             Rectangle()
                                 .fill(Color.theme.tertiaryBackground)
@@ -1285,7 +1291,9 @@ private struct TrendingRoleCard: View {
         }) {
             HStack(spacing: 16) {
                 // 角色头像
-                KFImage(URL(string: role.role.characterAvatar))
+                KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .placeholder {
                         Circle()
                             .fill(Color.theme.tertiaryBackground)

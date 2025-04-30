@@ -190,7 +190,9 @@ struct GroupHeaderInfoView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            KFImage(URL(string: group.info.avatar))
+            KFImage(URL(string: convertImagetoSenceImage(url: group.info.avatar, scene: .small)))
+                .cacheMemoryOnly()
+                .fade(duration: 0.25)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 48, height: 48)

@@ -19,13 +19,17 @@ struct CharacterCell: View {
         HStack(spacing: 2) {
             // 角色头像
             if !character.role.characterAvatar.isEmpty {
-                KFImage(URL(string: character.role.characterAvatar))
+                KFImage(URL(string: convertImagetoSenceImage(url: character.role.characterAvatar, scene: .small)))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 100)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
                 KFImage(URL(string: defaultAvator))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 100)
@@ -279,7 +283,9 @@ struct RoleProfileSection: View {
     var body: some View {
         VStack(spacing: 12) {
             Button(action: onAvatarTap) {
-                KFImage(URL(string: role.role.characterAvatar.isEmpty ? defaultAvator : role.role.characterAvatar))
+                KFImage(URL(string: role.role.characterAvatar.isEmpty ? defaultAvator : convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 100, height: 100)
@@ -470,7 +476,9 @@ struct ParticipationCell: View {
             VStack(alignment: .leading, spacing: 12) {
                 // Header
                 HStack {
-                    KFImage(URL(string: board.boardActive.creator.userAvatar))
+                    KFImage(URL(string: convertImagetoSenceImage(url: board.boardActive.creator.userAvatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 36, height: 36)
@@ -995,7 +1003,9 @@ struct EditInfoView: View {
                                     .frame(width: 40, height: 40)
                                     .clipShape(Circle())
                             } else {
-                                KFImage(URL(string: role.role.characterAvatar))
+                                KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
+                                    .cacheMemoryOnly()
+                                    .fade(duration: 0.25)
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: 40, height: 40)
@@ -1067,6 +1077,8 @@ struct PosterView: View {
                 
                 // 海报图片
                 KFImage(URL(string: defaultPosterImage))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .placeholder {
                         Rectangle()
                             .fill(Color.theme.secondaryBackground)

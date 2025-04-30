@@ -78,6 +78,8 @@ struct StoryDetailView: View {
                 showImagePicker = true
             }) {
                 KFImage(URL(string: convertImagetoSenceImage(url: viewModel.story?.storyInfo.avatar ?? "", scene: .content)))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 80, height: 80)
@@ -270,13 +272,17 @@ struct StoryDetailView: View {
                         VStack(spacing: 4) {
                             if character.role.characterAvatar.isEmpty {
                                 KFImage(URL(string: defaultAvator))
+                                    .cacheMemoryOnly()
+                                    .fade(duration: 0.25)
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 50, height: 50)
                                     .clipShape(Circle())
                                     .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
                             } else {
-                                KFImage(URL(string: character.role.characterAvatar))
+                                KFImage(URL(string: convertImagetoSenceImage(url: character.role.characterAvatar, scene: .small)))
+                                    .cacheMemoryOnly()
+                                    .fade(duration: 0.25)
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 50, height: 50)
@@ -338,13 +344,17 @@ struct StoryDetailView: View {
                         VStack(spacing: 4) {
                             if participant.avatar.isEmpty {
                                 KFImage(URL(string: defaultAvator))
+                                    .cacheMemoryOnly()
+                                    .fade(duration: 0.25)
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 50, height: 50)
                                     .clipShape(Circle())
                                     .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
                             } else {
-                                KFImage(URL(string: participant.avatar))
+                                KFImage(URL(string: convertImagetoSenceImage(url: participant.avatar, scene: .small)))
+                                    .cacheMemoryOnly()
+                                    .fade(duration: 0.25)
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 50, height: 50)
@@ -421,6 +431,8 @@ struct StoryUser: View {
     var body: some View {
         VStack {
             KFImage(URL(string: avatar))
+                .cacheMemoryOnly()
+                .fade(duration: 0.25)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 80, height: 80)
@@ -498,13 +510,17 @@ struct AllParticipantsView: View {
                 ForEach(viewModel.participants, id: \.userID) { participant in
                     VStack {
                         if !participant.avatar.isEmpty{
-                            KFImage(URL(string: participant.avatar))
+                            KFImage(URL(string: convertImagetoSenceImage(url: participant.avatar, scene: .small)))
+                                .cacheMemoryOnly()
+                                .fade(duration: 0.25)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 80, height: 80)
                                 .clipShape(Circle())
                         }else{
                             KFImage(URL(string: defaultAvator))
+                                .cacheMemoryOnly()
+                                .fade(duration: 0.25)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 80, height: 80)

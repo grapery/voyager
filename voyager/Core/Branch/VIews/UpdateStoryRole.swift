@@ -208,7 +208,9 @@ private struct AvatarSectionView: View {
                     Text("😊")
                         .font(.system(size: 40))
                 } else {
-                    KFImage(URL(string: roleAvatar))
+                    KFImage(URL(string: convertImagetoSenceImage(url: roleAvatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 100, height: 100)
@@ -314,6 +316,8 @@ private struct ReferenceImageItem: View {
     var body: some View {
         VStack {
             KFImage(URL(string: imageUrl))
+                .cacheMemoryOnly()
+                .fade(duration: 0.25)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 80, height: 80)

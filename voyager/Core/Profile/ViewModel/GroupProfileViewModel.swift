@@ -32,7 +32,9 @@ class GroupProfileViewModel: ObservableObject {
     
     func loadImage(fromItem item: PhotosPickerItem?) async {
         guard let item = item else { return }
-        
+        // 释放之前的图片
+        self.uiImage = nil
+        self.groupImage = nil
         guard let data = try? await item.loadTransferable(type: Data.self) else { return }
         guard let uiImage = UIImage(data: data) else { return }
         self.uiImage = uiImage

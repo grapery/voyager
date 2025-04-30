@@ -96,7 +96,9 @@ private struct ForkStoryBoardCard: View {
                let urls = try? JSONDecoder().decode([String].self, from: data),
                let firstImageUrl = urls.first,
                let url = URL(string: firstImageUrl) {
-                KFImage(url)
+                KFImage(url)        
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .placeholder {
                         Rectangle()
                             .fill(Color.theme.tertiaryBackground)
@@ -223,6 +225,8 @@ private struct FeedForkStoryBoardCard: View {
             // 创建者信息
             HStack(spacing: 4) {
                 KFImage(URL(string: convertImagetoSenceImage(url: defaultAvator, scene: .small)))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 20, height: 20)

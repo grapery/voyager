@@ -55,7 +55,9 @@ struct StoryView: View {
                 // 用户信息部分
                 NavigationLink(destination: StoryDetailView(storyId: self.storyId, story: self.viewModel.story!, userId: self.userId)) {
                     HStack(spacing: 12) {
-                        KFImage(URL(string: self.viewModel.story?.storyInfo.avatar ?? ""))
+                        KFImage(URL(string: convertImagetoSenceImage(url: self.viewModel.story?.storyInfo.avatar ?? "", scene: .small)))
+                            .cacheMemoryOnly()
+                            .fade(duration: 0.25)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(width: 66, height: 66)
@@ -276,15 +278,13 @@ struct StoryView: View {
                                 storyId: storyId,
                                 viewModel: self.viewModel
                             )) {
-                                HStack{
-                                    StoryBoardCellView(
-                                        board: board,
-                                        userId: userId,
-                                        groupId: self.viewModel.story?.storyInfo.groupID ?? 0,
-                                        storyId: storyId,
-                                        viewModel: self.viewModel
-                                    )
-                                }
+                                StoryBoardCellView(
+                                    board: board,
+                                    userId: userId,
+                                    groupId: self.viewModel.story?.storyInfo.groupID ?? 0,
+                                    storyId: storyId,
+                                    viewModel: self.viewModel
+                                )
                             }
                         }
                     }
@@ -473,7 +473,9 @@ struct RoleCard: View {
             }) {
                 HStack(alignment: .top, spacing: 12) { // 改为顶部对齐
                     // 角色头像
-                    KFImage(URL(string: role.role.characterAvatar))
+                    KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 120, height: 120)
@@ -500,6 +502,8 @@ struct RoleCard: View {
                         HStack(spacing: 8) {
                             // 创建者头像
                             KFImage(URL(string: defaultAvator))
+                                .cacheMemoryOnly()
+                                .fade(duration: 0.25)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 16, height: 16)
@@ -595,7 +599,9 @@ private struct ParticipantAvatar: View {
     let isCreator: Bool
     
     var body: some View {
-        KFImage(URL(string: avatarUrl))
+        KFImage(URL(string: convertImagetoSenceImage(url: avatarUrl, scene: .small)))
+            .cacheMemoryOnly()
+            .fade(duration: 0.25)
             .resizable()
             .aspectRatio(contentMode: .fill)
             .frame(width: 40, height: 40)

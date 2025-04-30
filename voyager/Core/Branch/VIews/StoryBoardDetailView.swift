@@ -50,6 +50,8 @@ private struct StoryBoardHeaderView: View {
     var body: some View {
         HStack(spacing: 12) {
             KFImage(URL(string: defaultAvator))
+                .cacheMemoryOnly()
+                .fade(duration: 0.25)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 44, height: 44)
@@ -113,6 +115,8 @@ private struct StoryboardSceneCardView: View {
            let firstUrl = urls.first {
             VStack(alignment: .leading, spacing: 8) {
                 KFImage(URL(string: firstUrl))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .placeholder {
                         Rectangle()
                             .fill(Color.theme.tertiaryBackground)
@@ -196,6 +200,8 @@ private struct CommentRowView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             KFImage(URL(string: comment.commentUser.avatar))
+                .cacheMemoryOnly()
+                .fade(duration: 0.25)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 36, height: 36)

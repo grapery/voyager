@@ -57,7 +57,9 @@ struct UpdateGroupView: View {
                                             .clipShape(Circle())
                                             .overlay(Circle().stroke(Color.theme.border, lineWidth: 1))
                                     } else {
-                                        KFImage(URL(string: group.info.avatar))
+                                        KFImage(URL(string: convertImagetoSenceImage(url: group.info.avatar, scene: .small)))
+                                            .cacheMemoryOnly()
+                                            .fade(duration: 0.25)
                                             .resizable()
                                             .scaledToFill()
                                             .frame(width: 80, height: 80)

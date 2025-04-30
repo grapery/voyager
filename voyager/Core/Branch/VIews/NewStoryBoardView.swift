@@ -1245,7 +1245,9 @@ struct SceneCard: View {
             }
             if !scene.imageUrl.isEmpty{
                 VStack(alignment: .leading, spacing: 16){
-                    KFImage(URL(string: scene.imageUrl))
+                    KFImage(URL(string: convertImagetoSenceImage(url: scene.imageUrl, scene: .preview)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
@@ -1507,7 +1509,9 @@ struct StoryInputView: View {
                             HStack(spacing: 12) {
                                 ForEach(roles!, id: \.role.roleID) { role in
                                     VStack {
-                                        KFImage(URL(string: role.role.characterAvatar))
+                                        KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
+                                            .cacheMemoryOnly()
+                                            .fade(duration: 0.25)
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
                                             .frame(width: 50, height: 50)
@@ -1778,11 +1782,13 @@ struct RoleSelectionRow: View {
     var body: some View {
         Button(action: onSelect) {
             HStack {
-                KFImage(URL(string: role.role.characterAvatar))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 50, height: 50)
-                    .clipShape(Circle())
+                KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 50, height: 50)
+                        .clipShape(Circle())
                 
                 VStack(alignment: .leading) {
                     Text(role.role.characterName)

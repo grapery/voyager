@@ -22,6 +22,8 @@ struct GroupHeaderView: View {
         ZStack(alignment: .top) {
             // Background Image with Gradient
             KFImage(URL(string: convertImagetoSenceImage(url: group?.info.avatar, scene: .small)))
+                .cacheMemoryOnly()
+                .fade(duration: 0.25)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(height: 270)
@@ -85,6 +87,8 @@ struct GroupInfoView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 16) {
                     KFImage(URL(string: convertImagetoSenceImage(url: group?.info.avatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 72, height: 72)
@@ -298,6 +302,8 @@ struct StoryListHeaderView: View {
                         }) {
                             VStack {
                                 KFImage(URL(string: convertImagetoSenceImage(url: story.storyInfo.avatar, scene: .small)))
+                                    .cacheMemoryOnly()
+                                    .fade(duration: 0.25)
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 49, height: 49)
@@ -514,6 +520,8 @@ struct StoryCellView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 KFImage(URL(string: convertImagetoSenceImage(url: story.storyInfo.avatar, scene: .small)))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 36, height: 36)
@@ -537,6 +545,8 @@ struct StoryCellView: View {
                 .font(.body)
             
             KFImage(URL(string: convertImagetoSenceImage(url: story.storyInfo.avatar, scene: .preview)))
+                .cacheMemoryOnly()
+                .fade(duration: 0.25)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 200)
@@ -650,6 +660,8 @@ struct StoryUpdateCell: View {
                 // Header
                 HStack {
                     KFImage(URL(string: convertImagetoSenceImage(url: story.storyInfo.avatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 49, height: 49)
@@ -679,6 +691,8 @@ struct StoryUpdateCell: View {
                 
                 if let imageUrl = URL(string: story.storyInfo.avatar) {
                     KFImage(URL(string: convertImagetoSenceImage(url: story.storyInfo.avatar, scene: .preview)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(height: 180)

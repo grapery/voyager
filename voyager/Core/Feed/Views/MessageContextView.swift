@@ -483,6 +483,8 @@ struct MessageCellView: View {
     private var imageBubble: some View {
         if let url = message.mediaURL {
             KFImage(URL(string: convertImagetoSenceImage(url: url, scene: .content)))
+                .cacheMemoryOnly()
+                .fade(duration: 0.25)
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: 200, maxHeight: 200)

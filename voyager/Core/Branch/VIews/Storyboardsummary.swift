@@ -152,6 +152,8 @@ private struct StoryboardHeaderView: View {
             HStack(spacing: 8) {
                 // 故事头像
                 KFImage(URL(string: convertImagetoSenceImage(url: storyboard.boardActive.summary.storyAvatar, scene: .small)))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 32, height: 32)
@@ -218,6 +220,8 @@ private struct StoryboardSummaryDetailsView: View {
                       Button(action: { isShowingUserProfile = true }) {
                         HStack(spacing: 4) {
                             KFImage(URL(string: storyboard.boardActive.creator.userAvatar))
+                                .cacheMemoryOnly()
+                                .fade(duration: 0.25)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 20, height: 20)
@@ -326,6 +330,8 @@ private struct SceneView: View {
            let urls = try? JSONDecoder().decode([String].self, from: data),
            let firstUrl = urls.first {
             KFImage(URL(string: convertImagetoSenceImage(url: firstUrl, scene: .content)))
+                .cacheMemoryOnly()
+                .fade(duration: 0.25)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(maxWidth: .infinity)

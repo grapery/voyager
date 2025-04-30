@@ -44,7 +44,9 @@ struct CircularProfileImageView: View {
     
     var body: some View {
         if !avatarUrl.isEmpty {
-            KFImage(URL(string: self.avatarUrl))
+            KFImage(URL(string: convertImagetoSenceImage(url: self.avatarUrl, scene: .small)))
+                .cacheMemoryOnly()
+                .fade(duration: 0.25)
                 .resizable()
                 .scaledToFill()
                 .frame(width: size.dimension, height: size.dimension)
@@ -66,7 +68,9 @@ struct RectProfileImageView: View {
     
     var body: some View {
         if !avatarUrl.isEmpty {
-            KFImage(URL(string: self.avatarUrl))
+            KFImage(URL(string: convertImagetoSenceImage(url: self.avatarUrl, scene: .small)))
+                .cacheMemoryOnly()
+                .fade(duration: 0.25)
                 .resizable()
                 .scaledToFill()
                 .frame(width: size.dimension, height: size.dimension)
@@ -103,7 +107,9 @@ struct AvatarPreviewView: View {
                 ZStack {
                     Color(.systemBackground).edgesIgnoringSafeArea(.all)
                     
-                    KFImage(URL(string: imageURL))
+                    KFImage(URL(string: convertImagetoSenceImage(url: imageURL, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: geometry.size.width)
