@@ -57,13 +57,22 @@ struct NewStoryRole: View {
                 }
             }
             
-            CreateRoleButton(
-                isLoading: $isLoading,
-                roleName: roleName,
-                roleAvatar: roleAvatar,
-                rolePrompt: rolePrompt,
-                action: createRole
-            )
+            HStack{
+                CreateRoleButton(
+                    isLoading: $isLoading,
+                    roleName: roleName,
+                    roleAvatar: roleAvatar,
+                    rolePrompt: rolePrompt,
+                    action: createRole
+                )
+                ComposeRoleDescriptionButton(
+                    isLoading: $isLoading,
+                    roleName: roleName,
+                    roleAvatar: roleAvatar,
+                    rolePrompt: rolePrompt,
+                    action: createRole
+                )
+            }
         }
         .background(Color(.systemGroupedBackground))
         .imagePickerSheet(
@@ -82,6 +91,28 @@ struct NewStoryRole: View {
     // 添加创建角色方法
     private func createRole() {
         guard !roleName.isEmpty else { return }
+        isLoading = true
+        
+        Task {
+            await viewModel.createStoryRole(
+                storyId: self.storyId,
+                name: self.roleName,
+                description: self.roleDescription,
+                avatar: self.roleAvatar,
+                characterPrompt: self.rolePrompt,
+                userId: self.userId,
+                characterRefImages: self.roleRefs
+            )
+            
+            await MainActor.run {
+                isLoading = false
+                dismiss()
+            }
+        }
+    }
+    
+    // 生成角色的描述
+    private func genRoleDesc() {
         isLoading = true
         
         Task {
@@ -134,14 +165,14 @@ private struct NavigationBarView: View {
             }
             
             Spacer()
+        }
+        .padding()
+        HStack {
+            Spacer()
             Text("创建角色")
                 .font(.headline)
             
             Spacer()
-            Button(action: { /* 一键完善操作 */ }) {
-                Text("一键完善")
-                    .foregroundColor(.pink)
-            }
         }
         .padding()
     }
@@ -234,7 +265,7 @@ private struct CreateRoleButton: View {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
             } else {
-                Text("创建故事角色")
+                Text("创建角色")
             }
         }
         .font(.headline)
@@ -251,6 +282,39 @@ private struct CreateRoleButton: View {
         roleName.isEmpty ||  isLoading
     }
 }
+
+// 使用AI生成角色描述
+private struct ComposeRoleDescriptionButton: View {
+    @Binding var isLoading: Bool
+    let roleName: String
+    let roleAvatar: String
+    let rolePrompt: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            if isLoading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+            } else {
+                Text("AI填写")
+            }
+        }
+        .font(.headline)
+        .foregroundColor(.white)
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(isDisabled ? Color.gray : Color.blue)
+        .cornerRadius(10)
+        .disabled(isDisabled)
+        .padding()
+    }
+    
+    private var isDisabled: Bool {
+        roleName.isEmpty ||  isLoading
+    }
+}
+
 
 // 添加一个简单的 Toast 视图
 struct ToastView: View {
