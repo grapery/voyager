@@ -73,7 +73,7 @@ struct CommentListView: View {
                         if !commentText.isEmpty {
                             if let replyTo = viewModel.replyToComment {
                                 // 发送回复
-                                let err = await viewModel.submitReplyForComment(
+                                let err = await viewModel.submitReplyForStoryComment(
                                     commentId: replyTo.realComment.commentID,
                                     userId: userId,
                                     content: commentText
@@ -86,6 +86,7 @@ struct CommentListView: View {
                                     )
                                 }
                                 viewModel.replyToComment = nil
+                                viewModel.replyToParentComment = nil
                             } else if let boardId = storyboardId {
                                 let err = await viewModel.submitCommentForStoryboard(
                                     storyId: storyId,
@@ -118,6 +119,7 @@ struct CommentListView: View {
                 },
                 onCancelReply: {
                     viewModel.replyToComment = nil
+                    viewModel.replyToParentComment = nil
                     isInputFocused = false
                 },
                 isFocused: $isInputFocused
@@ -158,7 +160,7 @@ private struct CommentItemView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top) {
+            HStack(alignment: .top, spacing: 8) {
                 // 用户头像
                 NavigationLink(destination: UserProfileView(user: User(
                     userID: comment.commentUser.userID,
@@ -175,9 +177,9 @@ private struct CommentItemView: View {
                         .clipShape(Circle())
                 }
                 
-                VStack(alignment: .leading) {
-                    // 用户名和时间
-                    HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    // 用户名、时间和点赞按钮
+                    HStack(alignment: .center) {
                         NavigationLink(destination: UserProfileView(user: User(
                             userID: comment.commentUser.userID,
                             name: comment.commentUser.name,
@@ -192,15 +194,7 @@ private struct CommentItemView: View {
                         Text(formatTimeAgo(timestamp: comment.realComment.createdAt))
                             .font(.system(size: 12))
                             .foregroundColor(.theme.tertiaryText)
-                    }
-                    
-                    // 评论内容
-                    Text(comment.realComment.content)
-                        .font(.system(size: 14))
-                        .foregroundColor(.theme.primaryText)
-                    
-                    // 评论操作栏
-                    HStack(spacing: 8) {
+                        
                         Button(action: {
                             Task {
                                 isLiked.toggle()
@@ -214,23 +208,27 @@ private struct CommentItemView: View {
                             HStack(spacing: 4) {
                                 Image(systemName: isLiked ? "heart.fill" : "heart")
                                     .font(.system(size: 12))
-                                Text("\(comment.realComment.likeCount)")
-                                    .font(.system(size: 12))
+                                if comment.realComment.likeCount > 0 {
+                                    Text("\(comment.realComment.likeCount)")
+                                        .font(.system(size: 12))
+                                }
                             }
                             .foregroundColor(isLiked ? .theme.error : .theme.tertiaryText)
                             .animation(.easeInOut(duration: 0.2), value: isLiked)
                         }
-                        
+                    }
+                    
+                    // 评论内容
+                    Text(comment.realComment.content)
+                        .font(.system(size: 14))
+                        .foregroundColor(.theme.primaryText)
+                    
+                    // 评论操作栏
+                    HStack(spacing: 16) {
                         Button(action: onReply) {
-                            HStack(spacing: 4) {
-                                Text("回复")
-                                    .font(.system(size: 12))
-                                if comment.realComment.replyCount > 0 {
-                                    Text("(\(comment.realComment.replyCount))")
-                                        .font(.system(size: 12))
-                                }
-                            }
-                            .foregroundColor(.theme.tertiaryText)
+                            Text("回复")
+                                .font(.system(size: 12))
+                                .foregroundColor(.theme.tertiaryText)
                         }
                         
                         if comment.realComment.replyCount > 0 {
@@ -251,29 +249,46 @@ private struct CommentItemView: View {
                                     showReplies.toggle()
                                 }
                             }) {
-                                Text(showReplies ? "收起回复" : "查看回复")
+                                Text("\(showReplies ? "收起" : "展开")\(comment.realComment.replyCount)条回复")
                                     .font(.system(size: 12))
                                     .foregroundColor(.theme.tertiaryText)
                             }
                         }
                     }
                     .padding(.top, 4)
-                    
-                    // 回复列表
-                    if showReplies {
-                        if isLoadingReplies {
-                            ProgressView()
-                                .scaleEffect(0.8)
-                                .padding(.top, 8)
-                        } else {
-                            VStack(spacing: 8) {
-                                ForEach(replies) { reply in
-                                    ReplyItemView(reply: reply)
+                }
+            }
+            
+            // 回复列表
+            if showReplies {
+                if isLoadingReplies {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                        .padding(.top, 8)
+                        .padding(.leading, 44)
+                } else {
+                    VStack(spacing: 0) {
+                        ForEach(replies) { reply in
+                            VStack(spacing: 0) {
+                                ReplyItemView(
+                                    reply: reply,
+                                    userId: userId,
+                                    viewModel: viewModel,
+                                    onReply: {
+                                        viewModel.replyToComment = reply
+                                    }
+                                )
+                                .padding(.vertical, 12)
+                                
+                                if reply.id != replies.last?.id {
+                                    Divider()
+                                        .padding(.leading, 40) // 分隔线左对齐到头像右侧
                                 }
                             }
-                            .padding(.top, 8)
                         }
                     }
+                    .padding(.top, 8)
+                    .padding(.leading, 44)
                 }
             }
         }
@@ -291,32 +306,78 @@ private struct CommentItemView: View {
 // 回复项视图
 private struct ReplyItemView: View {
     let reply: Comment
+    let userId: Int64
+    @ObservedObject var viewModel: CommentsViewModel
+    let onReply: () -> Void
+    @State private var isLiked: Bool
+    
+    init(reply: Comment, userId: Int64, viewModel: CommentsViewModel, onReply: @escaping () -> Void) {
+        self.reply = reply
+        self.userId = userId
+        self.viewModel = viewModel
+        self.onReply = onReply
+        _isLiked = State(initialValue: (reply.realComment.isLiked != 0))
+    }
     
     var body: some View {
-        HStack(alignment: .top, spacing: 8) {
-            KFImage(URL(string: convertImagetoSenceImage(url: reply.commentUser.avatar, scene: .small)))
-                .cacheMemoryOnly()
-                .fade(duration: 0.25)
-                .placeholder { CommentAvatarPlaceholder() }
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 24, height: 24)
-                .clipShape(Circle())
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(reply.commentUser.name)
-                    .font(.system(size: 12, weight: .medium))
+        Button(action: onReply) {
+            HStack(alignment: .top, spacing: 12) { // 增加头像和内容之间的间距
+                // 头像
+                KFImage(URL(string: convertImagetoSenceImage(url: reply.commentUser.avatar, scene: .small)))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
+                    .placeholder { CommentAvatarPlaceholder() }
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 32, height: 32)
+                    .clipShape(Circle())
                 
-                Text(reply.realComment.content)
-                    .font(.system(size: 12))
-                    .foregroundColor(.theme.primaryText)
-                
-                Text(formatTimeAgo(timestamp: reply.realComment.createdAt))
-                    .font(.system(size: 10))
-                    .foregroundColor(.theme.tertiaryText)
+                // 内容区域
+                VStack(alignment: .leading, spacing: 6) { // 增加垂直间距
+                    // 用户名、时间和点赞
+                    HStack {
+                        Text(reply.commentUser.name)
+                            .font(.system(size: 14, weight: .medium)) // 增加字体大小
+                            .foregroundColor(.theme.primaryText)
+                        
+                        Spacer()
+                        
+                        Text(formatTimeAgo(timestamp: reply.realComment.createdAt))
+                            .font(.system(size: 12)) // 增加字体大小
+                            .foregroundColor(.theme.tertiaryText)
+                        
+                        // 点赞按钮
+                        Button(action: {
+                            Task {
+                                isLiked.toggle()
+                                if isLiked {
+                                    await viewModel.likeComments(userId: userId, commentId: reply.realComment.commentID)
+                                } else {
+                                    await viewModel.dislikeComment(userId: userId, commentId: reply.realComment.commentID)
+                                }
+                            }
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: isLiked ? "heart.fill" : "heart")
+                                    .font(.system(size: 12))
+                                if reply.realComment.likeCount > 0 {
+                                    Text("\(reply.realComment.likeCount)")
+                                        .font(.system(size: 12))
+                                }
+                            }
+                            .foregroundColor(isLiked ? .theme.error : .theme.tertiaryText)
+                            .animation(.easeInOut(duration: 0.2), value: isLiked)
+                        }
+                    }
+                    
+                    // 评论内容
+                    Text(reply.realComment.content)
+                        .font(.system(size: 14)) // 增加字体大小
+                        .foregroundColor(.theme.primaryText)
+                }
             }
         }
-        .padding(.leading, 32)
+        .buttonStyle(PlainButtonStyle())
     }
     
     private func formatTimeAgo(timestamp: Int64) -> String {
@@ -387,4 +448,4 @@ private struct CommentInputView: View {
         .padding(.bottom, 2)
         .background(Color.theme.secondaryBackground)
     }
-} 
+}

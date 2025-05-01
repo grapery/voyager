@@ -14,7 +14,7 @@ import SwiftUI
 
 
 extension APIClient {
-    func CreateStoryComment(storyId: Int64, userId: Int64,content: String) async -> (Error?) {
+    func CreateStoryComment(storyId: Int64, userId: Int64,content: String) async -> (Int64?,Error?) {
         let authClient = Common_TeamsApiClient(client: self.client!)
         let request = Common_CreateStoryCommentRequest.with {
             $0.storyID = storyId
@@ -28,9 +28,9 @@ extension APIClient {
         
         if resp.message?.code != Common_ResponseCode.ok {
             // If the response code is not 1, it indicates an error
-            return NSError(domain: "CreateStoryComment", code: -1, userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+            return (0,NSError(domain: "CreateStoryComment", code: -1, userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
         }
-        return nil
+        return (resp.message?.comment.commentID,nil)
     }
 
     func GetStoryComments(storyId: Int64,user_id: Int64,page: Int,page_size: Int) async -> ([Common_StoryComment]?,total: Int64?,page: Int64?,page_size: Int64?,Error?) {
@@ -82,7 +82,7 @@ extension APIClient {
         return (resp.message?.replies, resp.message?.total, resp.message?.offset, resp.message?.pageSize, nil)
     }
 
-    func CreateStoryCommentReply(commentId: Int64,user_id: Int64,content: String) async -> (Error?) {
+    func CreateStoryCommentReply(commentId: Int64,user_id: Int64,content: String) async -> (Int64?,Error?) {
         let authClient = Common_TeamsApiClient(client: self.client!)
         let request = Common_CreateStoryCommentReplyRequest.with {
             $0.commentID = commentId
@@ -93,9 +93,9 @@ extension APIClient {
         header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
         let resp = await authClient.createStoryCommentReply(request: request, headers: header)
         if resp.message?.code != Common_ResponseCode.ok {
-            return NSError(domain: "CreateStoryCommentReply", code: -1, userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+            return (0,NSError(domain: "CreateStoryCommentReply", code: -1, userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
         }
-        return nil
+        return (resp.message?.comment.commentID,nil)
     }
 
     func DeleteStoryCommentReply(commentId: Int64,user_id: Int64) async -> (Error?) {
@@ -130,7 +130,7 @@ extension APIClient {
         return (resp.message?.comments, resp.message?.total, resp.message?.offset, resp.message?.pageSize, nil)
     }
 
-    func CreateStoryBoardComment(storyBoardId: Int64,user_id: Int64,content: String) async -> (Error?) {
+    func CreateStoryBoardComment(storyBoardId: Int64,user_id: Int64,content: String) async -> (Int64?,Error?){
         let authClient = Common_TeamsApiClient(client: self.client!)
         let request = Common_CreateStoryBoardCommentRequest.with {
             $0.boardID = storyBoardId
@@ -141,9 +141,9 @@ extension APIClient {
         header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
         let resp = await authClient.createStoryBoardComment(request: request, headers: header)
         if resp.message?.code != Common_ResponseCode.ok {
-            return NSError(domain: "CreateStoryBoardComment", code: -1, userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"])
+            return (0,NSError(domain: "CreateStoryBoardComment", code: -1, userInfo: [NSLocalizedDescriptionKey: resp.message?.message ?? "Unknown error"]))
         }
-        return nil
+        return (resp.message?.comment.commentID,nil)
     }
 
     func DeleteStoryBoardComment(commentId: Int64,user_id: Int64) async -> (Error?) {

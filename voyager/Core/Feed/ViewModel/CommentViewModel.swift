@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 @MainActor
 class CommentsViewModel: ObservableObject {
@@ -15,6 +16,7 @@ class CommentsViewModel: ObservableObject {
     private var pageNum: Int = 1
     private var pageSize: Int = 10
     private var totalCount: Int = 0
+    @Published var replyToParentComment: Comment? = nil
     
     func resetPagination() {
         pageNum = 1
@@ -23,26 +25,28 @@ class CommentsViewModel: ObservableObject {
         totalCount = 0
     }
     
-    func submitCommentForStory(storyId: Int64,userId:Int64,content: String,prevId:Int64) async -> Error?{
-        let err = await APIClient.shared.CreateStoryComment(storyId: storyId, userId: userId, content: content)
+    func submitCommentForStory(storyId: Int64,userId:Int64,content: String,prevId:Int64) async -> (Int64?,Error?){
+        let (commentId,err) = await APIClient.shared.CreateStoryComment(storyId: storyId, userId: userId, content: content)
         if err != nil{
-            print("submitCommentForStory failed: ",err!)
-            return err
+            print("submitCommentForStory err:", err as Any)
+            return (-1,err)
         }
-        print("submitCommentForStory success")
-        return nil
+        print("submitCommentForStory ssuccess")
+        return (commentId,nil)
     }
     
-    func submitCommentForStoryboard(storyId: Int64,storyboardId: Int64,userId:Int64,content: String) async -> Error?{
-        let err = await APIClient.shared.CreateStoryBoardComment(storyBoardId: storyboardId, user_id: userId, content: content)
+    func submitCommentForStoryboard(storyId: Int64,storyboardId: Int64,userId:Int64,content: String) async ->  (Int64?,Error?){
+        let (commentId,err) = await APIClient.shared.CreateStoryBoardComment(storyBoardId: storyboardId, user_id: userId, content: content)
         if err != nil{
-            print("submitCommentForStoryboard failed: ",err!)
-            return err
+            print("submitCommentForStoryboard err:", err as Any)
+            return (-1,err)
         }
-        print("submitCommentForStoryboard success")
-        return nil
+        print("submitCommentForStoryboard ssuccess")
+        return (commentId,nil)
     }
     
+    
+
     func fetchStoryComments(storyId: Int64, userId: Int64) async -> ([Comment]?, Error?) {
         let (comments, total, pageNum, pageSize, err) = await APIClient.shared.GetStoryComments(storyId: storyId, user_id: userId, page: Int(self.pageNum), page_size: Int(self.pageSize))
         
@@ -146,8 +150,8 @@ class CommentsViewModel: ObservableObject {
         return nil
     }
     
-    func submitReplyForComment(commentId: Int64, userId: Int64, content: String) async -> Error? {
-        let err = await APIClient.shared.CreateStoryCommentReply(commentId: commentId, user_id: userId, content: content)
+    func submitReplyForStoryComment(commentId: Int64, userId: Int64, content: String) async -> Error? {
+        let (_,err) = await APIClient.shared.CreateStoryCommentReply(commentId: commentId, user_id: userId, content: content)
         if err != nil {
             print("submitReplyForComment failed: ", err!)
             return err
@@ -157,7 +161,7 @@ class CommentsViewModel: ObservableObject {
     }
     
     func fetchCommentReplies(commentId: Int64, userId: Int64) async -> ([Comment]?, Error?) {
-        let (replies, total, _, _, err) = await APIClient.shared.GetStoryCommentReplies(
+        let (replies, _, _, _, err) = await APIClient.shared.GetStoryCommentReplies(
             commentId: commentId,
             user_id: userId,
             page: 1,
