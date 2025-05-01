@@ -408,6 +408,7 @@ private struct FeedItemCard: View {
                         Text("\(storyBoardActive.totalForkCount)")
                             .font(.system(size: 14))
                     }
+                    .foregroundColor(Color.theme.tertiaryText)
                     //.foregroundColor(showChildNodes ? Color.theme.accent : Color.theme.tertiaryText)
                 }
             }

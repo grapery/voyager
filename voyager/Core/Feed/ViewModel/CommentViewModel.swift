@@ -11,6 +11,7 @@ import Foundation
 class CommentsViewModel: ObservableObject {
     @Published var comments: [Comment] = []
     @Published var hasMoreComments = false
+    @Published var replyToComment: Comment? = nil
     private var pageNum: Int = 1
     private var pageSize: Int = 10
     private var totalCount: Int = 0
@@ -143,6 +144,47 @@ class CommentsViewModel: ObservableObject {
         }
         print("dislike comments success")
         return nil
+    }
+    
+    func submitReplyForComment(commentId: Int64, userId: Int64, content: String) async -> Error? {
+        let err = await APIClient.shared.CreateStoryCommentReply(commentId: commentId, user_id: userId, content: content)
+        if err != nil {
+            print("submitReplyForComment failed: ", err!)
+            return err
+        }
+        print("submitReplyForComment success")
+        return nil
+    }
+    
+    func fetchCommentReplies(commentId: Int64, userId: Int64) async -> ([Comment]?, Error?) {
+        let (replies, total, _, _, err) = await APIClient.shared.GetStoryCommentReplies(
+            commentId: commentId,
+            user_id: userId,
+            page: 1,
+            page_size: 50
+        )
+        
+        if err != nil {
+            print("fetchCommentReplies failed: ", err!)
+            return (nil, err)
+        }
+        
+        if let commentReplies = replies {
+            let convertedReplies = commentReplies.map { reply in
+                Comment(
+                    id: "\(reply.commentID)",
+                    realComment: reply,
+                    commentUser: User(
+                        userID: reply.creator.userID,
+                        name: reply.creator.name,
+                        avatar: reply.creator.avatar
+                    )
+                )
+            }
+            return (convertedReplies, nil)
+        }
+        
+        return (nil, nil)
     }
 }
 
