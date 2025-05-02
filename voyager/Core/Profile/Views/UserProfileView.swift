@@ -16,6 +16,7 @@ struct UserProfileView: View {
     @Namespace var animation
     var user: User
     @StateObject var viewModel: ProfileViewModel
+    @StateObject private var userState = UserStateManager.shared
     @GestureState private var dragOffset: CGFloat = 0
     @State private var showingImagePicker = false
     @State private var showingEditProfile = false
@@ -23,6 +24,11 @@ struct UserProfileView: View {
     @State private var isLoading = false
     @State private var showingErrorAlert = false
     @State private var errorMessage = ""
+    
+    // 判断是否是当前登录用户
+    private var isCurrentUser: Bool {
+        userState.currentUser?.userID == user.userID
+    }
     
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
@@ -43,8 +49,10 @@ struct UserProfileView: View {
                     // 顶部按钮和用户信息层
                     VStack(spacing: 0) {
                         // 顶部按钮
-                        headerView
-                            .padding(.top, 50)
+                        if isCurrentUser {
+                            headerView
+                                .padding(.top, 50)
+                        }
                         
                         Spacer()
                         
@@ -192,7 +200,7 @@ struct UserProfileView: View {
         VStack(spacing: 0) {
             CustomSegmentedControl(
                 selectedIndex: $selectedTab,
-                titles: ["故事", "角色", "草稿"]
+                titles: isCurrentUser ? ["故事", "角色", "草稿"] : ["故事", "角色"]
             )
             
             TabView(selection: $selectedTab) {
@@ -206,10 +214,12 @@ struct UserProfileView: View {
                     .id("roles")
                     .frame(maxWidth: .infinity)
                 
-                PendingTab(userId: viewModel.user?.userID ?? 0)
-                    .tag(2)
-                    .id("pending")
-                    .frame(maxWidth: .infinity)
+                if isCurrentUser {
+                    PendingTab(userId: viewModel.user?.userID ?? 0)
+                        .tag(2)
+                        .id("pending")
+                        .frame(maxWidth: .infinity)
+                }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(maxWidth: .infinity)
