@@ -8,11 +8,9 @@
 import SwiftUI
 
 struct LoginView: View {
-    @ObservedObject public var viewModel:LoginViewModel
-    @EnvironmentObject var globalEnv: LoginViewModel
-    init(viewModel: LoginViewModel) {
-        self.viewModel = viewModel
-    }
+    @StateObject private var viewModel = LoginViewModel()
+    @EnvironmentObject var registrationViewModel: RegistrationViewModel
+    
     var body: some View {
         ZStack {
             VStack {
@@ -46,8 +44,8 @@ struct LoginView: View {
                     Spacer()
                         .frame(maxWidth: .infinity, maxHeight: 80)
                     Button {
-                        action: do{
-                            viewModel.signIn()
+                        Task {
+                            await viewModel.signIn()
                         }
                     } label: {
                         Text("登入")

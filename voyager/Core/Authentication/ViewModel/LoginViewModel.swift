@@ -6,164 +6,55 @@
 //
 
 import Foundation
+import SwiftUI
 
 class LoginViewModel: ObservableObject {
     private let service = AuthService.shared
+    private let userState = UserStateManager.shared
+    
     @Published var email = ""
     @Published var password = ""
-    @Published var token = ""
-    @Published var currentUser: User?
-    @Published var isLogin = false
-    @Published var LoginError = ""
-    
-    // UserDefaults keys
-    private let tokenKey = "VoyagerUserToken"
-    private let tokenExpirationKey = "VoyagerTokenExpiration"
-    private let userEmailKey = "VoyagerUserEmail"
-    private let currentUserKey = "VoyagerCurrentUser"
+    @Published var loginError = ""
     
     @MainActor
-    func signIn() {
-        Task {
-            if token.isEmpty {
-                let ret = await service.login(withEmail: email, password: password)
-                if let error = ret.1 {
-                    self.isLogin = false
-                    self.LoginError = error.localizedDescription
-                    return
-                } else {
-                    self.token = service.token!
-                    self.currentUser = service.currentUser
-                    self.email = self.currentUser!.email
-                    // Save token and user data
-                    saveUserToken(newToken: service.token!)
-                    saveCurrentUser()
-                    isLogin = true
-                }
-            }
-        }
-    }
-    
-    // Save current user to UserDefaults
-    private func saveCurrentUser() {
-        guard let currentUser = currentUser else { return }
-        
+    func signIn() async {
         do {
-            let encoder = JSONEncoder()
-            let userData = try encoder.encode(currentUser)
-            UserDefaults.standard.set(userData, forKey: currentUserKey)
-        } catch {
-            print("Error saving user data: \(error.localizedDescription)")
-        }
-    }
-    
-    // Load current user from UserDefaults
-    private func loadCurrentUser() -> User? {
-        guard let userData = UserDefaults.standard.data(forKey: currentUserKey) else {
-            return nil
-        }
-        
-        do {
-            let decoder = JSONDecoder()
-            let user = try decoder.decode(User.self, from: userData)
-            return user
-        } catch {
-            print("Error loading user data: \(error.localizedDescription)")
-            return nil
-        }
-    }
-    @MainActor
-    func loadUserToken() {
-        let defaults = UserDefaults.standard
-        print("Starting loadUserToken, current token: \(token)")
-        
-        // Check if we have a saved token and it's not expired
-        if let savedToken = defaults.string(forKey: tokenKey),
-           let expirationDate = defaults.object(forKey: tokenExpirationKey) as? Date,
-           let savedEmail = defaults.string(forKey: userEmailKey),
-           let savedUser = loadCurrentUser() {
-            
-            // Check if token is still valid
-            if expirationDate > Date() {
-                self.token = savedToken
-                self.email = savedEmail
-                self.currentUser = savedUser
-                self.isLogin = true
-                service.setSavedToken(savedToken: savedToken)
-                print("Successfully loaded saved user data. Token: \(savedToken)..., User: \(savedUser)")
-                
-                // 使用 await 直接等待刷新完成
-                Task {
-                    await refreshUserData()
-                }
+            let ret = try await service.login(withEmail: email, password: password)
+            if let error = ret.1 {
+                self.loginError = error.localizedDescription
+                return
             } else {
-                print("Token expired")
-                clearUserToken()
+                // 更新全局用户状态
+                userState.setToken(service.token!)
+                userState.setCurrentUser(service.currentUser)
+                self.email = service.currentUser?.email ?? ""
             }
-        } else {
-            print("No saved token found or missing data")
-            clearUserToken()
+        } catch {
+            self.loginError = error.localizedDescription
         }
     }
     
-    func saveUserToken(newToken: String) {
-        let defaults = UserDefaults.standard
-        
-        // Save token and email
-        defaults.set(newToken, forKey: tokenKey)
-        defaults.set(email, forKey: userEmailKey)
-        print("saveUserToken saving token: ",newToken)
-        // Save current user data
-        saveCurrentUser()
-        
-        // Set token expiration (e.g., 30 days from now)
-        let expirationDate = Calendar.current.date(byAdding: .day, value: 30, to: Date())!
-        defaults.set(expirationDate, forKey: tokenExpirationKey)
-    }
-    
-    func clearUserToken() {
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: tokenKey)
-        defaults.removeObject(forKey: tokenExpirationKey)
-        defaults.removeObject(forKey: userEmailKey)
-        defaults.removeObject(forKey: currentUserKey)  // Clear saved user data
-        
-        // Reset current state
-        self.token = ""
-        self.email = ""
-        self.currentUser = nil
-        self.isLogin = false
-    }
-    
     @MainActor
-    private func refreshUserData() async {
-        print("refreshUserData: ", token)
-        guard !token.isEmpty else {
+    func refreshUserData() async {
+        guard !userState.token.isEmpty else {
             print("Token is empty, cannot refresh")
             return
         }
+        
         do {
-            try await service.refreshUserData(token: token)
-            // 更新本地状态
-            self.token = service.token ?? ""
-            self.currentUser = service.currentUser
-            self.isLogin = true
-            
-            // 保存更新后的数据
-            saveCurrentUser()
-            if let newToken = service.token {
-                saveUserToken(newToken: newToken)
+            try await userState.refreshToken()
+            // 刷新成功后，可以获取最新的用户信息
+            if let newUser = service.currentUser {
+                userState.setCurrentUser(newUser)
             }
-            
-            print("Successfully refreshed user data, currentUser: \(String(describing: self.currentUser?.name))")
         } catch {
             print("Failed to refresh user data: \(error.localizedDescription)")
-            clearUserToken()
+            userState.logout()
         }
     }
     
-    func signOut() {
-        clearUserToken()
+    @MainActor func signOut() {
+        userState.logout()
     }
 }
 

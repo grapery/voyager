@@ -8,24 +8,25 @@
 import SwiftUI
 
 struct GraperyApp: View {
-    @StateObject var viewModel = LoginViewModel()
+    @StateObject private var userState = UserStateManager.shared
     @StateObject var registrationViewModel = RegistrationViewModel()
     
     var body: some View {
         Group {
-            if viewModel.isLogin && viewModel.currentUser != nil {
-                MainTabView(user: viewModel.currentUser!)
+            if userState.isLoading {
+                // 显示加载界面
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+            } else if userState.isLoggedIn && userState.currentUser != nil {
+                MainTabView(user: userState.currentUser!)
             } else {
-                LoginView(viewModel: viewModel)
+                LoginView()
                     .environmentObject(registrationViewModel)
             }
         }
         .task {
-            viewModel.loadUserToken()
-            if viewModel.token.isEmpty{
-                viewModel.isLogin = false
-                viewModel.currentUser = nil
-            }
+            // 初始化用户状态
+            await userState.initialize()
         }
     }
 }
