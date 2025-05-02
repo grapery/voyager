@@ -46,133 +46,37 @@ struct StoryView: View {
         _viewModel = StateObject(wrappedValue: StoryViewModel(story: story, userId: userId))
     }
     
-    
-    
     var body: some View {
         VStack(spacing: 0) {
             // Story Info Header
-            VStack(alignment: .leading, spacing: 12) {
-                // 用户信息部分
-                NavigationLink(destination: StoryDetailView(storyId: self.storyId, story: self.viewModel.story!, userId: self.userId)) {
-                    HStack(spacing: 12) {
-                        KFImage(URL(string: convertImagetoSenceImage(url: self.viewModel.story?.storyInfo.avatar ?? "", scene: .small)))
-                            .cacheMemoryOnly()
-                            .fade(duration: 0.25)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 66, height: 66)
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(self.viewModel.story?.storyInfo.name ?? "")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.primary)
-                                .lineLimit(1)
-                            
-                            if let createdAt = self.viewModel.story?.storyInfo.ctime {
-                                Text(formatDate(timestamp: createdAt))
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        Spacer()
-                    }
-                }
-                
-                // 故事简介部分
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(self.viewModel.story?.storyInfo.origin ?? "")
-                        .font(.system(size: 15))
-                        .foregroundColor(.primary)
-                        .lineLimit(3)
-                }
-                
-                // 交互按钮栏
-                HStack(spacing: 24) {
-                    StoryInteractionButton(
-                        count: "\(story.storyInfo.likeCount)",
-                        icon: "heart",
-                        color: .red,
-                        action: {
-                            // 处理点赞事件
-                            Task {
-                                let err = await self.viewModel.likeStory(storyId: self.storyId, userId: self.userId)
-                                if let error = err {
-                                    print("error: \(error)")
-                                    DispatchQueue.main.async {
-                                        self.errorMessage = error.localizedDescription
-                                        self.showingErrorToast = true
-                                        // 2秒后自动隐藏
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            self.showingErrorToast = false
-                                        }
-                                    }
-                                }else{
-                                    self.viewModel.story?.storyInfo.likeCount = story.storyInfo.likeCount + 1
-                                }
-                            }
-                        }
-                    )
-                    
-                    StoryInteractionButton(
-                        count: "\(story.storyInfo.followCount)",
-                        icon: "bell",
-                        color: .blue,
-                        action: {
-                            // 处理关注事件
-                            Task {
-                                let err = await self.viewModel.watchStory(storyId: self.storyId, userId: self.userId)
-                                if let error = err {
-                                    print("error: \(error)")
-                                    DispatchQueue.main.async {
-                                        self.errorMessage = error.localizedDescription
-                                        self.showingErrorToast = true
-                                        // 2秒后自动隐藏
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            self.showingErrorToast = false
-                                        }
-                                    }
-                                }else{
-                                    self.viewModel.story?.storyInfo.followCount = story.storyInfo.followCount + 1
-                                }
-                            }
-                        }
-                    )
-                    // 参与人员个数
-                    StoryInteractionButton(
-                        count: "\(story.storyInfo.totalMembers)",
-                        icon: "person",
-                        color: .green,
-                        action: {
-                        }
-                    )
-                }
-                .padding(.top, 4)
-            }
-            .padding(16)
-            .background(Color(.systemBackground))
+            StoryHeaderView(
+                story: story,
+                userId: userId,
+                viewModel: viewModel,
+                errorMessage: $errorMessage,
+                showingErrorToast: $showingErrorToast
+            )
             
             StoryTabView(selectedTab: $selectedTab)
-                .padding(.top, 2) // 减少顶部间距
+                .padding(.top, 2)
+            
             Divider()
+            
             GeometryReader { geometry in
-                    VStack(spacing: 0) {
-                        if selectedTab == 0 {
-                            storyLineView
-                        }else if selectedTab == 1 {
-                            storyRolesListView
-                        }
+                VStack(spacing: 0) {
+                    if selectedTab == 0 {
+                        storyLineView
+                    } else if selectedTab == 1 {
+                        storyRolesListView
                     }
-                    .frame(minHeight: geometry.size.height)
+                }
+                .frame(minHeight: geometry.size.height)
             }
-            .padding(.top, 0) // 移除 GeometryReader 的顶部间距
         }
         .navigationTitle("故事")
         .task {
             if viewModel.storyboards == nil {
                 await viewModel.fetchStory(withBoards: true)
-                print("task fetchStory :",viewModel.storyboards as Any)
             }
         }
         .overlay(
@@ -382,7 +286,6 @@ struct StoryView: View {
     }
 }
 
-
 extension DateFormatter {
     static let shortDate: DateFormatter = {
         let formatter = DateFormatter()
@@ -457,6 +360,195 @@ struct StoryInteractionButton: View {
     }
 }
 
+// MARK: - Story Header View
+private struct StoryHeaderView: View {
+    let story: Story
+    let userId: Int64
+    @ObservedObject var viewModel: StoryViewModel
+    @Binding var errorMessage: String?
+    @Binding var showingErrorToast: Bool
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // 用户信息部分
+            NavigationLink(destination: StoryDetailView(storyId: story.storyInfo.id, story: story, userId: userId)) {
+                UserInfoSection(story: story)
+            }
+            
+            // 故事简介部分
+            StoryDescriptionSection(description: story.storyInfo.origin)
+            
+            // 交互按钮栏
+            InteractionButtonsSection(
+                story: story,
+                userId: userId,
+                viewModel: viewModel,
+                errorMessage: $errorMessage,
+                showingErrorToast: $showingErrorToast
+            )
+        }
+        .padding(16)
+        .background(Color(.systemBackground))
+    }
+}
+
+// MARK: - User Info Section
+private struct UserInfoSection: View {
+    let story: Story
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            KFImage(URL(string: convertImagetoSenceImage(url: story.storyInfo.avatar, scene: .small)))
+                .cacheMemoryOnly()
+                .fade(duration: 0.25)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 66, height: 66)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(story.storyInfo.title)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                
+                Text(formatDate(timestamp: story.storyInfo.ctime))
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+            }
+            Spacer()
+        }
+    }
+}
+
+// MARK: - Story Description Section
+private struct StoryDescriptionSection: View {
+    let description: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(description)
+                .font(.system(size: 15))
+                .foregroundColor(.primary)
+                .lineLimit(3)
+        }
+    }
+}
+
+// MARK: - Interaction Buttons Section
+private struct InteractionButtonsSection: View {
+    let story: Story
+    let userId: Int64
+    @ObservedObject var viewModel: StoryViewModel
+    @Binding var errorMessage: String?
+    @Binding var showingErrorToast: Bool
+    
+    var body: some View {
+        HStack(spacing: 24) {
+            // 点赞按钮
+            StoryInteractionButton(
+                count: "\(story.storyInfo.likeCount)",
+                icon: story.storyInfo.currentUserStatus.isLiked  ? "heart.fill" : "heart",
+                color: .red ,
+                action: handleLike
+            )
+            
+            // 关注按钮
+            StoryInteractionButton(
+                count: "\(story.storyInfo.followCount)",
+                icon:  story.storyInfo.currentUserStatus.isFollowed  ?"bell.fill":"bell",
+                color: .blue,
+                action: handleWatch
+            )
+            
+            // 参与人员数
+            StoryInteractionButton(
+                count: "\(story.storyInfo.totalMembers)",
+                icon: "person",
+                color: .blue,
+                action: {
+                    
+                }
+            )
+            
+            // 角色数
+            StoryInteractionButton(
+                count: "\(story.storyInfo.totalRoles)",
+                icon: "person",
+                color: .blue,
+                action: {
+                    
+                }
+            )
+            
+            // 故事版数
+            StoryInteractionButton(
+                count: "\(story.storyInfo.totalBoards)",
+                icon: "person",
+                color: .blue,
+                action: {
+                    
+                }
+            )
+        }
+        .padding(.top, 4)
+    }
+    
+    private func handleLike() {
+        Task {
+            if story.storyInfo.currentUserStatus.isLiked {
+                if let err = await viewModel.unlikeStory(storyId: story.storyInfo.id, userId: userId) {
+                    await showError(err.localizedDescription)
+                } else {
+                    story.storyInfo.currentUserStatus.isLiked = false
+                    viewModel.story?.storyInfo.likeCount = story.storyInfo.likeCount - 1
+                }
+            }else{
+                if let err = await viewModel.likeStory(storyId: story.storyInfo.id, userId: userId) {
+                    await showError(err.localizedDescription)
+                } else {
+                    story.storyInfo.currentUserStatus.isLiked = true
+                    viewModel.story?.storyInfo.likeCount = story.storyInfo.likeCount + 1
+                }
+            }
+            
+        }
+    }
+    
+    private func handleWatch() {
+        if story.storyInfo.currentUserStatus.isFollowed {
+            Task {
+                if story.storyInfo.currentUserStatus.isFollowed {
+                    if let err = await viewModel.unlikeStory(storyId: story.storyInfo.id, userId: userId) {
+                        await showError(err.localizedDescription)
+                    } else {
+                        viewModel.story?.storyInfo.followCount = story.storyInfo.followCount - 1
+                        viewModel.story?.storyInfo.currentUserStatus.isFollowed = false
+                    }
+                }else{
+                    if let err = await viewModel.likeStory(storyId: story.storyInfo.id, userId: userId) {
+                        await showError(err.localizedDescription)
+                    } else {
+                        viewModel.story?.storyInfo.followCount = story.storyInfo.followCount - 1
+                        viewModel.story?.storyInfo.currentUserStatus.isFollowed = false
+                    }
+                }
+            }
+        }
+    }
+    
+    private func showError(_ message: String) async {
+        await MainActor.run {
+            errorMessage = message
+            showingErrorToast = true
+            // 2秒后自动隐藏
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                showingErrorToast = false
+            }
+        }
+    }
+}
 
 // 角色卡片视图
 struct RoleCard: View {

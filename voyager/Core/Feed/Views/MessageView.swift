@@ -9,7 +9,7 @@
 import SwiftUI
 import Kingfisher
 
-let defaultAvator = "https://grapery-1301865260.cos.ap-shanghai.myqcloud.com/avator/tmp3evp1xxl.png"
+let defaultAvator = "https://grapery-dev.oss-cn-shanghai.aliyuncs.com/default.png"
 
 // 添加消息类型枚举
 enum MessageType: Int64 {

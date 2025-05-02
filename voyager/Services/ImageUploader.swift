@@ -49,13 +49,14 @@ enum ImageFormat {
 }
 
 // 图片使用场景枚举
-enum ImageScene {
+enum ImageScene: CaseIterable {
     case small      // 小图
     case thumbnail  // 缩略图
     case preview    // 预览图
     case content    // 内容图
     case original   // 原始图
 }
+
 
 // 阿里云图片规格枚举
 enum ImageSpec {
@@ -192,7 +193,36 @@ func convertImagetoSenceImage(
     
     // 组合所有处理参数
     let finnalUrl = url! + "?x-oss-process=image/" + processes.joined(separator: "/")
-    print("convert finnal url: ",finnalUrl)
+    // AliyunClient.ProcessAndStoreImageByHTTP(objectUrl: url!, scene: scene, completion: {
+    //     success, targetObject in
+    //     if success {
+    //         print("convert success: ",url as Any)
+    //     } else {
+    //         print("convert failed: ",url as Any)
+    //     }
+    // })
+    let objectUrl = url // 你的 OSS object key
+    var results: [ImageScene: String] = [:]
+    let group = DispatchGroup()
+    
+    for scene in ImageScene.allCases {
+        group.enter()
+        AliyunClient.ProcessAndStoreImageByHTTP(objectUrl: objectUrl!, scene: scene) { success, targetObject in
+            if success, let path = targetObject {
+                results[scene] = path
+                print("scene \(scene): \(path)")
+            } else {
+                print("scene \(scene) convert failed")
+            }
+            group.leave()
+        }
+    }
+
+    // 等待所有异步任务完成
+    group.notify(queue: .main) {
+        print("所有scene处理完成，结果：\(results)")
+        // 你可以在这里使用 results 字典
+    }
     return finnalUrl
 }
 

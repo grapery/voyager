@@ -64,6 +64,7 @@ extension APIClient {
                 result.storyInfo.id = Int64(storyData.info.id)
                 result.storyInfo.rootBoardID = Int64(storyData.info.rootBoardID)
                 result.storyInfo.name = storyData.info.name
+                result.storyInfo.title = storyData.info.title
                 result.storyInfo.desc = storyData.info.desc
                 result.storyInfo.params = storyData.info.params
                 result.storyInfo.origin = storyData.info.origin
@@ -72,6 +73,12 @@ extension APIClient {
                 result.storyInfo.ownerID = storyData.info.ownerID
                 result.storyInfo.groupID = storyData.info.groupID
                 result.storyInfo.avatar = storyData.info.avatar
+                result.storyInfo.ctime = storyData.info.ctime
+                result.storyInfo.likeCount = storyData.info.likeCount
+                result.storyInfo.followCount = storyData.info.followCount
+                result.storyInfo.totalRoles = storyData.info.totalRoles
+                result.storyInfo.totalBoards = storyData.info.totalBoards
+                result.storyInfo.currentUserStatus = storyData.info.currentUserStatus
                 return (result, nil)
             }
             
