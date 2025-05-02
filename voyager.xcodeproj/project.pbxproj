@@ -131,6 +131,7 @@
 		0FFE24432D7457D3000A8389 /* message.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFE24422D7457D3000A8389 /* message.pb.swift */; };
 		0FFE24442D7457D3000A8389 /* message.connect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFE24412D7457D3000A8389 /* message.connect.swift */; };
 		0FFE24482D747526000A8389 /* UnpublishedStoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFE24472D747526000A8389 /* UnpublishedStoryViewModel.swift */; };
+		ED4EAC3B2DC44C9300A2F2DC /* UserStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4EAC3A2DC44C9300A2F2DC /* UserStateManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -260,6 +261,7 @@
 		0FFE24412D7457D3000A8389 /* message.connect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = message.connect.swift; sourceTree = "<group>"; };
 		0FFE24422D7457D3000A8389 /* message.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = message.pb.swift; sourceTree = "<group>"; };
 		0FFE24472D747526000A8389 /* UnpublishedStoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnpublishedStoryViewModel.swift; sourceTree = "<group>"; };
+		ED4EAC3A2DC44C9300A2F2DC /* UserStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStateManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -588,6 +590,7 @@
 		0FFA506E2B0857DA00D3A4CF /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				ED4EAC3A2DC44C9300A2F2DC /* UserStateManager.swift */,
 				0FFA506F2B0857DA00D3A4CF /* ContentViewModel.swift */,
 			);
 			path = ViewModel;
@@ -891,6 +894,7 @@
 				0F980A332CACCAB000510E5A /* UserProfileView.swift in Sources */,
 				0FA52E242D5A4E3A0078AE65 /* StoryCardView.swift in Sources */,
 				0F576B842D9FC3FB00DE5FA1 /* CommentListView.swift in Sources */,
+				ED4EAC3B2DC44C9300A2F2DC /* UserStateManager.swift in Sources */,
 				0FFA509F2B0857DA00D3A4CF /* ImageUploader.swift in Sources */,
 				0FF591B72CBE3073002F60C0 /* UpdateStoryboardView.swift in Sources */,
 				0FFA50902B0857DA00D3A4CF /* EditProfileView.swift in Sources */,
