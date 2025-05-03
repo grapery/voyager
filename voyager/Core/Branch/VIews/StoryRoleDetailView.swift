@@ -452,14 +452,28 @@ struct RoleParticipationTab: View {
     @ObservedObject var viewModel: StoryRoleModel
     
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 16) {
-                ForEach(viewModel.roleStoryboards, id: \.id) { board in
-                    ParticipationCell(board: board)
-                        .padding(.horizontal, 16)
-                }
+        if viewModel.roleStoryboards.isEmpty {
+            VStack {
+                Spacer()
+                Image(systemName: "retarder.brakesignal.and.exclamationmark")
+                    .font(.system(size: 50))
+                    .foregroundColor(Color.theme.error)
+                Text("这个故事角色是NPC么?!")
+                    .font(.title3)
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+                Spacer()
             }
-            .padding(.vertical, 16)
+        } else {
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    ForEach(viewModel.roleStoryboards, id: \.id) { board in
+                        ParticipationCell(board: board)
+                            .padding(.horizontal, 16)
+                    }
+                }
+                .padding(.vertical, 16)
+            }
         }
     }
 }
