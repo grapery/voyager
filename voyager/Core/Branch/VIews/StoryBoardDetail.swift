@@ -177,9 +177,9 @@ struct StoryBoardCellView: View {
             HStack(spacing: 24) {
                 // Like Button
                 StorySubViewInteractionButton(
-                    icon: isLiked ? "heart.fill" : "heart",
+                    icon: board.boardActive.storyboard.currentUserStatus.isLiked ? "heart.fill" : "heart",
                     count: "\(board.boardActive.totalLikeCount)",
-                    color: isLiked ? Color.theme.error : Color.theme.tertiaryText,
+                    color: board.boardActive.storyboard.currentUserStatus.isLiked  ? Color.red: Color.theme.tertiaryText,
                     action: {
                         withAnimation(.spring()) {
                             isLiked.toggle()
@@ -215,7 +215,7 @@ struct StoryBoardCellView: View {
                 // 续写
                 StorySubViewInteractionButton(
                     icon: "paintbrush",
-                    count: "\(board.boardActive.totalForkCount)",
+                    count: "续写",
                     color: Color.theme.tertiaryText,
                     action: {
                         showNewStoryBoard = true
