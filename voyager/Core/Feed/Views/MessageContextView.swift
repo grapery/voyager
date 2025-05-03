@@ -175,10 +175,17 @@ struct MessageContextView: View {
                 }
             } else {
                 // 如果本地没有更多消息，从服务器获取
-                let err = await viewModel.fetchRemoteHistoryMessages(
+                let (msgs,err) = await viewModel.fetchRemoteHistoryMessages(
                     chatCtxId: viewModel.msgContext.chatID,
                     timestamp: earliestMessageTimestamp
                 )
+                if err != nil{
+                    print("Failed to load history messages: \(err as Any)")
+                    self.hasMoreMessages = false
+                }else{
+                    print("histiry msg length: ",msgs as Any)
+                }
+                
             }
         } catch {
             print("Failed to load history messages: \(error)")

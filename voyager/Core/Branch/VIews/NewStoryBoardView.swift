@@ -836,6 +836,7 @@ extension NewStoryBoardView {
                 if let err = err {
                     throw err
                 }
+                print("scene id gen success: ",scene.senceId,scene.imageUrl)
             }
             
             hideLoading()
