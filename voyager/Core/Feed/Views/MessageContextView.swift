@@ -306,63 +306,70 @@ struct MessageContextView: View {
                     mediaOptionsView
                         .transition(.move(edge: .bottom))
                 }
-                
-                HStack(alignment: .bottom) {
+                HStack(alignment: .center, spacing: 6) {
                     Button(action: {
                         withAnimation {
                             isShowingMediaOptions.toggle()
                         }
                     }) {
                         Image(systemName: "plus.circle")
-                            .font(.system(size: 24))
+                            .font(.system(size: 20))
                             .foregroundColor(.black)
-                            .rotationEffect(.degrees(isShowingMediaOptions ? 45 : 0))
-                            .animation(.spring(), value: isShowingMediaOptions)
                     }
+                    .frame(width: 28, height: 28)
                     
-                    TextField("发送消息", text: $newMessageContent)
-                        .padding(10)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(20)
-                        .focused(isInputFocused)
+                    ZStack(alignment: .leading) {
+                        if newMessageContent.isEmpty {
+                            Text("发送消息")
+                                .foregroundColor(Color(.systemGray3))
+                                .padding(.leading, 6)
+                        }
+                        TextField("", text: $newMessageContent)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 6)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(14)
+                            .focused(isInputFocused)
+                            .frame(minHeight: 28, maxHeight: 36)
+                    }
+                    .frame(minHeight: 28, maxHeight: 36)
                     
                     Button(action: onSendMessage) {
                         Image(systemName: "paperplane.circle.fill")
-                            .font(.system(size: 32))
-                            .foregroundColor(newMessageContent.isEmpty ? .gray : .orange)
-                            .animation(.easeInOut, value: newMessageContent.isEmpty)
+                            .font(.system(size: 24))
+                            .foregroundColor(newMessageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color(.systemGray3) : Color(red: 0.56, green: 0.84, blue: 0.38)) // 浅绿色
                     }
-                    .disabled(newMessageContent.isEmpty)
+                    .frame(width: 28, height: 28)
+                    .disabled(newMessageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 4)
                 .background(Color(.systemBackground))
                 .animation(.easeInOut, value: isShowingMediaOptions)
             }
         }
         
         private var mediaOptionsView: some View {
-            HStack(spacing: 20) {
+            HStack(spacing: 14) {
                 mediaOption(icon: "photo", title: "相册")
                 mediaOption(icon: "camera", title: "拍摄")
                 mediaOption(icon: "mic", title: "语音")
                 mediaOption(icon: "location", title: "位置")
             }
-            .padding()
+            .padding(6)
             .background(Color(.systemBackground))
         }
         
         private func mediaOption(icon: String, title: String) -> some View {
             VStack {
                 Image(systemName: icon)
-                    .font(.system(size: 24))
+                    .font(.system(size: 18))
                     .foregroundColor(.white)
-                    .frame(width: 50, height: 50)
+                    .frame(width: 30, height: 30)
                     .background(Color.orange)
-                    .cornerRadius(10)
-                
+                    .cornerRadius(7)
                 Text(title)
-                    .font(.caption)
+                    .font(.caption2)
                     .foregroundColor(.gray)
             }
         }
