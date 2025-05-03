@@ -243,7 +243,8 @@ private struct StoryboardSummaryDetailsView: View {
             CommentListView(
                 storyId: storyboard.boardActive.storyboard.storyID,
                 storyboardId: storyboard.boardActive.storyboard.storyBoardID,
-                userId: userId
+                userId: userId,
+                totalCommentNum: Int(storyboard.boardActive.totalCommentCount)
             )
             .padding(.horizontal, 16)
         }

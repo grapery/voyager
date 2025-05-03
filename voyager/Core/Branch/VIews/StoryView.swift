@@ -65,7 +65,7 @@ struct StoryView: View {
             GeometryReader { geometry in
                 VStack(spacing: 0) {
                     if selectedTab == 0 {
-                        storyLineView
+                        StoryStreamView
                     } else if selectedTab == 1 {
                         storyRolesListView
                     }
@@ -163,7 +163,7 @@ struct StoryView: View {
         }
     }
     
-    private var storyLineView: some View {
+    private var StoryStreamView: some View {
         VStack(alignment: .leading, spacing: 0) {
             if viewModel.isLoading {
                 VStack {

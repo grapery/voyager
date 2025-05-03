@@ -9,61 +9,10 @@ struct CommentListView: View {
     @State private var commentText = ""
     @State private var isLoadingMore = false
     @FocusState private var isInputFocused: Bool
+    public var totalCommentNum = 0
     
     var body: some View {
         VStack(spacing: 0) {
-            // 评论列表
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(viewModel.comments) { comment in
-                        VStack(spacing: 0) {
-                            CommentItemView(
-                                comment: comment,
-                                userId: userId,
-                                viewModel: viewModel,
-                                onReply: {
-                                    viewModel.replyToComment = comment
-                                    isInputFocused = true
-                                }
-                            )
-                            
-                            if comment.id != viewModel.comments.last?.id {
-                                Divider()
-                            }
-                        }
-                    }
-                    
-                    // 加载更多按钮
-                    if viewModel.hasMoreComments {
-                        Button(action: {
-                            Task {
-                                isLoadingMore = true
-                                if let boardId = storyboardId {
-                                    await viewModel.fetchStoryboardComments(storyId: storyId, storyboardId: boardId, userId: userId)
-                                } else {
-                                    await viewModel.fetchStoryComments(storyId: storyId, userId: userId)
-                                }
-                                isLoadingMore = false
-                            }
-                        }) {
-                            HStack {
-                                if isLoadingMore {
-                                    ProgressView()
-                                        .scaleEffect(0.8)
-                                } else {
-                                    Text("加载更多评论")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.theme.tertiaryText)
-                                }
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                        }
-                        .disabled(isLoadingMore)
-                    }
-                }
-            }
-            
             // 评论输入区域
             CommentInputView(
                 commentText: $commentText,
@@ -124,6 +73,63 @@ struct CommentListView: View {
                 },
                 isFocused: $isInputFocused
             )
+            Text("共 \(totalCommentNum) 条评论")
+                .font(.system(size: 14))
+                .foregroundColor(.theme.tertiaryText)
+                .padding(.top, 4)
+            // 评论列表
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(viewModel.comments) { comment in
+                        VStack(spacing: 0) {
+                            CommentItemView(
+                                comment: comment,
+                                userId: userId,
+                                viewModel: viewModel,
+                                onReply: {
+                                    viewModel.replyToComment = comment
+                                    isInputFocused = true
+                                }
+                            )
+                            
+                            if comment.id != viewModel.comments.last?.id {
+                                Divider()
+                            }
+                        }
+                    }
+                    
+                    // 加载更多按钮
+                    if viewModel.hasMoreComments {
+                        Button(action: {
+                            Task {
+                                isLoadingMore = true
+                                if let boardId = storyboardId {
+                                    await viewModel.fetchStoryboardComments(storyId: storyId, storyboardId: boardId, userId: userId)
+                                } else {
+                                    await viewModel.fetchStoryComments(storyId: storyId, userId: userId)
+                                }
+                                isLoadingMore = false
+                            }
+                        }) {
+                            HStack {
+                                if isLoadingMore {
+                                    ProgressView()
+                                        .scaleEffect(0.8)
+                                } else {
+                                    Text("加载更多评论")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.theme.tertiaryText)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                        }
+                        .disabled(isLoadingMore)
+                    }
+                }
+            }
+            
+            
         }
         .onAppear {
             Task {
@@ -435,7 +441,7 @@ private struct CommentInputView: View {
                 }
             }
             .background(Color.theme.tertiaryBackground)
-            .cornerRadius(16)
+            .cornerRadius(8)
             
             Button(action: onSend) {
                 Image(systemName: "paperplane.fill")
@@ -443,7 +449,7 @@ private struct CommentInputView: View {
                     .frame(width: 24, height: 24)
             }
         }
-        .padding(.horizontal, 8)
+        //.padding(.horizontal, 8)
         .padding(.vertical, 4)
         .padding(.bottom, 2)
         .background(Color.theme.secondaryBackground)
