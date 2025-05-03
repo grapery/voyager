@@ -233,7 +233,7 @@ struct MessageContextView: View {
         var body: some View {
             ScrollViewReader { scrollProxy in
                 ScrollView {
-                    LazyVStack(spacing: 10) {
+                    LazyVStack(spacing: 2) {
                         ForEach(messages) { message in
                             MessageCellView(
                                 currentUserId: currentUserId,
@@ -405,7 +405,7 @@ struct MessageCellView: View {
                 Spacer()
             }
         }
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 2)
     }
     
     private var messageBubble: some View {
