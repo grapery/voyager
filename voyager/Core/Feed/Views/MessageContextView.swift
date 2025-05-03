@@ -23,6 +23,7 @@ struct MessageContextView: View {
 
     @State private var isLoadingHistory = false
     @State private var hasMoreMessages = true  // 新增：标记是否还有更多消息
+    @State private var showChatSetting = false
     
     
     init(userId: Int64, roleId: Int64, role: StoryRole) {
@@ -34,7 +35,7 @@ struct MessageContextView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            ChatNavigationBar(title: role?.role.characterName ?? "", onDismiss: { dismiss() })
+            ChatNavigationBar(title: role?.role.characterName ?? "", onDismiss: { dismiss() }, onSetting: { showChatSetting = true })
             
             ChatMessageList(
                 messages: $viewModel.messages,
@@ -63,6 +64,9 @@ struct MessageContextView: View {
             Button("确定", role: .cancel) {}
         } message: {
             Text(errorMessage)
+        }
+        .sheet(isPresented: $showChatSetting) {
+            ChatSettingView(viewModel: self.viewModel)
         }
     }
     
@@ -202,6 +206,7 @@ struct MessageContextView: View {
     private struct ChatNavigationBar: View {
         let title: String
         let onDismiss: () -> Void
+        let onSetting: () -> Void
         
         var body: some View {
             HStack {
@@ -211,8 +216,8 @@ struct MessageContextView: View {
                 Spacer()
                 Text(title)
                 Spacer()
-                Button(action: {}) {
-                    Image(systemName: "plus")
+                Button(action: onSetting) {
+                    Image(systemName: "gearshape")
                 }
             }
             .padding()
