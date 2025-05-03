@@ -24,14 +24,11 @@ struct StoryBoardView: View {
         VStack(spacing: 0) {
             // 顶部导航栏
             HStack(spacing: 12) {
-                // 返回按钮
                 Button(action: { presentationMode.wrappedValue.dismiss() }) {
                     Image(systemName: "chevron.left")
                         .foregroundColor(.primary)
                         .imageScale(.large)
                 }
-                
-                // 用户信息
                 HStack(spacing: 8) {
                     KFImage(URL(string: convertImagetoSenceImage(url: (board?.boardActive.creator.userAvatar)!, scene: .small)))
                         .cacheMemoryOnly()
@@ -40,7 +37,6 @@ struct StoryBoardView: View {
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 40, height: 40)
                         .clipShape(Circle())
-                    
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 4) {
                             Text((board?.boardActive.creator.userName)!)
@@ -48,13 +44,8 @@ struct StoryBoardView: View {
                         }
                     }
                 }
-                
                 Spacer()
-                
-                // 关注按钮
-                Button(action: {
-                    // 关注操作
-                }) {
+                Button(action: {}) {
                     Text("关注")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white)
@@ -66,21 +57,16 @@ struct StoryBoardView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            
-            // 内容区域
+            // 内容区
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     // 标题和内容
                     Text(board?.boardActive.storyboard.title ?? "")
                         .font(.system(size: 16, weight: .medium))
-                        .padding(.horizontal, 16)
-                    
                     Text(board?.boardActive.storyboard.content ?? "")
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
-                        .padding(.horizontal, 16)
-                    
-                    // 图片区域
+                    // 图片区
                     if let scenes = board?.boardActive.storyboard.sences.list, !scenes.isEmpty {
                         ZStack(alignment: .bottom) {
                             TabView(selection: $currentSceneIndex) {
@@ -93,7 +79,6 @@ struct StoryBoardView: View {
                                             .fade(duration: 0.25)
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
-                                            .frame(maxWidth: .infinity)
                                             .frame(height: 400)
                                             .clipped()
                                             .tag(index)
@@ -101,10 +86,7 @@ struct StoryBoardView: View {
                                 }
                             }
                             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                            
-                            // 进度指示器
                             VStack(spacing: 8) {
-                                // 进度线
                                 HStack(spacing: 4) {
                                     ForEach(0..<scenes.count, id: \.self) { index in
                                         Capsule()
@@ -115,8 +97,6 @@ struct StoryBoardView: View {
                                 }
                                 .padding(.horizontal)
                                 .padding(.bottom, 8)
-                                
-                                // 场景描述
                                 let scene = scenes[currentSceneIndex]
                                 Text(scene.content)
                                     .font(.system(size: 14))
@@ -137,10 +117,10 @@ struct StoryBoardView: View {
                             )
                         }
                         .frame(height: 400)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     // 交互栏
                     HStack(spacing: 8) {
-                        // 点赞
                         Button(action: {
                             Task {
                                 let err = await self.viewModel.likeStoryBoard(storyId: self.storyId, boardId: (self.board?.boardActive.storyboard.storyBoardID)!, userId: userId)
@@ -160,11 +140,8 @@ struct StoryBoardView: View {
                                     .foregroundColor(.theme.tertiaryText)
                             }
                         }
-                        
-                        // 分支数
                         Button(action: {
                             // TODO: 处理查看分支事件
-                            
                         }) {
                             HStack(spacing: 4) {
                                 Image(systemName: "arrow.triangle.branch")
@@ -174,24 +151,19 @@ struct StoryBoardView: View {
                                     .foregroundColor(.theme.tertiaryText)
                             }
                         }
-                        
-                        
                     }
-                    .padding(.horizontal, 16)
-                    
-                    Divider()
-                    // 评论区域
-                    VStack(alignment: .leading, spacing: 8) {
-                        // 评论数量
-                        Text("共 \(board?.boardActive.totalCommentCount ?? 0) 条评论")
-                            .font(.system(size: 14))
-                            .foregroundColor(.theme.tertiaryText)
-                            .padding(.horizontal, 16)
-                    }
-                    .padding(.top, 4)
+                    .padding(.top, 8)
                     // 评论列表
-                    CommentListView(storyId: self.storyId, storyboardId: self.board?.boardActive.storyboard.storyBoardID, userId: self.userId)
+                    CommentListView(
+                        storyId: self.storyId,
+                        storyboardId: self.board?.boardActive.storyboard.storyBoardID ?? 0,
+                        userId: self.userId,
+                        totalCommentNum: Int(self.board?.boardActive.totalCommentCount ?? 0)
+                    )
+                    
                 }
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
             }
         }
         .navigationBarHidden(true)
