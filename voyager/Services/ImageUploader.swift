@@ -201,28 +201,28 @@ func convertImagetoSenceImage(
     //         print("convert failed: ",url as Any)
     //     }
     // })
-    let objectUrl = url // 你的 OSS object key
-    var results: [ImageScene: String] = [:]
-    let group = DispatchGroup()
-    
-    for scene in ImageScene.allCases {
-        group.enter()
-        AliyunClient.ProcessAndStoreImageByHTTP(objectUrl: objectUrl!, scene: scene) { success, targetObject in
-            if success, let path = targetObject {
-                results[scene] = path
-                print("scene \(scene): \(path)")
-            } else {
-                print("scene \(scene) convert failed")
-            }
-            group.leave()
-        }
-    }
-
-    // 等待所有异步任务完成
-    group.notify(queue: .main) {
-        print("所有scene处理完成，结果：\(results)")
-        // 你可以在这里使用 results 字典
-    }
-    return finnalUrl
+//    let objectUrl = url // 你的 OSS object key
+//    var results: [ImageScene: String] = [:]
+//    let group = DispatchGroup()
+//    
+//    for scene in ImageScene.allCases {
+//        group.enter()
+//        AliyunClient.ProcessAndStoreImageByHTTP(objectUrl: objectUrl!, scene: scene) { success, targetObject in
+//            if success, let path = targetObject {
+//                results[scene] = path
+//                print("scene \(scene): \(path)")
+//            } else {
+//                print("scene \(scene) convert failed")
+//            }
+//            group.leave()
+//        }
+//    }
+//
+//    // 等待所有异步任务完成
+//    group.notify(queue: .main) {
+//        print("所有scene处理完成，结果：\(results)")
+//        // 你可以在这里使用 results 字典
+//    }
+    return url!
 }
 

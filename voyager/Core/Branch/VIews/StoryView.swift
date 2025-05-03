@@ -465,7 +465,7 @@ private struct InteractionButtonsSection: View {
             // 参与人员数
             StoryInteractionButton(
                 count: "\(story.storyInfo.totalMembers)",
-                icon: "person",
+                icon: "person.bust",
                 color: .blue,
                 action: {
                     
@@ -475,7 +475,7 @@ private struct InteractionButtonsSection: View {
             // 角色数
             StoryInteractionButton(
                 count: "\(story.storyInfo.totalRoles)",
-                icon: "person",
+                icon: "person.text.rectangle",
                 color: .blue,
                 action: {
                     
@@ -485,7 +485,7 @@ private struct InteractionButtonsSection: View {
             // 故事版数
             StoryInteractionButton(
                 count: "\(story.storyInfo.totalBoards)",
-                icon: "person",
+                icon: "list.clipboard",
                 color: .blue,
                 action: {
                     
@@ -832,6 +832,8 @@ private struct ParticipantsHeader: View {
     var body: some View {
         ZStack(alignment: .top) {
             // 标题文本居中
+            Image(systemName: "person.text.rectangle")
+                    .font(.system(size: 16))
             Text("\(storyName)的参与者")
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.theme.primaryText)

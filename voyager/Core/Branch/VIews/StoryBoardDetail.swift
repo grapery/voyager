@@ -36,6 +36,7 @@ struct StoryBoardCellView: View {
     @State private var isLiked = false
     @State private var showDetail = false
     @State private var showStoryBoard = false  // 控制全屏展示
+    @State private var showNewStoryBoard = false  // Add this line for showing NewStoryBoardView
     
     // 添加评论相关状态
     @State private var commentText: String = ""
@@ -213,13 +214,11 @@ struct StoryBoardCellView: View {
                 )
                 // 续写
                 StorySubViewInteractionButton(
-                    icon: "pencil",
+                    icon: "paintbrush",
                     count: "\(board.boardActive.totalForkCount)",
                     color: Color.theme.tertiaryText,
                     action: {
-                        withAnimation(.spring()) {
-                            showChildNodes.toggle()
-                        }
+                        showNewStoryBoard = true
                     }
                 )
                 Spacer()
@@ -270,7 +269,46 @@ struct StoryBoardCellView: View {
                 viewModel: viewModel
             )
         }
-        
+        .sheet(isPresented: $showNewStoryBoard) {
+            NavigationView {
+                VStack(spacing: 0) {
+                    ZStack {
+                        // 背景色
+                        Color.theme.tertiaryBackground
+                            .ignoresSafeArea(edges: .top)
+                        // 居中 title
+                        Text(board.boardActive.summary.storyTitle)
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(Color.theme.primaryText)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        // 左上角关闭按钮
+                        HStack {
+                            Button(action: {
+                                showNewStoryBoard = false
+                            }) {
+                                Image(systemName: "xmark")
+                                    .foregroundColor(Color.theme.primaryText)
+                                    .font(.system(size: 22, weight: .medium))
+                                    .frame(width: 44, height: 44, alignment: .center)
+                            }
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(height: 48)
+                    
+                    NewStoryBoardView(
+                        userId: userId,
+                        storyId: storyId,
+                        boardId: board.boardActive.storyboard.storyBoardID,
+                        prevBoardId: board.boardActive.storyboard.storyBoardID,
+                        viewModel: viewModel,
+                        roles: [],
+                        isPresented: $showNewStoryBoard
+                    )
+                }
+            }
+        }
     }
     
     private func formatDate(timestamp: Int64) -> String {

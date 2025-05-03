@@ -92,70 +92,79 @@ struct NewStoryBoardView: View {
                 
                 // Content area
                 TabView(selection: $currentStep) {
-                    StoryInputView(
-                        title: $title,
-                        description: $description,
-                        background: $background,
-                        roles: $roles,
-                        generatedStoryTitle: $generatedStoryTitle,
-                        generatedStoryContent: $generatedStoryContent,
-                        isGenerated:$isStoryGenerated,
-                        userId: userId,
-                        storyId: storyId,
-                        viewModel: viewModel,
-                        onGenerate: {
-                            // 处理生成逻辑
-                            Task{
-                                print("StoryInputView onGenerate")
-                                await generateStory()
+                    Group{
+                        StoryInputView(
+                            title: $title,
+                            description: $description,
+                            background: $background,
+                            roles: $roles,
+                            generatedStoryTitle: $generatedStoryTitle,
+                            generatedStoryContent: $generatedStoryContent,
+                            isGenerated:$isStoryGenerated,
+                            userId: userId,
+                            storyId: storyId,
+                            viewModel: viewModel,
+                            onGenerate: {
+                                // 处理生成逻辑
+                                Task{
+                                    print("StoryInputView onGenerate")
+                                    await generateStory()
+                                }
+                            },
+                            onSave: {
+                                // 处理保存逻辑
+                                Task{
+                                    print("StoryInputView onSave")
+                                    await saveStoryBoard()
+                                }
                             }
-                        },
-                        onSave: {
-                            // 处理保存逻辑
-                            Task{
-                                print("StoryInputView onSave")
-                                await saveStoryBoard()
-                            }
-                        }
-                    )
+                        )
+                    }
                     .tag(TimelineStep.write)
                     
-                    StoryContentView(
-                        generatedStoryTitle: $generatedStoryTitle,
-                        generatedStoryContent: $generatedStoryContent,
-                        onGenerate: {
-                            // 处理生成逻辑
-                            Task{
-                                print("StoryContentView generateStoryboardPrompt")
-                                await generateStoryboardPrompt()
+                    Group{
+                        StoryContentView(
+                            generatedStoryTitle: $generatedStoryTitle,
+                            generatedStoryContent: $generatedStoryContent,
+                            onGenerate: {
+                                // 处理生成逻辑
+                                Task{
+                                    print("StoryContentView generateStoryboardPrompt")
+                                    await generateStoryboardPrompt()
+                                }
+                            },
+                            onSave: {
+                                // 处理保存逻辑
+                                Task{
+                                    print("StoryContentView apply all sences")
+                                    await ApplyAllsences()
+                                }
                             }
-                        },
-                        onSave: {
-                            // 处理保存逻辑
-                            Task{
-                                print("StoryContentView apply all sences")
-                                await ApplyAllsences()
-                            }
-                        }
-                    )
+                        )
+                    }
                     .tag(TimelineStep.complete)
                     
-                    SceneGenerationView(
-                        viewModel: viewModel,
-                        onGenerateImage: handleGenerateImageAction,
-                        onGenerateAllImage: GenerateAllSenseImageAction,
-                        moreSenseDetail: moreSenseDetailAction
-                    )
+                    Group{
+                        SceneGenerationView(
+                            viewModel: viewModel,
+                            onGenerateImage: handleGenerateImageAction,
+                            onGenerateAllImage: GenerateAllSenseImageAction,
+                            moreSenseDetail: moreSenseDetailAction
+                        )
+                    }
                     .tag(TimelineStep.draw)
                     
-                    StoryPublishView(
+                    Group{
+                        StoryPublishView(
                         viewModel: viewModel,
                         onSaveOnly:{
                         // 仅保存
                         },
                         onPublish: {
                             // 发布
-                        })
+                        }
+                        )
+                    }
                     .tag(TimelineStep.narrate)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
@@ -858,36 +867,6 @@ extension NewStoryBoardView {
     }
 }
 
-struct StepProgressView: View {
-    let currentStep: Int
-    let totalSteps: Int
-    
-    var body: some View {
-        HStack(spacing: 16) {
-            ForEach(0..<totalSteps, id: \.self) { index in
-                HStack(spacing: 4) {
-                    // Step circle
-                    Circle()
-                        .fill(index == currentStep ? Color.theme.accent : Color.theme.tertiaryText.opacity(0.3))
-                        .frame(width: 24, height: 24)
-                        .overlay(
-                            Text("\(index + 1)")
-                                .foregroundColor(index == currentStep ? Color.theme.buttonText : Color.theme.tertiaryText)
-                                .font(.system(size: 14, weight: .medium))
-                        )
-                    
-                    // Connecting line
-                    if index < totalSteps - 1 {
-                        Rectangle()
-                            .fill(index < currentStep ? Color.theme.accent : Color.theme.tertiaryText.opacity(0.3))
-                            .frame(height: 1)
-                    }
-                }
-            }
-        }
-        .padding(.horizontal, 20)
-    }
-}
 
 
 struct StoryPublishView: View {
@@ -1583,7 +1562,7 @@ struct StepNavigationView: View {
                         ZStack {
                             Circle()
                                 .fill(getStepColor(for: index))
-                                .frame(width: 24, height: 24)
+                                .frame(width: 32, height: 32)
                             
                             Text("\(index + 1)")
                                 .font(.system(size: 12, weight: .medium))
@@ -1594,7 +1573,7 @@ struct StepNavigationView: View {
                         if index < totalSteps - 1 {
                             Rectangle()
                                 .fill(index < currentStep ? getStepColor(for: index) : Color.theme.tertiaryText.opacity(0.15))
-                                .frame(height: 1)
+                                .frame(height: 2)
                         }
                     }
                 }
@@ -1613,7 +1592,6 @@ struct StepNavigationView: View {
             .padding(.horizontal, 20)
         }
         .padding(.vertical, 12)
-        .background(Color.theme.tertiaryBackground)
     }
     
     // 获取步骤颜色
