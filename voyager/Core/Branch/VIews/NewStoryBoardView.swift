@@ -310,76 +310,15 @@ struct NewStoryBoardView: View {
     private var notificationOverlay: some View {
         Group {
             if showNotification {
-                VStack(spacing: 20) {
-                    // Icon
-                    if isLoading {
-                        Image(systemName: "hourglass.circle.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.indigo)
-                            .rotationEffect(.degrees(isLoading ? 360 : 0))
-                            .animation(
-                                Animation.linear(duration: 1)
-                                    .repeatForever(autoreverses: false),
-                                value: isLoading
-                            )
-                    }
-                    
-                    // Title
-                    Text(notificationType == .success ? "成功" : "提示")
-                        .font(.headline)
-                        .foregroundColor(.black)
-                    
-                    // Message
-                    Text(notificationMessage)
-                        .font(.subheadline)
-                        .foregroundColor(.black.opacity(0.7))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                    
-                    // Buttons
-                    if notificationType == .error {
-                        HStack(spacing: 16) {
-                            // Cancel button
-                            Button(action: { hideNotification() }) {
-                                Text("取消")
-                                    .foregroundColor(.gray)
-                                    .frame(width: 90, height: 44)
-                                    .background(Color.gray.opacity(0.1))
-                                    .cornerRadius(22)
-                            }
-                            
-                            // Retry button
-                            Button(action: {
-                                hideNotification()
-                                // 重试上一次失败的操作
-                                retryLastOperation()
-                            }) {
-                                Text("重试")
-                                    .foregroundColor(.white)
-                                    .frame(width: 90, height: 44)
-                                    .background(Color.indigo)
-                                    .cornerRadius(22)
-                            }
-                        }
-                    } else {
-                        // Single confirm button for success
-                        Button(action: { hideNotification() }) {
-                            Text("确定")
-                                .foregroundColor(.white)
-                                .frame(width: 200, height: 44)
-                                .background(Color.indigo)
-                                .cornerRadius(22)
-                        }
-                    }
-                }
-                .padding(.vertical, 30)
-                .padding(.horizontal, 20)
-                .frame(width: 300)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.white)
-                        .shadow(color: .black.opacity(0.1), radius: 10)
+                Color.black.opacity(0.2).ignoresSafeArea()
+                CustomAlertView(
+                    type: notificationType == .success ? .success : (notificationType == .error ? .error : .info),
+                    title: notificationType == .success ? "成功" : (notificationType == .error ? "失败" : "提示"),
+                    message: notificationMessage,
+                    onClose: { hideNotification() },
+                    onInfo: { /* 可弹出说明 */ }
                 )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .transition(.opacity.combined(with: .scale))
                 .animation(.spring(), value: showNotification)
             }
@@ -1764,8 +1703,6 @@ struct RoleSelectionRow: View {
                         .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 50, height: 50)
-                        .clipShape(Circle())
                 
                 VStack(alignment: .leading) {
                     Text(role.role.characterName)
@@ -1783,6 +1720,88 @@ struct RoleSelectionRow: View {
             }
         }
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// 1. 通用自定义弹窗视图
+struct CustomAlertView: View {
+    enum AlertType { case success, error, info }
+    let type: AlertType
+    let title: String
+    let message: String
+    let onClose: () -> Void
+    let onInfo: (() -> Void)?
+    var body: some View {
+        ZStack(alignment: .top) {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color(red: 0.85, green: 0.95, blue: 0.85)) // 柔和灰绿色
+                .frame(width: 320, height: 200) // 16:10 比例
+                .shadow(radius: 10)
+            VStack(spacing: 0) {
+                HStack {
+                    Button(action: onClose) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(.gray)
+                            .padding(8)
+                    }
+                    Spacer()
+                    if let onInfo = onInfo {
+                        Button(action: onInfo) {
+                            Image(systemName: "info.circle.fill")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.blue)
+                                .padding(8)
+                        }
+                    }
+                }
+                .frame(height: 32)
+                .padding(.horizontal, 4)
+                Spacer(minLength: 0)
+                VStack(spacing: 12) {
+                    Image(systemName: iconName)
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundColor(iconColor)
+                        .padding(.bottom, 2)
+                    Text(title)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.black)
+                        .padding(.bottom, 2)
+                    Text(message)
+                        .font(.system(size: 15))
+                        .foregroundColor(.black.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 8)
+                }
+                Spacer(minLength: 0)
+                Button(action: onClose) {
+                    Text("知道了")
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(Color(red: 0.4, green: 0.7, blue: 0.4))
+                        .cornerRadius(12)
+                        .padding(.horizontal, 32)
+                        .padding(.bottom, 12)
+                }
+            }
+            .frame(width: 320, height: 200)
+        }
+    }
+    private var iconName: String {
+        switch type {
+        case .success: return "checkmark.circle.fill"
+        case .error: return "xmark.octagon.fill"
+        case .info: return "info.circle.fill"
+        }
+    }
+    private var iconColor: Color {
+        switch type {
+        case .success: return .green
+        case .error: return .red
+        case .info: return .blue
+        }
     }
 }
 
