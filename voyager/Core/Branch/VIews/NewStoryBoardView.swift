@@ -1761,14 +1761,12 @@ struct RoleSelectionView: View {
         isLoading = true
         errorMessage = nil
         
-        do {
-            let err = await viewModel.getStoryRoles(storyId: storyId, userId: userId)
-            if let error = err {
-                errorMessage = error.localizedDescription
-            }
-        } catch {
+        let err = await viewModel.getStoryRoles(storyId: storyId, userId: userId)
+        if let error = err {
+            print("load story role error:", error as Any)
             errorMessage = error.localizedDescription
         }
+        print("load story role success: ",self.selectedRoles?.count as Any)
         
         isLoading = false
     }
