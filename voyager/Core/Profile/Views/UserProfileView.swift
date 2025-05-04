@@ -181,17 +181,35 @@ struct UserProfileView: View {
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundColor(.white)
                 .shadow(color: .black.opacity(0.3), radius: 2)
-            
+            Text(viewModel.user!.desc)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white)
+                .shadow(color: .black.opacity(0.3), radius: 2)
             userStats
         }
         .padding(.bottom, 16)
     }
     
     private var userStats: some View {
-        HStack(spacing: 32) {
-            StatItem(count: Int(viewModel.profile.watchingStoryNum), title: "创建", icon: "bell.fill")
-            StatItem(count: Int(viewModel.profile.createdStoryNum), title: "关注", icon: "person.2.fill")
-            StatItem(count: Int(viewModel.profile.contributStoryNum), title: "参与", icon: "heart.fill")
+        HStack(spacing: 8) {
+            StatItemShortCut(count: Int(self.viewModel.profile.createdStoryNum), icon: "fossil.shell")
+            StatItemShortCut(count: Int(self.viewModel.profile.createdRoleNum), icon: "person.text.rectangle")
+            StatItemShortCut(count: Int(self.viewModel.profile.createdStoryNum), icon: "list.clipboard")
+            StatItemShortCut(count: Int(self.viewModel.profile.watchingStoryNum), icon: "person.2.fill")
+            StatItemShortCut(count: Int(self.viewModel.profile.watchingStoryNum), icon: "person.text.rectangle")
+            StatItemShortCut(count: Int(self.viewModel.profile.watchingGroupNum), icon: "bonjour")
+        }
+        .padding(.top, 4)
+    }
+    
+    private var userStatsDetail: some View {
+        HStack(spacing: 12) {
+            StatItem(count: Int(viewModel.profile.createdStoryNum), title: "创建了\(self.viewModel.profile.createdStoryNum)故事", icon: "fossil.shell")
+            StatItem(count: Int(viewModel.profile.createdRoleNum), title: "创建了\(self.viewModel.profile.createdRoleNum)角色", icon: "person.text.rectangle")
+            StatItem(count: Int(viewModel.profile.createdStoryNum), title: "创建了\(self.viewModel.profile.createdStoryNum)故事版", icon: "list.clipboard")
+            StatItem(count: Int(viewModel.profile.watchingStoryNum), title: "关注了\(self.viewModel.profile.watchingStoryNum)故事", icon: "person.2.fill")
+            StatItem(count: Int(viewModel.profile.watchingStoryNum), title: "关注了\(self.viewModel.profile.watchingStoryNum)角色", icon: "person.text.rectangle")
+            StatItem(count: Int(viewModel.profile.watchingGroupNum), title: "关注了\(self.viewModel.profile.watchingGroupNum)小组", icon: "bonjour")
         }
         .padding(.top, 4)
     }
@@ -720,6 +738,23 @@ struct StatItem: View {
             Text(title)
                 .font(.system(size: 12))
                 .foregroundColor(.white.opacity(0.8))
+        }
+    }
+}
+
+struct StatItemShortCut: View {
+    let count: Int
+    let icon: String
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.system(size: 12))
+                .foregroundColor(.white)
+            
+            Text("\(count)")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(.white)
         }
     }
 }
