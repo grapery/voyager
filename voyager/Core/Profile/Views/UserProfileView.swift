@@ -7,9 +7,7 @@
 
 
 import SwiftUI
-#if canImport(Kingfisher)
 import Kingfisher
-#endif
 import PhotosUI
 
 // MARK: - Main View
@@ -26,6 +24,9 @@ struct UserProfileView: View {
     @State private var showingErrorAlert = false
     @State private var errorMessage = ""
     @State private var showStatsDetail = false
+    @State private var showingBackgroundPicker = false
+    @State private var showingBackgroundUpdateToast = false
+    @State private var backgroundUpdateToastMessage = ""
     
     // 判断是否是当前登录用户
     private var isCurrentUser: Bool {
@@ -114,7 +115,7 @@ struct UserProfileView: View {
     
     
     private var backgroundImageView: some View {
-        PhotosPicker(selection: $viewModel.backgroundSelectedImage) {
+        ZStack {
             if let image = viewModel.backgroundImage {
                 Image(uiImage: image)
                     .resizable()
@@ -124,6 +125,62 @@ struct UserProfileView: View {
                 Rectangle()
                     .fill(Color.orange)
                     .overlay(backgroundGradient)
+            }
+            
+            // 长按提示
+            if !showingBackgroundPicker {
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Text("长按更换背景")
+                            .font(.system(size: 14))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.black.opacity(0.5))
+                            .cornerRadius(12)
+                            .padding(.trailing, 16)
+                            .padding(.bottom, 16)
+                    }
+                }
+            }
+        }
+        .onLongPressGesture {
+            showingBackgroundPicker = true
+        }
+        .sheet(isPresented: $showingBackgroundPicker) {
+            PhotosPicker(selection: $viewModel.backgroundSelectedImage) {
+                Text("选择图片")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color.blue)
+                    .cornerRadius(12)
+                    .padding()
+            }
+            .onChange(of: viewModel.backgroundSelectedImage) { newValue in
+                if newValue != nil {
+                    handleImageSelected()
+                }
+            }
+        }
+        .overlay {
+            if showingBackgroundUpdateToast {
+                VStack {
+                    Spacer()
+                    Text(backgroundUpdateToastMessage)
+                        .font(.system(size: 14))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(8)
+                        .padding(.bottom, 16)
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .animation(.spring(response: 0.3, dampingFraction: 0.8), value: showingBackgroundUpdateToast)
             }
         }
     }
@@ -309,6 +366,7 @@ struct UserProfileView: View {
         guard let image = viewModel.backgroundImage else { return }
         
         isLoading = true
+        showingBackgroundPicker = false
         
         Task {
             do {
@@ -321,15 +379,27 @@ struct UserProfileView: View {
                 await MainActor.run {
                     isLoading = false
                     if err != nil {
-                        errorMessage = "更新背景图片失败"
-                        showingErrorAlert = true
+                        backgroundUpdateToastMessage = "更新背景图片失败"
+                        showingBackgroundUpdateToast = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            showingBackgroundUpdateToast = false
+                        }
+                    } else {
+                        backgroundUpdateToastMessage = "背景图片更新成功"
+                        showingBackgroundUpdateToast = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            showingBackgroundUpdateToast = false
+                        }
                     }
                 }
             } catch {
                 await MainActor.run {
-                    errorMessage = "上传图片失败: \(error.localizedDescription)"
-                    showingErrorAlert = true
                     isLoading = false
+                    backgroundUpdateToastMessage = "上传图片失败: \(error.localizedDescription)"
+                    showingBackgroundUpdateToast = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        showingBackgroundUpdateToast = false
+                    }
                 }
             }
         }
