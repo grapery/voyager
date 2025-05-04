@@ -24,9 +24,10 @@ struct GroupHeaderView: View {
             KFImage(URL(string: convertImagetoSenceImage(url: group?.info.avatar, scene: .small)))
                 .cacheMemoryOnly()
                 .fade(duration: 0.25)
+                .resizable()
                 .aspectRatio(contentMode: .fill)
-                .ignoresSafeArea(edges: .top)
-                //.clipped()
+                .frame(height: 240)
+                .clipped()
                 .overlay(
                     LinearGradient(
                         gradient: Gradient(colors: [
@@ -34,11 +35,10 @@ struct GroupHeaderView: View {
                             Color.black.opacity(0.7)
                         ]),
                         startPoint: .top,
-                        endPoint: .bottom
+                        // 240
+                        endPoint: .bottomTrailing,
                     )
                 )
-                .frame(width: UIScreen.main.bounds.width, height: 240)
-                .ignoresSafeArea(edges: .top)
             
             VStack(spacing: 0) {
                 // Top Navigation Bar
@@ -380,6 +380,7 @@ struct GroupDetailView: View {
     
     var body: some View {
         ZStack {
+            Color.theme.background.ignoresSafeArea() 
             if isLoading {
                 VStack {
                     ProgressView()
@@ -390,12 +391,6 @@ struct GroupDetailView: View {
                 }
             } else {
                 ScrollView {
-                    GeometryReader { geometry in
-                        Color.clear.preference(key: ScrollOffsetPreferenceKey.self,
-                            value: geometry.frame(in: .named("scroll")).minY)
-                    }
-                    .frame(height: 0)
-                    
                     VStack(spacing: 0) {
                         GroupHeaderView(
                             group: group,
@@ -419,8 +414,10 @@ struct GroupDetailView: View {
                             viewModel: viewModel,
                             isHeaderSticky: isHeaderSticky
                         )
+                        Spacer(minLength: 0)
                     }
                 }
+                .background(Color.theme.background)
                 .navigationBarHidden(true)
                 .sheet(isPresented: $showNewStoryView) {
                     NewStoryView(groupId: group!.info.groupID, userId: user.userID)
