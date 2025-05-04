@@ -315,7 +315,7 @@ private struct ReferenceImageItem: View {
     
     var body: some View {
         VStack {
-            KFImage(URL(string: imageUrl))
+            KFImage(URL(string: convertImagetoSenceImage(url: imageUrl, scene: .content)))
                 .cacheMemoryOnly()
                 .fade(duration: 0.25)
                 .resizable()

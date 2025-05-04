@@ -271,7 +271,7 @@ struct StoryDetailView: View {
                     ForEach(Array(viewModel.characters!.enumerated()), id: \.offset) { _, character in
                         VStack(spacing: 4) {
                             if character.role.characterAvatar.isEmpty {
-                                KFImage(URL(string: defaultAvator))
+                                KFImage(URL(string: convertImagetoSenceImage(url: character.role.characterAvatar, scene: .small)))
                                     .cacheMemoryOnly()
                                     .fade(duration: 0.25)
                                     .resizable()
@@ -343,7 +343,7 @@ struct StoryDetailView: View {
                     ForEach(viewModel.participants, id: \.userID) { participant in
                         VStack(spacing: 4) {
                             if participant.avatar.isEmpty {
-                                KFImage(URL(string: defaultAvator))
+                                KFImage(URL(string: convertImagetoSenceImage(url: participant.avatar, scene: .small)))
                                     .cacheMemoryOnly()
                                     .fade(duration: 0.25)
                                     .resizable()
@@ -430,7 +430,7 @@ struct StoryUser: View {
     
     var body: some View {
         VStack {
-            KFImage(URL(string: avatar))
+            KFImage(URL(string: convertImagetoSenceImage(url: avatar, scene: .small)))
                 .cacheMemoryOnly()
                 .fade(duration: 0.25)
                 .resizable()
@@ -518,7 +518,7 @@ struct AllParticipantsView: View {
                                 .frame(width: 80, height: 80)
                                 .clipShape(Circle())
                         }else{
-                            KFImage(URL(string: defaultAvator))
+                            KFImage(URL(string: convertImagetoSenceImage(url: participant.avatar, scene: .small)))
                                 .cacheMemoryOnly()
                                 .fade(duration: 0.25)
                                 .resizable()

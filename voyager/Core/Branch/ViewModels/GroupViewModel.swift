@@ -47,15 +47,14 @@ class GroupViewModel: ObservableObject {
         
         let nextPage = groupPage + 1
         var fetchedGroups: [BranchGroup]
-        (fetchedGroups, _, _) = await APIClient.shared.getUserCreateGroups(
+        (fetchedGroups, self.groupPage, self.groupPageSize) = await APIClient.shared.getUserCreateGroups(
             userId: user.userID,
             groupType: Common_GroupType(rawValue: 0)!,
             page: nextPage,
             size: self.groupPageSize
         )
-        print("fetchMoreGroups: \(fetchedGroups.count)")
+        print("fetchMoreGroups: \(fetchedGroups.count), page: \(self.groupPage)")
         if !fetchedGroups.isEmpty {
-            self.groupPage = nextPage
             self.groups.append(contentsOf: fetchedGroups)
             self.hasMorePages = fetchedGroups.count == self.groupPageSize
         } else {

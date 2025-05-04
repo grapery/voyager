@@ -27,7 +27,7 @@ struct CharacterCell: View {
                     .frame(width: 100)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
-                KFImage(URL(string: defaultAvator))
+                KFImage(URL(string: convertImagetoSenceImage(url: character.role.characterAvatar, scene: .small)))
                     .cacheMemoryOnly()
                     .fade(duration: 0.25)
                     .resizable()
@@ -1090,7 +1090,7 @@ struct PosterView: View {
                 )
                 
                 // 海报图片
-                KFImage(URL(string: defaultPosterImage))
+                KFImage(URL(string: convertImagetoSenceImage(url: role?.role.characterAvatar ?? "", scene: .content)))
                     .cacheMemoryOnly()
                     .fade(duration: 0.25)
                     .placeholder {

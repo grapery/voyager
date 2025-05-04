@@ -34,7 +34,7 @@ struct GroupView: View {
             }
             .onAppear {
                 Task {
-                    await viewModel.fetchGroups()
+                    await viewModel.fetchMoreGroups()
                 }
             }
             .background(Color.theme.background)
@@ -65,22 +65,61 @@ struct GroupViewHeaderView: View {
 // MARK: - Group List View
 struct GroupViewListView: View {
     @ObservedObject var viewModel: GroupViewModel
+    @State private var isRefreshing = false
+    @State private var isLoadingMore = false
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
-                GroupListHeaderView(viewModel: viewModel)
-                
-                LazyVStack(spacing: 0) {
-                    ForEach(viewModel.groups) { group in
-                        GroupViewListItemView(group: group, viewModel: viewModel)
+            RefreshableScrollView(
+                isRefreshing: $isRefreshing,
+                onRefresh: {
+                    Task {
+                        viewModel.resetPagination()
+                        await viewModel.fetchMoreGroups()
+                        isRefreshing = false
                     }
                 }
-                .padding(.top, 8)
+            ) {
+                VStack(spacing: 16) {
+                    GroupListHeaderView(viewModel: viewModel)
+                    
+                    LazyVStack(spacing: 0) {
+                        ForEach(viewModel.groups) { group in
+                            GroupViewListItemView(group: group, viewModel: viewModel)
+                                .onAppear {
+                                    if group.id == viewModel.groups.last?.id {
+                                        Task {
+                                            if !isLoadingMore {
+                                                isLoadingMore = true
+                                                await viewModel.fetchMoreGroups()
+                                                isLoadingMore = false
+                                            }
+                                        }
+                                    }
+                                }
+                        }
+                        
+                        if isLoadingMore {
+                            ProgressView()
+                                .padding()
+                        }
+                    }
+                    .padding(.top, 8)
+                }
+                .padding(.vertical)
             }
-            .padding(.vertical)
         }
         .background(Color.theme.background)
+    }
+}
+
+
+
+private struct RefreshKey: PreferenceKey {
+    static var defaultValue = false
+    
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = value || nextValue()
     }
 }
 

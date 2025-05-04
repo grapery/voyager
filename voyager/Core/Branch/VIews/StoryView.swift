@@ -593,7 +593,7 @@ struct RoleCard: View {
                         // 3. 创建者信息
                         HStack(spacing: 8) {
                             // 创建者头像
-                            KFImage(URL(string: defaultAvator))
+                            KFImage(URL(string: convertImagetoSenceImage(url: role.role.creator.avatar, scene: .small)))
                                 .cacheMemoryOnly()
                                 .fade(duration: 0.25)
                                 .resizable()
@@ -601,7 +601,7 @@ struct RoleCard: View {
                                 .frame(width: 16, height: 16)
                                 .clipShape(Circle())
                             
-                            Text("创建者ID: \(role.role.creatorID)")
+                            Text("创建者: \(role.role.creator.name)")
                                 .font(.system(size: 12))
                                 .foregroundColor(Color.theme.tertiaryText)
                             
@@ -633,34 +633,14 @@ struct RoleCard: View {
                 
                 // 关注按钮
                 StorySubViewInteractionButton(
-                    icon: "person.badge.plus",
+                    icon: "bell.fill",
                     count: "关注",
                     color: Color.theme.tertiaryText,
                     action: {
                         // TODO: 处理关注事件
                     }
                 )
-                
-                // 分享按钮
-                StorySubViewInteractionButton(
-                    icon: "square.and.arrow.up",
-                    count: "分享",
-                    color: Color.theme.tertiaryText,
-                    action: {
-                        // TODO: 处理分享事件
-                    }
-                )
-                
-                // 聊天按钮
-                StorySubViewInteractionButton(
-                    icon: "message",
-                    count: "聊天",
-                    color: Color.theme.tertiaryText,
-                    action: {
-                        // TODO: 处理聊天事件
-                    }
-                )
-                
+
                 Spacer()
             }
             .padding(.top, 8)
