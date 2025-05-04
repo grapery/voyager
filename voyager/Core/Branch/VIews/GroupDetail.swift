@@ -24,10 +24,7 @@ struct GroupHeaderView: View {
             KFImage(URL(string: convertImagetoSenceImage(url: group?.info.avatar, scene: .small)))
                 .cacheMemoryOnly()
                 .fade(duration: 0.25)
-                .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(height: 270)
-                .frame(maxWidth: .infinity)
                 .ignoresSafeArea(edges: .top)
                 //.clipped()
                 .overlay(
@@ -40,6 +37,8 @@ struct GroupHeaderView: View {
                         endPoint: .bottom
                     )
                 )
+                .frame(width: UIScreen.main.bounds.width, height: 240)
+                .ignoresSafeArea(edges: .top)
             
             VStack(spacing: 0) {
                 // Top Navigation Bar
@@ -47,7 +46,7 @@ struct GroupHeaderView: View {
                     Button(action: onBack) {
                         Image(systemName: "chevron.left")
                             .foregroundColor(.white)
-                            .padding(8)
+                            .frame(width: 24, height: 24)
                             .background(Color.theme.secondary.opacity(0.3))
                             .clipShape(Circle())
                     }
@@ -57,13 +56,13 @@ struct GroupHeaderView: View {
                     Button(action: onSettings) {
                         Image(systemName: "gearshape")
                             .foregroundColor(.white)
-                            .frame(width: 32, height: 32)
+                            .frame(width: 24, height: 24)
                             .background(Color.theme.secondary.opacity(0.3))
                             .clipShape(Circle())
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
+                .padding(.horizontal, 8)
+                .padding(.top, 4)
                 
                 GroupInfoView(group: group, currentUser: currentUser, viewModel: $viewModel, showNewStoryView: $showNewStoryView)
                     .padding(.horizontal, 16)
