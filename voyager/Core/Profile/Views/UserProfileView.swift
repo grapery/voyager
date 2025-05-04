@@ -7,7 +7,9 @@
 
 
 import SwiftUI
+#if canImport(Kingfisher)
 import Kingfisher
+#endif
 import PhotosUI
 
 // MARK: - Main View
@@ -18,12 +20,12 @@ struct UserProfileView: View {
     @StateObject var viewModel: ProfileViewModel
     @StateObject private var userState = UserStateManager.shared
     @GestureState private var dragOffset: CGFloat = 0
-    @State private var showingImagePicker = false
     @State private var showingEditProfile = false
     @State private var showSettings = false
     @State private var isLoading = false
     @State private var showingErrorAlert = false
     @State private var errorMessage = ""
+    @State private var showStatsDetail = false
     
     // 判断是否是当前登录用户
     private var isCurrentUser: Bool {
@@ -36,108 +38,80 @@ struct UserProfileView: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                // 头部区域
-                ZStack(alignment: .top) {
-                    // 背景图片层
-                    backgroundImageView
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 300)
-                        .ignoresSafeArea(edges: .top)
-                    
-                    // 顶部按钮和用户信息层
-                    VStack(spacing: 0) {
-                        // 顶部按钮
-                        if isCurrentUser {
-                            headerView
-                                .padding(.top, 50)
+        ZStack {
+            ScrollView {
+                VStack(spacing: 0) {
+                    ZStack(alignment: .top) {
+                        backgroundImageView
+                            .scaledToFill()
+                            .frame(width: UIScreen.main.bounds.width, height: 300)
+                            .ignoresSafeArea(edges: .top)
+                        UserProfileHeaderView(
+                            user: viewModel.user ?? user,
+                            profile: viewModel.profile,
+                            status: userStatus,
+                            onFollow: { /* 关注逻辑 */ },
+                            onMessage: { /* 讯息逻辑 */ },
+                            onEditProfile: { showingEditProfile = true },
+                            onShowSettings: { showSettings = true },
+                            onShowStats: { showStatsDetail = true }
+                        )
+                        .contentShape(Rectangle())
+                    }
+                    .frame(width: UIScreen.main.bounds.width, height: 300)
+                    tabsSection
+                }
+            }
+            .ignoresSafeArea(edges: .top)
+            .background(Color.theme.background)
+            .sheet(isPresented: $showingEditProfile) {
+                EditUserProfileView(user: user)
+                    .onDisappear {
+                        Task {
+                            await refreshData()
                         }
-                        
-                        Spacer()
-                        
-                        // 用户信息
-                        userProfileInfo
-                            .padding(.bottom, 16)
                     }
-                }
-                
-                // Tab 部分
-                tabsSection
             }
-        }
-        .ignoresSafeArea(edges: .top)
-        .background(Color.theme.background)
-        .sheet(isPresented: $showingEditProfile) {
-            EditUserProfileView(user: user)
-                .onDisappear {
-                    Task {
-                        await refreshData()
-                    }
-                }
-        }
-        .sheet(isPresented: $showingImagePicker) {
-            SingleImagePicker(image: $viewModel.backgroundImage)
-        }
-        .onChange(of: viewModel.backgroundImage) { newImage in
-            if newImage != nil {
-                handleImageSelected()
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
             }
-        }
-        .sheet(isPresented: $showSettings) {
-            SettingsView()
-        }
-        .refreshable {
-            await refreshData()
-        }
-        .task {
-            await loadUserData()
-        }
-        .onChange(of: selectedTab) { newValue in
-            Task {
-                await loadFilteredContent(for: newValue, forceRefresh: true)
-            }
-        }
-        .onChange(of: viewModel.profile) { _ in
-            // profile 更新时自动刷新数据
-            Task {
+            .refreshable {
                 await refreshData()
             }
-        }
-        .alert("错误", isPresented: $showingErrorAlert) {
-            Button("确定", role: .cancel) { }
-        } message: {
-            Text(errorMessage)
-        }
-        .overlay {
-            if isLoading {
-                loadingOverlay
+            .task {
+                await loadUserData()
+            }
+            .onChange(of: selectedTab) { newValue in
+                Task {
+                    await loadFilteredContent(for: newValue, forceRefresh: true)
+                }
+            }
+            .onChange(of: viewModel.profile) { _ in
+                // profile 更新时自动刷新数据
+                Task {
+                    await refreshData()
+                }
+            }
+            .alert("错误", isPresented: $showingErrorAlert) {
+                Button("确定", role: .cancel) { }
+            } message: {
+                Text(errorMessage)
+            }
+            .overlay {
+                if isLoading {
+                    loadingOverlay
+                }
+            }
+            if showStatsDetail {
+                userStatsDetail
+                    .transition(.opacity.combined(with: .scale))
+                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: showStatsDetail)
+                    .zIndex(10)
             }
         }
     }
     
-    // MARK: - View Components
-    private var headerView: some View {
-        HStack {
-            Spacer()
-            Button(action: { showingEditProfile = true }) {
-                Image(systemName: "line.3.horizontal")
-                    .foregroundColor(.white)
-                    .font(.system(size: 18))
-                    .shadow(color: .black.opacity(0.3), radius: 2)
-            }
-            .padding(.trailing, 12)
-            
-            Button(action: { showSettings = true }) {
-                Image(systemName: "gearshape")
-                    .foregroundColor(.white)
-                    .font(.system(size: 18))
-                    .shadow(color: .black.opacity(0.3), radius: 2)
-            }
-            .padding(.trailing, 20)
-        }
-        .padding(.horizontal)
-    }
+    
     
     private var backgroundImageView: some View {
         PhotosPicker(selection: $viewModel.backgroundSelectedImage) {
@@ -148,7 +122,7 @@ struct UserProfileView: View {
                     .overlay(backgroundGradient)
             } else {
                 Rectangle()
-                    .fill(Color.theme.tertiaryBackground)
+                    .fill(Color.orange)
                     .overlay(backgroundGradient)
             }
         }
@@ -166,52 +140,67 @@ struct UserProfileView: View {
         )
     }
     
-    private var userProfileInfo: some View {
-        VStack(spacing: 8) {
-            RectProfileImageView(
-                avatarUrl: viewModel.user?.avatar ?? user.avatar,
-                size: .InProfile2
-            )
-            .frame(width: 88, height: 88)
-            .clipShape(Circle())
-            .overlay(Circle().stroke(Color.white, lineWidth: 2))
-            .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
-            
-            Text(viewModel.user?.name ?? user.name)
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(.white)
-                .shadow(color: .black.opacity(0.3), radius: 2)
-            Text(viewModel.user!.desc)
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(.white)
-                .shadow(color: .black.opacity(0.3), radius: 2)
-            userStats
-        }
-        .padding(.bottom, 16)
-    }
-    
-    private var userStats: some View {
-        HStack(spacing: 8) {
-            StatItemShortCut(count: Int(self.viewModel.profile.createdStoryNum), icon: "fossil.shell")
-            StatItemShortCut(count: Int(self.viewModel.profile.createdRoleNum), icon: "person.text.rectangle")
-            StatItemShortCut(count: Int(self.viewModel.profile.createdStoryNum), icon: "list.clipboard")
-            StatItemShortCut(count: Int(self.viewModel.profile.watchingStoryNum), icon: "person.2.fill")
-            StatItemShortCut(count: Int(self.viewModel.profile.watchingStoryNum), icon: "person.text.rectangle")
-            StatItemShortCut(count: Int(self.viewModel.profile.watchingGroupNum), icon: "bonjour")
-        }
-        .padding(.top, 4)
-    }
     
     private var userStatsDetail: some View {
-        HStack(spacing: 12) {
-            StatItem(count: Int(viewModel.profile.createdStoryNum), title: "创建了\(self.viewModel.profile.createdStoryNum)故事", icon: "fossil.shell")
-            StatItem(count: Int(viewModel.profile.createdRoleNum), title: "创建了\(self.viewModel.profile.createdRoleNum)角色", icon: "person.text.rectangle")
-            StatItem(count: Int(viewModel.profile.createdStoryNum), title: "创建了\(self.viewModel.profile.createdStoryNum)故事版", icon: "list.clipboard")
-            StatItem(count: Int(viewModel.profile.watchingStoryNum), title: "关注了\(self.viewModel.profile.watchingStoryNum)故事", icon: "person.2.fill")
-            StatItem(count: Int(viewModel.profile.watchingStoryNum), title: "关注了\(self.viewModel.profile.watchingStoryNum)角色", icon: "person.text.rectangle")
-            StatItem(count: Int(viewModel.profile.watchingGroupNum), title: "关注了\(self.viewModel.profile.watchingGroupNum)小组", icon: "bonjour")
+        ZStack {
+            Color.black.opacity(0.3).ignoresSafeArea()
+            VStack(spacing: 0) {
+                VStack(spacing: 0) {
+                    Text("创建和关注")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.black)
+                        .padding(.top, 24)
+                    VStack(spacing: 20) {
+                        StatsDetailRow(icon: "fossil.shell", iconColor: Color.blue, title: "创建了故事", value: "\(viewModel.profile.createdStoryNum)")
+                        StatsDetailRow(icon: "person.text.rectangle", iconColor: Color.purple, title: "创建了角色", value: "\(viewModel.profile.createdRoleNum)")
+                        StatsDetailRow(icon: "list.clipboard", iconColor: Color.green, title: "创建了故事版", value: "\(viewModel.profile.createdStoryNum)")
+                        StatsDetailRow(icon: "person.2.fill", iconColor: Color.orange, title: "关注了故事", value: "\(viewModel.profile.watchingStoryNum)")
+                        StatsDetailRow(icon: "person.text.rectangle", iconColor: Color.pink, title: "关注了角色", value: "\(viewModel.profile.watchingStoryNum)")
+                        StatsDetailRow(icon: "bonjour", iconColor: Color.yellow, title: "关注了小组", value: "\(viewModel.profile.watchingGroupNum)")
+                    }
+                    .padding(.vertical, 24)
+                }
+                Divider()
+                Button(action: { showStatsDetail = false }) {
+                    Text("了解")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 52)
+                        .background(Color.orange)
+                        .cornerRadius(12)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 16)
+                }
+            }
+            .frame(width: 320)
+            .background(Color.white)
+            .cornerRadius(24)
+            .shadow(color: Color.black.opacity(0.15), radius: 16, x: 0, y: 8)
         }
-        .padding(.top, 4)
+    }
+    
+    private struct StatsDetailRow: View {
+        let icon: String
+        let iconColor: Color
+        let title: String
+        let value: String
+        var body: some View {
+            HStack(spacing: 16) {
+                Image(systemName: icon)
+                    .font(.system(size: 24))
+                    .foregroundColor(iconColor)
+                    .frame(width: 32, height: 32)
+                Text(title)
+                    .font(.system(size: 16))
+                    .foregroundColor(.black)
+                Spacer()
+                Text(value)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.black)
+            }
+            .padding(.horizontal, 24)
+        }
     }
     
     private var tabsSection: some View {
@@ -342,6 +331,122 @@ struct UserProfileView: View {
                     showingErrorAlert = true
                     isLoading = false
                 }
+            }
+        }
+    }
+
+    // 头部区域子视图
+    private struct UserProfileHeaderView: View {
+        let user: User
+        let profile: UserProfile
+        let status: String
+        let onFollow: () -> Void
+        let onMessage: () -> Void
+        let onEditProfile: () -> Void
+        let onShowSettings: () -> Void
+        let onShowStats: () -> Void
+
+        var body: some View {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack{
+                    Spacer()
+                    Button(action: onEditProfile) {
+                        Image(systemName: "line.3.horizontal")
+                            .foregroundColor(.white)
+                            .font(.system(size: 18))
+                            .shadow(color: .black.opacity(0.3), radius: 2)
+                    }
+                    .padding(.trailing, 10)
+                    Button(action: onShowSettings) {
+                        Image(systemName: "gearshape")
+                            .foregroundColor(.white)
+                            .font(.system(size: 18))
+                            .shadow(color: .black.opacity(0.3), radius: 2)
+                    }
+                    .padding(.trailing, 10)
+                }
+                .padding(.top, 50)
+                HStack(alignment: .center, spacing: 16) {
+                    // 头像
+                    RectProfileImageView(
+                        avatarUrl: user.avatar,
+                        size: .InProfile2
+                    )
+                    .frame(width: 88, height: 88)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                    .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
+                    // 用户名
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(user.name)
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.3), radius: 2)
+                        if !status.isEmpty {
+                            Text(status)
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 2)
+                                .background(Color.black.opacity(0.25))
+                                .cornerRadius(8)
+                        }
+                    }
+                    Spacer()
+                }
+                .padding(.top, 50)
+                .padding(.horizontal, 20)
+                // 描述
+                if !user.desc.isEmpty {
+                    Text(user.desc)
+                        .font(.system(size: 14))
+                        .foregroundColor(.white)
+                        .shadow(color: .black.opacity(0.2), radius: 1)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
+                }
+                // 统计+按钮
+                HStack(alignment: .center) {
+                    // 统计
+                    HStack(spacing: 4) {
+                        Group {
+                            StatItemShortCut(count: Int(profile.createdStoryNum), icon: "fossil.shell")
+                            StatItemShortCut(count: Int(profile.createdRoleNum), icon: "person.text.rectangle")
+                            StatItemShortCut(count: Int(profile.createdStoryNum), icon: "list.clipboard")
+                            StatItemShortCut(count: Int(profile.watchingStoryNum), icon: "person.2.fill")
+                            StatItemShortCut(count: Int(profile.watchingStoryNum), icon: "person.text.rectangle")
+                            StatItemShortCut(count: Int(profile.watchingGroupNum), icon: "bonjour")
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            onShowStats()
+                        }
+                    }
+                    Spacer()
+                    HStack(spacing: 10) {
+                        Button(action: onFollow) {
+                            Text("关注")
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 8)
+                                .background(Color.red)
+                                .cornerRadius(18)
+                        }
+                        Button(action: onMessage) {
+                            Text("讯息")
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 8)
+                                .background(Color.blue)
+                                .cornerRadius(18)
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 32)
+                .padding(.bottom, 16)
             }
         }
     }
@@ -1306,6 +1411,16 @@ private struct RefreshKey: PreferenceKey {
     static func reduce(value: inout Bool, nextValue: () -> Bool) {
         value = value || nextValue()
     }
+}
+
+// 用户状态优先级逻辑
+private var userStatus: String {
+    // 这里可根据业务逻辑和用户选择返回一个状态
+    // 示例：优先级顺序
+    let all = ["忙碌", "勿扰", "有屏障", "AI存在中"]
+    // 假设有 user.statusList: [String]，这里只取第一个
+    // return user.statusList.first ?? ""
+    return all.first ?? ""
 }
 
 
