@@ -15,7 +15,7 @@ struct StoryView: View {
     @State private var isEditing: Bool = false
     @State public var storyId: Int64
     @State private var selectedTab: Int64 = 0
-    @State public var story: Story
+    @State public var story: Story = Story()
     
     var userId: Int64
     
@@ -44,6 +44,12 @@ struct StoryView: View {
         self.userId = userId
         self.storyId = story.storyInfo.id
         _viewModel = StateObject(wrappedValue: StoryViewModel(story: story, userId: userId))
+    }
+
+    init(storyId: Int64, userId: Int64) {
+        self.storyId = storyId
+        self.userId = userId
+        _viewModel = StateObject(wrappedValue: StoryViewModel(storyId: storyId, userId: userId))
     }
     
     var body: some View {
