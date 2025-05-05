@@ -28,7 +28,9 @@ struct MainTabView: View {
     }
     var body: some View {
         TabView (selection: $selectedItem){
-            FeedView(user: self.user)
+            NavigationStack{
+                FeedView(user: self.user)
+            }
                 .onTapGesture {
                     self.selectedItem = 1
                 }
@@ -43,7 +45,9 @@ struct MainTabView: View {
                         .foregroundColor(selectedItem == 1 ? Color.theme.primary : Color.theme.tertiaryText)
                 }
                 .tag(1)
-            GroupView(user: self.user)
+            NavigationStack{
+                GroupView(user: self.user)
+            }
                 .onTapGesture {
                     self.selectedItem = 2
                 }
@@ -58,7 +62,9 @@ struct MainTabView: View {
                         .foregroundColor(selectedItem == 2 ? Color.theme.primary : Color.theme.tertiaryText)
                 }
                 .tag(2)
-            MessageView(user: self.user)
+            NavigationStack{
+                MessageView(user: self.user)
+            }
                 .onTapGesture {
                     self.selectedItem = 3
                 }
@@ -73,7 +79,9 @@ struct MainTabView: View {
                         .foregroundColor(selectedItem == 3 ? Color.theme.primary : Color.theme.tertiaryText)
                 }
                 .tag(3)
-            UserProfileView(user: self.user)
+            NavigationStack{
+                UserProfileView(user: self.user)
+            }
                 .onTapGesture {
                     self.selectedItem = 4
                 }
