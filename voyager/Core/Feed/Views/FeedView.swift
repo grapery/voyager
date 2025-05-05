@@ -525,6 +525,35 @@ private struct CategoryTabsSection: View {
     }
 }
 
+// 下拉刷新控件
+private struct FeedViewRefreshControl: View {
+    @Binding var isRefreshing: Bool
+    var threshold: CGFloat = 120
+    let action: () async -> Void
+
+    var body: some View {
+        GeometryReader { geometry in
+            let offset = geometry.frame(in: .global).minY
+            if offset > threshold {
+                Spacer()
+                    .onAppear {
+                        guard !isRefreshing else { return }
+                        isRefreshing = true
+                        Task { await action() }
+                    }
+            }
+            HStack {
+                Spacer()
+                if isRefreshing {
+                    ProgressView()
+                }
+                Spacer()
+            }
+        }
+        .frame(height: 5)
+    }
+}
+
 // 内容列表区域
 private struct FeedContentSection: View {
     @Binding var selectedTab: FeedType
@@ -533,18 +562,14 @@ private struct FeedContentSection: View {
     @Binding var errorTitle: String
     @Binding var errorMessage: String
     @Binding var showError: Bool
-    
+
     var body: some View {
         ScrollView {
-            RefreshableScrollView(
-                isRefreshing: $isRefreshing,
-                onRefresh: {
-                    Task {
-                        await viewModel.refreshData(type: selectedTab)
-                        isRefreshing = false
-                    }
+            VStack(spacing: 0) {
+                FeedViewRefreshControl(isRefreshing: $isRefreshing, threshold: 120) {
+                    await viewModel.refreshData(type: selectedTab)
+                    isRefreshing = false
                 }
-            ) {
                 FeedItemList(
                     viewModel: viewModel,
                     selectedTab: $selectedTab,
@@ -564,7 +589,8 @@ private struct FeedItemList: View {
     @Binding var errorTitle: String
     @Binding var errorMessage: String
     @Binding var showError: Bool
-    
+    @State private var isLoadingMore = false
+
     var body: some View {
         LazyVStack(spacing: 4) {
             ForEach(viewModel.storyBoardActives, id: \.storyboard.storyBoardID) { active in
@@ -577,15 +603,23 @@ private struct FeedItemList: View {
                     showError: $showError
                 )
                 .onAppear {
-                    checkAndLoadMore(active)
+                    if active.storyboard.storyBoardID == viewModel.storyBoardActives.last?.storyboard.storyBoardID,
+                       viewModel.hasMoreData, !isLoadingMore, !viewModel.isLoading {
+                        isLoadingMore = true
+                        Task {
+                            await viewModel.loadMoreData(type: selectedTab)
+                            isLoadingMore = false
+                            print("viewModel.hasMoreData: ",viewModel.hasMoreData)
+                        }
+                    }
                 }
             }
-            
+
             if viewModel.isLoading && !viewModel.isRefreshing {
                 LoadingIndicator()
             }
-            
-            if !viewModel.hasMoreData && !viewModel.storyBoardActives.isEmpty {
+
+            if !viewModel.hasMoreData {
                 Text("没有更多数据了")
                     .font(.system(size: 14))
                     .foregroundColor(Color.theme.tertiaryText)
@@ -594,14 +628,6 @@ private struct FeedItemList: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-    }
-    
-    private func checkAndLoadMore(_ active: Common_StoryBoardActive) {
-        if active.storyboard.storyBoardID == viewModel.storyBoardActives.last?.storyboard.storyBoardID {
-            Task {
-                await viewModel.loadMoreData(type: selectedTab)
-            }
-        }
     }
 }
 

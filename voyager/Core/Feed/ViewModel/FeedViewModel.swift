@@ -132,14 +132,13 @@ class FeedViewModel: ObservableObject {
     }
     
     // 统一追加故事板数据
-    private func appendStoryBoards(_ boards: [Common_StoryBoardActive]?, _ offset: Int64?) {
+    private func appendStoryBoards(_ boards: [Common_StoryBoardActive]?) {
         if let boards = boards {
             // 防止重复数据
             let newBoards = boards.filter { newBoard in
                 !storyBoardActives.contains { $0.storyboard.storyBoardID == newBoard.storyboard.storyBoardID }
             }
             storyBoardActives.append(contentsOf: newBoards)
-            currentPage = offset ?? currentPage
             hasMoreData = boards.count >= defaultPageSize
         }
     }
@@ -179,7 +178,7 @@ class FeedViewModel: ObservableObject {
                 let (boards, offset, _, error) = await storyService.storyActiveStoryBoards(
                     userId: userId,
                     storyId: 0,
-                    offset: currentPage * defaultPageSize,
+                    offset: 0,
                     pageSize: defaultPageSize,
                     filter: ""
                 )
@@ -192,24 +191,26 @@ class FeedViewModel: ObservableObject {
                 let (boards, offset, _, error) = await storyService.userWatchRoleActiveStoryBoards(
                     userId: userId,
                     roleId: 0,
-                    offset: currentPage * defaultPageSize,
+                    offset: 0,
                     pageSize: defaultPageSize,
                     filter: ""
                 )
                 if let error = error {
                     handleError(error)
+                    isLoading = false
+                    isRefreshing = false
                     return
                 }
-                updateStoryBoards(boards, offset)
+                appendStoryBoards(boards)
             case .Groups:
                 print("not support")
             }
         } catch {
             handleError(error)
         }
-        
         isLoading = false
         isRefreshing = false
+        currentPage = 0
     }
     
     @MainActor
@@ -218,35 +219,49 @@ class FeedViewModel: ObservableObject {
         
         isLoading = true
         hasError = false
-        
+        let nextPage = currentPage + 1
         do {
             switch type {
             case .Story:
-                let (boards, offset, _, error) = await storyService.storyActiveStoryBoards(
+                let (boards, _, _, error) = await storyService.storyActiveStoryBoards(
                     userId: userId,
                     storyId: 0,
-                    offset: (currentPage + 1) ,
+                    offset: nextPage,
                     pageSize: defaultPageSize,
                     filter: ""
                 )
                 if let error = error {
                     handleError(error)
+                    isLoading = false
                     return
                 }
-                appendStoryBoards(boards, offset)
+                if let boards = boards, !boards.isEmpty {
+                    appendStoryBoards(boards)
+                    hasMoreData = boards.count >= defaultPageSize
+                    if hasMoreData { currentPage = nextPage }
+                } else {
+                    hasMoreData = false
+                }
             case .StoryRole:
-                let (boards, offset, _, error) = await storyService.userWatchRoleActiveStoryBoards(
+                let (boards, _, _, error) = await storyService.userWatchRoleActiveStoryBoards(
                     userId: userId,
                     roleId: 0,
-                    offset: (currentPage + 1) ,
+                    offset: nextPage ,
                     pageSize: defaultPageSize,
                     filter: ""
                 )
                 if let error = error {
                     handleError(error)
+                    isLoading = false
                     return
                 }
-                appendStoryBoards(boards, offset)
+                if let boards = boards, !boards.isEmpty {
+                    appendStoryBoards(boards)
+                    hasMoreData = boards.count >= defaultPageSize
+                    if hasMoreData { currentPage = nextPage }
+                } else {
+                    hasMoreData = false
+                }
             case .Groups:
                 print("not support")
             }
@@ -255,6 +270,9 @@ class FeedViewModel: ObservableObject {
         }
         
         isLoading = false
+        if hasMoreData {
+            currentPage += 1
+        }
     }
 
     func likeStoryBoard(storyId: Int64, boardId: Int64, userId: Int64) async -> Error? {
