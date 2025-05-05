@@ -665,15 +665,15 @@ struct StoryboardCell: View {
                 // 底部统计
                 HStack(spacing: 24) {
                     StatLabel(
-                        icon: "bubble.left.fill",
-                        count: Int(board.boardActive.totalCommentCount),
+                        icon: "heart.fill",
+                        count: Int(board.boardActive.totalLikeCount),
                         iconColor: Color.theme.tertiaryText,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     StatLabel(
-                        icon: "heart.fill",
-                        count: Int(board.boardActive.totalLikeCount),
+                        icon: "bubble.left.fill",
+                        count: Int(board.boardActive.totalCommentCount),
                         iconColor: Color.theme.tertiaryText,
                         countColor: Color.theme.tertiaryText
                     )
@@ -744,15 +744,15 @@ struct StoryboardActiveCell: View {
                 // 底部统计
                 HStack(spacing: 24) {
                     StatLabel(
-                        icon: "bubble.left.fill",
-                        count: Int(board.boardActive.totalCommentCount),
+                        icon: "heart.fill",
+                        count: Int(board.boardActive.totalLikeCount),
                         iconColor: Color.theme.tertiaryText,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     StatLabel(
-                        icon: "heart.fill",
-                        count: Int(board.boardActive.totalLikeCount),
+                        icon: "bubble.left.fill",
+                        count: Int(board.boardActive.totalCommentCount),
                         iconColor: Color.theme.tertiaryText,
                         countColor: Color.theme.tertiaryText
                     )
