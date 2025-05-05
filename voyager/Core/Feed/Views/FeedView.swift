@@ -1336,17 +1336,13 @@ private struct TrendingRoleCard: View {
                     .cacheMemoryOnly()
                     .fade(duration: 0.25)
                     .placeholder {
-                        Circle()
+                        Rectangle()
                             .fill(Color.theme.tertiaryBackground)
                     }
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 60, height: 60)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .overlay(
-                        Circle()
-                            .stroke(Color.theme.accent.opacity(0.3), lineWidth: 2)
-                    )
                     
                 
                 // 角色信息
