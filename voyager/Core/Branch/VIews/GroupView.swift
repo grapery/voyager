@@ -34,7 +34,7 @@ struct GroupView: View {
             }
             .onAppear {
                 Task {
-                    await viewModel.fetchMoreGroups()
+                    await viewModel.fetchGroups()
                 }
             }
             .background(Color.theme.background)

@@ -82,9 +82,6 @@ struct AllGroupsView: View {
                             }
                         }
                     }
-                    .refreshable {
-                        await refreshGroups()
-                    }
                     .tag(tab)
                 }
             }
