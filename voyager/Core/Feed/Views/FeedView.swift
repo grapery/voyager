@@ -92,6 +92,9 @@ struct FeedView: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
             .background(Color.theme.background)
+            .navigationDestination(for: Story.self) { story in
+                StoryView(story: story, userId: viewModel.user.userID)
+            }
         }
         .alert(errorTitle, isPresented: $showError) {
             Button("确定", role: .cancel) { }
@@ -808,11 +811,9 @@ private struct DiscoveryView: View {
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .background(
             // 导航链接跳转到故事页
-            NavigationLink(
-                destination: selectedStory.map { StoryView(story: $0, userId: viewModel.user.userID) },
-                isActive: $navigateToStory,
-                label: { EmptyView() }
-            )
+            NavigationLink(value: selectedStory) {
+                EmptyView()
+            }
         )
         .onAppear {
             setupInitialMessages()
@@ -1312,11 +1313,9 @@ private struct TrendingStoryCard: View {
         }
         .buttonStyle(PlainButtonStyle())
         .background(
-            NavigationLink(
-                destination: StoryView(story: story, userId: viewModel.user.userID),
-                isActive: $navigateToStory,
-                label: { EmptyView() }
-            )
+            NavigationLink(value: story) {
+                EmptyView()
+            }
         )
     }
 }

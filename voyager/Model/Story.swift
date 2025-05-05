@@ -9,7 +9,7 @@ import Foundation
 
 let defaultStory = Story(Id: -1, storyInfo: Common_Story())
 
-class Story:Identifiable{
+class Story:Identifiable,Hashable{
     var Id: Int64
     var storyInfo: Common_Story
     init(){
@@ -25,6 +25,9 @@ class Story:Identifiable{
             return true
         }
         return false
+    }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 
