@@ -12,17 +12,19 @@ class GroupViewModel: ObservableObject {
     @State public var user: User
     @Published public var groups: [BranchGroup]
     
-    @State var groupPage: Int32 = 0
-    @State var groupPageSize: Int32 = 10
-    @Published var hasMorePages: Bool = true // 添加是否有更多页的标志
+    public var groupPage: Int32 = 0
+    public var groupPageSize: Int32 = 10
+    public var hasMorePages: Bool = true // 添加是否有更多页的标志
     
     init(user: User) {
         self.user = user
         self.groups = [BranchGroup]()
+        print("GroupViewModel init")
     }
     
     // 重置分页
     func resetPagination() {
+        print("resetPagination :",groupPage,hasMorePages)
         groupPage = 0
         hasMorePages = true
         groups.removeAll()
@@ -30,8 +32,9 @@ class GroupViewModel: ObservableObject {
     
     @MainActor
     func fetchGroups() async {
-        var fetchedGroups: [BranchGroup]
-        (fetchedGroups, self.groupPage, self.groupPageSize) = await APIClient.shared.getUserCreateGroups(
+        // 用于刷新，重置 page
+        self.groupPage = 0
+        let (fetchedGroups, _, _) = await APIClient.shared.getUserCreateGroups(
             userId: user.userID,
             groupType: Common_GroupType(rawValue: 0)!,
             page: self.groupPage,
@@ -39,24 +42,26 @@ class GroupViewModel: ObservableObject {
         )
         self.groups = fetchedGroups
         self.hasMorePages = !fetchedGroups.isEmpty && fetchedGroups.count == self.groupPageSize
+        // 只在 fetchMoreGroups 里自增 groupPage
     }
     
     @MainActor
     func fetchMoreGroups() async {
         guard hasMorePages else { return }
-        
-        let nextPage = groupPage + 1
-        var fetchedGroups: [BranchGroup]
-        (fetchedGroups, self.groupPage, self.groupPageSize) = await APIClient.shared.getUserCreateGroups(
+        let nextPage = self.groupPage + 1
+        print("req params: ", nextPage, self.groupPageSize)
+        let (fetchedGroups, _, _) = await APIClient.shared.getUserCreateGroups(
             userId: user.userID,
             groupType: Common_GroupType(rawValue: 0)!,
             page: nextPage,
             size: self.groupPageSize
         )
-        print("fetchMoreGroups: \(fetchedGroups.count), page: \(self.groupPage)")
+        print("fetchMoreGroups: \(fetchedGroups.count), page: \(nextPage)")
         if !fetchedGroups.isEmpty {
             self.groups.append(contentsOf: fetchedGroups)
             self.hasMorePages = fetchedGroups.count == self.groupPageSize
+            self.groupPage = nextPage // 只在成功时自增
+            print("fetchMoreGroups page: \(self.groupPage)")
         } else {
             self.hasMorePages = false
         }

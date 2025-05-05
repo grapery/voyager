@@ -98,11 +98,6 @@ struct GroupViewListView: View {
                                     }
                                 }
                         }
-                        
-                        if isLoadingMore {
-                            ProgressView()
-                                .padding()
-                        }
                     }
                     .padding(.top, 8)
                 }
