@@ -1341,13 +1341,15 @@ extension APIClient {
     }
     
     
-    func getUserWithRoleChatList(userId: Int64) async -> ([Common_ChatContext]?,Error?){
+    func getUserWithRoleChatList(userId: Int64,offset: Int64,pageSize: Int64) async -> ([Common_ChatContext]?,Error?){
         if globalUserToken == "" {
             return (nil,nil)
         }
         let apiClient = Common_TeamsApiClient(client: self.client!)
         let request = Common_GetUserWithRoleChatListRequest.with {
             $0.userID = userId
+            $0.offset = offset
+            $0.pageSize = pageSize
         }
         var header = Connect.Headers()
         header[GrpcGatewayCookie] = ["\(globalUserToken!)"]

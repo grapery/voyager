@@ -64,8 +64,8 @@ class ChatMessage: Identifiable,Equatable {
 
 class MessageViewModel: ObservableObject{
     @Published var userId: Int64
-    @Published var page: Int64
-    @Published var pageSize: Int64
+    public var page: Int64
+    public var pageSize: Int64
     @Published var msgCtxs =  [ChatContext]()
     init(userId: Int64, page: Int64, pageSize: Int64) {
         self.userId = userId
@@ -82,7 +82,7 @@ class MessageViewModel: ObservableObject{
         }
     }
     func fetchUserChatContext() async -> ([Common_ChatContext]?,Error?) {
-        let (msgCtxs, err) = await APIClient.shared.getUserWithRoleChatList(userId: userId)
+        let (msgCtxs, err) = await APIClient.shared.getUserWithRoleChatList(userId: userId,offset: self.page,pageSize: self.pageSize)
         if let err = err {
             print("fetchUserChatContext error: ", err)
             return (nil,err)
@@ -101,9 +101,9 @@ class MessageViewModel: ObservableObject{
     }
     
     func initUserChatContext() async {
-        let (msgCtxs, err) = await APIClient.shared.getUserWithRoleChatList(userId: userId)
+        let (msgCtxs, err) = await APIClient.shared.getUserWithRoleChatList(userId: userId,offset: self.page,pageSize: self.pageSize)
         if let err = err {
-            print("fetchUserChatContext error: ", err)
+            print("initUserChatContext error: ", err)
             return
         }
         
