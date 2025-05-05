@@ -857,6 +857,22 @@ struct ProfileRoleCell: View {
                     userId: viewModel.user?.userID ?? 0,
                     role: role
                 )
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: {
+                            // 关闭当前 NavigationStack
+                            showRoleDetail = false
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 16, weight: .medium))
+                                Text("返回")
+                                    .font(.system(size: 16))
+                            }
+                            .foregroundColor(.primary)
+                        }
+                    }
+                }
                 .transition(.asymmetric(
                     insertion: .move(edge: .trailing).combined(with: .opacity),
                     removal: .move(edge: .leading).combined(with: .opacity)

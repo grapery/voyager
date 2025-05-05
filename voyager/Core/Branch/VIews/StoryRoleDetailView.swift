@@ -121,20 +121,13 @@ struct StoryRoleDetailView: View {
     @State private var showChatView = false
     @State private var showPosterView = false
     
-    // MARK: - Environment
-    @Environment(\.dismiss) private var dismiss
-    
     // MARK: - Initialization
     init(roleId: Int64, userId: Int64, role: StoryRole? = nil) {
         self.roleId = roleId
         self.userId = userId
         self._viewModel = StateObject(wrappedValue: StoryRoleModel(userId: userId))
-        
-        // 如果提供了初始角色数据，使用它
         if let role = role {
             self._role = State(initialValue: role)
-        } else {
-            print("No initial role data, will fetch from API")
         }
     }
     
@@ -143,35 +136,39 @@ struct StoryRoleDetailView: View {
         NavigationStack {
             ZStack {
                 ScrollView {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 10) { // 更紧凑
                         if let role = role {
-                            // Profile Section
                             RoleProfileSection(
                                 role: role,
                                 onAvatarTap: { showImagePicker = true }
                             )
-                            
-                            // Action Buttons
+                            .padding(.top, 8)
+                            .padding(.bottom, 2)
+
                             RoleActionButtons(
                                 onChat: { showChatView = true },
                                 onPoster: { showPosterView = true }
                             )
-                            .padding(.horizontal, 16)
-                            
-                            // Stats Card
+                            .padding(.horizontal, 8)
+                            .padding(.bottom, 2)
+
                             RoleStatsCard(role: role)
-                                .padding(.horizontal, 16)
+                                .padding(.horizontal, 8)
+                                .padding(.bottom, 2)
+
                             CustomTabSelector(selectedTab: $selectedTab)
-                                .padding(.horizontal, 16)
-                            // Tab Content
+                                .padding(.horizontal, 8)
+                                .padding(.bottom, 2)
+
                             RoleTabContent(
                                 role: role,
                                 viewModel: viewModel,
                                 selectedTab: $selectedTab
                             )
+                            .padding(.horizontal, 8)
                         }
                     }
-                    .padding(.vertical, 16)
+                    .padding(.vertical, 8)
                 }
                 
                 if isLoading {
@@ -181,21 +178,12 @@ struct StoryRoleDetailView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarItems(leading: Button(action: { dismiss() }) {
-                HStack(spacing: 4) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .medium))
-                }
-                .foregroundColor(Color.theme.primaryText)
-            })
             .sheet(isPresented: $showImagePicker) {
                 SingleImagePicker(image: $selectedImage)
             }
             .onChange(of: selectedImage) { newImage in
                 if let image = newImage {
-                    Task {
-                        await uploadAvatar(image)
-                    }
+                    Task { await uploadAvatar(image) }
                 }
             }
             .alert(isPresented: $showError) {
@@ -217,9 +205,7 @@ struct StoryRoleDetailView: View {
             }
         }
         .task {
-            // 只有在没有初始角色数据时才从API获取
             if role == nil {
-                print("Starting loadRoleDetails task")
                 await loadRoleDetails()
             }
         }
