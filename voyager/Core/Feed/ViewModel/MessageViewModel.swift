@@ -73,6 +73,9 @@ class MessageViewModel: ObservableObject{
     
     init(userId: Int64) {
         self.userId = userId
+        Task{
+            await self.fetchInitialChatContexts()
+        }
     }
     
     // 重置分页

@@ -92,16 +92,6 @@ struct MessageView: View {
                                         .background(Color.theme.divider)
                                 }
                             }
-                            .onAppear {
-                                // 只有最后一个cell出现时才加载更多
-                                print("viewModel.hasMorePages ,loading ",viewModel.hasMorePages,viewModel.isLoading)
-                                if msgCtx.id == viewModel.msgCtxs.last?.id && viewModel.hasMorePages && !viewModel.isLoading {
-                                    Task {
-                                        print("at finnal load more", msgCtx.id)
-                                        await viewModel.fetchMoreChatContexts()
-                                    }
-                                }
-                            }
                         }
                         
                         // 加载更多指示器
@@ -133,11 +123,6 @@ struct MessageView: View {
                 }
             } message: {
                 Text("确定要删除这个聊天会话吗？此操作无法撤销。")
-            }
-            .onAppear {
-                Task {
-                    await viewModel.fetchInitialChatContexts()
-                }
             }
             .background(Color.theme.background)
         }
