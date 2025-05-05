@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import SwiftData
 
-class ChatContext: Identifiable {
+class ChatContext: Identifiable ,Equatable{
     var id: Int64
     var chatinfo: Common_ChatContext
     init(id: Int64, chatinfo: Common_ChatContext) {
@@ -64,23 +64,69 @@ class ChatMessage: Identifiable,Equatable {
 
 class MessageViewModel: ObservableObject{
     @Published var userId: Int64
-    public var page: Int64
-    public var pageSize: Int64
-    @Published var msgCtxs =  [ChatContext]()
-    init(userId: Int64, page: Int64, pageSize: Int64) {
+    @Published var msgCtxs = [ChatContext]()
+    public var isLoading = false
+    public var hasMorePages = true
+    
+    public var page: Int64 = 0
+    public var pageSize: Int64 = 10
+    
+    init(userId: Int64) {
         self.userId = userId
-        if page == 0 {
-            self.page = 0
-        }else{
-            self.page = page
-        }
+    }
+    
+    // 重置分页
+    func resetPagination() {
+        page = 0
+        hasMorePages = true
+        msgCtxs.removeAll()
+    }
+    
+    // 首次加载
+    @MainActor
+    func fetchInitialChatContexts() async {
+        resetPagination()
+        print("init load context list")
+        await fetchMoreChatContexts()
+    }
+    
+    // 加载更多
+    @MainActor
+    func fetchMoreChatContexts() async {
+        print("fetchMoreChatContexts :",isLoading,hasMorePages)
+        guard !isLoading && hasMorePages else { return }
         
-        if pageSize == 0 {
-            self.pageSize = 10
-        }else{
-            self.pageSize = pageSize
+        isLoading = true
+        defer { isLoading = false }
+        
+        let (msgCtxs, err) = await APIClient.shared.getUserWithRoleChatList(
+            userId: userId,
+            offset: page,
+            pageSize: pageSize
+        )
+        
+        if let err = err {
+            print("fetchMoreChatContexts error: ", err)
+            return
+        }
+        print("rpc resp: ",msgCtxs?.count as Any)
+        
+        if let contexts = msgCtxs {
+            let chatContexts = contexts.map { ctx in
+                ChatContext(id: ctx.chatID, chatinfo: ctx)
+            }
+            print("chatContexts :",chatContexts.count)
+            if !chatContexts.isEmpty {
+                self.msgCtxs.append(contentsOf: chatContexts)
+                self.hasMorePages = chatContexts.count == pageSize
+                self.page += 1
+            } else {
+                self.hasMorePages = false
+            }
         }
     }
+    
+    // 原有的方法保持不变
     func fetchUserChatContext() async -> ([Common_ChatContext]?,Error?) {
         let (msgCtxs, err) = await APIClient.shared.getUserWithRoleChatList(userId: userId,offset: self.page,pageSize: self.pageSize)
         if let err = err {
@@ -115,8 +161,6 @@ class MessageViewModel: ObservableObject{
         await MainActor.run {
             self.msgCtxs = chatContexts ?? []
         }
-        
-        return
     }
 }
 

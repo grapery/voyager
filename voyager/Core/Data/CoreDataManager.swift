@@ -133,15 +133,21 @@ class CoreDataManager {
     }
     
     func fetchRecentMessages(chatId: Int64, days: Int = 7) throws -> [ChatMessage] {
-        let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
-        let calendar = Calendar.current
-        let startTimeStamp = Int64(calendar.date(byAdding: .day, value: -days, to: Date())?.timeIntervalSince1970 ?? 0)
+        do{
+            let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
+            let calendar = Calendar.current
+            let startTimeStamp = Int64(calendar.date(byAdding: .day, value: -days, to: Date())?.timeIntervalSince1970 ?? 0)
+            
+            fetchRequest.predicate = NSPredicate(format: "chatId == %lld AND timestamp >= %lld", chatId, 0)
+            //fetchRequest.sortDescriptors = [NSSortDescriptor(key: "ctime", ascending: true)]
+            
+            let results = try context.fetch(fetchRequest)
+            return results.map { convertToMessage($0) }
+        }catch{
+            print("fetchRecentMessages have error")
+            return [ChatMessage] ()
+        }
         
-        fetchRequest.predicate = NSPredicate(format: "chatId == %lld AND timestamp >= %lld", chatId, 0)
-        //fetchRequest.sortDescriptors = [NSSortDescriptor(key: "ctime", ascending: true)]
-        
-        let results = try context.fetch(fetchRequest)
-        return results.map { convertToMessage($0) }
     }
     
     func fetchRecentMessagesByTimestamp(chatId: Int64, timestamp: Int64) throws -> [ChatMessage] {

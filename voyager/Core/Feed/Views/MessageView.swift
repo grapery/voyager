@@ -29,14 +29,14 @@ struct MessageView: View {
     @ObservedObject var viewModel: MessageViewModel
     @State private var searchText = ""
     @State private var isSearching = false
-    @State var user: User?
+    @State private var isLoadingMore = false
+    @State private var messageToDelete: Int64?
     @State private var showingDeleteAlert = false
-    @State private var messageToDelete: Int64? = nil
-    @State private var isLoading = false
+    @State private var user: User?
     
     init(user: User? = nil) {
         self.user = user
-        self.viewModel = MessageViewModel(userId: user!.userID, page: 0, pageSize: 10)
+        self.viewModel = MessageViewModel(userId: user!.userID)
     }
     
     var body: some View {
@@ -92,6 +92,31 @@ struct MessageView: View {
                                         .background(Color.theme.divider)
                                 }
                             }
+                            .onAppear {
+                                // 只有最后一个cell出现时才加载更多
+                                print("viewModel.hasMorePages ,loading ",viewModel.hasMorePages,viewModel.isLoading)
+                                if msgCtx.id == viewModel.msgCtxs.last?.id && viewModel.hasMorePages && !viewModel.isLoading {
+                                    Task {
+                                        print("at finnal load more", msgCtx.id)
+                                        await viewModel.fetchMoreChatContexts()
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // 加载更多指示器
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .padding()
+                                .font(.system(size: 12))
+                        }
+                        
+                        // 没有更多数据提示
+                        if !viewModel.hasMorePages && !viewModel.msgCtxs.isEmpty {
+                            Text("没有更多聊天会话了")
+                                .foregroundColor(.gray)
+                                .padding()
+                                .font(.system(size: 12))
                         }
                     }
                 }
@@ -107,45 +132,16 @@ struct MessageView: View {
                     }
                 }
             } message: {
-                Text("确定要删除这条消息吗？此操作无法撤销。")
+                Text("确定要删除这个聊天会话吗？此操作无法撤销。")
             }
             .onAppear {
                 Task {
-                    isLoading = true
-                    await self.viewModel.initUserChatContext()
-                    isLoading = false
+                    await viewModel.fetchInitialChatContexts()
                 }
             }
             .background(Color.theme.background)
-            .overlay {
-                if isLoading {
-                    loadingOverlay
-                }
-            }
         }
         .background(Color.theme.background)
-    }
-    
-    private var loadingOverlay: some View {
-        ZStack {
-            Color.black.opacity(0.3)
-                .edgesIgnoringSafeArea(.all)
-            
-            VStack(spacing: 12) {
-                ProgressView()
-                    .scaleEffect(1.2)
-                    .tint(.white)
-                
-                Text("正在获取消息...")
-                    .font(.system(size: 14))
-                    .foregroundColor(.white)
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 20)
-            .background(Color.theme.secondary.opacity(0.8))
-            .cornerRadius(12)
-        }
-        .transition(.opacity.animation(.easeInOut(duration: 0.2)))
     }
 }
 
