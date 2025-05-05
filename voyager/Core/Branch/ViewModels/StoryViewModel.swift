@@ -43,6 +43,16 @@ class StoryViewModel: ObservableObject {
         self.err = nil
     }
     
+    init(storyId:Int64,userId:Int64){
+        self.storyId = storyId
+        self.userId = userId
+        self.branchId = storyId
+        self.err = nil
+        Task{
+            await fetchStory(withBoards:false)
+        }
+    }
+    
     private let apiClient = APIClient.shared
     
     func fetchStory(withBoards:Bool) async {
