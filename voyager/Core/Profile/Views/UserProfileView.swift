@@ -27,6 +27,8 @@ struct UserProfileView: View {
     @State private var showingBackgroundPicker = false
     @State private var showingBackgroundUpdateToast = false
     @State private var backgroundUpdateToastMessage = ""
+    @State private var isShowingStoryView = false
+    @State private var selectedStoryId: Int64? = nil
     
     // 判断是否是当前登录用户
     private var isCurrentUser: Bool {
@@ -101,6 +103,47 @@ struct UserProfileView: View {
             .overlay {
                 if isLoading {
                     loadingOverlay
+                }
+            }
+            .fullScreenCover(isPresented: $isShowingStoryView) {
+                if let storyId = selectedStoryId {
+                    NavigationStack {
+                        StoryView(storyId: storyId, userId: user.userID)
+                            .toolbar {
+                                ToolbarItem(placement: .navigationBarLeading) {
+                                    Button(action: { isShowingStoryView = false }) {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "chevron.left")
+                                            Text("返回")
+                                        }
+                                    }
+                                }
+                                ToolbarItem(placement: .navigationBarTrailing) {
+                                    Button(action: { isShowingStoryView = false }) {
+                                        Image(systemName: "xmark")
+                                    }
+                                }
+                            }
+                    }
+                }else{
+                    NavigationStack {
+                        Text("Voyager")
+                            .toolbar {
+                                ToolbarItem(placement: .navigationBarLeading) {
+                                    Button(action: { isShowingStoryView = false }) {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "chevron.left")
+                                            Text("返回")
+                                        }
+                                    }
+                                }
+                                ToolbarItem(placement: .navigationBarTrailing) {
+                                    Button(action: { isShowingStoryView = false }) {
+                                        Image(systemName: "xmark")
+                                    }
+                                }
+                            }
+                    }
                 }
             }
             if showStatsDetail {
@@ -268,10 +311,15 @@ struct UserProfileView: View {
             )
             
             TabView(selection: $selectedTab) {
-                StoriesTab(viewModel: viewModel, isLoading: isLoading)
-                    .tag(0)
-                    .id("stories")
-                    .frame(maxWidth: .infinity)
+                StoriesTab(
+                    viewModel: viewModel,
+                    isLoading: isLoading,
+                    selectedStoryId: $selectedStoryId,
+                    isShowingStoryView: $isShowingStoryView
+                )
+                .tag(0)
+                .id("stories")
+                .frame(maxWidth: .infinity)
                 
                 RolesTab(viewModel: viewModel, isLoading: isLoading)
                     .tag(1)
@@ -500,7 +548,7 @@ struct UserProfileView: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 18)
                                 .padding(.vertical, 8)
-                                .background(Color.red)
+                                .background(Color.blue)
                                 .cornerRadius(18)
                         }
                         Button(action: onMessage) {
@@ -565,15 +613,18 @@ struct CustomSegmentedControl: View {
 struct StoryboardCell: View {
     let board: StoryBoardActive
     var sceneMediaContents: [SceneMediaContent]
-    init(board: StoryBoardActive) {
+    @Binding var selectedStoryId: Int64?
+    @Binding var isShowingStoryView: Bool
+    init(board: StoryBoardActive, selectedStoryId: Binding<Int64?>, isShowingStoryView: Binding<Bool>) {
         self.board = board
+        self._selectedStoryId = selectedStoryId
+        self._isShowingStoryView = isShowingStoryView
         var tempSceneContents: [SceneMediaContent] = []
         let scenes = board.boardActive.storyboard.sences.list
         for scene in scenes {
             let genResult = scene.genResult
             if let data = genResult.data(using: .utf8),
                let urls = try? JSONDecoder().decode([String].self, from: data) {
-                
                 var mediaItems: [MediaItem] = []
                 for urlString in urls {
                     if let url = URL(string: urlString) {
@@ -586,7 +637,6 @@ struct StoryboardCell: View {
                         mediaItems.append(item)
                     }
                 }
-                
                 let sceneContent = SceneMediaContent(
                     id: UUID().uuidString,
                     sceneTitle: scene.content,
@@ -690,9 +740,16 @@ struct StoryboardCell: View {
                         Text("故事：")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(Color.theme.primaryText)
-                        Text(board.boardActive.summary.storyTitle)
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(Color.theme.primaryText)
+                        Button(action: {
+                            selectedStoryId = board.boardActive.summary.storyID
+                            Task { @MainActor in
+                                isShowingStoryView = true
+                            }
+                        }) {
+                            Text(board.boardActive.summary.storyTitle)
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(Color.theme.primaryText)
+                        }
                     }
                 }
                 .padding(.top, 4)
@@ -986,7 +1043,9 @@ private struct SegmentedControlView: View {
 private struct StoriesTab: View {
     @ObservedObject var viewModel: ProfileViewModel
     let isLoading: Bool
-    
+    @Binding var selectedStoryId: Int64?
+    @Binding var isShowingStoryView: Bool
+
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
@@ -1000,9 +1059,12 @@ private struct StoriesTab: View {
                 } else {
                     ForEach(viewModel.storyboards) { board in
                         VStack(spacing: 0) {
-                            StoryboardCell(board: board)
-                                .frame(maxWidth: .infinity)
-                            
+                            StoryboardCell(
+                                board: board,
+                                selectedStoryId: $selectedStoryId,
+                                isShowingStoryView: $isShowingStoryView
+                            )
+                            .frame(maxWidth: .infinity)
                             if board.id != viewModel.storyboards.last?.id {
                                 Divider()
                                     .background(Color.theme.divider)
