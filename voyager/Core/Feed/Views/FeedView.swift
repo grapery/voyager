@@ -1313,9 +1313,13 @@ private struct TrendingStoryCard: View {
         }
         .buttonStyle(PlainButtonStyle())
         .background(
-            NavigationLink(value: story) {
-                EmptyView()
-            }
+            NavigationLink(
+                destination: StoryView(story: story, userId: viewModel.user.userID)
+                .transition(.opacity)
+                .animation(.easeInOut, value: navigateToStory),
+                isActive: $navigateToStory,
+                label: { EmptyView() }
+            )
         )
     }
 }
