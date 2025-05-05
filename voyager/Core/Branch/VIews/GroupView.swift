@@ -156,7 +156,7 @@ struct GroupViewListItemView: View {
                 
                 if group.id != viewModel.groups.last?.id {
                     Divider()
-                        .background(Color.theme.divider)
+                        .background(Color.gray)
                 }
             }
         }

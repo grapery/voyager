@@ -54,19 +54,20 @@ struct FeedView: View {
                     }
                 }
                 .padding(.horizontal)
-                .padding(.vertical, 12)
+                .padding(.vertical, 6)
+                
+                // 搜索栏
+                CommonSearchBar(
+                    searchText: $searchText,
+                    placeholder: "发生了什么......."
+                )
+                .padding(.vertical, 4)
                 
                 // 页面内容
                 TabView(selection: $selectedIndex) {
                     // 动态页面
                     ScrollView {
                         VStack {
-                            // 搜索栏
-                            CommonSearchBar(
-                                searchText: $searchText,
-                                placeholder: "发生了什么......."
-                            )
-                            
                             // 动态内容
                             LatestUpdatesView(
                                 searchText: $searchText,
@@ -417,7 +418,7 @@ private struct FeedItemCard: View {
             }
             .padding(.horizontal)
         }
-        .padding(.vertical, 12)
+        .padding(.vertical, 6)
         .background(Color.theme.secondaryBackground)
         .cornerRadius(12)
         .overlay(
@@ -519,7 +520,7 @@ private struct CategoryTabsSection: View {
     
     var body: some View {
         CategoryTabs(selectedTab: $selectedTab, tabs: tabs)
-            .padding(.vertical, 8)
+            .padding(.vertical, 4)
             .onChange(of: selectedTab) { newTab in
                 Task {
                     await viewModel.refreshData(type: newTab)
@@ -644,8 +645,8 @@ private struct FeedItemList: View {
                     .padding()
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
     }
 }
 

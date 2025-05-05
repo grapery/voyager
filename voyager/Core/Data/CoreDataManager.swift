@@ -119,55 +119,62 @@ class CoreDataManager {
         }
     }
     
-    func fetchMessages(chatId: Int64, limit: Int = 100) throws -> [ChatMessage] {
+    func fetchMessages(chatId: Int64, limit: Int = 100) -> [ChatMessage] {
         let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
         fetchRequest.predicate = NSPredicate(format: "chatId == %lld", chatId)
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: true)]
         fetchRequest.fetchLimit = limit
-        
-        let results = try context.fetch(fetchRequest)
-        return results.map { managedObject in
-            // 将 CoreData 对象转换为 ChatMessage
-            convertToMessage(managedObject)
+        do {
+            let results = try context.fetch(fetchRequest)
+            return results.map { managedObject in
+                // 将 CoreData 对象转换为 ChatMessage
+                convertToMessage(managedObject)
+            }
+        } catch {
+            print("fetchMessages error: \(error)")
+            return []
         }
     }
     
-    func fetchRecentMessages(chatId: Int64, days: Int = 7) throws -> [ChatMessage] {
+    func fetchRecentMessages(chatId: Int64, days: Int = 7) -> [ChatMessage] {
         do{
             let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
             let calendar = Calendar.current
             let startTimeStamp = Int64(calendar.date(byAdding: .day, value: -days, to: Date())?.timeIntervalSince1970 ?? 0)
-            
             fetchRequest.predicate = NSPredicate(format: "chatId == %lld AND timestamp >= %lld", chatId, 0)
-            //fetchRequest.sortDescriptors = [NSSortDescriptor(key: "ctime", ascending: true)]
-            
             let results = try context.fetch(fetchRequest)
             return results.map { convertToMessage($0) }
         }catch{
-            print("fetchRecentMessages have error")
+            print("fetchRecentMessages have error: \(error)")
             return [ChatMessage] ()
         }
-        
     }
     
-    func fetchRecentMessagesByTimestamp(chatId: Int64, timestamp: Int64) throws -> [ChatMessage] {
+    func fetchRecentMessagesByTimestamp(chatId: Int64, timestamp: Int64) -> [ChatMessage] {
         let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
-        
         fetchRequest.predicate = NSPredicate(format: "chatId == %lld AND timestamp <= %lld", chatId, timestamp)
         fetchRequest.fetchLimit = 20
-        //fetchRequest.sortDescriptors = [NSSortDescriptor(key: "ctime", ascending: true)]
-        
-        let results = try context.fetch(fetchRequest)
-        return results.map { convertToMessage($0) }
+        do {
+            let results = try context.fetch(fetchRequest)
+            return results.map { convertToMessage($0) }
+        } catch {
+            print("fetchRecentMessagesByTimestamp error: \(error)")
+            return []
+        }
     }
     
-    func fetchRecentMessageTimestamp(chatId: Int64)throws -> Int64{
+    func fetchRecentMessageTimestamp(chatId: Int64) -> Int64 {
         let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: messageEntityName)
         fetchRequest.predicate = NSPredicate(format: "chatId == %lld", chatId)
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
         fetchRequest.fetchLimit = 1
-        let results = try context.fetch(fetchRequest)
-        return results.first?.value(forKey: "timestamp") as? Int64 ?? 0
+        do {
+            let results = try context.fetch(fetchRequest)
+            return results.first?.value(forKey: "timestamp") as? Int64 ?? 0
+        } catch {
+            print("fetchRecentMessageTimestamp error: \(error)")
+            return 0
+        }
     }
     
     func cleanupOldMessages(olderThan days: Int = 7) throws {

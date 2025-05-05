@@ -341,11 +341,15 @@ struct StoryListContentView: View {
         LazyVStack(spacing: 0) {
             if let selectedId = selectedStoryId {
                 ForEach(stories.filter { $0.storyInfo.id == selectedId }) { story in
-                    StoryUpdateCell(story: story, userId: userId, viewModel: viewModel)
+                    VStack{
+                        StoryUpdateCell(story: story, userId: userId, viewModel: viewModel)
+                    }
                 }
             } else {
                 ForEach(stories.sorted { $0.storyInfo.ctime > $1.storyInfo.ctime }) { story in
-                    StoryUpdateCell(story: story, userId: userId, viewModel: viewModel)
+                    VStack{
+                        StoryUpdateCell(story: story, userId: userId, viewModel: viewModel)
+                    }
                 }
             }
         }
@@ -695,6 +699,8 @@ struct StoryUpdateCell: View {
                         .clipped()
                         .cornerRadius(8)
                 }
+                Divider()
+                    .background(Color.theme.divider)
             }
             .padding(16)
             .background(Color(UIColor.systemBackground))

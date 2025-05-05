@@ -851,62 +851,63 @@ struct ProfileRoleCell: View {
     @State private var showRoleDetail = false
     
     var body: some View {
-        Button(action: { showRoleDetail = true }) {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .top, spacing: 16) {
-                    // 角色头像
-                    KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
-                        .cacheMemoryOnly()
-                        .fade(duration: 0.25)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 88, height: 88)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.theme.border, lineWidth: 0.5)
-                        )
-                    
-                    // 角色信息
-                    VStack(alignment: .leading, spacing: 8) {
-                        // 角色名称
-                        Text(role.role.characterName)
-                            .font(.system(size: 17, weight: .medium))
-                            .foregroundColor(Color.theme.primaryText)
-                        
-                        // 故事信息
-                        HStack(spacing: 4) {
-                            Text("参与故事：")
-                                .font(.system(size: 14))
-                                .foregroundColor(Color.theme.tertiaryText)
-                            Text("\(role.role.storyID)")
-                                .font(.system(size: 14))
-                                .foregroundColor(Color.theme.accent)
-                                .lineLimit(1)
-                        }
-                        
-                        // 角色描述
-                        Text(role.role.characterDescription)
-                            .font(.system(size: 14))
-                            .foregroundColor(Color.theme.secondaryText)
-                            .lineLimit(2)
-                        
-                        // 创建时间
-                        Text("创建于：\(formatDate(timestamp: role.role.ctime))")
-                            .font(.system(size: 12))
-                            .foregroundColor(Color.theme.tertiaryText)
-                    }
-                    .padding(.top, 4)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 16)
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .top, spacing: 16) {
+                // 角色头像
+                KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 88, height: 88)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.theme.border, lineWidth: 0.5)
+                    )
                 
-                Divider()
-                    .background(Color.theme.divider)
+                // 角色信息
+                VStack(alignment: .leading, spacing: 8) {
+                    // 角色名称
+                    Text(role.role.characterName)
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundColor(Color.theme.primaryText)
+                    
+                    // 故事信息
+                    HStack(spacing: 4) {
+                        Text("参与故事：")
+                            .font(.system(size: 14))
+                            .foregroundColor(Color.theme.tertiaryText)
+                        Text("\(role.role.storyID)")
+                            .font(.system(size: 14))
+                            .foregroundColor(Color.theme.accent)
+                            .lineLimit(1)
+                    }
+                    
+                    // 角色描述
+                    Text(role.role.characterDescription)
+                        .font(.system(size: 14))
+                        .foregroundColor(Color.theme.secondaryText)
+                        .lineLimit(2)
+                    
+                    // 创建时间
+                    Text("创建于：\(formatDate(timestamp: role.role.ctime))")
+                        .font(.system(size: 12))
+                        .foregroundColor(Color.theme.tertiaryText)
+                }
+                .padding(.top, 4)
             }
-            .background(Color.theme.background)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
+            
+            Divider()
+                .background(Color.theme.divider)
         }
-        .buttonStyle(PlainButtonStyle())
+        .background(Color.theme.background)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            showRoleDetail = true
+        }
         .fullScreenCover(isPresented: $showRoleDetail) {
             NavigationStack {
                 StoryRoleDetailView(
