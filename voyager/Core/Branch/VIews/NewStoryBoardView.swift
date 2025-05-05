@@ -1224,6 +1224,8 @@ struct StoryContentView: View {
     var onGenerate: () -> Void = {}
     var onSave: () -> Void = {}
     
+    @State private var textEditorHeight: CGFloat = 120
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -1233,39 +1235,65 @@ struct StoryContentView: View {
                         .foregroundColor(.primary)
                     
                     VStack(alignment: .leading, spacing: 12) {
-                        // Title section
-                        VStack(alignment: .leading, spacing: 8) {
+                        // Title section (可编辑)
+                        VStack(alignment: .leading, spacing: 4) {
                             Text("标题")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
-                            Text(generatedStoryTitle)
-                                .font(.title2)
-                                .padding(.vertical, 4)
+                            TextField("请输入标题", text: $generatedStoryTitle)
+                                .font(.title3)
+                                .foregroundColor(.primary)
+                                .padding(.vertical, 2)
+                                .textFieldStyle(PlainTextFieldStyle())
                         }
                         
                         Divider()
                         
-                        // Content section
-                        VStack(alignment: .leading, spacing: 8) {
+                        // Content section (可编辑, 高度自适应)
+                        VStack(alignment: .leading, spacing: 4) {
                             Text("内容")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
-                            Text(generatedStoryContent)
-                                .font(.body)
+                            ZStack(alignment: .topLeading) {
+                                // 隐藏的 Text 用于测量高度
+                                Text(generatedStoryContent.isEmpty ? "请输入内容..." : generatedStoryContent)
+                                    .font(.body)
+                                    .foregroundColor(.clear)
+                                    .padding(8)
+                                    .background(GeometryReader { geo in
+                                        Color.clear
+                                            .onAppear {
+                                                textEditorHeight = max(120, geo.size.height + 24)
+                                            }
+                                            .onChange(of: generatedStoryContent) { _ in
+                                                textEditorHeight = max(120, geo.size.height + 24)
+                                            }
+                                    })
+                                TextEditor(text: $generatedStoryContent)
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+                                    .frame(height: textEditorHeight)
+                                    .background(Color.clear)
+                                    .cornerRadius(6)
+                                    .padding(.vertical, 0)
+                            }
                         }
                         
-                        // 添加按钮组
-                        HStack(spacing: 16) {
+                        Divider() // 按钮区域和内容区域分割线
+                        
+                        // 按钮组
+                        HStack(spacing: 12) {
                             Button(action: onGenerate) {
                                 HStack {
                                     Image(systemName: "wand.and.stars")
                                     Text("生成场景")
                                 }
+                                .font(.callout)
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
+                                .padding(.vertical, 8)
                                 .background(Color.blue)
                                 .foregroundColor(.white)
-                                .cornerRadius(8)
+                                .cornerRadius(6)
                             }
                             
                             Button(action: onSave) {
@@ -1273,18 +1301,19 @@ struct StoryContentView: View {
                                     Image(systemName: "square.and.arrow.down")
                                     Text("保存")
                                 }
+                                .font(.callout)
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
+                                .padding(.vertical, 8)
                                 .background(Color.green)
                                 .foregroundColor(.white)
-                                .cornerRadius(8)
+                                .cornerRadius(6)
                             }
                         }
-                        .padding(.top, 16)
+                        .padding(.top, 0)
                     }
                     .padding()
                     .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .cornerRadius(10)
                 } else {
                     // Empty state
                     VStack(spacing: 16) {
