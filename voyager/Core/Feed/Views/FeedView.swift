@@ -1341,12 +1341,13 @@ private struct TrendingRoleCard: View {
                     }
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 70, height: 70)
-                    .clipShape(Circle())
+                    .frame(width: 60, height: 60)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                     .overlay(
                         Circle()
                             .stroke(Color.theme.accent.opacity(0.3), lineWidth: 2)
                     )
+                    
                 
                 // 角色信息
                 VStack(alignment: .leading, spacing: 6) {
