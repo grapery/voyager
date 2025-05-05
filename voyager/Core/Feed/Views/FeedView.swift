@@ -602,16 +602,31 @@ private struct FeedItemList: View {
                     errorMessage: $errorMessage,
                     showError: $showError
                 )
-                .onAppear {
-                    if active.storyboard.storyBoardID == viewModel.storyBoardActives.last?.storyboard.storyBoardID,
-                       viewModel.hasMoreData, !isLoadingMore, !viewModel.isLoading {
+            }
+
+            // 加载更多按钮
+            if viewModel.hasMoreData && !viewModel.isLoading {
+                Button(action: {
+                    if !isLoadingMore {
                         isLoadingMore = true
                         Task {
                             await viewModel.loadMoreData(type: selectedTab)
                             isLoadingMore = false
-                            print("viewModel.hasMoreData: ",viewModel.hasMoreData)
                         }
                     }
+                }) {
+                    HStack {
+                        Spacer()
+                        if isLoadingMore {
+                            ProgressView()
+                                .padding(.trailing, 8)
+                        }
+                        Text(isLoadingMore ? "加载中..." : "加载更多")
+                            .font(.system(size: 12))
+                            .foregroundColor(Color.gray)
+                        Spacer()
+                    }
+                    .padding(.vertical, 12)
                 }
             }
 
@@ -619,10 +634,10 @@ private struct FeedItemList: View {
                 LoadingIndicator()
             }
 
-            if !viewModel.hasMoreData {
-                Text("没有更多数据了")
-                    .font(.system(size: 14))
-                    .foregroundColor(Color.theme.tertiaryText)
+            if !viewModel.hasMoreData && !viewModel.storyBoardActives.isEmpty {
+                Text("没有更多了")
+                    .font(.system(size: 12))
+                    .foregroundColor(Color.gray)
                     .padding()
             }
         }
@@ -1420,3 +1435,4 @@ private struct TrendingRoleCard: View {
         )
     }
 }
+

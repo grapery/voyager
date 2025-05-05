@@ -82,24 +82,53 @@ struct StoryboardSummary: View {
     }
 }
 
-// MARK: - Loading and Error View
-private struct LoadingErrorView: View {
-    let isLoading: Bool
-    let errorMessage: String
+
+import SwiftUI
+
+struct LoadingErrorView: View {
+    var isLoading: Bool
+    var errorMessage: String
     let onRetry: () -> Void
-    
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
-        if isLoading {
-            ProgressView()
-        } else if !errorMessage.isEmpty {
-            VStack {
-                Text(errorMessage)
-                    .foregroundColor(.red)
-                Button("重试", action: onRetry)
+        ZStack(alignment: .topLeading) {
+            VStack(spacing: 16) {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                    Text("加载中...")
+                        .foregroundColor(.secondary)
+                } else {
+                    if !errorMessage.isEmpty {
+                        VStack {
+                            Text(errorMessage)
+                                .foregroundColor(.red)
+                            Button("重试", action: onRetry)
+                        }
+                    }
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(.systemBackground).opacity(0.95))
+            .cornerRadius(16)
+            .padding()
+
+            // 左上角关闭按钮
+            Button(action: {
+                dismiss()
+            }) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.gray)
+                    .padding(12)
+            }
+            .padding(.top, 8)
+            .padding(.leading, 8)
         }
     }
 }
+
 
 // MARK: - Main Content View
 private struct StoryboardContentView: View {

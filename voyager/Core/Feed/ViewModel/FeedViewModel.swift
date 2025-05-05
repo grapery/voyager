@@ -88,7 +88,6 @@ class FeedViewModel: ObservableObject {
             return
         }
         self.storys = result.0
-        self.currentPage = result.1
         return
     }
     
@@ -100,7 +99,6 @@ class FeedViewModel: ObservableObject {
             return
         }
         self.roles = result.0
-        self.currentPage = result.1
         return
     }
 
@@ -112,7 +110,6 @@ class FeedViewModel: ObservableObject {
             return
         }
         self.boards = result.0!
-        self.currentPage = result.1
         return
     }
     
@@ -123,10 +120,9 @@ class FeedViewModel: ObservableObject {
     }
     
     // 统一更新故事板数据
-    private func updateStoryBoards(_ boards: [Common_StoryBoardActive]?, _ offset: Int64?) {
+    private func updateStoryBoards(_ boards: [Common_StoryBoardActive]?) {
         if let boards = boards {
             storyBoardActives = boards
-            currentPage = offset ?? 0
             hasMoreData = boards.count >= defaultPageSize
         }
     }
@@ -139,7 +135,6 @@ class FeedViewModel: ObservableObject {
                 !storyBoardActives.contains { $0.storyboard.storyBoardID == newBoard.storyboard.storyBoardID }
             }
             storyBoardActives.append(contentsOf: newBoards)
-            hasMoreData = boards.count >= defaultPageSize
         }
     }
     
@@ -186,7 +181,7 @@ class FeedViewModel: ObservableObject {
                     handleError(error)
                     return
                 }
-                updateStoryBoards(boards, offset)
+                updateStoryBoards(boards)
             case .StoryRole:
                 let (boards, offset, _, error) = await storyService.userWatchRoleActiveStoryBoards(
                     userId: userId,
@@ -210,7 +205,10 @@ class FeedViewModel: ObservableObject {
         }
         isLoading = false
         isRefreshing = false
-        currentPage = 0
+        if hasMoreData {
+            currentPage = currentPage + 1
+        }
+        
     }
     
     @MainActor
@@ -219,7 +217,8 @@ class FeedViewModel: ObservableObject {
         
         isLoading = true
         hasError = false
-        let nextPage = currentPage + 1
+        print()
+        let nextPage = currentPage
         do {
             switch type {
             case .Story:
@@ -238,7 +237,7 @@ class FeedViewModel: ObservableObject {
                 if let boards = boards, !boards.isEmpty {
                     appendStoryBoards(boards)
                     hasMoreData = boards.count >= defaultPageSize
-                    if hasMoreData { currentPage = nextPage }
+                    if hasMoreData { currentPage = currentPage + 1 }
                 } else {
                     hasMoreData = false
                 }
@@ -258,7 +257,7 @@ class FeedViewModel: ObservableObject {
                 if let boards = boards, !boards.isEmpty {
                     appendStoryBoards(boards)
                     hasMoreData = boards.count >= defaultPageSize
-                    if hasMoreData { currentPage = nextPage }
+                    if hasMoreData { currentPage = currentPage + 1 }
                 } else {
                     hasMoreData = false
                 }
@@ -270,9 +269,6 @@ class FeedViewModel: ObservableObject {
         }
         
         isLoading = false
-        if hasMoreData {
-            currentPage += 1
-        }
     }
 
     func likeStoryBoard(storyId: Int64, boardId: Int64, userId: Int64) async -> Error? {
