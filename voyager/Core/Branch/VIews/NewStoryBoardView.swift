@@ -594,7 +594,6 @@ extension NewStoryBoardView {
     
     private func generateStoryboardPrompt() async {
         do {
-            print("故事板的提示词: ",self.storyId,self.boardId,)
             let ret = await self.viewModel.genStoryBoardPrompt(
                 storyId: self.storyId, 
                 boardId: self.boardId, 
@@ -605,7 +604,6 @@ extension NewStoryBoardView {
             }else{
                 showNotification(message: "故事图片提示词生成成功", type: .success)
             }
-            print("generateStoryboardPrompt ")
         } catch {
             handleError(error)
         }
@@ -1067,6 +1065,7 @@ struct SceneGenerationView: View {
                             TextEditor(text: scene.content)
                                 .font(.body)
                                 .frame(minHeight: 80, maxHeight: 180)
+                                .multilineTextAlignment(.leading)
                                 .background(Color(.systemGray6))
                                 .cornerRadius(8)
                                 .overlay(
@@ -1090,6 +1089,7 @@ struct SceneGenerationView: View {
                             TextEditor(text: scene.imagePrompt)
                                 .font(.body)
                                 .frame(minHeight: 40, maxHeight: 120)
+                                .multilineTextAlignment(.leading)
                                 .background(Color(.systemGray6))
                                 .cornerRadius(8)
                                 .overlay(
@@ -1218,6 +1218,7 @@ struct StoryContentView: View {
                                     .font(.body)
                                     .foregroundColor(.primary)
                                     .frame(height: textEditorHeight)
+                                    .multilineTextAlignment(.leading)
                                     .background(Color.clear)
                                     .cornerRadius(6)
                                     .padding(.vertical, 0)
@@ -1636,6 +1637,11 @@ struct RoleSelectionView: View {
             .navigationTitle("选择角色")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("取消") {
+                        dismiss()
+                    }
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("完成") {
                         dismiss()
@@ -1670,27 +1676,40 @@ struct RoleSelectionRow: View {
     
     var body: some View {
         Button(action: onSelect) {
-            HStack {
+            HStack(alignment: .top, spacing: 16) {
+                // 9:16长方形头像
                 KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
-                        .cacheMemoryOnly()
-                        .fade(duration: 0.25)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
+                    .resizable()
+                    .aspectRatio(9.0/16.0, contentMode: .fill)
+                    .frame(width: 54, height: 96)
+                    .clipped()
+                    .cornerRadius(8)
                 
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(role.role.characterName)
                         .font(.headline)
+                        .foregroundColor(.primary)
+                    Spacer().frame(height: 2)
                     Text(role.role.characterDescription)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .lineLimit(2)
                 }
+                .padding(.vertical, 8)
                 
                 Spacer()
                 
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 22))
                     .foregroundColor(isSelected ? .blue : .gray)
+                    .padding(.top, 4)
             }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.theme.secondaryBackground)
+            .cornerRadius(12)
         }
         .buttonStyle(PlainButtonStyle())
     }

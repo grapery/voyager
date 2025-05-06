@@ -39,5 +39,7 @@ struct GroupProfileView: View{
         Button("Cancel") {
             presentationMode.wrappedValue.dismiss()
         }
+
     }
 }
+
