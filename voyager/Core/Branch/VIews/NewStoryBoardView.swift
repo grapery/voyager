@@ -106,14 +106,12 @@ struct NewStoryBoardView: View {
                             onGenerate: {
                                 // 处理生成逻辑
                                 Task{
-                                    print("StoryInputView onGenerate")
                                     await generateStory()
                                 }
                             },
                             onSave: {
                                 // 处理保存逻辑
                                 Task{
-                                    print("StoryInputView onSave")
                                     await saveStoryBoard()
                                 }
                             }
@@ -128,14 +126,12 @@ struct NewStoryBoardView: View {
                             onGenerate: {
                                 // 处理生成逻辑
                                 Task{
-                                    print("StoryContentView generateStoryboardPrompt")
                                     await generateStoryboardPrompt()
                                 }
                             },
                             onSave: {
                                 // 处理保存逻辑
                                 Task{
-                                    print("StoryContentView apply all sences")
                                     await ApplyAllsences()
                                 }
                             }
@@ -861,6 +857,7 @@ struct StoryPublishView: View {
                         }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.top, 16)
             }
             .padding()
