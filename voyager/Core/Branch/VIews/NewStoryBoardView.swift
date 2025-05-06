@@ -76,9 +76,9 @@ struct NewStoryBoardView: View {
     @State private var errorMessage: String = ""
 
     @Binding var isPresented: Bool
+    let boardTitle: String
 
     var body: some View {
-        NavigationView {
             VStack(spacing: 0) {
                 StepNavigationView(
                     currentStep: TimelineStep.allCases.firstIndex(of: currentStep) ?? 0,
@@ -206,10 +206,6 @@ struct NewStoryBoardView: View {
                 .padding(.vertical, 4)
                 .background(Color(.systemBackground))
             }
-        }
-        .navigationViewStyle(.stack)
-        .background(Color(.systemBackground))
-        .edgesIgnoringSafeArea(.bottom)
     }
 
     private var canGoBack: Bool {
@@ -1310,7 +1306,6 @@ struct StoryInputView: View {
             .padding(20)
         }
         .background(Color(.systemBackground))
-        .ignoresSafeArea(.keyboard)
         .sheet(isPresented: $isShowingRoleSelection) {
             RoleSelectionView(
                 viewModel: viewModel,

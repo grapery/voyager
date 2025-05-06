@@ -269,43 +269,44 @@ struct StoryBoardCellView: View {
                 viewModel: viewModel
             )
         }
-        .sheet(isPresented: $showNewStoryBoard) {
-            NavigationView {
-                VStack(spacing: 0) {
-                    ZStack {
-                        // 背景色
-                        Color.theme.tertiaryBackground
-                            .ignoresSafeArea(edges: .top)
-                        // 居中 title
-                        Text(board.boardActive.summary.storyTitle)
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(Color.theme.primaryText)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                        // 左上角关闭按钮
-                        HStack {
-                            Button(action: {
-                                showNewStoryBoard = false
-                            }) {
-                                Image(systemName: "xmark")
-                                    .foregroundColor(Color.theme.primaryText)
-                                    .font(.system(size: 22, weight: .medium))
-                                    .frame(width: 44, height: 44, alignment: .center)
+        .fullScreenCover(isPresented: $showNewStoryBoard) {
+            NavigationStack {
+                NewStoryBoardView(
+                    userId: userId,
+                    storyId: storyId,
+                    boardId: board.boardActive.storyboard.storyBoardID,
+                    prevBoardId: board.boardActive.storyboard.storyBoardID,
+                    viewModel: viewModel,
+                    roles: [],
+                    isPresented: $showNewStoryBoard,
+                    boardTitle: board.boardActive.summary.storyTitle
+                )
+                .navigationTitle(board.boardActive.summary.storyTitle)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: {
+                            showNewStoryBoard = false
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 16, weight: .medium))
+                                Text("返回")
+                                    .font(.system(size: 16))
                             }
-                            Spacer()
+                            .foregroundColor(.primary)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .frame(height: 48)
-                    
-                    NewStoryBoardView(
-                        userId: userId,
-                        storyId: storyId,
-                        boardId: board.boardActive.storyboard.storyBoardID,
-                        prevBoardId: board.boardActive.storyboard.storyBoardID,
-                        viewModel: viewModel,
-                        roles: [],
-                        isPresented: $showNewStoryBoard
-                    )
+                }
+            }
+            .transition(.asymmetric(
+                insertion: .move(edge: .trailing).combined(with: .opacity),
+                removal: .move(edge: .leading).combined(with: .opacity)
+            ))
+            .animation(.spring(response: 0.3, dampingFraction: 0.8), value: showNewStoryBoard)
+            .onDisappear {
+                Task {
+                    //await refreshGroupData()
                 }
             }
         }

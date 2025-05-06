@@ -225,8 +225,7 @@ struct StoryView: View {
             }
         }
         .background(Color(.systemBackground))
-        .sheet(isPresented: $isShowingNewStoryBoard) {
-            NavigationView {
+        .fullScreenCover(isPresented: $isShowingNewStoryBoard) {
                 NewStoryBoardView(
                     userId: userId,
                     storyId: storyId,
@@ -234,9 +233,37 @@ struct StoryView: View {
                     prevBoardId: 0,
                     viewModel: viewModel,
                     roles: [StoryRole](),
-                    isPresented: $isShowingNewStoryBoard
+                    isPresented: $isShowingNewStoryBoard,
+                    boardTitle: "故事的开始"
                 )
-            }
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: {
+                            // 关闭当前 NavigationStack
+                            isShowingNewStoryBoard = false
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 16, weight: .medium))
+                                Text("返回")
+                                    .font(.system(size: 16))
+                            }
+                            .foregroundColor(.primary)
+                        }
+                    }
+                }
+                .navigationTitle("新的故事板")
+                .transition(.asymmetric(
+                    insertion: .move(edge: .trailing).combined(with: .opacity),
+                    removal: .move(edge: .leading).combined(with: .opacity)
+                ))
+                .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isShowingNewStoryBoard)
+                .onDisappear {
+                    Task {
+                        //await refreshGroupData()
+                    }
+                }
+            
         }
     }
     
