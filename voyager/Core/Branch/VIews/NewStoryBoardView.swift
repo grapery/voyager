@@ -156,13 +156,13 @@ struct NewStoryBoardView: View {
                     
                     Group{
                         StoryPublishView(
-                        viewModel: viewModel,
-                        onSaveOnly:{
-                        // 仅保存
-                        },
-                        onPublish: {
-                            // 发布
-                        }
+                            viewModel: viewModel,
+                            onSaveOnly:{
+                            // 仅保存
+                            },
+                            onPublish: {
+                                // 发布
+                            }
                         )
                     }
                     .tag(TimelineStep.narrate)
@@ -1089,16 +1089,6 @@ struct SceneGenerationView: View {
                         Text("参与人物（用逗号分隔）")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
-                        // 如需可编辑，解开下方注释
-                        // TextField("请输入参与人物", text: scene.charactersString)
-                        //     .font(.body)
-                        //     .padding(8)
-                        //     .background(Color(.systemGray6))
-                        //     .cornerRadius(8)
-                        //     .overlay(
-                        //         RoundedRectangle(cornerRadius: 8)
-                        //             .stroke(Color.theme.border, lineWidth: 1)
-                        //     )
                     }
 
                     // 图片提示词
@@ -1173,146 +1163,6 @@ private struct EmptyStateView: View {
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
-// 拆分出场景列表视图
-private struct SceneListView: View {
-    let scenes: [StoryBoardSence]
-    let onGenerateImage: (Int) async -> Void
-    let moreSenseDetail: (Int) async -> Void
-    
-    var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 20) {
-                // 修改 ForEach 的实现，使用索引作为唯一标识
-                ForEach(0..<scenes.count, id: \.self) { index in
-                    NewSceneItemView(
-                        scene: scenes[index],
-                        index: index,
-                        onGenerateImage: onGenerateImage,
-                        moreDetail: moreSenseDetail
-                    )
-                }
-            }
-            .padding()
-        }
-    }
-}
-
-// 拆分出单个场景项视图
-private struct NewSceneItemView: View {
-    let scene: StoryBoardSence
-    let index: Int
-    let onGenerateImage: (Int) async -> Void
-    let moreDetail: (Int) async -> Void
-    
-    var body: some View {
-        VStack(spacing: 12) {
-            SceneCard(scene: scene)
-            
-            HStack(spacing: 12) {
-                ActionButton(
-                    title: "场景渲染",
-                    icon: "hand.draw",
-                    color: .green
-                ) {
-                    Task {
-                        await moreDetail(Int(scene.senceId))
-                    }
-                }
-                Spacer()
-                ActionButton(
-                    title: "生成图片",
-                    icon: "photo.fill",
-                    color: .green
-                ) {
-                    Task {
-                        await onGenerateImage(Int(scene.senceId))
-                    }
-                }
-                Spacer()
-            }
-            .padding(.horizontal)
-        }
-        .padding(.horizontal)
-    }
-}
-
-struct SceneCard: View {
-    let scene: StoryBoardSence
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Scene header
-            HStack {
-                Text("场景 \(scene.senceIndex)")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.primary)
-                Spacer()
-            }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 12)
-            .background(Color.blue.opacity(0.1))
-            .cornerRadius(8)
-            
-            // Content sections
-            VStack(alignment: .leading, spacing: 16) {
-                contentSection("场景故事", content: scene.content)
-                characterSection("参与人物", characters: scene.characters)
-                contentSection("图片提示词", content: scene.imagePrompt)
-            }
-            if !scene.imageUrl.isEmpty{
-                VStack(alignment: .leading, spacing: 16){
-                    KFImage(URL(string: convertImagetoSenceImage(url: scene.imageUrl, scene: .preview)))
-                        .cacheMemoryOnly()
-                        .fade(duration: 0.25)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                }
-                .cornerRadius(8)
-            }
-            
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
-                .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
-        )
-    }
-    
-    private func contentSection(_ title: String, content: String) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.secondary)
-            
-            Text(content)
-                .font(.system(size: 15))
-                .foregroundColor(.primary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(12)
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
-        }
-    }
-    
-    private func characterSection(_ title: String, characters: [Common_Character]) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.secondary)
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(characters, id: \.id) { character in
-                        CharacterButton(character: character)
-                    }
-                }
-                .padding(.horizontal, 4)
-            }
-        }
     }
 }
 

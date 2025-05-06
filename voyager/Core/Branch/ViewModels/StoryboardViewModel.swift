@@ -15,6 +15,7 @@ class StoryBoardSence{
     var imagePrompt: String
     var senceId: Int64
     var imageUrl: String
+    var referencaImage = UIImage()
     
     init(index: Int, content: String, characters: [Common_Character], imagePrompt: String) {
         self.senceIndex = index
