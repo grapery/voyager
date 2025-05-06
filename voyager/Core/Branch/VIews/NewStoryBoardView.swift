@@ -1032,31 +1032,131 @@ struct SceneGenerationView: View {
     let onGenerateImage: (Int) async -> Void
     let onGenerateAllImage: () async -> Void
     let moreSenseDetail: (Int) async -> Void
+
+    @State private var selectedSceneIndex: Int = 0
     
     var body: some View {
-        VStack(spacing: 16) {
-            // 顶部生成按钮
-            ActionButton(
-                title: "生成所有场景图片",
-                icon: "photo.fill",
-                color: .green
-            ) {
-                Task {
-                    await onGenerateAllImage()
+        VStack(spacing: 0) {
+            // Tab栏
+            if !viewModel.storyScenes.isEmpty {
+                HStack(spacing: 0) {
+                    ForEach(0..<viewModel.storyScenes.count, id: \.self) { idx in
+                        Button(action: { selectedSceneIndex = idx }) {
+                            VStack(spacing: 4) {
+                                Text("场景\(idx + 1)")
+                                    .font(.system(size: 16, weight: selectedSceneIndex == idx ? .semibold : .regular))
+                                    .foregroundColor(selectedSceneIndex == idx ? Color.theme.primaryText : Color.theme.tertiaryText)
+                                    .frame(maxWidth: .infinity)
+                                Rectangle()
+                                    .fill(selectedSceneIndex == idx ? Color.blue : Color.clear)
+                                    .frame(height: 2)
+                                    .padding(.horizontal, 8)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
                 }
+                .padding(.horizontal, 5)
+                .padding(.top, 8)
+                .background(Color(.systemBackground))
             }
-            .padding(.horizontal)
-            
-            // 场景列表
-            if viewModel.storyScenes.isEmpty {
-                EmptyStateView()
-            } else {
-                SceneListView(
-                    scenes: viewModel.storyScenes,
-                    onGenerateImage: onGenerateImage,
-                    moreSenseDetail: moreSenseDetail
-                )
+
+            // Tab与内容区间距
+            Spacer().frame(height: 5)
+
+            // 当前场景编辑区
+            if viewModel.storyScenes.indices.contains(selectedSceneIndex) {
+                let scene = $viewModel.storyScenes[selectedSceneIndex]
+                VStack(alignment: .leading, spacing: 16) {
+                    // 场景故事
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("场景故事")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        TextEditor(text: scene.content)
+                            .font(.body)
+                            .frame(minHeight: 80, maxHeight: 180)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.theme.border, lineWidth: 1)
+                            )
+                    }
+
+                    // 参与人物
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("参与人物（用逗号分隔）")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        // 如需可编辑，解开下方注释
+                        // TextField("请输入参与人物", text: scene.charactersString)
+                        //     .font(.body)
+                        //     .padding(8)
+                        //     .background(Color(.systemGray6))
+                        //     .cornerRadius(8)
+                        //     .overlay(
+                        //         RoundedRectangle(cornerRadius: 8)
+                        //             .stroke(Color.theme.border, lineWidth: 1)
+                        //     )
+                    }
+
+                    // 图片提示词
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("图片提示词")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        TextEditor(text: scene.imagePrompt)
+                            .font(.body)
+                            .frame(minHeight: 40, maxHeight: 120)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.theme.border, lineWidth: 1)
+                            )
+                    }
+
+                    Divider().padding(.vertical, 8)
+                    // 按钮组居中
+                    HStack(spacing: 16) {
+                        ActionButton(
+                            title: "场景渲染",
+                            icon: "hand.draw",
+                            color: .green
+                        ) {
+                            Task { await moreSenseDetail(selectedSceneIndex) }
+                        }
+                        ActionButton(
+                            title: "生成图片",
+                            icon: "photo.fill",
+                            color: .blue
+                        ) {
+                            Task { await onGenerateImage(selectedSceneIndex) }
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 8)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 16)
             }
+
+            Spacer().frame(height: 8)
+
+            // 生成所有场景图片按钮
+            HStack {
+                Spacer()
+                ActionButton(
+                    title: "生成所有场景图片",
+                    icon: "photo.fill",
+                    color: .green
+                ) {
+                    Task { await onGenerateAllImage() }
+                }
+                Spacer()
+            }
+            .padding(.vertical, 12)
         }
     }
 }
