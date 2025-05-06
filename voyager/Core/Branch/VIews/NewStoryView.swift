@@ -19,11 +19,9 @@ struct NewStoryView: View {
     @State private var origin: String = ""
     @State private var isAIGen: Bool = false
     @State private var storyDescription: String = ""
-    @State private var refImages: [UIImage]?
     @State private var negativePrompt: String = ""
     @State private var background: String = ""
     
-    @State private var showImagePicker: Bool = false
     @State var groupId: Int64
     
     init(groupId: Int64, userId: Int64) {
@@ -38,57 +36,61 @@ struct NewStoryView: View {
     var body: some View {
         ZStack {
             Color.theme.background.ignoresSafeArea()
-            
-            ScrollView {
-                VStack(spacing: 20) {
-                    Text("创建新故事")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(Color.theme.primaryText)
-                        .padding(.top, 50)
-                    
-                    VStack(spacing: 15) {
-                        customTextField(title: "标题", text: $title)
-                        customTextField(title: "简短描述", text: $shortDesc)
-                        customTextEditor(title: "故事内容", text: $origin)
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        Text("创建新故事")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color.theme.primaryText)
+                            .padding(.top, 50)
                         
-                        Toggle("使用AI生成", isOn: $isAIGen)
-                            .padding(.horizontal, 30)
-                            .tint(Color.theme.accent)
-                        
-                        customTextField(title: "故事描述", text: $storyDescription)
-                        customTextField(title: "负面提示", text: $negativePrompt)
-                        customTextField(title: "背景", text: $background)
-                        
-                        Button(action: {
-                            showImagePicker = true
-                        }) {
-                            Text(refImages?.isEmpty ?? true ? "添加参考图片" : "更改参考图片")
-                                .font(.headline)
-                                .foregroundColor(Color.theme.buttonText)
-                                .frame(width: 330, height: 50)
-                                .background(Color.theme.accent)
-                                .cornerRadius(14)
+                        VStack(spacing: 15) {
+                            customTextField(title: "标题", text: $title)
+                            customTextField(title: "简短描述", text: $shortDesc)
+                            customTextEditor(title: "故事内容", text: $origin)
+                            
+                            Toggle("使用AI生成", isOn: $isAIGen)
+                                .padding(.horizontal, 30)
+                                .tint(Color.theme.accent)
+                            
+                            if isAIGen {
+                                customTextField(title: "故事描述", text: $storyDescription)
+                                customTextField(title: "负面提示", text: $negativePrompt)
+                                customTextField(title: "背景", text: $background)
+                            }
                         }
-                        .padding(.horizontal, 30)
-                        
-                        if let images = refImages, !images.isEmpty {
-                            imageGrid(images: images)
-                        }
+                        Spacer(minLength: 20)
                     }
-                    
+                }
+                Divider()
+                HStack{
                     Button(action: createStory) {
-                        Text("创建故事")
+                        Text("创建")
                             .font(.headline)
                             .foregroundColor(Color.theme.buttonText)
-                            .frame(width: 330, height: 50)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 48)
                             .background(Color.theme.primary)
-                            .cornerRadius(14)
+                            .cornerRadius(12)
+                            .padding(.horizontal, 40)
                     }
-                    .padding(.top, 20)
-                    .padding(.horizontal, 30)
-                    
-                    Spacer()
+                    .padding(.vertical, 12)
+                    .background(Color.theme.background)
+                    Button(action: {
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Text("取消")
+                            .font(.headline)
+                            .foregroundColor(Color.theme.buttonText)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 48)
+                            .background(Color.theme.primary)
+                            .cornerRadius(12)
+                            .padding(.horizontal, 40)
+                    }
+                    .padding(.vertical, 12)
+                    .background(Color.theme.background)
                 }
             }
         }
@@ -99,17 +101,6 @@ struct NewStoryView: View {
                 dismissButton: .default(Text("确定"))
             )
         }
-        .sheet(isPresented: $showImagePicker) {
-            ImagePicker(image: $refImages)
-        }
-        .navigationBarItems(leading: cancelButton)
-    }
-    
-    private var cancelButton: some View {
-        Button("取消") {
-            presentationMode.wrappedValue.dismiss()
-        }
-        .foregroundColor(Color.theme.accent)
     }
     
     private func customTextField(title: String, text: Binding<String>) -> some View {
@@ -147,40 +138,6 @@ struct NewStoryView: View {
                 )
                 .padding(.horizontal, 30)
         }
-    }
-    
-    private func imageGrid(images: [UIImage]) -> some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-            ForEach(images.prefix(4).enumerated().map({$0}), id: \.element) { index, image in
-                if index == 3 && images.count > 4 {
-                    ZStack {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(height: 100)
-                            .clipped()
-                            .cornerRadius(10)
-                        Color.theme.primaryText.opacity(0.6)
-                        Text("+\(images.count - 3)")
-                            .foregroundColor(Color.theme.buttonText)
-                            .font(.title2)
-                    }
-                } else {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: 100)
-                        .clipped()
-                        .cornerRadius(10)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.theme.border, lineWidth: 0.5)
-                        )
-                }
-            }
-        }
-        .frame(height: 220)
-        .padding(.horizontal, 30)
     }
     
     private func createStory() {

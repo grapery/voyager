@@ -423,13 +423,36 @@ struct GroupDetailView: View {
                 }
                 .background(Color.theme.background)
                 .navigationBarHidden(true)
-                .sheet(isPresented: $showNewStoryView) {
-                    NewStoryView(groupId: group!.info.groupID, userId: user.userID)
+                .fullScreenCover(isPresented: $showNewStoryView) {
+                    NavigationStack {
+                        NewStoryView(groupId: group!.info.groupID, userId: user.userID)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button(action: {
+                                    // 关闭当前 NavigationStack
+                                    showNewStoryView = false
+                                }) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "chevron.left")
+                                            .font(.system(size: 16, weight: .medium))
+                                        Text("返回")
+                                            .font(.system(size: 16))
+                                    }
+                                    .foregroundColor(.primary)
+                                }
+                            }
+                        }
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        ))
+                        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: showNewStoryView)
                         .onDisappear {
                             Task {
                                 await refreshGroupData()
                             }
                         }
+                    }
                 }
                 .sheet(isPresented: $showUpdateGroupView) {
                     UpdateGroupView(group: group!, userId: user.userID)
