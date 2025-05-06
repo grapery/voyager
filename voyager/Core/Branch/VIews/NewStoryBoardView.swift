@@ -76,7 +76,6 @@ struct NewStoryBoardView: View {
     @State private var errorMessage: String = ""
 
     @Binding var isPresented: Bool
-    let boardTitle: String
 
     var body: some View {
             VStack(spacing: 0) {

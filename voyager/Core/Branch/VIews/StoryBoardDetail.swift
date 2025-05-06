@@ -279,7 +279,6 @@ struct StoryBoardCellView: View {
                     viewModel: viewModel,
                     roles: [],
                     isPresented: $showNewStoryBoard,
-                    boardTitle: board.boardActive.summary.storyTitle
                 )
                 .navigationTitle(board.boardActive.summary.storyTitle)
                 .navigationBarTitleDisplayMode(.inline)

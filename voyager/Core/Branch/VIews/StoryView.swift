@@ -226,6 +226,7 @@ struct StoryView: View {
         }
         .background(Color(.systemBackground))
         .fullScreenCover(isPresented: $isShowingNewStoryBoard) {
+            NavigationStack{
                 NewStoryBoardView(
                     userId: userId,
                     storyId: storyId,
@@ -234,7 +235,6 @@ struct StoryView: View {
                     viewModel: viewModel,
                     roles: [StoryRole](),
                     isPresented: $isShowingNewStoryBoard,
-                    boardTitle: "故事的开始"
                 )
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
@@ -252,7 +252,8 @@ struct StoryView: View {
                         }
                     }
                 }
-                .navigationTitle("新的故事板")
+                .navigationTitle("故事的开始")
+                .navigationBarTitleDisplayMode(.inline)
                 .transition(.asymmetric(
                     insertion: .move(edge: .trailing).combined(with: .opacity),
                     removal: .move(edge: .leading).combined(with: .opacity)
@@ -263,6 +264,7 @@ struct StoryView: View {
                         //await refreshGroupData()
                     }
                 }
+            }
             
         }
     }
