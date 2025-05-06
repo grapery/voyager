@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import SwiftUI
+import Combine
 
 let defaultStory = Story(Id: -1, storyInfo: Common_Story())
 
@@ -79,5 +81,38 @@ class StoryBoardActive: Identifiable {
             return true
         }
         return false
+    }
+}
+
+class StoryBoardSence{
+    var senceIndex: Int
+    var content: String
+    var characters: [Common_Character]
+    var imagePrompt: String
+    var senceId: Int64
+    var imageUrl: String
+    var referencaImage = UIImage()
+    
+    init(index: Int, content: String, characters: [Common_Character], imagePrompt: String) {
+        self.senceIndex = index
+        self.content = content
+        self.characters = characters
+        self.imagePrompt = imagePrompt
+        self.senceId = 0
+        self.imageUrl = ""
+    }
+    
+    // 从API响应数据创建场景
+    static func fromResponse(_ data: Common_DetailScene, index: Int) -> StoryBoardSence? {
+        let content = data.content
+        let characters = data.characters
+        let imagePrompt = data.imagePrompt
+        
+        return StoryBoardSence(
+            index: index,
+            content: content,
+            characters: characters,
+            imagePrompt: imagePrompt
+        )
     }
 }
