@@ -406,10 +406,12 @@ struct NewStoryBoardView: View {
                     // 参与人物
                     characterSection("参与人物", characters: scene.characters)
                         .tag(1)
-                    
+                    // 场景参考图
+                    RefImageSection(title: "场景参考图",sceneIndex: index)
+                        .tag(2)
                     // 图片提示词
                     contentSection("图片提示词", content: scene.imagePrompt)
-                        .tag(2)
+                        .tag(3)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .frame(height: 150)
@@ -458,11 +460,8 @@ struct NewStoryBoardView: View {
             }
         }
         // 场景参考图片
-        private func RefImageSection(_ title: String, content: String, sceneIndex: Int) -> some View {
+        private func RefImageSection(title: String, sceneIndex: Int) -> some View {
             VStack(alignment: .leading, spacing: 8) {
-                Text(title)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(Color.theme.secondaryText)
                 
                 SceneReferenceImageView(
                     title: title,
@@ -476,15 +475,6 @@ struct NewStoryBoardView: View {
                     )
                 )
                 
-                ScrollView {
-                    Text(content)
-                        .font(.system(size: 15))
-                        .foregroundColor(Color.theme.primaryText)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(12)
-                        .background(Color.theme.background)
-                        .cornerRadius(8)
-                }
             }
             .padding(.horizontal, 4)
         }
