@@ -829,19 +829,11 @@ struct StoryPublishView: View {
     @State private var isPublishing = false
     @State private var showAlert = false
     @State private var alertMessage = ""
-    @State private var selectedSceneIndex: Int = 0 // 新增：当前选中场景索引
-    
+    @State private var selectedSceneIndex: Int = 0
+
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 25) {
-                // 故事标题
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("")
-                        .font(.headline)
-                    Text("")
-                        .font(.title2)
-                        .padding(.horizontal)
-                }
+            VStack(alignment: .leading, spacing: 12) {
                 // Tab栏
                 if !viewModel.storyScenes.isEmpty {
                     HStack(spacing: 0) {
@@ -850,7 +842,7 @@ struct StoryPublishView: View {
                                 VStack(spacing: 4) {
                                     Text("场景\(idx + 1)")
                                         .font(.system(size: 16, weight: selectedSceneIndex == idx ? .semibold : .regular))
-                                        .foregroundColor(selectedSceneIndex == idx ? Color.theme.primaryText : Color.theme.tertiaryText)
+                                        .foregroundColor(.black)
                                         .frame(maxWidth: .infinity)
                                     Rectangle()
                                         .fill(selectedSceneIndex == idx ? Color.blue : Color.clear)
@@ -865,12 +857,7 @@ struct StoryPublishView: View {
                     .padding(.top, 8)
                     .background(Color(.systemBackground))
                 }
-                // 当前选中场景卡片
-                if !viewModel.storyScenes.isEmpty, viewModel.storyScenes.indices.contains(selectedSceneIndex) {
-                    ScenePreviewCard(scene: viewModel.storyScenes[selectedSceneIndex])
-                } else {
-                    EmptyStateView()
-                }
+
                 // 操作按钮
                 HStack(spacing: 16) {
                     ActionButton(
@@ -878,25 +865,28 @@ struct StoryPublishView: View {
                         icon: "square.and.arrow.down",
                         color: .blue
                     ) {
-                        Task {
-                            await handleSave()
-                        }
+                        Task { await handleSave() }
                     }
-                    
                     ActionButton(
                         title: "发布故事",
                         icon: "paperplane.fill",
                         color: .green
                     ) {
-                        Task {
-                            await handlePublish()
-                        }
+                        Task { await handlePublish() }
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.top, 16)
+                .padding(.top, 4)
+
+                // 当前选中场景卡片
+                if !viewModel.storyScenes.isEmpty, viewModel.storyScenes.indices.contains(selectedSceneIndex) {
+                    ScenePreviewCard(scene: viewModel.storyScenes[selectedSceneIndex])
+                } else {
+                    EmptyStateView()
+                }
             }
-            .padding()
+            .padding(.horizontal, 12)
+            .padding(.top, 8)
         }
         .alert("提示", isPresented: $showAlert) {
             Button("确定", role: .cancel) {}
@@ -933,23 +923,12 @@ struct StoryPublishView: View {
     }
 }
 
-// 场景预览卡片
+// 场景预览卡片（去除“场景 x”标题，字体黑色）
 private struct ScenePreviewCard: View {
     let scene: StoryBoardSence
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            // 场景标题
-            HStack {
-                Text("场景 \(scene.senceIndex)")
-                    .font(.headline)
-                Spacer()
-            }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 12)
-            .background(Color.blue.opacity(0.1))
-            .cornerRadius(8)
-            
             // 场景图片
             if let url = URL(string: scene.imageUrl) {
                 AsyncImage(url: url) { image in
@@ -982,7 +961,7 @@ private struct ScenePreviewCard: View {
     }
 }
 
-// 修改 InfoSection 组件
+// InfoSection 字体黑色
 private struct InfoSection: View {
     let title: String
     let content: String
@@ -998,10 +977,8 @@ private struct InfoSection: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
-            
+                .foregroundColor(.black)
             if let characters = characters {
-                // 角色按钮列表
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         ForEach(characters, id: \.id) { character in
@@ -1011,9 +988,9 @@ private struct InfoSection: View {
                     .padding(.horizontal, 4)
                 }
             } else {
-                // 普通文本内容
                 Text(content)
                     .font(.body)
+                    .foregroundColor(.black)
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color(.systemGray6))
