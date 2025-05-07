@@ -16,6 +16,7 @@ struct GroupHeaderView: View {
     @Binding var viewModel: GroupDetailViewModel
     @Binding var showNewStoryView: Bool
     let onBack: () -> Void
+    //let onDetail: () -> Void
     let onSettings: () -> Void
     
     var body: some View {
@@ -50,15 +51,26 @@ struct GroupHeaderView: View {
                             .background(Color.theme.secondary.opacity(0.3))
                             .clipShape(Circle())
                     }
-                    
                     Spacer()
                     
-                    Button(action: onSettings) {
-                        Image(systemName: "gearshape")
-                            .foregroundColor(.white)
-                            .frame(width: 24, height: 24)
-                            .background(Color.theme.secondary.opacity(0.3))
-                            .clipShape(Circle())
+                    HStack{
+//                        Spacer()
+//                        Button(action: onDetail) {
+//                            Image(systemName: "sllipsis")
+//                                .foregroundColor(.white)
+//                                .frame(width: 24, height: 24)
+//                                .background(Color.theme.secondary.opacity(0.3))
+//                                .clipShape(Circle())
+//                        }
+                        Spacer()
+                        Button(action: onSettings) {
+                            Image(systemName: "gearshape")
+                                .foregroundColor(.white)
+                                .frame(width: 24, height: 24)
+                                .background(Color.theme.secondary.opacity(0.3))
+                                .clipShape(Circle())
+                        }
+                        Spacer()
                     }
                 }
                 .padding(.horizontal, 8)
@@ -365,6 +377,7 @@ struct GroupDetailView: View {
     @State var naviItemPressed: Bool = false
     @State var showNewStoryView: Bool = false
     @State var showUpdateGroupView: Bool = false
+    @State var showGroupDetail: Bool = false
     @State var viewModel: GroupDetailViewModel
     @State private var selectedTab = 0
     @State private var needsRefresh = false
@@ -402,7 +415,8 @@ struct GroupDetailView: View {
                             viewModel: $viewModel,
                             showNewStoryView: $showNewStoryView,
                             onBack: { dismiss() },
-                            onSettings: { showUpdateGroupView = true }
+                            //onDetail: {showGroupDetail  = true },
+                            onSettings: {showUpdateGroupView = true }
                         )
                         
                         StoryListHeaderView(
@@ -457,6 +471,9 @@ struct GroupDetailView: View {
                 .sheet(isPresented: $showUpdateGroupView) {
                     UpdateGroupView(group: group!, userId: user.userID)
                 }
+//                .sheet(isPresented: $showGroupDetail) {
+//                    GroupProfileView()
+//                }
             }
         }
         .onAppear {
