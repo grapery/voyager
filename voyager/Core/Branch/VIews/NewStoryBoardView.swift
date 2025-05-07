@@ -407,7 +407,7 @@ struct NewStoryBoardView: View {
                     characterSection("参与人物", characters: scene.characters)
                         .tag(1)
                     // 场景参考图
-                    RefImageSection(title: "场景参考图",sceneIndex: index)
+                    RefImageSection(title: "场景参考图", sceneIndex: index)
                         .tag(2)
                     // 图片提示词
                     contentSection("图片提示词", content: scene.imagePrompt)
@@ -829,6 +829,7 @@ struct StoryPublishView: View {
     @State private var isPublishing = false
     @State private var showAlert = false
     @State private var alertMessage = ""
+    @State private var selectedSceneIndex: Int = 0 // 新增：当前选中场景索引
     
     var body: some View {
         ScrollView {
@@ -841,21 +842,35 @@ struct StoryPublishView: View {
                         .font(.title2)
                         .padding(.horizontal)
                 }
-                
-                // 场景列表
-                VStack(alignment: .leading, spacing: 20) {
-                    Text("故事场景")
-                        .font(.headline)
-                    
-                    if viewModel.storyScenes.isEmpty {
-                        EmptyStateView()
-                    } else {
-                        ForEach(viewModel.storyScenes, id: \.senceId) { scene in
-                            ScenePreviewCard(scene: scene)
+                // Tab栏
+                if !viewModel.storyScenes.isEmpty {
+                    HStack(spacing: 0) {
+                        ForEach(0..<viewModel.storyScenes.count, id: \.self) { idx in
+                            Button(action: { selectedSceneIndex = idx }) {
+                                VStack(spacing: 4) {
+                                    Text("场景\(idx + 1)")
+                                        .font(.system(size: 16, weight: selectedSceneIndex == idx ? .semibold : .regular))
+                                        .foregroundColor(selectedSceneIndex == idx ? Color.theme.primaryText : Color.theme.tertiaryText)
+                                        .frame(maxWidth: .infinity)
+                                    Rectangle()
+                                        .fill(selectedSceneIndex == idx ? Color.blue : Color.clear)
+                                        .frame(height: 2)
+                                        .padding(.horizontal, 8)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
                         }
                     }
+                    .padding(.horizontal, 5)
+                    .padding(.top, 8)
+                    .background(Color(.systemBackground))
                 }
-                
+                // 当前选中场景卡片
+                if !viewModel.storyScenes.isEmpty, viewModel.storyScenes.indices.contains(selectedSceneIndex) {
+                    ScenePreviewCard(scene: viewModel.storyScenes[selectedSceneIndex])
+                } else {
+                    EmptyStateView()
+                }
                 // 操作按钮
                 HStack(spacing: 16) {
                     ActionButton(

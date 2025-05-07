@@ -54,15 +54,16 @@ struct GroupHeaderView: View {
                     Spacer()
                     
                     HStack{
-//                        Spacer()
-//                        Button(action: onDetail) {
-//                            Image(systemName: "sllipsis")
-//                                .foregroundColor(.white)
-//                                .frame(width: 24, height: 24)
-//                                .background(Color.theme.secondary.opacity(0.3))
-//                                .clipShape(Circle())
-//                        }
                         Spacer()
+                        Button(action: {
+                            
+                        }) {
+                            Image(systemName: "slider.vertical.3")
+                                .foregroundColor(.white)
+                                .frame(width: 24, height: 24)
+                                .background(Color.theme.secondary.opacity(0.3))
+                                .clipShape(Circle())
+                        }
                         Button(action: onSettings) {
                             Image(systemName: "gearshape")
                                 .foregroundColor(.white)
@@ -70,8 +71,8 @@ struct GroupHeaderView: View {
                                 .background(Color.theme.secondary.opacity(0.3))
                                 .clipShape(Circle())
                         }
-                        Spacer()
                     }
+                    .padding(.trailing, 8)
                 }
                 .padding(.horizontal, 8)
                 .padding(.top, 4)
