@@ -10,7 +10,7 @@ import Kingfisher
 
 
 struct CharacterCell: View {
-    let character: StoryRole
+    var character: StoryRole
     var viewModel: StoryDetailViewModel
     @State private var showingDetail = false
     @State private var showingAvatarPreview = false
@@ -24,18 +24,18 @@ struct CharacterCell: View {
                     .fade(duration: 0.25)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 100)
+                    .frame(width: 80)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
-                KFImage(URL(string: convertImagetoSenceImage(url: character.role.characterAvatar, scene: .small)))
+                KFImage(URL(string: convertImagetoSenceImage(url: defaultAvator, scene: .small)))
                     .cacheMemoryOnly()
                     .fade(duration: 0.25)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 100)
+                    .frame(width: 80)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
-            Divider()
+            Spacer()
             // 角色信息
             VStack(alignment: .leading, spacing: 8) {
                 Text(character.role.characterName)
@@ -51,30 +51,55 @@ struct CharacterCell: View {
                     // 点赞按钮
                     Spacer()
                     Button(action: {
-                        // TODO: 实现点赞功能
+                        if character.role.currentUserStatus.isLiked {
+                            Task{
+                                await self.viewModel.unlikeStoryRole(roleId: character.role.roleID)
+                                character.role.currentUserStatus.isLiked  = false
+                            }
+                        }else{
+                            Task{
+                                await self.viewModel.likeStoryRole(roleId: character.role.roleID)
+                                character.role.currentUserStatus.isLiked  = true
+                            }
+                        }
                     }) {
-                        Image(systemName: "heart")
-                            .font(.system(size: 16))
+                        if character.role.currentUserStatus.isLiked {
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: 16))
+                        }else{
+                            Image(systemName: "heart")
+                                .font(.system(size: 16))
+                        }
                     }
-                    .foregroundColor(.orange)
+                    .foregroundColor(.red)
                     Spacer()
                     // 关注按钮
                     Button(action: {
-                        // TODO: 实现关注功能
+                        if character.role.currentUserStatus.isFollowed {
+                            Task{
+                                await self.viewModel.followStoryRole(userId: self.viewModel.userId,
+                                                                     roleId: self.character.role.roleID,
+                                                                     storyId: self.character.role.storyID)
+                                character.role.currentUserStatus.isFollowed = false
+                            }
+                        }else{
+                            Task{
+                                await self.viewModel.unfollowStoryRole(userId: self.viewModel.userId,
+                                                                       roleId: self.character.role.roleID,
+                                                                       storyId: self.character.role.storyID)
+                                character.role.currentUserStatus.isFollowed = true
+                            }
+                        }
                     }) {
-                        Image(systemName: "bell")
-                            .font(.system(size: 16))
+                        if character.role.currentUserStatus.isFollowed {
+                            Image(systemName: "bell.fill")
+                                .font(.system(size: 16))
+                        }else{
+                            Image(systemName: "bell")
+                                .font(.system(size: 16))
+                        }
                     }
-                    .foregroundColor(.orange)
-                    Spacer()
-                    // 聊天按钮
-                    Button(action: {
-                        // TODO: 跳转到聊天界面
-                    }) {
-                        Image(systemName: "message")
-                            .font(.system(size: 16))
-                    }
-                    .foregroundColor(.orange)
+                    .foregroundColor(.blue)
                     Spacer()
                     // 详情按钮
                     Button(action: {
@@ -83,7 +108,7 @@ struct CharacterCell: View {
                         Image(systemName: "info")
                             .font(.system(size: 16))
                     }
-                    .foregroundColor(.orange)
+                    .foregroundColor(.blue)
                     .navigationDestination(isPresented: $showingDetail) {
                         StoryRoleDetailView(
                             roleId: character.role.roleID,

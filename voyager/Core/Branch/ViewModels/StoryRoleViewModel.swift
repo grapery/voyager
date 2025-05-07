@@ -131,6 +131,28 @@ class StoryRoleModel: ObservableObject {
     func fetchRoleStoryboards(userId: Int64,roleId:Int64,storyName: String) async ->([StoryBoardActive]?,Error?){
         return (nil,nil)
     }
+    
+    @MainActor
+    func followStoryRole(userId: Int64,roleId: Int64,storyId: Int64) async -> Error?{
+        let resp = await APIClient.shared.FollowStoryRole(userId: userId, roleId: roleId, storyId: storyId)
+        if resp.1 != nil {
+            print("followStoryRole err",resp.1 as Any)
+            return resp.1
+        }
+        print("followStoryRole success")
+        return nil
+    }
+    
+    @MainActor
+    func unfollowStoryRole(userId: Int64,roleId: Int64,storyId: Int64) async -> Error?{
+        let resp = await APIClient.shared.UnFollowStoryRole(userId: userId, roleId: roleId, storyId: storyId)
+        if resp.1 != nil {
+            print("unfollowStoryRole err",resp.1 as Any)
+            return resp.1
+        }
+        print("unfollowStoryRole success")
+        return nil
+    }
 }
 
 
@@ -289,4 +311,41 @@ class StoryDetailViewModel: ObservableObject {
         return
     }
     
+    func likeStoryRole(roleId: Int64) async{
+        let err = await APIClient.shared.LikeStoryRole(roleId: roleId, storyId: self.storyId, userId: self.userId)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+        return
+    }
+    
+    func unlikeStoryRole(roleId: Int64) async{
+        let (_,err) = await APIClient.shared.UnLikeStoryRole(userId: self.userId,roleId: roleId, storyId: self.storyId)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+        return
+    }
+    
+    @MainActor
+    func followStoryRole(userId: Int64,roleId: Int64,storyId: Int64) async -> Error?{
+        let resp = await APIClient.shared.FollowStoryRole(userId: userId, roleId: roleId, storyId: storyId)
+        if resp.1 != nil {
+            print("followStoryRole err",resp.1 as Any)
+            return resp.1
+        }
+        print("followStoryRole success")
+        return nil
+    }
+    
+    @MainActor
+    func unfollowStoryRole(userId: Int64,roleId: Int64,storyId: Int64) async -> Error?{
+        let resp = await APIClient.shared.UnFollowStoryRole(userId: userId, roleId: roleId, storyId: storyId)
+        if resp.1 != nil {
+            print("unfollowStoryRole err",resp.1 as Any)
+            return resp.1
+        }
+        print("unfollowStoryRole success")
+        return nil
+    }
 }

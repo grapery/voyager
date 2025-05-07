@@ -480,7 +480,7 @@ struct AllCharactersView: View {
     }
     
     private var characterGrid: some View {
-        LazyVStack(spacing: 8) {
+        LazyVStack(spacing: 4) {
             ForEach(viewModel.characters ?? [], id: \.role.roleID) { character in
                 CharacterCell(character: character, viewModel: self.viewModel)
                     .padding(.horizontal)
