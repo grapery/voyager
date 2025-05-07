@@ -386,7 +386,7 @@ struct NewStoryBoardView: View {
                 
                 // 场景标题栏
                 HStack {
-                    Text("场景 \(scene.senceIndex)")
+                    Text("故事场景 \(scene.senceIndex)")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(Color.theme.primaryText)
                     Spacer()
@@ -1682,8 +1682,8 @@ struct RoleSelectionRow: View {
                     .cacheMemoryOnly()
                     .fade(duration: 0.25)
                     .resizable()
-                    .aspectRatio(9.0/16.0, contentMode: .fill)
-                    .frame(width: 54, height: 96)
+                    .aspectRatio(4.0/5.0, contentMode: .fill)
+                    .frame(width: 64, height: 80)
                     .clipped()
                     .cornerRadius(8)
                 
