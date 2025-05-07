@@ -84,14 +84,14 @@ class StoryBoardActive: Identifiable {
     }
 }
 
-class StoryBoardSence{
+class StoryBoardSence {
     var senceIndex: Int
     var content: String
     var characters: [Common_Character]
     var imagePrompt: String
     var senceId: Int64
     var imageUrl: String
-    var referencaImage = UIImage()
+    var referencaImage: UIImage?
     
     init(index: Int, content: String, characters: [Common_Character], imagePrompt: String) {
         self.senceIndex = index
@@ -100,6 +100,7 @@ class StoryBoardSence{
         self.imagePrompt = imagePrompt
         self.senceId = 0
         self.imageUrl = ""
+        self.referencaImage = nil
     }
     
     // 从API响应数据创建场景

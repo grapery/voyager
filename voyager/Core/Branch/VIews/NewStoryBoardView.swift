@@ -371,6 +371,7 @@ struct NewStoryBoardView: View {
         let index: Int
         @State private var selectedTab = 0
         let totalScenes: Int
+        let viewModel: StoryViewModel
         
         var body: some View {
             VStack(spacing: 12) {
@@ -456,6 +457,37 @@ struct NewStoryBoardView: View {
                 }
             }
         }
+        // 场景参考图片
+        private func RefImageSection(_ title: String, content: String, sceneIndex: Int) -> some View {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(title)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(Color.theme.secondaryText)
+                
+                SceneReferenceImageView(
+                    title: title,
+                    referenceImage: Binding(
+                        get: { viewModel.storyScenes[sceneIndex].referencaImage },
+                        set: { newImage in
+                            if let image = newImage {
+                                viewModel.updateSceneReferenceImage(sceneIndex: sceneIndex, image: image)
+                            }
+                        }
+                    )
+                )
+                
+                ScrollView {
+                    Text(content)
+                        .font(.system(size: 15))
+                        .foregroundColor(Color.theme.primaryText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .background(Color.theme.background)
+                        .cornerRadius(8)
+                }
+            }
+            .padding(.horizontal, 4)
+        }
     }
     
     
@@ -500,7 +532,8 @@ struct NewStoryBoardView: View {
                     SceneCardView(
                         scene: scene,
                         index: index,
-                        totalScenes: viewModel.storyScenes.count
+                        totalScenes: viewModel.storyScenes.count,
+                        viewModel: viewModel
                     )
                     SenceGenControlView(idx: index, senceId: scene.senceId)
                 }
@@ -1794,6 +1827,75 @@ struct CustomAlertView: View {
         case .error: return .red
         case .info: return .blue
         }
+    }
+}
+
+struct SceneReferenceImageView: View {
+    let title: String
+    @Binding var referenceImage: UIImage?
+    @State private var showImagePicker = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(Color.theme.secondaryText)
+            
+            if let image = referenceImage {
+                // 显示已选择的图片
+                ZStack(alignment: .topTrailing) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(height: 200)
+                        .clipped()
+                        .cornerRadius(8)
+                    
+                    Button(action: { showImagePicker = true }) {
+                        Text("编辑")
+                            .font(.system(size: 14))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.black.opacity(0.6))
+                            .cornerRadius(4)
+                    }
+                    .padding(8)
+                }
+            } else {
+                // 显示添加按钮
+                Button(action: { showImagePicker = true }) {
+                    ZStack {
+                        Rectangle()
+                            .fill(Color.theme.background)
+                            .frame(height: 200)
+                            .cornerRadius(8)
+                        
+                        VStack(spacing: 8) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 24))
+                                .foregroundColor(Color.theme.secondaryText)
+                            
+                            Image(systemName: "mountain.2")
+                                .font(.system(size: 32))
+                                .foregroundColor(Color.theme.secondaryText)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 4)
+        .sheet(isPresented: $showImagePicker) {
+            SingleImagePicker(image: $referenceImage)
+        }
+    }
+}
+
+// 在StoryViewModel中添加更新场景参考图片的方法
+extension StoryViewModel {
+    func updateSceneReferenceImage(sceneIndex: Int, image: UIImage) {
+        guard sceneIndex < storyScenes.count else { return }
+        storyScenes[sceneIndex].referencaImage = image
     }
 }
 
