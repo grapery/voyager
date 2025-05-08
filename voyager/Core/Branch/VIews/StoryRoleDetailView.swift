@@ -469,6 +469,8 @@ struct RoleParticipationTab: View {
                 Image(systemName: "retarder.brakesignal.and.exclamationmark")
                     .font(.system(size: 50))
                     .foregroundColor(Color.theme.error)
+                Spacer()
+                    .font(.system(size: 10))
                 Text("这个故事角色是NPC么?!")
                     .font(.title3)
                     .foregroundColor(.gray)
@@ -691,7 +693,7 @@ struct DetailSection: View {
                     .foregroundColor(Color.theme.primaryText)
                 
                 VStack(spacing: 12) {
-                    InfoRow(icon: "person.fill", title: "创建者", value: "\(role.role.creatorID)")
+                    InfoRow(icon: "person.fill", title: "创建者", value: "\(role.role.creator.name)")
                     InfoRow(icon: "clock.fill", title: "创建时间", value: formatDate(timestamp: role.role.ctime))
                     InfoRow(icon: "number", title: "角色ID", value: "\(role.role.roleID)")
                     if role.role.mtime != 0 {

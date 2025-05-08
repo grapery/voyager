@@ -73,7 +73,7 @@ struct StoryView: View {
                     if selectedTab == 0 {
                         StoryStreamView
                     } else if selectedTab == 1 {
-                        storyRolesListView
+                        StoryRolesListView
                     }
                 }
                 .frame(minHeight: geometry.size.height)
@@ -104,7 +104,7 @@ struct StoryView: View {
         }
     }
 
-    private var storyRolesListView: some View {
+    private var StoryRolesListView: some View {
         VStack {
             if viewModel.isLoading {
                 VStack {
@@ -591,7 +591,15 @@ struct RoleCard: View {
     let userid: Int64
     @State private var isLiked = false
     @State private var showingDetail = false
-    
+    init(role: StoryRole, userid: Int64) {
+        self.role = role
+        self.userid = userid
+        if self.role.role.currentUserStatus.isLiked{
+            self.isLiked.toggle()
+            self.isLiked = true
+        }
+        
+    }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // 角色信息区域 - 添加点击手势
@@ -656,7 +664,7 @@ struct RoleCard: View {
             HStack(spacing: 24) {
                 // 喜欢按钮
                 StorySubViewInteractionButton(
-                    icon: isLiked ? "heart.fill" : "heart",
+                    icon: self.isLiked ? "heart.fill" : "heart",
                     count: "\(role.role.likeCount)",
                     color: isLiked ? Color.theme.error : Color.theme.tertiaryText,
                     action: {
