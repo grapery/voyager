@@ -164,7 +164,9 @@ class StoryDetailViewModel: ObservableObject {
     @Published var participants: [User] = []
     var likes: Int = 10
     var followers: Int = 10
-    var shares: Int = 10
+    var members: Int = 10
+    var boardsCount: Int = 10
+    var roleNum: Int = 10
     
     private let apiClient = APIClient.shared
     
@@ -175,9 +177,10 @@ class StoryDetailViewModel: ObservableObject {
         
         self.characters = [StoryRole]()
         self.participants = [User]()
-        self.likes = 10
-        self.followers = 10
-        self.shares = 10
+        self.likes = Int((story?.storyInfo.likeCount)!)
+        self.followers = Int((story?.storyInfo.followCount)!)
+        self.members = Int((story?.storyInfo.totalMembers)!)
+        self.roleNum = Int((story?.storyInfo.totalRoles)!)
         Task{
             await getTopStoryRoles(storyId: storyId, userId: userId)
         }
