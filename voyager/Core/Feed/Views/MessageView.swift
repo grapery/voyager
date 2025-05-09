@@ -33,6 +33,7 @@ struct MessageView: View {
     @State private var messageToDelete: Int64?
     @State private var showingDeleteAlert = false
     @State private var user: User?
+    @State private var showMessageContext = false
     
     init(user: User? = nil) {
         self.user = user
@@ -154,14 +155,12 @@ struct MessageContextCellView: View {
         }
     }
     
+    @State private var showMessageContext = false
+    
     var body: some View {
-        NavigationLink(destination: MessageContextView(
-            userId: userId,
-            roleId: role?.Id ?? 0,
-            role: role!
-        )
-            .toolbar(.visible, for: .tabBar)
-        ) {
+        Button(action: {
+            showMessageContext = true
+        }) {
             // 主要内容
             HStack(spacing: 12) {
                 // 头像
@@ -205,6 +204,13 @@ struct MessageContextCellView: View {
             } label: {
                 Label("删除", systemImage: "trash")
             }
+        }
+        .fullScreenCover(isPresented: $showMessageContext) {
+            MessageContextView(
+                userId: userId,
+                roleId: role?.Id ?? 0,
+                role: role!
+            )
         }
     }
     
