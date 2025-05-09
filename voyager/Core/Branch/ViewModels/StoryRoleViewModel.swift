@@ -153,6 +153,26 @@ class StoryRoleModel: ObservableObject {
         print("unfollowStoryRole success")
         return nil
     }
+    
+    @MainActor
+    func generateStoryRolePoster(userId: Int64,roleId: Int64,storyId: Int64) async -> (String?,Error?){
+        let resp = await APIClient.shared.generateStoryRolePoster(userId: userId, roleId: roleId)
+        if resp.1 != nil {
+            print("generateStoryRolePoster err",resp.1 as Any)
+            return (nil,resp.1)
+        }
+        return (resp.0,nil)
+    }
+
+    @MainActor
+    func updateStoryRolePoster(userId: Int64,roleId: Int64,posterUrl: String) async -> Error?{
+        let err = await APIClient.shared.updateStoryRolePoster(userId: self.userId, roleId: roleId, posterUrl: posterUrl)
+        if err != nil {
+            print("updateStoryRolePoster err",err as Any)
+            return err
+        }
+        return nil
+    }
 }
 
 
@@ -351,6 +371,26 @@ class StoryDetailViewModel: ObservableObject {
             return resp.1
         }
         print("unfollowStoryRole success")
+        return nil
+    }
+    
+    @MainActor
+    func generateStoryRolePoster(userId: Int64,roleId: Int64,storyId: Int64) async -> (String?,Error?){
+        let resp = await APIClient.shared.generateStoryRolePoster(userId: userId, roleId: roleId)
+        if resp.1 != nil {
+            print("generateStoryRolePoster err",resp.1 as Any)
+            return (nil,resp.1)
+        }
+        return (resp.0,nil)
+    }
+
+    @MainActor
+    func updateStoryRolePoster(userId: Int64,roleId: Int64,posterUrl: String) async -> Error?{
+        let err = await APIClient.shared.updateStoryRolePoster(userId: self.userId, roleId: roleId, posterUrl: posterUrl)
+        if err != nil {
+            print("updateStoryRolePoster err",err as Any)
+            return err
+        }
         return nil
     }
 }

@@ -1649,5 +1649,36 @@ extension APIClient {
         }
         return (storyRoles,pageNum,pageSize,nil)
     }
+
+    func generateStoryRolePoster(userId: Int64,roleId: Int64) async -> (String?,Error?){
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_GenerateStoryRolePosterRequest.with {
+            $0.userID = userId
+            $0.roleID = roleId
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.generateStoryRolePoster(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return (nil,NSError(domain: "generateStoryRolePoster", code: 0, userInfo: [NSLocalizedDescriptionKey: "generate story role poster failed"]))
+        }
+        return (response.message?.imageURL,nil)
+    }
+
+    func updateStoryRolePoster(userId: Int64,roleId: Int64,posterUrl: String) async -> Error?{
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_UpdateStoryRolePosterRequest.with {
+            $0.userID = userId
+            $0.roleID = roleId
+            $0.imageURL = posterUrl
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.updateStoryRolePoster(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return NSError(domain: "updateStoryRolePoster", code: 0, userInfo: [NSLocalizedDescriptionKey: "update story role poster failed"])
+        }
+        return nil
+    }
 }
 

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import PhotosUI
 
 
 struct CharacterCell: View {
@@ -225,7 +226,7 @@ struct StoryRoleDetailView: View {
             }
             .fullScreenCover(isPresented: $showPosterView) {
                 if let role = role {
-                    PosterView(role: role)
+                    PosterView(role: role,viewModel:viewModel)
                 }
             }
         }
@@ -1083,12 +1084,27 @@ struct PosterView: View {
     @Environment(\.dismiss) private var dismiss
     let defaultPosterImage = "https://grapery-1301865260.cos.ap-shanghai.myqcloud.com/poster/default_role_poster.png"
     @State private var isImageLoaded = false
+
+    // 新增
+    @State private var showImagePicker = false
+    @State private var selectedImage: UIImage?
+    @State private var isUploading = false
+    @State private var isAIGenerating = false
+    @State private var showError = false
+    @State private var errorMessage = ""
     
-    init(role: StoryRole?, isImageLoaded: Bool = false) {
-        self.role = role
-        self.isImageLoaded = isImageLoaded
+    @State public var viewModel: StoryRoleModel
+
+    // 你需要根据实际业务传入当前用户ID和角色/故事创建者ID
+    var currentUserId: Int64 = 0
+    var creatorId: Int64? { role?.role.creatorID } // 假设有这个字段
+    var storyCreatorId: Int64? { role?.role.creator.userID } // 假设有这个字段
+
+    var canEdit: Bool {
+        guard let creatorId = creatorId, let storyCreatorId = storyCreatorId else { return false }
+        return currentUserId == creatorId || currentUserId == storyCreatorId
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -1101,7 +1117,7 @@ struct PosterView: View {
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                
+
                 // 海报图片
                 KFImage(URL(string: convertImagetoSenceImage(url: role?.role.characterAvatar ?? "", scene: .content)))
                     .cacheMemoryOnly()
@@ -1125,7 +1141,7 @@ struct PosterView: View {
                     .aspectRatio(contentMode: .fill)
                     .frame(width: geometry.size.width, height: geometry.size.height)
                     .clipped()
-                
+
                 // 渐变遮罩
                 LinearGradient(
                     gradient: Gradient(colors: [
@@ -1136,7 +1152,7 @@ struct PosterView: View {
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                
+
                 // 角色信息叠加层
                 VStack(spacing: 0) {
                     // 顶部导航栏
@@ -1152,21 +1168,50 @@ struct PosterView: View {
                             .cornerRadius(8)
                         }
                         Spacer()
+                        // 右上角按钮
+                        if canEdit {
+                            HStack(spacing: 8) {
+                                Button(action: {
+                                    Task { await handleAIGenerate() }
+                                }) {
+                                    Text(isAIGenerating ? "生成中..." : "AI更新")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(Color.blue.opacity(0.8))
+                                        .cornerRadius(8)
+                                }
+                                .disabled(isAIGenerating)
+                                Button(action: {
+                                    showImagePicker = true
+                                }) {
+                                    Text(isUploading ? "上传中..." : "上传更新")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(Color.green.opacity(0.8))
+                                        .cornerRadius(8)
+                                }
+                                .disabled(isUploading)
+                            }
+                        }
                     }
                     .padding(.top, geometry.safeAreaInsets.top + 16)
                     .padding(.horizontal, 16)
-                    
+
                     Spacer()
-                    
+
                     // 底部角色信息
                     VStack(alignment: .leading, spacing: 12) {
-                            Text(role?.role.characterName ?? "未知角色")
+                        Text(role?.role.characterName ?? "未知角色")
                             .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(.white)
-                            
-                            Text(role?.role.characterDescription ?? "暂无描述")
+                            .foregroundColor(.white)
+
+                        Text(role?.role.characterDescription ?? "暂无描述")
                             .font(.system(size: 16))
-                                .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(.white.opacity(0.8))
                             .lineLimit(3)
                             .multilineTextAlignment(.leading)
                     }
@@ -1184,6 +1229,67 @@ struct PosterView: View {
                 }
             }
             .edgesIgnoringSafeArea(.all)
+            .sheet(isPresented: $showImagePicker) {
+                SingleImagePicker(image: $selectedImage)
+            }
+            .onChange(of: selectedImage) { newImage in
+                if let image = newImage {
+                    Task { await handleUpload(image: image) }
+                }
+            }
+            .alert("错误", isPresented: $showError) {
+                Button("确定", role: .cancel) {}
+            } message: {
+                Text(errorMessage)
+            }
+        }
+    }
+
+    // AI生成
+    private func handleAIGenerate() async {
+        isAIGenerating = true
+        defer { isAIGenerating = false }
+        do {
+            // TODO: 调用你的AI生成接口
+            let result = await viewModel.generateStoryRolePoster(
+                userId: (self.role?.role.storyID)!,
+                roleId: self.role!.role.roleID,
+                storyId: self.currentUserId)
+            // 更新图片逻辑
+            if result.1 == nil {
+                self.role?.role.posterImageURL = result.0!
+            }else{
+                errorMessage = "AI生成失败：" + result.1!.localizedDescription
+                showError = true
+            }
+            
+        } catch {
+            errorMessage = "AI生成失败：" + error.localizedDescription
+            showError = true
+        }
+    }
+
+    // 上传图片
+    private func handleUpload(image: UIImage) async {
+        isUploading = true
+        defer { isUploading = false }
+        do {
+            
+            let url = try await AliyunClient.UploadImage(image: image)
+            print("post url ",url as Any)
+            let err = try await viewModel.updateStoryRolePoster(
+                userId: (self.role?.role.storyID)!,
+                roleId: self.role!.role.roleID,
+                posterUrl: url)
+            if err == nil {
+                self.role?.role.posterImageURL = url
+            }else{
+                errorMessage = "AI生成失败：" + err!.localizedDescription
+                showError = true
+            }
+        } catch {
+            errorMessage = "上传失败：" + error.localizedDescription
+            showError = true
         }
     }
 }
