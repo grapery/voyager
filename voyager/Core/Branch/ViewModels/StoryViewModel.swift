@@ -763,6 +763,22 @@ class StoryViewModel: ObservableObject {
     func getStoryMembers(storyId: Int64, userId: Int64) async -> ([User]?,Error?){
         return ([User](),nil)
     }
+    
+    func likeStoryRole(roleId: Int64) async{
+        let err = await APIClient.shared.LikeStoryRole(roleId: roleId, storyId: self.storyId, userId: self.userId)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+        return
+    }
+    
+    func unlikeStoryRole(roleId: Int64) async{
+        let (_,err) = await APIClient.shared.UnLikeStoryRole(userId: self.userId,roleId: roleId, storyId: self.storyId)
+        if err != nil{
+            print("likeStoryboard failed: ",err!)
+        }
+        return
+    }
 }
 
 

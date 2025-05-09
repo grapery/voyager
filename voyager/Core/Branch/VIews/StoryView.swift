@@ -124,7 +124,7 @@ struct StoryView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(roles, id: \.role.roleID) { role in
-                            RoleCard(role: role,userid: self.userId)
+                            RoleCard(role: role,userid: self.userId,viewModel: self.viewModel)
                         }
                     }
                 }
@@ -589,16 +589,12 @@ private struct InteractionButtonsSection: View {
 struct RoleCard: View {
     let role: StoryRole
     let userid: Int64
-    @State private var isLiked = false
+    @State var viewModel: StoryViewModel
     @State private var showingDetail = false
-    init(role: StoryRole, userid: Int64) {
+    init(role: StoryRole, userid: Int64,viewModel: StoryViewModel) {
         self.role = role
         self.userid = userid
-        if self.role.role.currentUserStatus.isLiked{
-            self.isLiked.toggle()
-            self.isLiked = true
-        }
-        
+        self.viewModel = viewModel
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -664,12 +660,20 @@ struct RoleCard: View {
             HStack(spacing: 24) {
                 // 喜欢按钮
                 StorySubViewInteractionButton(
-                    icon: self.isLiked ? "heart.fill" : "heart",
+                    icon: self.role.role.currentUserStatus.isLiked ? "heart.fill" : "heart",
                     count: "\(role.role.likeCount)",
-                    color: isLiked ? Color.theme.error : Color.theme.tertiaryText,
+                    color: self.role.role.currentUserStatus.isLiked ? Color.theme.error : Color.theme.tertiaryText,
                     action: {
-                        withAnimation(.spring()) {
-                            isLiked.toggle()
+                        Task{
+                            if self.role.role.currentUserStatus.isLiked{
+                                await self.viewModel.unlikeStoryRole(roleId: self.role.role.roleID)
+                                self.role.role.currentUserStatus.isLiked = false
+                                self.role.role.likeCount -= 1
+                            }else{
+                                await self.viewModel.likeStoryRole(roleId: self.role.role.roleID)
+                                self.role.role.currentUserStatus.isLiked = true
+                                self.role.role.likeCount += 1
+                            }
                         }
                     }
                 )
