@@ -1681,6 +1681,38 @@ extension APIClient {
     }
     
     
-    func generateDescription(storyId: Int64,roleId:Int64,userId:Int64,sampleDesc: String) async -> (Common)
+    func generateDescription(storyId: Int64,roleId:Int64,userId:Int64,sampleDesc: String) async -> (Common_CharacterDetail?,Error?){
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_GenerateRoleDescriptionRequest.with {
+            $0.storyID = storyId
+            $0.roleID = roleId
+            $0.userID = userId
+            $0.description_p = sampleDesc
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.generateRoleDescription(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return (nil,NSError(domain: "generateDescription", code: 0, userInfo: [NSLocalizedDescriptionKey: "generate description failed"]))
+        }
+        return (response.message?.characterDetail,nil)
+    }
+    
+    func generateRolePromppt(storyId: Int64,roleId:Int64,userId:Int64,samplePromppt: String) async -> (String?,Error?) {
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_GenerateRolePromptRequest.with {
+            $0.storyID = storyId
+            $0.roleID = roleId
+            $0.userID = userId
+            $0.prompt = samplePromppt
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.generateRolePrompt(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return (nil,NSError(domain: "generateRolePrompts", code: 0, userInfo: [NSLocalizedDescriptionKey: "generate role prompts failed"]))
+        }
+        return (response.message?.prompt,nil)
+    }
 }
 
