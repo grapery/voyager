@@ -1140,7 +1140,6 @@ extension APIClient {
                 return ([StoryBoardActive](),0,0,nil)
             }
             let boards = response.message?.storyboards.map { StoryBoardActive(id: $0.storyboard.storyBoardID, boardActive: $0) }
-            print("boards?.count : ",boards?.count as Any)
             return (boards,response.message!.offset,response.message!.pageSize,nil)
         } catch {
             return (nil,0,0,error)

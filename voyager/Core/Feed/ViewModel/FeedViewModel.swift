@@ -9,31 +9,36 @@ import Foundation
 
 class FeedViewModel: ObservableObject {
     @Published var timeline: Int64
-    @Published var storys: [Story]
     @Published var userId: Int64
     @Published var user: User
+    
+    @Published var storys: [Story]
+    @Published var selectStory: Int
+    
     @Published var roles: [StoryRole]
-    @Published var boards: [StoryBoardActive]
+    @Published var selectStoryRole: Int
+    
     @Published var filters = [String]()
 
     
     @Published var timeStamp: Int64
     
-    @Published var tags: [String]
     @Published @MainActor var searchText: String = ""
     @Published @MainActor var activeFlowType: Common_ActiveFlowType = Common_ActiveFlowType(rawValue: 3)!
-    
-    @Published var comments: [Comment]
     
     @Published var storyBoardActives: [Common_StoryBoardActive] = []
     @Published var isLoading = false
     @Published var hasError = false
     @Published var errorMessage = ""
     @Published var isRefreshing = false
+    @Published var selectBoardActive: Int
     
     // 热点内容相关属性
     @Published var trendingStories: [Story] = []
+    @Published var selectTrendingStory: Int
     @Published var trendingRoles: [StoryRole] = []
+    @Published var selectTrendingStoryRole: Int
+    
     @Published var isLoadingTrending = false
     @Published var isLoadingMoreTrending = false
     @Published var hasMoreTrendingStories = true
@@ -69,16 +74,17 @@ class FeedViewModel: ObservableObject {
         self.filters = [String]()
         self.timeStamp = 0
         self.userId = user.userID
-        self.tags = [String]()
         self.roles = [StoryRole]()
-        self.boards = [StoryBoardActive]()
         
         self.currentPage = 0
         self.user = user
-        
-        self.comments = [Comment]()
+        self.selectStory = 0
+        self.selectStoryRole = 0
+        self.selectBoardActive = 0
+        self.selectTrendingStory = 0
+        self.selectTrendingStoryRole = 0
+
     }
-    
     
     @MainActor
     func fetchStorys() async -> Void{
@@ -99,17 +105,6 @@ class FeedViewModel: ObservableObject {
             return
         }
         self.roles = result.0
-        return
-    }
-
-    @MainActor
-    func fetchUserCreatedStoryBoards() async -> Void{
-        let result = await APIClient.shared.fetchUserCreatedStoryBoards(userId: self.userId, page: self.currentPage, size: self.defaultPageSize, storyId:0)
-        if result.3 != nil {
-            print("fetchUserCreatedStoryBoards failed: ",result.3!)
-            return
-        }
-        self.boards = result.0!
         return
     }
     

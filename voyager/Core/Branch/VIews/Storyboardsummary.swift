@@ -13,23 +13,26 @@ import AVKit
 struct StoryboardSummary: View {
     let storyBoardId: Int64
     let userId: Int64
-    @StateObject private var viewModel: FeedViewModel
+    @ObservedObject var viewModel: FeedViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var currentSceneIndex = 0
-    @State private var storyBoardActive: StoryBoardActive?
     @State private var isLoading = true
     @State private var errorMessage: String = ""
-    @State private var apiClient = APIClient()
+       
+    // 添加计算属性来获取当前故事板
+    private var currentStoryboard: Common_StoryBoardActive? {
+        viewModel.storyBoardActives.first { $0.storyboard.storyBoardID == storyBoardId }
+    }
     
     init(storyBoardId: Int64, userId: Int64, viewModel: FeedViewModel) {
         self.storyBoardId = storyBoardId
         self.userId = userId
-        self._viewModel = StateObject(wrappedValue: viewModel)
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
     }
     
     var body: some View {
         Group {
-            if let storyboard = storyBoardActive {
+            if let storyboard = currentStoryboard {
                 StoryboardContentView(
                     storyboard: storyboard,
                     userId: userId,
@@ -38,16 +41,15 @@ struct StoryboardSummary: View {
                     dismiss: dismiss
                 )
             } else {
-                LoadingErrorView(
-                    isLoading: isLoading,
-                    errorMessage: errorMessage,
-                    onRetry: loadStoryboard
-                )
+                Text("无法加载故事板信息")
+                    .foregroundColor(.red)
             }
         }
         .navigationBarHidden(true)
-        .task {
-            loadStoryboard()
+        .onAppear {
+            if currentStoryboard == nil {
+                loadStoryboard()
+            }
         }
     }
     
@@ -66,7 +68,12 @@ struct StoryboardSummary: View {
                     }
                     
                     if let storyboard = storyboard {
-                        self.storyBoardActive = storyboard
+                        // 更新 viewModel 中的故事板数据
+                        if let index = viewModel.storyBoardActives.firstIndex(where: { $0.storyboard.storyBoardID == storyBoardId }) {
+                            viewModel.storyBoardActives[index] = storyboard.boardActive
+                        } else {
+                            viewModel.storyBoardActives.append(storyboard.boardActive)
+                        }
                     } else {
                         errorMessage = "无法加载故事板信息"
                     }
@@ -80,73 +87,15 @@ struct StoryboardSummary: View {
             }
         }
     }
-}
-
-
-import SwiftUI
-
-struct LoadingErrorView: View {
-    var isLoading: Bool
-    var errorMessage: String
-    let onRetry: () -> Void
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        ZStack(alignment: .topLeading) {
-            VStack(spacing: 16) {
-                if isLoading {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle())
-                    Text("加载中...")
-                        .foregroundColor(.secondary)
-                } else {
-                    if !errorMessage.isEmpty {
-                        VStack {
-                            Text(errorMessage)
-                                .foregroundColor(.red)
-                            Button("重试", action: onRetry)
-                        }
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(.systemBackground).opacity(0.95))
-            .cornerRadius(16)
-            .padding()
-
-            // 左上角关闭按钮
-            Button(action: {
-                dismiss()
-            }) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.gray)
-                    .padding(12)
-            }
-            .padding(.top, 8)
-            .padding(.leading, 8)
-        }
-    }
-}
-
-
-// MARK: - Main Content View
-private struct StoryboardContentView: View {
-    @State var storyboard: StoryBoardActive
-    let userId: Int64
-    let viewModel: FeedViewModel
-    @Binding var currentSceneIndex: Int
-    let dismiss: DismissAction
     
-    init(storyboard: StoryBoardActive, userId: Int64, viewModel: FeedViewModel, currentSceneIndex: Binding<Int>, dismiss: DismissAction) {
-        self.storyboard = storyboard
-        self.userId = userId
-        self.viewModel = viewModel
-        self._currentSceneIndex = currentSceneIndex
-        self.dismiss = dismiss
-    }
-    
-    var body: some View {
+    // MARK: - StoryboardContentView
+    private func StoryboardContentView(
+        storyboard: Common_StoryBoardActive,
+        userId: Int64,
+        viewModel: FeedViewModel,
+        currentSceneIndex: Binding<Int>,
+        dismiss: DismissAction
+    ) -> some View {
         ScrollView {
             VStack(spacing: 0) {
                 StoryboardHeaderView(
@@ -154,22 +103,20 @@ private struct StoryboardContentView: View {
                     dismiss: dismiss
                 )
                 StoryboardSummaryDetailsView(
-                    storyboard: $storyboard,
+                    storyboard: storyboard,
                     userId: userId,
                     viewModel: viewModel,
-                    currentSceneIndex: $currentSceneIndex
+                    currentSceneIndex: currentSceneIndex
                 )
             }
         }
     }
-}
-
-// MARK: - Header View
-private struct StoryboardHeaderView: View {
-    let storyboard: StoryBoardActive
-    let dismiss: DismissAction
     
-    var body: some View {
+    // MARK: - StoryboardHeaderView
+    private func StoryboardHeaderView(
+        storyboard: Common_StoryBoardActive,
+        dismiss: DismissAction
+    ) -> some View {
         HStack(spacing: 12) {
             Button(action: { dismiss() }) {
                 Image(systemName: "chevron.left")
@@ -180,14 +127,14 @@ private struct StoryboardHeaderView: View {
             // 用户信息
             HStack(spacing: 8) {
                 // 故事头像
-                KFImage(URL(string: convertImagetoSenceImage(url: storyboard.boardActive.summary.storyAvatar, scene: .small)))
+                KFImage(URL(string: convertImagetoSenceImage(url: storyboard.summary.storyAvatar, scene: .small)))
                     .cacheMemoryOnly()
                     .fade(duration: 0.25)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 32, height: 32)
                     .clipShape(Circle())
-                Text(storyboard.boardActive.summary.storyTitle)
+                Text(storyboard.summary.storyTitle)
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.theme.primaryText)
             }
@@ -197,43 +144,39 @@ private struct StoryboardHeaderView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
     }
-}
-
-
-// MARK: - Details View
-private struct StoryboardSummaryDetailsView: View {
-    @Binding var storyboard: StoryBoardActive
-    let userId: Int64
-    let viewModel: FeedViewModel
-    @Binding var currentSceneIndex: Int
-    @State private var isShowingUserProfile = false
     
-    var body: some View {
+    // MARK: - StoryboardSummaryDetailsView
+    private func StoryboardSummaryDetailsView(
+        storyboard: Common_StoryBoardActive,
+        userId: Int64,
+        viewModel: FeedViewModel,
+        currentSceneIndex: Binding<Int>
+    ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             // 故事板标题和内容
             HStack{
-                Text(storyboard.boardActive.storyboard.title)
+                Text(storyboard.storyboard.title)
                     .font(.system(size: 18, weight: .medium))
                     .foregroundColor(.theme.primaryText)
             }
             .padding(.horizontal, 16)
             
-            Text(storyboard.boardActive.storyboard.content)
+            Text(storyboard.storyboard.content)
                 .font(.system(size: 14))
                 .foregroundColor(.theme.secondaryText)
                 .padding(.horizontal, 16)
             
             // 场景列表
             ScenesListView(
-                scenes: storyboard.boardActive.storyboard.sences.list,
-                currentIndex: $currentSceneIndex
+                scenes: storyboard.storyboard.sences.list,
+                currentIndex: currentSceneIndex
             )
             .padding(.horizontal, 16)
             
             HStack(spacing: 8) {
                 // 交互按钮
                 InteractionButtonsView(
-                    storyboard: $storyboard,
+                    storyboard: storyboard,
                     userId: userId,
                     viewModel: viewModel
                 )
@@ -246,16 +189,16 @@ private struct StoryboardSummaryDetailsView: View {
                         .font(.system(size: 12))
                         .foregroundColor(.theme.secondaryText)
                     
-                      Button(action: { isShowingUserProfile = true }) {
+                    Button(action: { }) {
                         HStack(spacing: 4) {
-                            KFImage(URL(string: storyboard.boardActive.creator.userAvatar))
+                            KFImage(URL(string: storyboard.creator.userAvatar))
                                 .cacheMemoryOnly()
                                 .fade(duration: 0.25)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 20, height: 20)
                                 .clipShape(Circle())
-                            Text("\(storyboard.boardActive.creator.userName)")
+                            Text("\(storyboard.creator.userName)")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(.theme.primaryText)
                                 .lineLimit(1)
@@ -270,139 +213,138 @@ private struct StoryboardSummaryDetailsView: View {
             
             // 评论列表
             CommentListView(
-                storyId: storyboard.boardActive.storyboard.storyID,
-                storyboardId: storyboard.boardActive.storyboard.storyBoardID,
+                storyId: storyboard.storyboard.storyID,
+                storyboardId: storyboard.storyboard.storyBoardID,
                 userId: userId,
-                totalCommentNum: Int(storyboard.boardActive.totalCommentCount)
+                totalCommentNum: Int(storyboard.totalCommentCount)
             )
             .padding(.horizontal, 16)
         }
         .padding(.top, 12)
-        .fullScreenCover(isPresented: $isShowingUserProfile) {
-            NavigationView {
-                UserProfileView(user: User(
-                    userID: storyboard.boardActive.creator.userID,
-                    name: storyboard.boardActive.creator.userName,
-                    avatar: storyboard.boardActive.creator.userAvatar
-                ))
-                .navigationBarItems(leading: Button(action: {
-                    isShowingUserProfile = false
-                }) {
-                    Image(systemName: "xmark")
-                        .foregroundColor(.theme.primaryText)
-                })
-            }
-        }
     }
-}
-
-// MARK: - Scenes List View
-private struct ScenesListView: View {
-    let scenes: [Common_StoryBoardSence]
-    @Binding var currentIndex: Int
     
-    var body: some View {
-        if !scenes.isEmpty {
-            ZStack(alignment: .bottom) {
-                TabView(selection: $currentIndex) {
-                    ForEach(Array(scenes.enumerated()), id: \.offset) { index, scene in
-                        SceneView(scene: scene)
-                            .tag(index)
-                    }
-                }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                
-                // 进度指示器
-                VStack(spacing: 8) {
-                    // 进度线
-                    HStack(spacing: 4) {
-                        ForEach(0..<scenes.count, id: \.self) { index in
-                            Capsule()
-                                .fill(Color.white)
-                                .frame(height: 4)
-                                .opacity(currentIndex == index ? 1.0 : 0.3)
+    // MARK: - ScenesListView
+    private func ScenesListView(
+        scenes: [Common_StoryBoardSence],
+        currentIndex: Binding<Int>
+    ) -> some View {
+        if scenes.isEmpty {
+            return AnyView(EmptyView())
+        } else {
+            return AnyView(
+                VStack {
+                    ZStack(alignment: .bottom) {
+                        TabView(selection: currentIndex) {
+                            ForEach(Array(scenes.enumerated()), id: \.offset) { index, scene in
+                                SceneView(scene: scene)
+                                    .tag(index)
+                            }
                         }
+                        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                        
+                        // 进度指示器
+                        VStack(spacing: 8) {
+                            // 进度线
+                            HStack(spacing: 4) {
+                                ForEach(0..<scenes.count, id: \.self) { index in
+                                    Capsule()
+                                        .fill(Color.white)
+                                        .frame(height: 4)
+                                        .opacity(currentIndex.wrappedValue == index ? 1.0 : 0.3)
+                                }
+                            }
+                            .padding(.horizontal)
+                            .padding(.bottom, 4)
+                            
+                            // 场景描述
+                            let scene = scenes[currentIndex.wrappedValue]
+                            Text(scene.content)
+                                .font(.system(size: 14))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 16)
+                                .padding(.bottom, 12)
+                                .lineLimit(2)
+                        }
+                        .background(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.black.opacity(0),
+                                    Color.black.opacity(0.5)
+                                ]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                     }
-                    .padding(.horizontal)
-                    .padding(.bottom, 4)
-                    
-                    // 场景描述
-                    let scene = scenes[currentIndex]
-                    Text(scene.content)
-                        .font(.system(size: 14))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 12)
-                        .lineLimit(2)
+                    .frame(height: 400)
                 }
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.black.opacity(0),
-                            Color.black.opacity(0.5)
-                        ]),
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-            }
-            .frame(height: 400)
+            )
         }
     }
-}
-
-// MARK: - Scene View
-private struct SceneView: View {
-    let scene: Common_StoryBoardSence
     
-    var body: some View {
+    // MARK: - SceneView
+    private func SceneView(scene: Common_StoryBoardSence) -> some View {
         if let data = scene.genResult.data(using: .utf8),
            let urls = try? JSONDecoder().decode([String].self, from: data),
            let firstUrl = urls.first {
-            KFImage(URL(string: convertImagetoSenceImage(url: firstUrl, scene: .content)))
-                .cacheMemoryOnly()
-                .fade(duration: 0.25)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(maxWidth: .infinity)
-                .frame(height: 400)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .clipped()
+            return AnyView(
+                KFImage(URL(string: convertImagetoSenceImage(url: firstUrl, scene: .content)))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 400)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipped()
+            )
+        } else {
+            return AnyView(EmptyView())
         }
     }
-}
-
-// MARK: - Interaction Buttons View
-private struct InteractionButtonsView: View {
-    @Binding var storyboard: StoryBoardActive
-    let userId: Int64
-    let viewModel: FeedViewModel
     
-    var body: some View {
+    // MARK: - InteractionButtonsView
+    private func InteractionButtonsView(
+        storyboard: Common_StoryBoardActive,
+        userId: Int64,
+        viewModel: FeedViewModel
+    ) -> some View {
         HStack(spacing: 24) {
             // 点赞按钮
             InteractionButton(
-                icon: storyboard.boardActive.storyboard.currentUserStatus.isLiked ? "heart.fill" : "heart",
-                count: Int(storyboard.boardActive.totalLikeCount),
-                isActive: storyboard.boardActive.storyboard.currentUserStatus.isLiked,
+                icon: storyboard.storyboard.currentUserStatus.isLiked ? "heart.fill" : "heart",
+                count: Int(storyboard.totalLikeCount),
+                isActive: storyboard.storyboard.currentUserStatus.isLiked,
                 action: {
                     Task {
-                        if !storyboard.boardActive.storyboard.currentUserStatus.isLiked {
-                            await viewModel.likeStoryBoard(
-                                storyId: storyboard.boardActive.storyboard.storyID,
-                                boardId: storyboard.boardActive.storyboard.storyBoardID,
+                        if !storyboard.storyboard.currentUserStatus.isLiked {
+                            if let error = await viewModel.likeStoryBoard(
+                                storyId: storyboard.storyboard.storyID,
+                                boardId: storyboard.storyboard.storyBoardID,
                                 userId: userId
-                            )
-                            storyboard.boardActive.storyboard.currentUserStatus.isLiked = true
-                            storyboard.boardActive.totalLikeCount = storyboard.boardActive.totalLikeCount + 1
-                        }else{
-                            await viewModel.unlikeStoryBoard(
-                                storyId: storyboard.boardActive.storyboard.storyID,
-                                boardId: storyboard.boardActive.storyboard.storyBoardID,
+                            ) {
+                                errorMessage = error.localizedDescription
+                            } else {
+                                // 更新本地状态
+                                if let index = viewModel.storyBoardActives.firstIndex(where: { $0.storyboard.storyBoardID == storyboard.storyboard.storyBoardID }) {
+                                    viewModel.storyBoardActives[index].storyboard.currentUserStatus.isLiked = true
+                                    viewModel.storyBoardActives[index].totalLikeCount += 1
+                                }
+                            }
+                        } else {
+                            if let error = await viewModel.unlikeStoryBoard(
+                                storyId: storyboard.storyboard.storyID,
+                                boardId: storyboard.storyboard.storyBoardID,
                                 userId: userId
-                            )
-                            storyboard.boardActive.storyboard.currentUserStatus.isLiked = false
-                            storyboard.boardActive.totalLikeCount = storyboard.boardActive.totalLikeCount - 1
+                            ) {
+                                errorMessage = error.localizedDescription
+                            } else {
+                                // 更新本地状态
+                                if let index = viewModel.storyBoardActives.firstIndex(where: { $0.storyboard.storyBoardID == storyboard.storyboard.storyBoardID }) {
+                                    viewModel.storyBoardActives[index].storyboard.currentUserStatus.isLiked = false
+                                    viewModel.storyBoardActives[index].totalLikeCount -= 1
+                                }
+                            }
                         }
                     }
                 },
@@ -412,7 +354,7 @@ private struct InteractionButtonsView: View {
             // 评论按钮
             InteractionButton(
                 icon: "bubble.left",
-                count: Int(storyboard.boardActive.totalCommentCount),
+                count: Int(storyboard.totalCommentCount),
                 isActive: false,
                 action: {
                     print("add some comment")
@@ -423,7 +365,7 @@ private struct InteractionButtonsView: View {
             // 分支按钮
             InteractionButton(
                 icon: "arrow.triangle.branch",
-                count: Int(storyboard.boardActive.totalForkCount),
+                count: Int(storyboard.totalForkCount),
                 isActive: false,
                 action: {
                     print("add some comment")

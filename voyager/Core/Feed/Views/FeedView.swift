@@ -22,6 +22,8 @@ struct FeedView: View {
     @State private var errorTitle: String = ""
     @State private var errorMessage: String = ""
     @State private var showError: Bool = false
+    @State private var selectedStoryBoardId: Int64? = nil
+    
     
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: FeedViewModel(user: user))
@@ -76,7 +78,8 @@ struct FeedView: View {
                                 viewModel: viewModel,
                                 errorTitle: $errorTitle,
                                 errorMessage: $errorMessage,
-                                showError: $showError
+                                showError: $showError,
+                                selectedStoryBoardId: $selectedStoryBoardId
                             )
                         }
                     }
@@ -196,9 +199,10 @@ private struct FeedItemCard: View {
     @Binding var errorTitle: String
     @Binding var errorMessage: String
     @Binding var showError: Bool
+    @Binding var selectedStoryBoardId: Int64?
     let sceneMediaContents: [SceneMediaContent]
     
-    init(storyBoardActive: Common_StoryBoardActive?=nil, userId: Int64, viewModel: FeedViewModel, errorTitle: Binding<String>, errorMessage: Binding<String>, showError: Binding<Bool>) {
+    init(storyBoardActive: Common_StoryBoardActive?=nil, userId: Int64, viewModel: FeedViewModel, errorTitle: Binding<String>, errorMessage: Binding<String>, showError: Binding<Bool>, selectedStoryBoardId: Binding<Int64?>) {
         self._storyBoardActive = State(initialValue: storyBoardActive!)
         self.userId = userId
         self.viewModel = viewModel
@@ -207,6 +211,7 @@ private struct FeedItemCard: View {
         self._errorTitle = errorTitle
         self._errorMessage = errorMessage
         self._showError = showError
+        self._selectedStoryBoardId = selectedStoryBoardId
         var tempSceneContents: [SceneMediaContent] = []
         let scenes = storyBoardActive!.storyboard.sences.list
         for scene in scenes {
@@ -241,7 +246,10 @@ private struct FeedItemCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Button(action: {
-                showStoryboardSummary = true
+                selectedStoryBoardId = storyBoardActive.storyboard.storyBoardID
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    showStoryboardSummary = true
+                }
             }) {
                 VStack(alignment: .leading, spacing: 12) {
                     // 顶部信息：创建者和故事信息
@@ -427,11 +435,13 @@ private struct FeedItemCard: View {
         )
         .shadow(color: Color.theme.primaryText.opacity(0.05), radius: 4, y: 2)
         .fullScreenCover(isPresented: $showStoryboardSummary) {
-            StoryboardSummary(
-                storyBoardId: storyBoardActive.storyboard.storyBoardID,
-                userId: userId,
-                viewModel: self.viewModel
-            )
+            if let storyBoardId = selectedStoryBoardId {
+                StoryboardSummary(
+                    storyBoardId: storyBoardId,
+                    userId: userId,
+                    viewModel: viewModel
+                )
+            }
         }
     }
 }
@@ -475,8 +485,16 @@ private struct LatestUpdatesView: View {
     @Binding var errorTitle: String
     @Binding var errorMessage: String
     @Binding var showError: Bool
+    @Binding var selectedStoryBoardId: Int64?
     
-    init(searchText: Binding<String>, selectedTab: Binding<FeedType>, tabs: [(type: FeedType, title: String)], viewModel: FeedViewModel, errorTitle: Binding<String>, errorMessage: Binding<String>, showError: Binding<Bool>) {
+    init(searchText: Binding<String>, 
+         selectedTab: Binding<FeedType>, 
+         tabs: [(type: FeedType, title: String)], 
+         viewModel: FeedViewModel, 
+         errorTitle: Binding<String>, 
+         errorMessage: Binding<String>, 
+         showError: Binding<Bool>,
+         selectedStoryBoardId: Binding<Int64?>) {
         self._searchText = searchText
         self._selectedTab = selectedTab
         self.tabs = tabs
@@ -484,6 +502,7 @@ private struct LatestUpdatesView: View {
         self._errorTitle = errorTitle
         self._errorMessage = errorMessage
         self._showError = showError
+        self._selectedStoryBoardId = selectedStoryBoardId
     }
     
     var body: some View {
@@ -495,7 +514,8 @@ private struct LatestUpdatesView: View {
                 viewModel: viewModel,
                 errorTitle: $errorTitle,
                 errorMessage: $errorMessage,
-                showError: $showError
+                showError: $showError,
+                selectedStoryBoardId: $selectedStoryBoardId
             )
         }
         .background(Color.theme.background)
@@ -566,6 +586,7 @@ private struct FeedContentSection: View {
     @Binding var errorTitle: String
     @Binding var errorMessage: String
     @Binding var showError: Bool
+    @Binding var selectedStoryBoardId: Int64?
 
     var body: some View {
         ScrollView {
@@ -579,7 +600,8 @@ private struct FeedContentSection: View {
                     selectedTab: $selectedTab,
                     errorTitle: $errorTitle,
                     errorMessage: $errorMessage,
-                    showError: $showError
+                    showError: $showError,
+                    selectedStoryBoardId: $selectedStoryBoardId
                 )
             }
         }
@@ -593,6 +615,7 @@ private struct FeedItemList: View {
     @Binding var errorTitle: String
     @Binding var errorMessage: String
     @Binding var showError: Bool
+    @Binding var selectedStoryBoardId: Int64?
     @State private var isLoadingMore = false
 
     var body: some View {
@@ -604,7 +627,8 @@ private struct FeedItemList: View {
                     viewModel: viewModel,
                     errorTitle: $errorTitle,
                     errorMessage: $errorMessage,
-                    showError: $showError
+                    showError: $showError,
+                    selectedStoryBoardId: $selectedStoryBoardId
                 )
             }
 

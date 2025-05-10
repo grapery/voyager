@@ -109,7 +109,6 @@ class MessageViewModel: ObservableObject{
         )
         
         if let err = err {
-            print("fetchMoreChatContexts error: ", err)
             return
         }
         print("rpc resp: ",msgCtxs?.count as Any)
@@ -118,7 +117,6 @@ class MessageViewModel: ObservableObject{
             let chatContexts = contexts.map { ctx in
                 ChatContext(id: ctx.chatID, chatinfo: ctx)
             }
-            print("chatContexts :",chatContexts.count)
             if !chatContexts.isEmpty {
                 self.msgCtxs.append(contentsOf: chatContexts)
                 self.hasMorePages = chatContexts.count == pageSize
