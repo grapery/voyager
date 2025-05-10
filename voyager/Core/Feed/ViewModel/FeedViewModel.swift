@@ -445,7 +445,7 @@ class FeedViewModel: ObservableObject {
         do {
             // 获取当前时间和一周前的时间戳
             let now = Int64(Date().timeIntervalSince1970)
-            let oneWeekAgo = now - 7 * 24 * 60 * 60
+            let oneWeekAgo = now - 4*7 * 24 * 60 * 60
             
             let (stories, total, _, error) = await storyService.getTrendingStoris(
                 userId: userId,
@@ -599,6 +599,32 @@ class FeedViewModel: ObservableObject {
         }
         
         return success
+    }
+    
+    // 关注故事
+    @MainActor
+    func followStory(userId: Int64, storyId: Int64) async -> Error? {
+        let (_, error) = await storyService.WatchStory(storyId: storyId, userId: userId)
+        
+        if let error = error {
+            print("followStory error",error as Any)
+            return error
+        }
+        print("followStory success")
+        return nil
+    }
+    
+    // 关注故事
+    @MainActor
+    func unfollowStory(userId: Int64,  storyId: Int64) async -> Error? {
+        let (_, error) = await storyService.WatchStory(storyId: storyId, userId: userId)
+        
+        if let error = error {
+            print("unfollowStory error",error as Any)
+            return error
+        }
+        print("unfollowStory success")
+        return nil
     }
 }
 

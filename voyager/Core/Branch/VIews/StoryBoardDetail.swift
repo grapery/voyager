@@ -33,7 +33,6 @@ struct StoryBoardCellView: View {
     let groupId: Int64
     let storyId: Int64
     @ObservedObject var viewModel: StoryViewModel
-    @State private var isLiked = false
     @State private var showDetail = false
     @State private var showStoryBoard = false  // 控制全屏展示
     @State private var showNewStoryBoard = false  // Add this line for showing NewStoryBoardView
@@ -181,12 +180,15 @@ struct StoryBoardCellView: View {
                     count: "\(board.boardActive.totalLikeCount)",
                     color: board.boardActive.storyboard.currentUserStatus.isLiked  ? Color.red: Color.theme.tertiaryText,
                     action: {
-                        withAnimation(.spring()) {
-                            isLiked.toggle()
-                            board.boardActive.totalLikeCount = board.boardActive.totalLikeCount + 1
-                            Task{
-                                await viewModel.likeStoryBoard(storyId: board.boardActive.storyboard.storyID, boardId: board.boardActive.storyboard.storyBoardID, userId: userId)
+                        Task{
+                            if board.boardActive.storyboard.currentUserStatus.isLiked {
+                                let err = await viewModel.unlikeStoryBoard(storyId: board.boardActive.storyboard.storyID, boardId: board.boardActive.storyboard.storyBoardID, userId: userId)
+                                    board.boardActive.totalLikeCount = board.boardActive.totalLikeCount - 1
+                            }else{
+                                let err =  await viewModel.likeStoryBoard(storyId: board.boardActive.storyboard.storyID, boardId: board.boardActive.storyboard.storyBoardID, userId: userId)
+                                    board.boardActive.totalLikeCount = board.boardActive.totalLikeCount + 1
                             }
+                            
                         }
                     }
                 )

@@ -764,20 +764,40 @@ class StoryViewModel: ObservableObject {
         return ([User](),nil)
     }
     
-    func likeStoryRole(roleId: Int64) async{
+    func likeStoryRole(roleId: Int64) async -> Error?{
         let err = await APIClient.shared.LikeStoryRole(roleId: roleId, storyId: self.storyId, userId: self.userId)
         if err != nil{
             print("likeStoryboard failed: ",err!)
+            return err
         }
-        return
+        return nil
     }
     
-    func unlikeStoryRole(roleId: Int64) async{
+    func unlikeStoryRole(roleId: Int64) async -> Error?{
         let (_,err) = await APIClient.shared.UnLikeStoryRole(userId: self.userId,roleId: roleId, storyId: self.storyId)
         if err != nil{
             print("likeStoryboard failed: ",err!)
+            return err
         }
-        return
+        return nil
+    }
+    
+    func followStoryRole(roleId: Int64) async -> Error?{
+        let (_,err) = await APIClient.shared.FollowStoryRole(userId: self.userId, roleId: roleId, storyId: self.storyId)
+        if err != nil{
+            print("followStoryRole failed: ",err!)
+            return err
+        }
+        return nil
+    }
+    
+    func unfollowStoryRole(roleId: Int64) async -> Error?{
+        let (_,err) = await APIClient.shared.UnFollowStoryRole(userId: self.userId,roleId: roleId, storyId: self.storyId)
+        if err != nil{
+            print("unfollowStoryRole failed: ",err!)
+            return err
+        }
+        return nil
     }
 }
 

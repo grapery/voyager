@@ -662,7 +662,7 @@ struct RoleCard: View {
                 StorySubViewInteractionButton(
                     icon: self.role.role.currentUserStatus.isLiked ? "heart.fill" : "heart",
                     count: "\(role.role.likeCount)",
-                    color: self.role.role.currentUserStatus.isLiked ? Color.theme.error : Color.theme.tertiaryText,
+                    color: self.role.role.currentUserStatus.isLiked ? Color.red: Color.theme.tertiaryText,
                     action: {
                         Task{
                             if self.role.role.currentUserStatus.isLiked{
@@ -680,11 +680,21 @@ struct RoleCard: View {
                 
                 // 关注按钮
                 StorySubViewInteractionButton(
-                    icon: "bell.fill",
-                    count: "关注",
-                    color: Color.theme.tertiaryText,
+                    icon: self.role.role.currentUserStatus.isFollowed ?  "bell.fill":"bell",
+                    count: "\(role.role.followCount)",
+                    color: self.role.role.currentUserStatus.isFollowed ? Color.red: Color.theme.tertiaryText,
                     action: {
-                        // TODO: 处理关注事件
+                        Task{
+                            if self.role.role.currentUserStatus.isFollowed{
+                                await self.viewModel.unfollowStoryRole(roleId: self.role.role.roleID)
+                                self.role.role.currentUserStatus.isFollowed = false
+                                self.role.role.followCount -= 1
+                            }else{
+                                await self.viewModel.followStoryRole(roleId: self.role.role.roleID)
+                                self.role.role.currentUserStatus.isFollowed = true
+                                self.role.role.followCount += 1
+                            }
+                        }
                     }
                 )
 

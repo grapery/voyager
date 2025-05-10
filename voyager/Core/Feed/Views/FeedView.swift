@@ -1104,7 +1104,7 @@ private struct TrendingContentView: View {
                                 }
                                 .frame(maxWidth: .infinity)
                             } else if !viewModel.trendingStories.isEmpty {
-                                LazyVStack(alignment: .leading, spacing: 16) {
+                                LazyVStack(alignment: .leading, spacing: 8) {
                                     ForEach(viewModel.trendingStories, id: \.Id) { story in
                                         TrendingStoryCard(story: story, viewModel: viewModel)
                                             .padding(.horizontal)
@@ -1264,7 +1264,7 @@ private struct TrendingStoryCard: View {
         Button(action: {
             navigateToStory = true
         }) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 8) {
                 // 故事头部信息
                 HStack(spacing: 12) {
                     // 故事缩略图
@@ -1291,24 +1291,63 @@ private struct TrendingStoryCard: View {
                             .font(.system(size: 14))
                             .foregroundColor(Color.theme.secondaryText)
                             .lineLimit(2)
-                        
                         // 统计数据
                         HStack(spacing: 16) {
-                            Label("\(Int.random(in: 100...5000))", systemImage: "eye")
+                            Label("\(story.storyInfo.likeCount)", systemImage: story.storyInfo.currentUserStatus.isLiked ? "heart.fill" : "heart")
+                                .font(.system(size: 12))
+                                .foregroundColor(Color.red)
+                            
+                            Label("\(story.storyInfo.followCount)", systemImage: story.storyInfo.currentUserStatus.isFollowed ? "bell.fill" : "bell")
+                                .font(.system(size: 12))
+                                .foregroundColor(Color.blue)
+                            
+                            Label("\(story.storyInfo.totalRoles)", systemImage: "person")
                                 .font(.system(size: 12))
                                 .foregroundColor(Color.theme.tertiaryText)
                             
-                            Label("\(Int.random(in: 10...500))", systemImage: "heart")
-                                .font(.system(size: 12))
-                                .foregroundColor(Color.theme.tertiaryText)
-                            
-                            Label("\(Int.random(in: 1...100))", systemImage: "bubble.left")
+                            Label("\(story.storyInfo.totalBoards)", systemImage: "book")
                                 .font(.system(size: 12))
                                 .foregroundColor(Color.theme.tertiaryText)
                         }
                     }
                     
                     Spacer()
+                    
+                    // 关注按钮 - 调整位置和大小
+                    VStack {
+                        if story.storyInfo.currentUserStatus.isFollowed {
+                            Button {
+                                Task {
+                                    await viewModel.unfollowStory(userId: viewModel.userId, storyId: story.storyInfo.id)
+                                    story.storyInfo.currentUserStatus.isFollowed = false
+                                }
+                            } label: {
+                                Text("已关注")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(Color.white)
+                                    .fontWeight(.medium)
+                                    .frame(width: 50, height: 24)
+                                    .background(Color.gray)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
+                        } else {
+                            Button {
+                                Task {
+                                    await viewModel.followStory(userId: viewModel.userId, storyId: story.storyInfo.id)
+                                    story.storyInfo.currentUserStatus.isFollowed = true
+                                }
+                            } label: {
+                                Text("关注")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(Color.blue)
+                                    .fontWeight(.medium)
+                                    .frame(width: 50, height: 24)
+                                    .background(Color.blue)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
+                        }
+                    }
+                    .padding(.top, 4) // 微调顶部间距，与头像对齐
                 }
                 
                 // 标签栏

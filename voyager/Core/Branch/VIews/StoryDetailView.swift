@@ -126,11 +126,11 @@ struct StoryDetailView: View {
     
     private var storyStats: some View {
         HStack {
-            Stat(title: "Likes", value: viewModel.likes)
-            Stat(title: "Followers", value: viewModel.followers)
-            Stat(title: "Boards", value: viewModel.boardsCount)
+            Stat(title: "likes", value: viewModel.likes)
+            Stat(title: "followers", value: viewModel.followers)
+            Stat(title: "boards", value: viewModel.boardsCount)
             Stat(title: "roles", value: viewModel.roleNum)
-            Stat(title: "Members", value: viewModel.members)
+            Stat(title: "members", value: viewModel.members)
         }
     }
     
