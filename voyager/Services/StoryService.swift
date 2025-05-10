@@ -1679,5 +1679,8 @@ extension APIClient {
         }
         return nil
     }
+    
+    
+    func generateDescription(storyId: Int64,roleId:Int64,userId:Int64,sampleDesc: String) async -> (Common)
 }
 
