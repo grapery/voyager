@@ -1014,8 +1014,8 @@ private struct RoleStatsView: View {
             Label("\(role.role.followCount)", systemImage: role.role.currentUserStatus.isFollowed ? "bell.fill" : "bell")
                 .font(.system(size: 12))
                 .foregroundColor(Color.blue)
-
-            Label("\(role.role.storyboardNum)", systemImage: "book")
+            role.role.
+            Label("\(role.role.bo)", systemImage: "book")
                 .font(.system(size: 12))
                 .foregroundColor(Color.theme.tertiaryText)
         }
