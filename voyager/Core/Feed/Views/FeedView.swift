@@ -1001,6 +1001,142 @@ private struct ChatBubble: View {
     }
 }
 
+// 角色统计信息视图
+private struct RoleStatsView: View {
+    let role: StoryRole
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            Label("\(role.role.likeCount)", systemImage: role.role.currentUserStatus.isLiked ? "heart.fill" : "heart")
+                .font(.system(size: 12))
+                .foregroundColor(Color.red)
+            
+            Label("\(role.role.followCount)", systemImage: role.role.currentUserStatus.isFollowed ? "bell.fill" : "bell")
+                .font(.system(size: 12))
+                .foregroundColor(Color.blue)
+
+            Label("\(role.role.storyboardNum)", systemImage: "book")
+                .font(.system(size: 12))
+                .foregroundColor(Color.theme.tertiaryText)
+        }
+    }
+}
+
+// 角色关注按钮
+private struct RoleFollowButton: View {
+    let role: StoryRole
+    let viewModel: FeedViewModel
+    
+    var body: some View {
+        if role.role.currentUserStatus.isFollowed {
+            Button {
+                Task {
+                    _ = await viewModel.unfollowStoryRole(userId: viewModel.user.userID, roleId: role.Id, storyId: role.role.storyID)
+                    role.role.currentUserStatus.isFollowed = false
+                }
+            } label: {
+                Text("已关注")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(Color.theme.tertiaryText)
+                    .frame(width: 50, height: 24)
+                    .background(
+                        Capsule()
+                            .fill(Color.theme.secondaryBackground)
+                    )
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.theme.tertiaryText, lineWidth: 1)
+                    )
+            }
+        } else {
+            Button {
+                Task {
+                    _ = await viewModel.followStoryRole(userId: viewModel.user.userID, roleId: role.Id, storyId: role.role.storyID)
+                    role.role.currentUserStatus.isFollowed = true
+                }
+            } label: {
+                Text("关注")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white)
+                    .frame(width: 50, height: 24)
+                    .background(
+                        Capsule()
+                            .fill(Color.theme.accent)
+                    )
+            }
+        }
+    }
+}
+
+// 热门角色卡片
+private struct TrendingRoleCard: View {
+    let role: StoryRole
+    @ObservedObject var viewModel: FeedViewModel
+    @State private var navigateToRoleDetail = false
+    
+    var body: some View {
+        Button(action: {
+            navigateToRoleDetail = true
+        }) {
+            HStack(spacing: 16) {
+                // 角色头像
+                KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
+                    .placeholder {
+                        Rectangle()
+                            .fill(Color.theme.tertiaryBackground)
+                    }
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 60, height: 60)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                
+                // 角色信息
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(role.role.characterName)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(Color.theme.primaryText)
+                    
+                    Text(role.role.characterDescription)
+                        .font(.system(size: 14))
+                        .foregroundColor(Color.theme.secondaryText)
+                        .lineLimit(2)
+                    
+                    RoleStatsView(role: role)
+                }
+                
+                Spacer()
+                
+                RoleFollowButton(role: role, viewModel: viewModel)
+            }
+            .padding(16)
+            .background(Color.theme.secondaryBackground)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.theme.border, lineWidth: 0.5)
+            )
+            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .background(
+            NavigationLink(
+                destination: StoryRoleDetailView(
+                    roleId: role.Id,
+                    userId: viewModel.user.userID,
+                    role: role
+                )
+                .transition(.opacity)
+                .animation(.easeInOut, value: navigateToRoleDetail),
+                isActive: $navigateToRoleDetail,
+                label: { EmptyView() }
+            )
+        )
+    }
+}
+
 // 热点内容视图
 private struct TrendingContentView: View {
     @ObservedObject var viewModel: FeedViewModel
@@ -1193,7 +1329,7 @@ private struct TrendingContentView: View {
                                 }
                                 .frame(maxWidth: .infinity)
                             } else if !viewModel.trendingRoles.isEmpty {
-                                LazyVStack(alignment: .leading, spacing: 16) {
+                                LazyVStack(alignment: .leading, spacing: 8) {
                                     ForEach(viewModel.trendingRoles, id: \.Id) { role in
                                         TrendingRoleCard(role: role, viewModel: viewModel)
                                             .padding(.horizontal)
@@ -1266,88 +1402,87 @@ private struct TrendingStoryCard: View {
         }) {
             VStack(alignment: .leading, spacing: 8) {
                 // 故事头部信息
-                HStack(spacing: 12) {
-                    // 故事缩略图
-                    KFImage(URL(string: convertImagetoSenceImage(url: story.storyInfo.avatar, scene: .small)))
-                        .cacheMemoryOnly()
-                        .fade(duration: 0.25)
-                        .placeholder {
-                            Rectangle()
-                                .fill(Color.theme.tertiaryBackground)
-                        }
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 60, height: 60)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                    
-                    // 故事信息
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(story.storyInfo.name)
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(Color.theme.primaryText)
-                            .lineLimit(1)
-                        
-                        Text(story.storyInfo.desc)
-                            .font(.system(size: 14))
-                            .foregroundColor(Color.theme.secondaryText)
-                            .lineLimit(2)
-                        // 统计数据
-                        HStack(spacing: 16) {
-                            Label("\(story.storyInfo.likeCount)", systemImage: story.storyInfo.currentUserStatus.isLiked ? "heart.fill" : "heart")
-                                .font(.system(size: 12))
-                                .foregroundColor(Color.red)
-                            
-                            Label("\(story.storyInfo.followCount)", systemImage: story.storyInfo.currentUserStatus.isFollowed ? "bell.fill" : "bell")
-                                .font(.system(size: 12))
-                                .foregroundColor(Color.blue)
-                            
-                            Label("\(story.storyInfo.totalRoles)", systemImage: "person")
-                                .font(.system(size: 12))
-                                .foregroundColor(Color.theme.tertiaryText)
-                            
-                            Label("\(story.storyInfo.totalBoards)", systemImage: "book")
-                                .font(.system(size: 12))
-                                .foregroundColor(Color.theme.tertiaryText)
-                        }
-                    }
-                    
-                    Spacer()
-                    
-                    // 关注按钮 - 调整位置和大小
-                    VStack {
-                        if story.storyInfo.currentUserStatus.isFollowed {
-                            Button {
-                                Task {
-                                    await viewModel.unfollowStory(userId: viewModel.userId, storyId: story.storyInfo.id)
-                                    story.storyInfo.currentUserStatus.isFollowed = false
-                                }
-                            } label: {
-                                Text("已关注")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(Color.white)
-                                    .fontWeight(.medium)
-                                    .frame(width: 50, height: 24)
-                                    .background(Color.gray)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                ZStack(alignment: .topTrailing) {
+                    HStack(spacing: 12) {
+                        // 故事缩略图
+                        KFImage(URL(string: convertImagetoSenceImage(url: story.storyInfo.avatar, scene: .small)))
+                            .cacheMemoryOnly()
+                            .fade(duration: 0.25)
+                            .placeholder {
+                                Rectangle()
+                                    .fill(Color.theme.tertiaryBackground)
                             }
-                        } else {
-                            Button {
-                                Task {
-                                    await viewModel.followStory(userId: viewModel.userId, storyId: story.storyInfo.id)
-                                    story.storyInfo.currentUserStatus.isFollowed = true
-                                }
-                            } label: {
-                                Text("关注")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 60, height: 60)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        
+                        // 故事信息
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(story.storyInfo.name)
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(Color.theme.primaryText)
+                                .lineLimit(1)
+                            
+                            Text(story.storyInfo.desc)
+                                .font(.system(size: 14))
+                                .foregroundColor(Color.theme.secondaryText)
+                                .lineLimit(2)
+                            // 统计数据
+                            HStack(spacing: 16) {
+                                Label("\(story.storyInfo.likeCount)", systemImage: story.storyInfo.currentUserStatus.isLiked ? "heart.fill" : "heart")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(Color.red)
+                                
+                                Label("\(story.storyInfo.followCount)", systemImage: story.storyInfo.currentUserStatus.isFollowed ? "bell.fill" : "bell")
                                     .font(.system(size: 12))
                                     .foregroundColor(Color.blue)
-                                    .fontWeight(.medium)
-                                    .frame(width: 50, height: 24)
-                                    .background(Color.blue)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                
+                                Label("\(story.storyInfo.totalRoles)", systemImage: "person")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(Color.theme.tertiaryText)
+                                
+                                Label("\(story.storyInfo.totalBoards)", systemImage: "book")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(Color.theme.tertiaryText)
                             }
                         }
+                        
+                        Spacer()
                     }
-                    .padding(.top, 4) // 微调顶部间距，与头像对齐
+                    
+                    // 关注按钮 - 移到右上角
+                    if story.storyInfo.currentUserStatus.isFollowed {
+                        Button {
+                            Task {
+                                await viewModel.unfollowStory(userId: viewModel.userId, storyId: story.storyInfo.id)
+                                story.storyInfo.currentUserStatus.isFollowed = false
+                            }
+                        } label: {
+                            Text("已关注")
+                                .font(.system(size: 12))
+                                .foregroundColor(Color.white)
+                                .fontWeight(.medium)
+                                .frame(width: 50, height: 24)
+                                .background(Color.gray)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                    } else {
+                        Button {
+                            Task {
+                                await viewModel.followStory(userId: viewModel.userId, storyId: story.storyInfo.id)
+                                story.storyInfo.currentUserStatus.isFollowed = true
+                            }
+                        } label: {
+                            Text("关注")
+                                .font(.system(size: 12))
+                                .foregroundColor(Color.white)
+                                .fontWeight(.medium)
+                                .frame(width: 50, height: 24)
+                                .background(Color.blue)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                    }
                 }
                 
                 // 标签栏
@@ -1382,118 +1517,6 @@ private struct TrendingStoryCard: View {
                 .transition(.opacity)
                 .animation(.easeInOut, value: navigateToStory),
                 isActive: $navigateToStory,
-                label: { EmptyView() }
-            )
-        )
-    }
-}
-
-// 热门角色卡片
-private struct TrendingRoleCard: View {
-    let role: StoryRole
-    @ObservedObject var viewModel: FeedViewModel
-    @State private var navigateToRoleDetail = false
-    
-    var body: some View {
-        Button(action: {
-            navigateToRoleDetail = true
-        }) {
-            HStack(spacing: 16) {
-                // 角色头像
-                KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
-                    .cacheMemoryOnly()
-                    .fade(duration: 0.25)
-                    .placeholder {
-                        Rectangle()
-                            .fill(Color.theme.tertiaryBackground)
-                    }
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 60, height: 60)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    
-                
-                // 角色信息
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(role.role.characterName)
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(Color.theme.primaryText)
-                    
-                    Text(role.role.characterDescription)
-                        .font(.system(size: 14))
-                        .foregroundColor(Color.theme.secondaryText)
-                        .lineLimit(2)
-                    
-                    // 统计和操作按钮
-                    HStack(spacing: 16) {
-                        // 点赞数
-                        Label("\(role.role.likeCount)", systemImage: "heart")
-                            .font(.system(size: 12))
-                            .foregroundColor(Color.theme.tertiaryText)
-                        
-                        // 关注按钮
-                        Button(action: {
-                            Task {
-                                if role.role.currentUserStatus.isFollowed {
-                                    _ = await viewModel.unfollowStoryRole(userId: viewModel.user.userID, roleId: role.Id, storyId: role.role.storyID)
-                                } else {
-                                    _ = await viewModel.followStoryRole(userId: viewModel.user.userID, roleId: role.Id, storyId: role.role.storyID)
-                                }
-                            }
-                        }) {
-                            Text(role.role.currentUserStatus.isFollowed ? "已关注" : "关注")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(role.role.currentUserStatus.isFollowed ? Color.theme.tertiaryText : .white)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 4)
-                                .background(
-                                    Capsule()
-                                        .fill(role.role.currentUserStatus.isFollowed ? Color.theme.secondaryBackground : Color.theme.accent)
-                                )
-                                .overlay(
-                                    Capsule()
-                                        .stroke(role.role.currentUserStatus.isFollowed ? Color.theme.tertiaryText : Color.clear, lineWidth: 1)
-                                )
-                        }
-                    }
-                }
-                
-                Spacer()
-                
-                // 聊天按钮
-                Button(action: {
-                    // 添加聊天功能
-                    navigateToRoleDetail = true
-                }) {
-                    Image(systemName: "bubble.right")
-                        .font(.system(size: 16))
-                        .foregroundColor(.white)
-                        .padding(8)
-                        .background(Color.theme.accent)
-                        .clipShape(Circle())
-                }
-            }
-            .padding(16)
-            .background(Color.theme.secondaryBackground)
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.theme.border, lineWidth: 0.5)
-            )
-            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
-            .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(PlainButtonStyle())
-        .background(
-            NavigationLink(
-                destination: StoryRoleDetailView(
-                    roleId: role.Id,
-                    userId: viewModel.user.userID,
-                    role: role
-                )
-                .transition(.opacity)
-                .animation(.easeInOut, value: navigateToRoleDetail),
-                isActive: $navigateToRoleDetail,
                 label: { EmptyView() }
             )
         )
