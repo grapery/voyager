@@ -479,58 +479,6 @@ struct NewStoryBoardView: View {
             .padding(.horizontal, 4)
         }
     }
-    
-    
-
-    // 2. 修改控制按钮样式
-    private func SenceGenControlView(idx: Int, senceId:Int64) -> some View {
-        HStack(spacing: 12) {
-            // 应用按钮
-            ActionButton(
-                title: "应用",
-                icon: "checkmark.circle.fill",
-                color: .blue
-            ) {
-                Task {
-                    await handleApplyAction(idx: idx)
-                }
-            }
-            
-            // 生成图片按钮
-            ActionButton(
-                title: "生成图片",
-                icon: "photo.fill",
-                color: .green
-            ) {
-                Task {
-                    await handleGenerateImageAction(idx: Int(senceId))
-                }
-            }
-            
-            Spacer()
-        }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 16)
-    }
-
-
-    // 3. 修改 SenceGenListView
-    private var SenceGenListView: some View {
-        ScrollView(.vertical) {
-            VStack(spacing: 16) {
-                ForEach(Array(viewModel.storyScenes.enumerated()), id: \.element.senceIndex) { index, scene in
-                    SceneCardView(
-                        scene: scene,
-                        index: index,
-                        totalScenes: viewModel.storyScenes.count,
-                        viewModel: viewModel
-                    )
-                    SenceGenControlView(idx: index, senceId: scene.senceId)
-                }
-            }
-            .padding(.horizontal)
-        }
-    }
 }
 
 
@@ -766,7 +714,7 @@ extension NewStoryBoardView {
                 storyId: storyId,
                 boardId: boardId,
                 userId: viewModel.userId,
-                senceId: Int64(idx),
+                senceId: viewModel.storyScenes[idx].senceId,
                 renderType: Common_RenderType(rawValue: 1)!
             )
             
@@ -928,36 +876,39 @@ private struct ScenePreviewCard: View {
     let scene: StoryBoardSence
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // 场景图片
-            if let url = URL(string: scene.imageUrl) {
-                AsyncImage(url: url) { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxHeight: 200)
-                        .cornerRadius(12)
-                } placeholder: {
-                    ProgressView()
-                        .frame(height: 200)
+        ScrollView{
+            VStack(alignment: .leading, spacing: 16) {
+                // 场景信息
+                VStack(alignment: .leading, spacing: 12) {
+                    InfoSection(title: "场景描述", content: scene.content)
+                    InfoSection(title: "参与人物", content: "", characters: scene.characters)
+                    if !scene.imagePrompt.isEmpty {
+                        InfoSection(title: "图片提示词", content: scene.imagePrompt)
+                    }
+                }
+                VStack(alignment: .leading, spacing: 12){
+                    // 场景图片
+                    if let url = URL(string: scene.imageUrl) {
+                        AsyncImage(url: url) { image in
+                            image
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxHeight: 200)
+                                .cornerRadius(12)
+                        } placeholder: {
+                            ProgressView()
+                                .frame(height: 200)
+                        }
+                    }
                 }
             }
-            
-            // 场景信息
-            VStack(alignment: .leading, spacing: 12) {
-                InfoSection(title: "场景描述", content: scene.content)
-                InfoSection(title: "参与人物", content: "", characters: scene.characters)
-                if !scene.imagePrompt.isEmpty {
-                    InfoSection(title: "图片提示词", content: scene.imagePrompt)
-                }
-            }
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
-                .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
-        )
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(.systemBackground))
+                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+            )
+        }   
     }
 }
 
@@ -1039,13 +990,21 @@ struct SceneGenerationView: View {
     let moreSenseDetail: (Int) async -> Void
 
     @State private var selectedSceneIndex: Int = 0
+    @State private var imageGenerationState: [Int: ImageGenStatus] = [:]
+    
+    enum ImageGenStatus {
+        case idle
+        case generating
+        case success(UIImage)
+        case failure(String)
+    }
     
     var body: some View {
         VStack(spacing: 0) {
             // Tab栏
             if !viewModel.storyScenes.isEmpty {
                 HStack(spacing: 0) {
-                    ForEach(0..<viewModel.storyScenes.count, id: \.self) { idx in
+                    ForEach(0..<viewModel.storyScenes.count, id: \ .self) { idx in
                         Button(action: { selectedSceneIndex = idx }) {
                             VStack(spacing: 4) {
                                 Text("场景\(idx + 1)")
@@ -1068,95 +1027,246 @@ struct SceneGenerationView: View {
 
             // Tab与内容区间距
             Spacer().frame(height: 5)
-            if !viewModel.storyScenes.isEmpty{
-                if viewModel.storyScenes.indices.contains(selectedSceneIndex) {
-                    let scene = $viewModel.storyScenes[selectedSceneIndex]
-                    VStack(alignment: .leading, spacing: 16) {
-                        // 场景故事
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("场景故事")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            TextEditor(text: scene.content)
-                                .font(.body)
-                                .frame(minHeight: 80, maxHeight: 180)
-                                .multilineTextAlignment(.leading)
-                                .background(Color(.systemGray6))
-                                .cornerRadius(8)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.theme.border, lineWidth: 1)
-                                )
-                        }
-
-                        // 参与人物
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("参与人物（用逗号分隔）")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
-
-                        // 图片提示词
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("图片提示词")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            TextEditor(text: scene.imagePrompt)
-                                .font(.body)
-                                .frame(minHeight: 40, maxHeight: 120)
-                                .multilineTextAlignment(.leading)
-                                .background(Color(.systemGray6))
-                                .cornerRadius(8)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.theme.border, lineWidth: 1)
-                                )
-                        }
-
-                        Divider().padding(.vertical, 8)
-                        // 按钮组居中
-                        HStack(spacing: 16) {
-                            ActionButton(
-                                title: "场景渲染",
-                                icon: "hand.draw",
-                                color: .green
-                            ) {
-                                Task { await moreSenseDetail(selectedSceneIndex) }
+            ScrollView{
+                if !viewModel.storyScenes.isEmpty{
+                    if viewModel.storyScenes.indices.contains(selectedSceneIndex) {
+                        let scene = $viewModel.storyScenes[selectedSceneIndex]
+                        VStack(alignment: .leading, spacing: 16) {
+                            // 场景故事
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("场景故事")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                TextEditor(text: scene.content)
+                                    .font(.body)
+                                    .frame(minHeight: 80, maxHeight: 180)
+                                    .multilineTextAlignment(.leading)
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(8)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.theme.border, lineWidth: 1)
+                                    )
                             }
-                            ActionButton(
-                                title: "生成图片",
-                                icon: "photo.fill",
-                                color: .blue
-                            ) {
-                                Task { await onGenerateImage(selectedSceneIndex) }
+                            
+                            // 参与人物
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("参与人物（用逗号分隔）")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            // 参考图像选择
+                            ReferenceImagePicker(referenceImage: scene.referencaImage)
+                            
+                            // 图片提示词
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("图片提示词")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                TextEditor(text: scene.imagePrompt)
+                                    .font(.body)
+                                    .frame(minHeight: 40, maxHeight: 120)
+                                    .multilineTextAlignment(.leading)
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(8)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.theme.border, lineWidth: 1)
+                                    )
+                            }
+                            
+                            // 生成图片展示区域
+                            GeneratedImageSection(scene: scene.wrappedValue, status: imageGenerationState[selectedSceneIndex] ?? .idle)
+                            
+                            Divider().padding(.vertical, 8)
+                            // 按钮组居中
+                            HStack(spacing: 16) {
+                                ActionButton(
+                                    title: "场景渲染",
+                                    icon: "hand.draw",
+                                    color: .green
+                                ) {
+                                    Task { await moreSenseDetail(selectedSceneIndex) }
+                                }
+                                ActionButton(
+                                    title: "生成图片",
+                                    icon: "photo.fill",
+                                    color: .blue
+                                ) {
+                                    imageGenerationState[selectedSceneIndex] = .generating
+                                    Task {
+                                        await onGenerateImage(selectedSceneIndex)
+                                        let urlStr = viewModel.storyScenes[selectedSceneIndex].imageUrl
+                                        if !urlStr.isEmpty {
+                                            let url = URL(string: urlStr)
+                                            let data = try? Data(contentsOf: url!)
+                                            let img = UIImage(data: data!)
+                                            imageGenerationState[selectedSceneIndex] = .success(img!)
+                                        } else if urlStr.isEmpty {
+                                            imageGenerationState[selectedSceneIndex] = .failure("图片加载失败")
+                                        } else {
+                                            imageGenerationState[selectedSceneIndex] = .failure("生成失败")
+                                        }
+                                    }
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.top, 8)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 16)
+                    }
+                    
+                    Spacer().frame(height: 8)
+                    
+                    // 生成所有场景图片按钮
+                    HStack {
+                        Spacer()
+                        ActionButton(
+                            title: "生成所有场景图片",
+                            icon: "photo.fill",
+                            color: .green
+                        ) {
+                            // 新增：所有场景图片生成状态管理
+                            for idx in viewModel.storyScenes.indices {
+                                imageGenerationState[idx] = .generating
+                            }
+                            Task {
+                                await onGenerateAllImage()
+                                for idx in viewModel.storyScenes.indices {
+                                    let urlStr = viewModel.storyScenes[idx].imageUrl
+                                    if !urlStr.isEmpty {
+                                        let url = URL(string: urlStr)
+                                        let data = try? Data(contentsOf: url!)
+                                        let img = UIImage(data: data!)
+                                        imageGenerationState[idx] = .success(img!)
+                                    } else if urlStr.isEmpty {
+                                        imageGenerationState[idx] = .failure("图片加载失败")
+                                    } else {
+                                        imageGenerationState[idx] = .failure("生成失败")
+                                    }
+                                }
                             }
                         }
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.top, 8)
+                        Spacer()
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 16)
+                    .padding(.vertical, 12)
+                }else{
+                    EmptyStateView()
                 }
-
-                Spacer().frame(height: 8)
-
-                // 生成所有场景图片按钮
-                HStack {
-                    Spacer()
-                    ActionButton(
-                        title: "生成所有场景图片",
-                        icon: "photo.fill",
-                        color: .green
-                    ) {
-                        Task { await onGenerateAllImage() }
-                    }
-                    Spacer()
-                }
-                .padding(.vertical, 12)
-            }else{
-                EmptyStateView()
             }
-            
+        }
+    }
+}
+
+// 生成图片展示区域
+private struct GeneratedImageSection: View {
+    let scene: StoryBoardSence
+    let status: SceneGenerationView.ImageGenStatus
+    var body: some View {
+        HStack {
+            Spacer()
+            VStack(alignment: .center, spacing: 8) {
+                Text("生成图片")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                Group {
+                    switch status {
+                    case .idle:
+                        let urlStr = scene.imageUrl
+                        if urlStr.isEmpty {
+                            Text("暂无生成图片")
+                                .foregroundColor(.gray)
+                                .frame(height: 40)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        } else {
+                            let url = URL(string: urlStr)
+                            AsyncImage(url: url) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(maxHeight: 180)
+                                    .cornerRadius(8)
+                            } placeholder: {
+                                ProgressView()
+                                    .frame(height: 180)
+                            }
+                        }
+                    case .generating:
+                        HStack(spacing: 8) {
+                            ProgressView()
+                            Text("生成中，请稍等...")
+                                .foregroundColor(.blue)
+                        }
+                        .frame(height: 40)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    case .failure(let msg):
+                        Text("生成失败：\(msg)")
+                            .foregroundColor(.red)
+                            .frame(height: 40)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    case .success(let img):
+                        Image(uiImage: img)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 180)
+                            .cornerRadius(8)
+                    }
+                }
+            }
+            .padding(.vertical, 4)
+            .padding(.horizontal, 24)
+            .frame(maxWidth: 400)
+            Spacer()
+        }
+    }
+}
+
+// 参考图像选择子视图
+private struct ReferenceImagePicker: View {
+    @Binding var referenceImage: UIImage?
+    @State private var showImagePicker = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("参考图像")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            if let image = referenceImage {
+                ZStack(alignment: .topTrailing) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(height: 120)
+                        .cornerRadius(8)
+                        .clipped()
+                    Button(action: { showImagePicker = true }) {
+                        Image(systemName: "pencil")
+                            .foregroundColor(.white)
+                            .padding(6)
+                            .background(Color.black.opacity(0.6))
+                            .clipShape(Circle())
+                    }
+                    .padding(8)
+                }
+            } else {
+                Button(action: { showImagePicker = true }) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color(.systemGray6))
+                            .frame(height: 120)
+                        Image(systemName: "plus")
+                            .font(.system(size: 32))
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 4)
+        .sheet(isPresented: $showImagePicker) {
+            SingleImagePicker(image: $referenceImage)
         }
     }
 }
