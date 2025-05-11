@@ -104,7 +104,7 @@ class StoryRoleModel: ObservableObject {
     }
 
     func updateRoleDescription(roleId:Int64,userId:Int64,desc: Common_CharacterDetail)async -> Error?{
-        let err = await APIClient.shared.updateStoryRoleDescription(userId: userId, roleId: roleId, description: desc)
+        let err = await APIClient.shared.updateStoryRoleDescriptionDetail(userId: userId, roleId: roleId, description: desc)
         if err != nil{
             print("updateRoleDescription failed: ",err!)
             return err

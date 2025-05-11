@@ -1699,16 +1699,16 @@ extension APIClient {
         return (response.message?.characterDetail,nil)
     }
 
-    func updateStoryRoleDescription(userId: Int64,roleId: Int64,description: Common_CharacterDetail) async -> Error?{
+    func updateStoryRoleDescriptionDetail(userId: Int64,roleId: Int64,description: Common_CharacterDetail) async -> Error?{
         let apiClient = Common_TeamsApiClient(client: self.client!)
-        let request = Common_UpdateStoryRoleDescriptionRequest.with {
+        let request = Common_UpdateStoryRoleDescriptionDetailRequest.with {
             $0.userID = userId
             $0.roleID = roleId
             $0.characterDetail = description
         }
         var header = Connect.Headers()
         header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
-        let response = await apiClient.updateStoryRoleDescription(request: request, headers: header)
+        let response = await apiClient.updateStoryRoleDescriptionDetail(request: request, headers: header)
         if response.message?.code != Common_ResponseCode.ok{
             return NSError(domain: "updateStoryRoleDescription", code: 0, userInfo: [NSLocalizedDescriptionKey: "update story role description failed"])
         }
