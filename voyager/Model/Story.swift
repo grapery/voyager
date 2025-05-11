@@ -117,3 +117,33 @@ class StoryBoardSence {
         )
     }
 }
+
+extension Common_CharacterDetail:Decodable{
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        description_p = try container.decodeIfPresent(String.self, forKey: .description_p) ?? ""
+        shortTermGoal = try container.decodeIfPresent(String.self, forKey: .shortTermGoal) ?? ""
+        longTermGoal = try container.decodeIfPresent(String.self, forKey: .longTermGoal) ?? ""
+        personality = try container.decodeIfPresent(String.self, forKey: .personality) ?? ""
+        background = try container.decodeIfPresent(String.self, forKey: .background) ?? ""
+        handlingStyle = try container.decodeIfPresent(String.self, forKey: .handlingStyle) ?? ""
+        cognitionRange = try container.decodeIfPresent(String.self, forKey: .cognitionRange) ?? ""
+        abilityFeatures = try container.decodeIfPresent(String.self, forKey: .abilityFeatures) ?? ""
+        appearance = try container.decodeIfPresent(String.self, forKey: .appearance) ?? ""
+        dressPreference = try container.decodeIfPresent(String.self, forKey: .dressPreference) ?? ""
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case description_p
+        case shortTermGoal
+        case longTermGoal
+        case personality
+        case background
+        case handlingStyle
+        case cognitionRange
+        case abilityFeatures
+        case appearance
+        case dressPreference
+    }
+}

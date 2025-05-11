@@ -1692,12 +1692,29 @@ extension APIClient {
         var header = Connect.Headers()
         header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
         let response = await apiClient.generateRoleDescription(request: request, headers: header)
+        print("generateDescription :",response.message as Any)
         if response.message?.code != Common_ResponseCode.ok{
-            return (nil,NSError(domain: "generateDescription", code: 0, userInfo: [NSLocalizedDescriptionKey: "generate description failed"]))
+            return (nil,NSError(domain: "generateDescription", code: (response.message?.code.rawValue)!, userInfo: [NSLocalizedDescriptionKey: "generate description failed"]))
         }
         return (response.message?.characterDetail,nil)
     }
-    
+
+    func updateStoryRoleDescription(userId: Int64,roleId: Int64,description: Common_CharacterDetail) async -> Error?{
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_UpdateStoryRoleDescriptionRequest.with {
+            $0.userID = userId
+            $0.roleID = roleId
+            $0.characterDetail = description
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.updateStoryRoleDescription(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return NSError(domain: "updateStoryRoleDescription", code: 0, userInfo: [NSLocalizedDescriptionKey: "update story role description failed"])
+        }
+        return nil
+    }
+
     func generateRolePromppt(storyId: Int64,roleId:Int64,userId:Int64,samplePromppt: String) async -> (String?,Error?) {
         let apiClient = Common_TeamsApiClient(client: self.client!)
         let request = Common_GenerateRolePromptRequest.with {
@@ -1714,6 +1731,23 @@ extension APIClient {
         }
         return (response.message?.prompt,nil)
     }
+
+    func updateStoryRolePrompt(userId: Int64,roleId: Int64,prompt: String) async -> Error?{
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_UpdateStoryRolePromptRequest.with {
+            $0.userID = userId
+            $0.roleID = roleId
+            $0.prompt = prompt
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.updateStoryRolePrompt(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return NSError(domain: "updateStoryRolePrompt", code: 0, userInfo: [NSLocalizedDescriptionKey: "update story role prompt failed"])
+        }
+        return nil
+    }
+
     
     func getStoryRoleStoryBoards(storyId: Int64,roleId: Int64,userId: Int64,pageOffset: Int64,pageSize: Int64) async -> ([Common_StoryBoardActive]?,Error?) {
         let apiClient = Common_TeamsApiClient(client: self.client!)

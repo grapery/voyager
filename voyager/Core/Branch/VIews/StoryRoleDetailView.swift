@@ -748,7 +748,7 @@ struct EditDescriptionView: View {
     let role: StoryRole
     let viewModel: StoryRoleModel
     @Environment(\.dismiss) private var dismiss
-    @State private var description: String
+    @State private var roleDescription: Common_CharacterDetail?
     @State private var isGenerating = false
     @State private var showError = false
     @State private var errorMessage = ""
@@ -756,7 +756,19 @@ struct EditDescriptionView: View {
     init(role: StoryRole, viewModel: StoryRoleModel) {
         self.role = role
         self.viewModel = viewModel
-        _description = State(initialValue: role.role.characterDescription)
+        
+        // Initialize roleDescription by deserializing the JSON string
+        if let jsonData = role.role.characterDescription.data(using: .utf8) {
+            do {
+                let decoder = JSONDecoder()
+                _roleDescription = State(initialValue: try decoder.decode(Common_CharacterDetail.self, from: jsonData))
+            } catch {
+                print("Failed to decode character description: \(error)")
+                _roleDescription = State(initialValue: Common_CharacterDetail())
+            }
+        } else {
+            _roleDescription = State(initialValue: Common_CharacterDetail())
+        }
     }
     
     var body: some View {
@@ -794,12 +806,24 @@ struct EditDescriptionView: View {
                     }
                 }
                 
-                TextEditor(text: $description)
-                    .font(.system(size: 14))
-                    .padding(8)
-                    .frame(maxHeight: 300)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
+                // Display the character description fields
+                if let description = roleDescription {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            DescriptionField(title: "基本描述", text: description.description_p)
+                            DescriptionField(title: "短期目标", text: description.shortTermGoal)
+                            DescriptionField(title: "长期目标", text: description.longTermGoal)
+                            DescriptionField(title: "性格特点", text: description.personality)
+                            DescriptionField(title: "背景故事", text: description.background)
+                            DescriptionField(title: "处事方式", text: description.handlingStyle)
+                            DescriptionField(title: "认知范围", text: description.cognitionRange)
+                            DescriptionField(title: "能力特点", text: description.abilityFeatures)
+                            DescriptionField(title: "外貌特征", text: description.appearance)
+                            DescriptionField(title: "着装偏好", text: description.dressPreference)
+                        }
+                        .padding()
+                    }
+                }
                 
                 Spacer()
             }
@@ -827,25 +851,27 @@ struct EditDescriptionView: View {
     
     private func generateDescription() async {
         isGenerating = true
-            let (newDescription, error) = await viewModel.generateRoleDescription(
-                storyId: role.role.storyID,
-                roleId: role.role.roleID,
-                userId: viewModel.userId,
-                sampleDesc: description
-            )
-            
-            await MainActor.run {
+        let (newDescription, error) = await viewModel.generateRoleDescription(
+            storyId: role.role.storyID,
+            roleId: role.role.roleID,
+            userId: viewModel.userId,
+            sampleDesc: roleDescription?.description_p ?? ""
+        )
+        
+        await MainActor.run {
             isGenerating = false
-                if let error = error {
-                    errorMessage = error.localizedDescription
-                    showError = true
-                } else if let newDescription = newDescription {
-                    description = newDescription
-                }
+            if let error = error {
+                errorMessage = error.localizedDescription
+                showError = true
+            } else if let newDescription = newDescription {
+                self.roleDescription = newDescription
+            }
         }
     }
     
     private func saveDescription() async {
+        guard let description = roleDescription else { return }
+        
         do {
             let error = await viewModel.updateRoleDescription(
                 roleId: role.role.roleID,
@@ -862,6 +888,25 @@ struct EditDescriptionView: View {
         } catch {
             errorMessage = error.localizedDescription
             showError = true
+        }
+    }
+}
+
+// Helper view for displaying description fields
+private struct DescriptionField: View {
+    let title: String
+    let text: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.secondary)
+            
+            Text(text)
+                .font(.system(size: 16))
+                .foregroundColor(.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
