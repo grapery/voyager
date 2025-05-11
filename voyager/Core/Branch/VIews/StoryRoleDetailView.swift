@@ -427,9 +427,15 @@ struct RoleTabContent: View {
                     RoleInfoTab(role: role, viewModel: viewModel)
                         .tag(0)
                     
+                    // 详情 Tab
+                    RoleDetailTab(role: role)
+                        .tag(1)
+
                     // 参与 Tab
                     RoleParticipationTab(viewModel: viewModel)
-                        .tag(1)
+                        .tag(2)
+                    
+                    
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 .frame(minHeight: 400) // 增加高度以显示更多内容
@@ -450,7 +456,7 @@ struct RoleInfoTab: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                DetailSection(role: role, viewModel: viewModel)
+                RoleSummarySection(role: role, viewModel: viewModel)
                     .padding(.horizontal, 16)
             }
             .padding(.vertical, 16)
@@ -614,7 +620,7 @@ struct StoryRoleInteractionButton: View {
 }
 
 // MARK: - Detail Section
-struct DetailSection: View {
+struct RoleSummarySection: View {
     let role: StoryRole
     let viewModel: StoryRoleModel
     @State private var showingDescriptionEditor = false
@@ -756,19 +762,8 @@ struct EditDescriptionView: View {
     init(role: StoryRole, viewModel: StoryRoleModel) {
         self.role = role
         self.viewModel = viewModel
-        
-        // Initialize roleDescription by deserializing the JSON string
-        if let jsonData = role.role.characterDescription.data(using: .utf8) {
-            do {
-                let decoder = JSONDecoder()
-                _roleDescription = State(initialValue: try decoder.decode(Common_CharacterDetail.self, from: jsonData))
-            } catch {
-                print("Failed to decode character description: \(error)")
-                _roleDescription = State(initialValue: Common_CharacterDetail())
-            }
-        } else {
-            _roleDescription = State(initialValue: Common_CharacterDetail())
-        }
+        var initValue = Common_CharacterDetail()
+        _roleDescription = State(initialValue: role.role.characterDetail)
     }
     
     var body: some View {
@@ -813,7 +808,7 @@ struct EditDescriptionView: View {
                             DescriptionField(title: "基本描述", text: description.description_p)
                             DescriptionField(title: "短期目标", text: description.shortTermGoal)
                             DescriptionField(title: "长期目标", text: description.longTermGoal)
-                            DescriptionField(title: "性格特点", text: description.personality)
+                            DescriptionField(title: "性格特征", text: description.personality)
                             DescriptionField(title: "背景故事", text: description.background)
                             DescriptionField(title: "处事方式", text: description.handlingStyle)
                             DescriptionField(title: "认知范围", text: description.cognitionRange)
@@ -1342,7 +1337,7 @@ struct PosterView: View {
 // 自定义 Tab 选择器
 struct CustomTabSelector: View {
     @Binding var selectedTab: Int
-    private let tabs = ["简介", "参与"]
+    private let tabs = ["简介", "详情", "参与"]
     
     var body: some View {
         HStack(spacing: 0) {
@@ -1367,6 +1362,54 @@ struct CustomTabSelector: View {
         }
         .padding(.vertical, 8)
         .background(Color.theme.secondaryBackground)
+    }
+}
+
+// MARK: - Detail Tab
+struct RoleDetailTab: View {
+    let role: StoryRole
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                Section{
+                    DetailSection(title: "角色描述", content: role.role.characterDetail.description_p)
+                    DetailSection(title: "短期目标", content: role.role.characterDetail.shortTermGoal)
+                    DetailSection(title: "长期目标", content: role.role.characterDetail.longTermGoal)
+                    DetailSection(title: "性格特征", content: role.role.characterDetail.personality)
+                    DetailSection(title: "背景故事", content: role.role.characterDetail.background)
+                    DetailSection(title: "处事风格", content: role.role.characterDetail.handlingStyle)
+                    DetailSection(title: "认知范围", content: role.role.characterDetail.cognitionRange)
+                    DetailSection(title: "能力特点", content: role.role.characterDetail.abilityFeatures)
+                    DetailSection(title: "外貌特征", content: role.role.characterDetail.appearance)
+                    DetailSection(title: "着装偏好", content: role.role.characterDetail.dressPreference)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+struct DetailSection: View {
+    let title: String
+    let content: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(Color.theme.primaryText)
+            
+            Text(content.isEmpty ? "暂无内容" : content)
+                .font(.system(size: 14))
+                .foregroundColor(content.isEmpty ? Color.theme.tertiaryText : Color.theme.secondaryText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background(Color.theme.background)
+                .cornerRadius(8)
+        }
     }
 }
 
