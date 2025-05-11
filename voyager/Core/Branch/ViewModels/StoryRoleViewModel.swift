@@ -95,18 +95,38 @@ class StoryRoleModel: ObservableObject {
     }
     
     func generateRoleDescription(storyId: Int64,roleId:Int64,userId:Int64,sampleDesc: String) async -> (String?,Error?){
-        return (sampleDesc,nil)
+        let (desc,err) = await APIClient.shared.generateDescription(storyId: storyId, roleId: roleId, userId: userId, sampleDesc: sampleDesc)
+        if err != nil{
+            print("generateRoleDescription failed: ",err!)
+            return (nil,err)
+        }
+        return (desc,nil)
     }
     
     func updateRoleDescription(roleId:Int64,userId:Int64,desc: String)async -> Error?{
+        let err = await APIClient.shared.updateStory(roleId: roleId, userId: userId, desc: desc)
+        if err != nil{
+            print("updateRoleDescription failed: ",err!)
+            return err
+        }
         return nil
     }
     
     func generateRolePrompt(storyId: Int64,roleId:Int64,userId:Int64,samplePrompt: String) async -> (String?,Error?){
-        return (samplePrompt,nil)
+        let (prompt,err) = await APIClient.shared.generateRolePrompt(storyId: storyId, roleId: roleId, userId: userId, samplePrompt: samplePrompt)
+        if err != nil{
+            print("generateRolePrompt failed: ",err!)
+            return (nil,err)
+        }
+        return (prompt,nil)
     }
     
     func updateRolePrompt(userId: Int64,roleId:Int64,prompt: String)async -> Error?{
+        let err = await APIClient.shared.updateRolePrompt(userId: userId, roleId: roleId, prompt: prompt)
+        if err != nil{
+            print("updateRolePrompt failed: ",err!)
+            return err
+        }
         return nil
     }
     
@@ -120,16 +140,22 @@ class StoryRoleModel: ObservableObject {
         return nil
     }
     
-    func updateStoryRoleBackground(userId: Int64,roleId: Int64,backgroundAvatar: String) async{
+    func updateStoryRoleBackground(userId: Int64,roleId: Int64,backgroundAvatar: String) async -> Error?{
         let err = await APIClient.shared.updateStoryRoleBackgroud(userId: userId, roleId: roleId,backgrondUrl: backgroundAvatar)
         if err != nil{
             print("updateStoryRoleBackground failed: ",err!)
+            return err
         }
-        return
+        return nil
     }
     
-    func fetchRoleStoryboards(userId: Int64,roleId:Int64,storyName: String) async ->([StoryBoardActive]?,Error?){
-        return (nil,nil)
+    func fetchRoleStoryboards(userId: Int64,roleId:Int64,storyId: Int64,offset: Int64,pageSize: Int64) async ->([StoryBoardActive]?,Error?){
+        let (storyboards,err) = await StoryService.shared.getStoryRoleStoryBoards(storyId: storyId, roleId: roleId, userId: userId, pageOffset: offset, pageSize: pageSize)
+        if err != nil{
+            print("fetchRoleStoryboards failed: ",err!)
+            return (nil,err)
+        }
+        return (storyboards,nil)
     }
     
     @MainActor

@@ -1714,5 +1714,24 @@ extension APIClient {
         }
         return (response.message?.prompt,nil)
     }
+    
+    func getStoryRoleStoryBoards(storyId: Int64,roleId: Int64,userId: Int64,pageOffset: Int64,pageSize: Int64) async -> ([Common_StoryBoardActive]?,Error?) {
+        let apiClient = Common_TeamsApiClient(client: self.client!)
+        let request = Common_GetStoryRoleStoryboardsRequest.with {
+            $0.storyID = storyId
+            $0.roleID = roleId
+            $0.userID = userId
+            $0.offset = pageOffset
+            $0.pageSize = pageSize
+        }
+        var header = Connect.Headers()
+        header[GrpcGatewayCookie] = ["\(globalUserToken!)"]
+        let response = await apiClient.getStoryRoleStoryboards(request: request, headers: header)
+        if response.message?.code != Common_ResponseCode.ok{
+            return (nil,NSError(domain: "getStoryRoleStoryBoards", code: 0, userInfo: [NSLocalizedDescriptionKey: "get story role story boards failed"]))
+        }
+        return (response.message?.storyboardactives,nil)
+    }
+    
 }
 
