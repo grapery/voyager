@@ -631,6 +631,15 @@ struct RoleSummarySection: View {
     @State private var showingPromptEditor = false
     @State private var isExpanded = false
     
+    // 获取当前用户ID
+    var currentUserId: Int64 { viewModel.userId }
+    // 角色创建者ID
+    var roleCreatorId: Int64 { role.role.creatorID }
+    // 故事创建者ID
+    var storyCreatorId: Int64 { role.role.creator.userID }
+    // 是否有编辑权限
+    var canEdit: Bool { currentUserId == roleCreatorId || currentUserId == storyCreatorId }
+    
     var body: some View {
         VStack(spacing: 16) {
             // Character Description Section
@@ -642,9 +651,11 @@ struct RoleSummarySection: View {
                     
                     Spacer()
                     
-                    Button(action: { showingDescriptionEditor = true }) {
-                        Image(systemName: "pencil.circle")
-                            .foregroundColor(Color.theme.accent)
+                    if canEdit {
+                        Button(action: { showingDescriptionEditor = true }) {
+                            Image(systemName: "pencil.circle")
+                                .foregroundColor(Color.theme.accent)
+                        }
                     }
                 }
                 
@@ -678,9 +689,11 @@ struct RoleSummarySection: View {
                     
                     Spacer()
                     
-                    Button(action: { showingPromptEditor = true }) {
-                        Image(systemName: "pencil.circle")
-                            .foregroundColor(Color.theme.accent)
+                    if canEdit {
+                        Button(action: { showingPromptEditor = true }) {
+                            Image(systemName: "pencil.circle")
+                                .foregroundColor(Color.theme.accent)
+                        }
                     }
                 }
                 
