@@ -923,7 +923,7 @@ struct StoryPublishView: View {
     }
 }
 
-// 场景预览卡片（去除“场景 x”标题，字体黑色）
+// 场景预览卡片（去除"场景 x"标题，字体黑色）
 private struct ScenePreviewCard: View {
     let scene: StoryBoardSence
     
@@ -1608,24 +1608,29 @@ private struct RoleListView: View {
     @Binding var selectedRoles: [StoryRole]?
     
     var body: some View {
-        List {
-            ForEach(roles, id: \.role.roleID) { role in
-                RoleSelectionRow(
-                    role: role,
-                    isSelected: selectedRoles?.contains { $0.role.roleID == role.role.roleID } ?? false,
-                    onSelect: {
-                        if selectedRoles == nil {
-                            selectedRoles = []
+        ScrollView {
+            VStack(spacing: 8) {
+                ForEach(roles, id: \ .role.roleID) { role in
+                    RoleSelectionRow(
+                        role: role,
+                        isSelected: selectedRoles?.contains { $0.role.roleID == role.role.roleID } ?? false,
+                        onSelect: {
+                            if selectedRoles == nil {
+                                selectedRoles = []
+                            }
+                            if let index = selectedRoles?.firstIndex(where: { $0.role.roleID == role.role.roleID }) {
+                                selectedRoles?.remove(at: index)
+                            } else {
+                                selectedRoles?.append(role)
+                            }
                         }
-                        if let index = selectedRoles?.firstIndex(where: { $0.role.roleID == role.role.roleID }) {
-                            selectedRoles?.remove(at: index)
-                        } else {
-                            selectedRoles?.append(role)
-                        }
-                    }
-                )
+                    )
+                }
             }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 8)
         }
+        .background(Color.theme.background)
     }
 }
 
@@ -1691,42 +1696,44 @@ struct RoleSelectionRow: View {
     
     var body: some View {
         Button(action: onSelect) {
-            HStack(alignment: .top, spacing: 16) {
-                // 9:16长方形头像
+            HStack(alignment: .top, spacing: 10) {
                 KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
                     .cacheMemoryOnly()
                     .fade(duration: 0.25)
                     .resizable()
-                    .aspectRatio(4.0/5.0, contentMode: .fill)
-                    .frame(width: 64, height: 80)
+                    .aspectRatio(1, contentMode: .fill)
+                    .frame(width: 48, height: 48)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                     .clipped()
-                    .cornerRadius(8)
                 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(role.role.characterName)
-                        .font(.headline)
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.primary)
-                    Spacer().frame(height: 2)
+                        .padding(.top, 2)
                     Text(role.role.characterDescription)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
                         .lineLimit(2)
+                        .truncationMode(.tail)
                 }
-                .padding(.vertical, 8)
-                
-                Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 2)
                 
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 22))
                     .foregroundColor(isSelected ? .blue : .gray)
-                    .padding(.top, 4)
+                    .padding(.top, 8)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Color.theme.secondaryBackground)
+            .padding(.vertical, 6)
+            .padding(.horizontal, 10)
+            .background(Color.white)
             .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.03), radius: 1, x: 0, y: 1)
         }
         .buttonStyle(PlainButtonStyle())
+        .padding(.horizontal, 2)
+        .padding(.vertical, 2)
     }
 }
 
