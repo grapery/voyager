@@ -187,7 +187,7 @@ struct StoryRoleDetailView: View {
                                 .padding(.bottom, 2)
 
                             RoleTabContent(
-                                role: role,
+                                role: $role,
                                 viewModel: viewModel,
                                 selectedTab: $selectedTab
                             )
@@ -415,7 +415,7 @@ struct StoryRoleStatItem: View {
 
 // MARK: - Tab Content
 struct RoleTabContent: View {
-    let role: StoryRole?
+    @Binding var role: StoryRole?
     let viewModel: StoryRoleModel
     @Binding var selectedTab: Int
     
@@ -424,21 +424,23 @@ struct RoleTabContent: View {
             if let role = role {
                 TabView(selection: $selectedTab) {
                     // 简介 Tab
-                    RoleInfoTab(role: role, viewModel: viewModel)
+                    RoleInfoTab(role: role, viewModel: viewModel, onRoleUpdate: { updatedRole in
+                        self.role = updatedRole
+                    })
                         .tag(0)
                     
                     // 详情 Tab
-                    RoleDetailTab(role: role)
+                    RoleDetailTab(role: role, onRoleUpdate: { updatedRole in
+                        self.role = updatedRole
+                    })
                         .tag(1)
-
+                    
                     // 参与 Tab
                     RoleParticipationTab(viewModel: viewModel)
                         .tag(2)
-                    
-                    
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                .frame(minHeight: 400) // 增加高度以显示更多内容
+                .frame(minHeight: 400)
             } else {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -452,11 +454,12 @@ struct RoleTabContent: View {
 struct RoleInfoTab: View {
     let role: StoryRole
     let viewModel: StoryRoleModel
+    let onRoleUpdate: (StoryRole) -> Void
     
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                RoleSummarySection(role: role, viewModel: viewModel)
+                RoleSummarySection(role: role, viewModel: viewModel, onRoleUpdate: onRoleUpdate)
                     .padding(.horizontal, 16)
             }
             .padding(.vertical, 16)
@@ -623,6 +626,7 @@ struct StoryRoleInteractionButton: View {
 struct RoleSummarySection: View {
     let role: StoryRole
     let viewModel: StoryRoleModel
+    let onRoleUpdate: (StoryRole) -> Void
     @State private var showingDescriptionEditor = false
     @State private var showingPromptEditor = false
     @State private var isExpanded = false
@@ -662,7 +666,7 @@ struct RoleSummarySection: View {
             .background(Color.theme.background)
             .cornerRadius(8)
             .sheet(isPresented: $showingDescriptionEditor) {
-                EditDescriptionView(role: role, viewModel: viewModel)
+                EditDescriptionView(role: role, viewModel: viewModel, onRoleUpdate: onRoleUpdate)
             }
             
             // Character Prompt Section
@@ -690,7 +694,7 @@ struct RoleSummarySection: View {
             .background(Color.theme.background)
             .cornerRadius(8)
             .sheet(isPresented: $showingPromptEditor) {
-                EditPromptView(role: role, viewModel: viewModel)
+                EditPromptView(role: role, viewModel: viewModel, onRoleUpdate: onRoleUpdate)
             }
             
             // Other Information Section
@@ -712,7 +716,7 @@ struct RoleSummarySection: View {
             .background(Color.theme.background)
             .cornerRadius(8)
         }
-        .frame(maxWidth: .infinity) // 确保占满宽度
+        .frame(maxWidth: .infinity)
     }
     
     private func formatDate(timestamp: Int64) -> String {
@@ -753,16 +757,17 @@ struct InfoRow: View {
 struct EditDescriptionView: View {
     let role: StoryRole
     let viewModel: StoryRoleModel
+    let onRoleUpdate: (StoryRole) -> Void
     @Environment(\.dismiss) private var dismiss
-    @State private var roleDescription: Common_CharacterDetail?
+    @State private var roleDescription: Common_CharacterDetail
     @State private var isGenerating = false
     @State private var showError = false
     @State private var errorMessage = ""
     
-    init(role: StoryRole, viewModel: StoryRoleModel) {
+    init(role: StoryRole, viewModel: StoryRoleModel, onRoleUpdate: @escaping (StoryRole) -> Void) {
         self.role = role
         self.viewModel = viewModel
-        var initValue = Common_CharacterDetail()
+        self.onRoleUpdate = onRoleUpdate
         _roleDescription = State(initialValue: role.role.characterDetail)
     }
     
@@ -802,22 +807,20 @@ struct EditDescriptionView: View {
                 }
                 
                 // Display the character description fields
-                if let description = roleDescription {
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 16) {
-                            DescriptionField(title: "基本描述", text: description.description_p)
-                            DescriptionField(title: "短期目标", text: description.shortTermGoal)
-                            DescriptionField(title: "长期目标", text: description.longTermGoal)
-                            DescriptionField(title: "性格特征", text: description.personality)
-                            DescriptionField(title: "背景故事", text: description.background)
-                            DescriptionField(title: "处事方式", text: description.handlingStyle)
-                            DescriptionField(title: "认知范围", text: description.cognitionRange)
-                            DescriptionField(title: "能力特点", text: description.abilityFeatures)
-                            DescriptionField(title: "外貌特征", text: description.appearance)
-                            DescriptionField(title: "着装偏好", text: description.dressPreference)
-                        }
-                        .padding()
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        DescriptionField(title: "基本描述", text: roleDescription.description_p)
+                        DescriptionField(title: "短期目标", text: roleDescription.shortTermGoal)
+                        DescriptionField(title: "长期目标", text: roleDescription.longTermGoal)
+                        DescriptionField(title: "性格特征", text: roleDescription.personality)
+                        DescriptionField(title: "背景故事", text: roleDescription.background)
+                        DescriptionField(title: "处事方式", text: roleDescription.handlingStyle)
+                        DescriptionField(title: "认知范围", text: roleDescription.cognitionRange)
+                        DescriptionField(title: "能力特点", text: roleDescription.abilityFeatures)
+                        DescriptionField(title: "外貌特征", text: roleDescription.appearance)
+                        DescriptionField(title: "着装偏好", text: roleDescription.dressPreference)
                     }
+                    .padding()
                 }
                 
                 Spacer()
@@ -850,7 +853,7 @@ struct EditDescriptionView: View {
             storyId: role.role.storyID,
             roleId: role.role.roleID,
             userId: viewModel.userId,
-            sampleDesc: roleDescription?.description_p ?? ""
+            sampleDesc: roleDescription.description_p
         )
         
         await MainActor.run {
@@ -865,19 +868,20 @@ struct EditDescriptionView: View {
     }
     
     private func saveDescription() async {
-        guard let description = roleDescription else { return }
-        
         do {
             let error = await viewModel.updateRoleDescription(
                 roleId: role.role.roleID,
                 userId: viewModel.userId,
-                desc: description
+                desc: roleDescription
             )
             
             if let error = error {
                 errorMessage = error.localizedDescription
                 showError = true
             } else {
+                var updatedRole = role
+                updatedRole.role.characterDetail = roleDescription
+                onRoleUpdate(updatedRole)
                 dismiss()
             }
         } catch {
@@ -910,15 +914,17 @@ private struct DescriptionField: View {
 struct EditPromptView: View {
     let role: StoryRole
     let viewModel: StoryRoleModel
+    let onRoleUpdate: (StoryRole) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var prompt: String
     @State private var isGenerating = false
     @State private var showError = false
     @State private var errorMessage = ""
     
-    init(role: StoryRole, viewModel: StoryRoleModel) {
+    init(role: StoryRole, viewModel: StoryRoleModel, onRoleUpdate: @escaping (StoryRole) -> Void) {
         self.role = role
         self.viewModel = viewModel
+        self.onRoleUpdate = onRoleUpdate
         _prompt = State(initialValue: role.role.characterPrompt)
     }
     
@@ -994,21 +1000,21 @@ struct EditPromptView: View {
     
     private func generatePrompt() async {
         isGenerating = true
-            let (newPrompt, error) = await viewModel.generateRolePrompt(
-                storyId: role.role.storyID,
-                roleId: role.role.roleID,
-                userId: viewModel.userId,
-                samplePrompt: prompt
-            )
-            
-            await MainActor.run {
+        let (newPrompt, error) = await viewModel.generateRolePrompt(
+            storyId: role.role.storyID,
+            roleId: role.role.roleID,
+            userId: viewModel.userId,
+            samplePrompt: prompt
+        )
+        
+        await MainActor.run {
             isGenerating = false
-                if let error = error {
-                    errorMessage = error.localizedDescription
-                    showError = true
-                } else if let newPrompt = newPrompt {
-                    prompt = newPrompt
-                }
+            if let error = error {
+                errorMessage = error.localizedDescription
+                showError = true
+            } else if let newPrompt = newPrompt {
+                prompt = newPrompt
+            }
         }
     }
     
@@ -1023,8 +1029,10 @@ struct EditPromptView: View {
             if let error = error {
                 errorMessage = error.localizedDescription
                 showError = true
-                
             } else {
+                var updatedRole = role
+                updatedRole.role.characterPrompt = prompt
+                onRoleUpdate(updatedRole)
                 dismiss()
             }
         } catch {
@@ -1368,11 +1376,12 @@ struct CustomTabSelector: View {
 // MARK: - Detail Tab
 struct RoleDetailTab: View {
     let role: StoryRole
+    let onRoleUpdate: (StoryRole) -> Void
     
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                Section{
+                Section {
                     DetailSection(title: "角色描述", content: role.role.characterDetail.description_p)
                     DetailSection(title: "短期目标", content: role.role.characterDetail.shortTermGoal)
                     DetailSection(title: "长期目标", content: role.role.characterDetail.longTermGoal)
