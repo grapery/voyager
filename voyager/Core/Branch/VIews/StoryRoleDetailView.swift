@@ -204,6 +204,7 @@ struct StoryRoleDetailView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .tabBar)
             .sheet(isPresented: $showImagePicker) {
                 SingleImagePicker(image: $selectedImage)
             }
