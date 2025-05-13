@@ -11,22 +11,34 @@ import Combine
 class StoryRoleModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var storyId: Int64
+    @Published var roleId: Int64
     @State var roles: [StoryRole] = [StoryRole]()
     @Published var roleStoryboards: [StoryBoardActive] = [StoryBoardActive]()
     var userId: Int64
     
     var err: Error? = nil
     var page: Int64 = 0
-    var pageSize: Int64 = 10
     
-    init(storyId: Int64 = 0, userId: Int64 = 0) {
+    // 分页相关
+    @Published var isLoadingMore: Bool = false
+    @Published var isRefreshing: Bool = false
+    @Published var hasMore: Bool = true
+    private var currentPage: Int64 = 0
+    private let pageSize: Int64 = 10
+    private var isFirstLoad: Bool = true
+    private var lastRoleId: Int64? = nil
+    private var lastStoryId: Int64? = nil
+    
+    init(storyId: Int64 = 0, userId: Int64 = 0,roleId:Int64){
         self.storyId = storyId
         self.userId = userId
+        self.roleId = roleId
     }
     
-    init(userId:Int64){
+    init(userId:Int64,roleId:Int64){
         self.userId = userId
         self.storyId = 0
+        self.roleId = roleId
     }
     
     func fetchStoryRoles(storyId:Int64) async {
@@ -199,6 +211,48 @@ class StoryRoleModel: ObservableObject {
             return err
         }
         return nil
+    }
+
+    // 下拉刷新
+    @MainActor
+    func refreshRoleStoryboards(roleId: Int64, storyId: Int64) async {
+        guard !isRefreshing else { return }
+        isRefreshing = true
+        currentPage = 0
+        hasMore = true
+        let (storyboards, err) = await fetchRoleStoryboards(userId: userId, roleId: roleId, storyId: storyId, offset: 0, pageSize: pageSize)
+        await MainActor.run {
+            isRefreshing = false
+            if let storyboards = storyboards {
+                self.roleStoryboards = storyboards.map { StoryBoardActive(id: $0.storyboard.storyBoardID, boardActive: $0) }
+                self.hasMore = storyboards.count == pageSize
+            }
+        }
+    }
+
+    // 上滑加载更多
+    @MainActor
+    func loadMoreRoleStoryboards(roleId: Int64, storyId: Int64) async {
+        guard !isLoadingMore, hasMore else { return }
+        isLoadingMore = true
+        let offset = Int64(roleStoryboards.count)
+        let (storyboards, err) = await fetchRoleStoryboards(userId: userId, roleId: roleId, storyId: storyId, offset: offset, pageSize: pageSize)
+        await MainActor.run {
+            isLoadingMore = false
+            if let storyboards = storyboards {
+                let newItems = storyboards.map { StoryBoardActive(id: $0.storyboard.storyBoardID,boardActive: $0) }
+                self.roleStoryboards.append(contentsOf: newItems)
+                self.hasMore = newItems.count == pageSize
+            }
+        }
+    }
+
+    // 首次进入tab时加载
+    @MainActor
+    func loadInitialRoleStoryboards(roleId: Int64, storyId: Int64) async {
+        if !isFirstLoad { return }
+        isFirstLoad = false
+        await refreshRoleStoryboards(roleId: roleId, storyId: storyId)
     }
 }
 

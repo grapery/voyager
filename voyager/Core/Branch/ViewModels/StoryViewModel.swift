@@ -262,15 +262,20 @@ class StoryViewModel: ObservableObject {
         }
     }
     
-    func createStoryBoard(prevBoardId: Int64, nextBoardId: Int64, title: String, content: String, isAiGen: Bool, backgroud: String, params: Common_StoryBoardParams) async -> (StoryBoard?,Error?){
+    func createStoryBoard(prevBoardId: Int64, nextBoardId: Int64, title: String, content: String, isAiGen: Bool, backgroud: String, params: Common_StoryBoardParams,roles:[StoryRole]) async -> (StoryBoard?,Error?){
         var newStoryboard: StoryBoard?
         var err: Error?
         
         DispatchQueue.main.async {
             self.err = nil
         }
-        
-        (newStoryboard,err) = await apiClient.CreateStoryboard(storyId: self.storyId, prevBoardId: prevBoardId, nextBoardId: nextBoardId, creator: self.userId, title: title, content: content, isAiGen: isAiGen, background: backgroud, params: params)
+        let roleParamms = roles.map{role in
+            return role.role
+        }
+        (newStoryboard,err) = await apiClient.CreateStoryboard(
+            storyId: self.storyId, prevBoardId: prevBoardId, nextBoardId: nextBoardId,
+            creator: self.userId, title: title, content: content, isAiGen: isAiGen,
+            background: backgroud, params: params,roles: roleParamms)
         
         DispatchQueue.main.async {
             if err != nil {
@@ -442,20 +447,6 @@ class StoryViewModel: ObservableObject {
                 self.err = err
             }
             print("applyStorySummry resp :",resp)
-        }
-        self.isGenerate = false
-        return nil
-    }
-    
-    func applyStoryBoard(storyId: Int64,title: String, content: String,userId:Int64) async -> Error?{
-        do {
-            self.isGenerate = true
-            let (resp,err) = await apiClient.CreateStoryboard(storyId: storyId, prevBoardId: 0, nextBoardId: -1, creator: userId, title: title, content: content, isAiGen: true, background: (self.story?.storyInfo.origin)!, params: Common_StoryBoardParams())
-            if err != nil {
-                self.isGenerate = false
-                self.err = err
-            }
-            print("applyStoryBoard resp :",resp)
         }
         self.isGenerate = false
         return nil

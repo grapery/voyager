@@ -549,7 +549,8 @@ extension NewStoryBoardView {
                 content: self.generatedStoryContent,
                 isAiGen: true,
                 backgroud: self.background,
-                params: Common_StoryBoardParams()
+                params: Common_StoryBoardParams(),
+                roles: self.roles!
             )
             print("createStoryBoard resp:",ret.0?.id as Any)
             self.boardId = (ret.0?.id)!

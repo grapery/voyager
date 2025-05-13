@@ -151,7 +151,7 @@ struct StoryRoleDetailView: View {
     init(roleId: Int64, userId: Int64, role: StoryRole? = nil) {
         self.roleId = roleId
         self.userId = userId
-        self._viewModel = StateObject(wrappedValue: StoryRoleModel(userId: userId))
+        self._viewModel = StateObject(wrappedValue: StoryRoleModel(userId: userId, roleId: roleId))
         if let role = role {
             self._role = State(initialValue: role)
         }
@@ -472,31 +472,64 @@ struct RoleInfoTab: View {
 // MARK: - Participation Tab
 struct RoleParticipationTab: View {
     @ObservedObject var viewModel: StoryRoleModel
+    @State private var didAppear = false
+    // 需要传入当前角色id和storyId
+    var roleId: Int64 {
+        viewModel.roleId
+    }
+    var storyId: Int64 {
+        viewModel.storyId
+    }
     
     var body: some View {
-        if viewModel.roleStoryboards.isEmpty {
-            VStack {
-                Spacer()
-                Image(systemName: "retarder.brakesignal.and.exclamationmark")
-                    .font(.system(size: 50))
-                    .foregroundColor(Color.theme.error)
-                Spacer()
-                    .font(.system(size: 10))
-                Text("这个故事角色是NPC么?!")
-                    .font(.title3)
-                    .foregroundColor(.gray)
-                    .multilineTextAlignment(.center)
-                Spacer()
-            }
-        } else {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    ForEach(viewModel.roleStoryboards, id: \.id) { board in
-                        ParticipationCell(board: board)
-                            .padding(.horizontal, 16)
-                    }
+        Group {
+            if viewModel.roleStoryboards.isEmpty && !viewModel.isLoadingMore && !viewModel.isRefreshing {
+                VStack {
+                    Spacer()
+                    Image(systemName: "retarder.brakesignal.and.exclamationmark")
+                        .font(.system(size: 50))
+                        .foregroundColor(Color.theme.error)
+                    Spacer()
+                        .font(.system(size: 10))
+                    Text("这个故事角色是NPC么?!")
+                        .font(.title3)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                    Spacer()
                 }
-                .padding(.vertical, 16)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 8) {
+                        ForEach(viewModel.roleStoryboards, id: \ .id) { board in
+                            ParticipationCell(board: board)
+                                .padding(.horizontal, 8)
+                                .onAppear {
+                                    // 上滑加载更多
+                                    if board.id == viewModel.roleStoryboards.last?.id {
+                                        Task {
+                                            await viewModel.loadMoreRoleStoryboards(roleId: roleId, storyId: storyId)
+                                        }
+                                    }
+                                }
+                        }
+                        if viewModel.isLoadingMore {
+                            ProgressView("加载更多...")
+                                .padding()
+                        }
+                    }
+                    .padding(.vertical, 16)
+                }
+                .refreshable {
+                    await viewModel.refreshRoleStoryboards(roleId: roleId, storyId: storyId)
+                }
+            }
+        }
+        .onAppear {
+            if !didAppear {
+                didAppear = true
+                Task {
+                    await viewModel.loadInitialRoleStoryboards(roleId: roleId, storyId: storyId)
+                }
             }
         }
     }
@@ -505,100 +538,167 @@ struct RoleParticipationTab: View {
 // MARK: - Participation Cell
 struct ParticipationCell: View {
     let board: StoryBoardActive
-    @State private var isLiked = false
-    @State private var showDetail = false
-    
+    @State private var showStoryboardSummary = false
+    @State private var showChildNodes = false
+    // 可选：传入 userId/viewModel 以支持点赞等操作
+    // let userId: Int64
+    // @ObservedObject var viewModel: StoryRoleModel
+    // ...如需支持交互可解开
+
+    // 解析场景图片内容
+    var sceneMediaContents: [SceneMediaContent] {
+        var tempSceneContents: [SceneMediaContent] = []
+        let scenes = board.boardActive.storyboard.sences.list
+        for scene in scenes {
+            let genResult = scene.genResult
+            if let data = genResult.data(using: .utf8),
+               let urls = try? JSONDecoder().decode([String].self, from: data) {
+                var mediaItems: [MediaItem] = []
+                for urlString in urls {
+                    if let url = URL(string: urlString) {
+                        let item = MediaItem(
+                            id: UUID().uuidString,
+                            type: urlString.hasSuffix(".mp4") ? .video : .image,
+                            url: url,
+                            thumbnail: urlString.hasSuffix(".mp4") ? URL(string: urlString) : nil
+                        )
+                        mediaItems.append(item)
+                    }
+                }
+                let sceneContent = SceneMediaContent(
+                    id: UUID().uuidString,
+                    sceneTitle: scene.content,
+                    mediaItems: mediaItems
+                )
+                tempSceneContents.append(sceneContent)
+            }
+        }
+        return tempSceneContents
+    }
+
     var body: some View {
-        VStack(spacing: 0) {
-            // Content Section
-            VStack(alignment: .leading, spacing: 12) {
-                // Header
-                HStack {
-                    KFImage(URL(string: convertImagetoSenceImage(url: board.boardActive.creator.userAvatar, scene: .small)))
-                        .cacheMemoryOnly()
-                        .fade(duration: 0.25)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 36, height: 36)
-                        .clipShape(Circle())
-                    
-                    VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 12) {
+            // 顶部信息
+            HStack(spacing: 8) {
+                // 故事缩略图和名称
+                HStack(spacing: 4) {
+                    HStack(spacing: 8) {
+                        KFImage(URL(string: convertImagetoSenceImage(url: board.boardActive.summary.storyAvatar, scene: .small)))
+                            .cacheMemoryOnly()
+                            .fade(duration: 0.25)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 32, height: 32)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
+                        Text(board.boardActive.summary.storyTitle)
+                            .font(.system(size: 15))
+                            .foregroundColor(Color.theme.accent)
+                    }
+                    Divider()
+                    HStack{
+                        KFImage(URL(string: convertImagetoSenceImage(url: board.boardActive.creator.userAvatar, scene: .small)))
+                            .cacheMemoryOnly()
+                            .fade(duration: 0.25)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 20, height: 20)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
                         Text(board.boardActive.creator.userName)
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(Color.theme.primaryText)
-                        
-                        Text(formatDate(timestamp: board.boardActive.storyboard.ctime))
-                            .font(.system(size: 12))
-                            .foregroundColor(Color.theme.tertiaryText)
+                        Text("创建")
+                            .font(.system(size: 14, weight: .regular))
+                            .foregroundColor(Color.theme.primaryText)
                     }
-                    
-                    Spacer()
                 }
-                
-                // Title and Content
-                Text(board.boardActive.storyboard.title)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(Color.theme.primaryText)
-                    .lineLimit(2)
-                
+                Spacer()
+                Text(formatTimeAgo(timestamp: board.boardActive.storyboard.ctime))
+                    .font(.system(size: 12))
+                    .foregroundColor(Color.theme.tertiaryText)
+            }
+            .padding(.horizontal)
+
+            // 内容
+            VStack(alignment: .leading, spacing: 8) {
                 Text(board.boardActive.storyboard.content)
-                    .font(.system(size: 14))
-                    .foregroundColor(Color.theme.secondaryText)
+                    .font(.system(size: 15))
+                    .foregroundColor(Color.theme.primaryText)
                     .lineLimit(3)
-            }
-            .padding(16)
-            .background(Color.theme.secondaryBackground)
-            
-            // Interaction Bar
-            HStack(spacing: 0) {
-                // Like Button
-                StoryRoleInteractionButton(
-                    icon: isLiked ? "heart.fill" : "heart",
-                    color: isLiked ? Color.theme.error : Color.theme.tertiaryText,
-                    text: "\(board.boardActive.totalLikeCount)",
-                    action: {
-                        withAnimation(.spring()) {
-                            isLiked.toggle()
+                if !self.sceneMediaContents.isEmpty {
+                    VStack(alignment: .leading, spacing: 2) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 2) {
+                                ForEach(self.sceneMediaContents, id: \.id) { sceneContent in
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        if let firstMedia = sceneContent.mediaItems.first {
+                                            KFImage(firstMedia.url)
+                                                .placeholder {
+                                                    Rectangle()
+                                                        .fill(Color.theme.tertiaryBackground)
+                                                        .overlay(
+                                                            ProgressView()
+                                                                .progressViewStyle(CircularProgressViewStyle())
+                                                        )
+                                                }
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 140, height: 200)
+                                                .clipped()
+                                                .cornerRadius(6)
+                                                .contentShape(Rectangle())
+                                        }
+                                        Text(sceneContent.sceneTitle)
+                                            .font(.system(size: 12))
+                                            .foregroundColor(Color.theme.secondaryText)
+                                            .lineLimit(2)
+                                            .frame(width: 140)
+                                    }
+                                }
+                            }
                         }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
                     }
-                )
-                
-                Divider()
-                    .frame(height: 24)
-                    .background(Color.theme.divider)
-                
-                // Comment Button
-                StoryRoleInteractionButton(
-                    icon: "bubble.left",
-                    color: Color.theme.tertiaryText,
-                    text: "\(board.boardActive.totalCommentCount)",
-                    action: { showDetail = true }
-                )
-                
-                Divider()
-                    .frame(height: 24)
-                    .background(Color.theme.divider)
-                
-                // Share Button
-                StoryRoleInteractionButton(
-                    icon: "square.and.arrow.up",
-                    color: Color.theme.tertiaryText,
-                    text: "\(board.boardActive.totalForkCount)",
-                    action: { }
-                )
+                }
             }
-            .frame(height: 44)
-            .background(Color.theme.secondaryBackground)
+            .padding(.horizontal)
+
+            // 交互按钮
+            HStack(spacing: 24) {
+                HStack(spacing: 4) {
+                    Image(systemName: board.boardActive.isliked ? "heart.fill" : "heart")
+                        .font(.system(size: 16))
+                    Text("\(board.boardActive.totalLikeCount)")
+                        .font(.system(size: 14))
+                }
+                .foregroundColor(board.boardActive.isliked ? Color.red : Color.theme.tertiaryText)
+                HStack(spacing: 4) {
+                    Image(systemName: "bubble.left")
+                        .font(.system(size: 16))
+                    Text("\(board.boardActive.totalCommentCount)")
+                        .font(.system(size: 14))
+                }
+                .foregroundColor(Color.theme.tertiaryText)
+                HStack(spacing: 4) {
+                    Image(systemName: "signpost.right.and.left")
+                        .font(.system(size: 16))
+                    Text("\(board.boardActive.totalForkCount)")
+                        .font(.system(size: 14))
+                }
+                .foregroundColor(Color.theme.tertiaryText)
+            }
+            .padding(.horizontal)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
-    }
-    
-    private func formatDate(timestamp: Int64) -> String {
-        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .short
-        return formatter.localizedString(for: date, relativeTo: Date())
+        .padding(.vertical, 6)
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.theme.border, lineWidth: 0.5)
+        )
+        .shadow(color: Color.theme.primaryText.opacity(0.05), radius: 4, y: 2)
     }
 }
 

@@ -140,7 +140,7 @@ extension APIClient {
         }
     }
     
-    func CreateStoryboard(storyId: Int64, prevBoardId: Int64, nextBoardId: Int64, creator: Int64, title: String, content: String, isAiGen: Bool, background: String, params: Common_StoryBoardParams) async -> (StoryBoard, Error?) {
+    func CreateStoryboard(storyId: Int64, prevBoardId: Int64, nextBoardId: Int64, creator: Int64, title: String, content: String, isAiGen: Bool, background: String, params: Common_StoryBoardParams,roles: [Common_StoryRole]) async -> (StoryBoard, Error?) {
 
         let result = StoryBoard(id: -1, boardInfo: Common_StoryBoard())
         do {
@@ -156,6 +156,7 @@ extension APIClient {
                     $0.isAiGen = isAiGen
                     $0.backgroud = background
                     $0.params = params
+                    $0.roles = roles
                 }
             }
             
