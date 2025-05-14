@@ -305,6 +305,7 @@ struct StoryListHeaderView: View {
                                 )
                             Text("全部")
                                 .font(.system(size: 12))
+                                .foregroundColor(.black)
                         }
                     }
                     
@@ -327,6 +328,7 @@ struct StoryListHeaderView: View {
                                 Text(story.storyInfo.title.prefix(4))
                                     .font(.system(size: 12))
                                     .lineLimit(1)
+                                    .foregroundColor(.black)
                             }
                         }
                     }

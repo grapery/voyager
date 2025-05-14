@@ -45,6 +45,7 @@ struct StoryDetailView: View {
             }
         }
         .navigationTitle("故事详情")
+        .navigationBarHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(isEditing ? "保存" : "编辑") {
@@ -102,8 +103,8 @@ struct StoryDetailView: View {
             
             if isEditing {
                 TextField("故事名称", text: Binding(
-                    get: { story.storyInfo.name },
-                    set: { story.storyInfo.name = $0 }
+                    get: { story.storyInfo.title },
+                    set: { story.storyInfo.title = $0 }
                 ))
                 .font(.subheadline)
                 .padding(10)
@@ -247,6 +248,58 @@ struct StoryDetailView: View {
                     }
                 )) {
                     SettingRow(title: "负面提示词", content: viewModel.story?.storyInfo.params.negativePrompt ?? "")
+                }
+                
+                // 故事风格选择
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("故事风格")
+                        .font(.headline)
+                    if isEditing {
+                        Picker("选择风格", selection: Binding(
+                            get: { viewModel.story?.storyInfo.params.style ?? "写实风格" },
+                            set: { viewModel.story?.storyInfo.params.style = $0 }
+                        )) {
+                            Text("写实风格").tag("写实风格")
+                            Text("动漫风格").tag("动漫风格")
+                            Text("油画风格").tag("油画风格")
+                            Text("水彩风格").tag("水彩风格")
+                            Text("素描风格").tag("素描风格")
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        .padding(14)
+                        .background(Color(.systemGray5))
+                        .cornerRadius(14)
+                    } else {
+                        Text(viewModel.story?.storyInfo.params.style ?? "写实风格")
+                            .padding(14)
+                            .background(Color(.systemGray5))
+                            .cornerRadius(14)
+                    }
+                }
+                
+                // 场景数量设置
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("场景数量")
+                        .font(.headline)
+                    if isEditing {
+                        Picker("选择场景数量", selection: Binding(
+                            get: { viewModel.story?.storyInfo.params.sceneCount ?? 1 },
+                            set: { viewModel.story?.storyInfo.params.sceneCount = $0 }
+                        )) {
+                            ForEach(1...8, id: \.self) { count in
+                                Text("\(count)个场景").tag(count)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        .padding(14)
+                        .background(Color(.systemGray5))
+                        .cornerRadius(14)
+                    } else {
+                        Text("\(viewModel.story?.storyInfo.params.sceneCount ?? 1)个场景")
+                            .padding(14)
+                            .background(Color(.systemGray5))
+                            .cornerRadius(14)
+                    }
                 }
             }
             .background(Color(.systemBackground))
