@@ -47,6 +47,7 @@ class StoryRoleModel: ObservableObject {
             print("fetchStoryboard failed: ",err as Any)
             return
         }
+        print("fetchStoryRoles",roles as Any)
         self.roles = roles!
         return
     }

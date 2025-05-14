@@ -153,6 +153,7 @@ struct StoryRoleDetailView: View {
         self.userId = userId
         self._viewModel = StateObject(wrappedValue: StoryRoleModel(userId: userId, roleId: roleId))
         if let role = role {
+            print("init role")
             self._role = State(initialValue: role)
         }
     }
@@ -900,7 +901,7 @@ struct EditDescriptionView: View {
                 }) {
                     HStack {
                         Image(systemName: "wand.and.stars")
-                        Text("AI生成角色描述")
+                        Text("AI生成")
                     }
                     .foregroundColor(.white)
                     .padding(.horizontal, 16)
@@ -922,17 +923,26 @@ struct EditDescriptionView: View {
                 
                 // Display the character description fields
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        DescriptionField(title: "基本描述", text: roleDescription.description_p)
-                        DescriptionField(title: "短期目标", text: roleDescription.shortTermGoal)
-                        DescriptionField(title: "长期目标", text: roleDescription.longTermGoal)
-                        DescriptionField(title: "性格特征", text: roleDescription.personality)
-                        DescriptionField(title: "背景故事", text: roleDescription.background)
-                        DescriptionField(title: "处事方式", text: roleDescription.handlingStyle)
-                        DescriptionField(title: "认知范围", text: roleDescription.cognitionRange)
-                        DescriptionField(title: "能力特点", text: roleDescription.abilityFeatures)
-                        DescriptionField(title: "外貌特征", text: roleDescription.appearance)
-                        DescriptionField(title: "着装偏好", text: roleDescription.dressPreference)
+                    VStack(alignment: .leading, spacing: 0) {
+                        DescriptionField(emoji: "📝", title: "基本描述", text: roleDescription.description_p)
+                        DashedDivider()
+                        DescriptionField(emoji: "🎯", title: "短期目标", text: roleDescription.shortTermGoal)
+                        DashedDivider()
+                        DescriptionField(emoji: "🏆", title: "长期目标", text: roleDescription.longTermGoal)
+                        DashedDivider()
+                        DescriptionField(emoji: "😃", title: "性格特征", text: roleDescription.personality)
+                        DashedDivider()
+                        DescriptionField(emoji: "📖", title: "背景故事", text: roleDescription.background)
+                        DashedDivider()
+                        DescriptionField(emoji: "🤝", title: "处事方式", text: roleDescription.handlingStyle)
+                        DashedDivider()
+                        DescriptionField(emoji: "👀", title: "认知范围", text: roleDescription.cognitionRange)
+                        DashedDivider()
+                        DescriptionField(emoji: "💡", title: "能力特点", text: roleDescription.abilityFeatures)
+                        DashedDivider()
+                        DescriptionField(emoji: "👤", title: "外貌特征", text: roleDescription.appearance)
+                        DashedDivider()
+                        DescriptionField(emoji: "👗", title: "着装偏好", text: roleDescription.dressPreference)
                     }
                     .padding()
                 }
@@ -1007,20 +1017,48 @@ struct EditDescriptionView: View {
 
 // Helper view for displaying description fields
 private struct DescriptionField: View {
+    let emoji: String
     let title: String
     let text: String
-    
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.secondary)
-            
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Text(emoji)
+                    .font(.system(size: 18))
+                Text(title)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(.primary)
+            }
             Text(text)
-                .font(.system(size: 16))
-                .foregroundColor(.primary)
+                .font(.system(size: 15))
+                .foregroundColor(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+}
+
+// 虚线 Divider
+struct DashedDivider: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color.gray.opacity(0.4))
+            .frame(height: 1)
+            .overlay(
+                GeometryReader { geometry in
+                    Path { path in
+                        let width = geometry.size.width
+                        let dash: CGFloat = 4
+                        let gap: CGFloat = 4
+                        var x: CGFloat = 0
+                        while x < width {
+                            path.move(to: CGPoint(x: x, y: 0))
+                            path.addLine(to: CGPoint(x: min(x + dash, width), y: 0))
+                            x += dash + gap
+                        }
+                    }
+                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                }
+            )
     }
 }
 
