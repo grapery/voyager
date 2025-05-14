@@ -924,7 +924,7 @@ struct EditDescriptionView: View {
                 // Display the character description fields
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-                        DescriptionField(emoji: "📝", title: "基本描述", text: roleDescription.description_p)
+                        DescriptionField(emoji: "📝", title: "角色描述", text: roleDescription.description_p)
                         DashedDivider()
                         DescriptionField(emoji: "🎯", title: "短期目标", text: roleDescription.shortTermGoal)
                         DashedDivider()
@@ -944,7 +944,8 @@ struct EditDescriptionView: View {
                         DashedDivider()
                         DescriptionField(emoji: "👗", title: "着装偏好", text: roleDescription.dressPreference)
                     }
-                    .padding()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 16)
                 }
                 
                 Spacer()
@@ -1532,19 +1533,26 @@ struct RoleDetailTab: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
-                Section {
-                    DetailSection(title: "角色描述", content: role.role.characterDetail.description_p)
-                    DetailSection(title: "短期目标", content: role.role.characterDetail.shortTermGoal)
-                    DetailSection(title: "长期目标", content: role.role.characterDetail.longTermGoal)
-                    DetailSection(title: "性格特征", content: role.role.characterDetail.personality)
-                    DetailSection(title: "背景故事", content: role.role.characterDetail.background)
-                    DetailSection(title: "处事风格", content: role.role.characterDetail.handlingStyle)
-                    DetailSection(title: "认知范围", content: role.role.characterDetail.cognitionRange)
-                    DetailSection(title: "能力特点", content: role.role.characterDetail.abilityFeatures)
-                    DetailSection(title: "外貌特征", content: role.role.characterDetail.appearance)
-                    DetailSection(title: "着装偏好", content: role.role.characterDetail.dressPreference)
-                }
+            VStack(alignment: .leading, spacing: 0) {
+                DescriptionField(emoji: "📝", title: "角色描述", text: role.role.characterDetail.description_p)
+                DashedDivider()
+                DescriptionField(emoji: "🎯", title: "短期目标", text: role.role.characterDetail.shortTermGoal)
+                DashedDivider()
+                DescriptionField(emoji: "🏆", title: "长期目标", text: role.role.characterDetail.longTermGoal)
+                DashedDivider()
+                DescriptionField(emoji: "😃", title: "性格特征", text: role.role.characterDetail.personality)
+                DashedDivider()
+                DescriptionField(emoji: "📖", title: "背景故事", text: role.role.characterDetail.background)
+                DashedDivider()
+                DescriptionField(emoji: "🤝", title: "处事方式", text: role.role.characterDetail.handlingStyle)
+                DashedDivider()
+                DescriptionField(emoji: "👀", title: "认知范围", text: role.role.characterDetail.cognitionRange)
+                DashedDivider()
+                DescriptionField(emoji: "💡", title: "能力特点", text: role.role.characterDetail.abilityFeatures)
+                DashedDivider()
+                DescriptionField(emoji: "👤", title: "外貌特征", text: role.role.characterDetail.appearance)
+                DashedDivider()
+                DescriptionField(emoji: "👗", title: "着装偏好", text: role.role.characterDetail.dressPreference)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 16)
