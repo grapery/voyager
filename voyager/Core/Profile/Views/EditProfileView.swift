@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import ActivityIndicatorView
 
 struct EditUserProfileView: View {
     @State private var selectedImage: PhotosPickerItem?
@@ -109,8 +110,9 @@ struct EditUserProfileView: View {
                 if isLoading {
                     Color.black.opacity(0.3)
                         .ignoresSafeArea()
-                    ProgressView()
-                        .tint(.white)
+                    ActivityIndicatorView(isVisible: .constant(isLoading), type: .arcs())
+                                            .frame(width: 50, height: 50)
+                                            .foregroundColor(.red)
                 }
             }
         }

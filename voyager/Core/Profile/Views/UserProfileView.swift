@@ -9,6 +9,7 @@
 import SwiftUI
 import Kingfisher
 import PhotosUI
+import ActivityIndicatorView
 
 // MARK: - Main View
 struct UserProfileView: View {

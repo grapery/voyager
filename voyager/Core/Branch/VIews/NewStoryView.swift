@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import ActivityIndicatorView
 
 struct NewStoryView: View {
     @Environment(\.presentationMode) var presentationMode

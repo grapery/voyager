@@ -8,6 +8,7 @@
 import SwiftUI
 import Kingfisher
 import Combine
+import ActivityIndicatorView
 
 struct StoryBoardView: View {
     @State var board: StoryBoardActive?

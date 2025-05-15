@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import ActivityIndicatorView
 
 struct StoryDetailView: View {
     @State var storyId: Int64
@@ -45,7 +46,6 @@ struct StoryDetailView: View {
             }
         }
         .navigationTitle("故事详情")
-        .navigationBarHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(isEditing ? "保存" : "编辑") {
@@ -91,11 +91,9 @@ struct StoryDetailView: View {
                     )
                     .overlay(
                         isUpdatingAvatar ? 
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
                             .frame(width: 80, height: 80)
-                            .background(Color.black.opacity(0.3))
-                            .clipShape(Circle())
+                            .foregroundColor(.red)
                         : nil
                     )
             }

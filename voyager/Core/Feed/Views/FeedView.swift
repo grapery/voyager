@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import ActivityIndicatorView
 
 enum FeedType{
     case Groups
@@ -322,8 +323,8 @@ private struct FeedItemCard: View {
                                                             Rectangle()
                                                                 .fill(Color.theme.tertiaryBackground)
                                                                 .overlay(
-                                                                    ProgressView()
-                                                                        .progressViewStyle(CircularProgressViewStyle())
+                                                                    ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                                                                        .frame(width: 50, height: 50)
                                                                 )
                                                         }
                                                         .resizable()
@@ -569,7 +570,9 @@ private struct FeedViewRefreshControl: View {
             HStack {
                 Spacer()
                 if isRefreshing {
-                    ProgressView()
+                    ActivityIndicatorView(isVisible: .constant(isRefreshing), type: .arcs())
+                        .frame(width: 50, height: 50)
+                        .foregroundColor(.red)
                 }
                 Spacer()
             }
@@ -646,8 +649,9 @@ private struct FeedItemList: View {
                     HStack {
                         Spacer()
                         if isLoadingMore {
-                            ProgressView()
-                                .padding(.trailing, 8)
+                            ActivityIndicatorView(isVisible: .constant(isLoadingMore), type: .arcs())
+                                .frame(width: 50, height: 50)
+                                .foregroundColor(.red)
                         }
                         Text(isLoadingMore ? "加载中..." : "加载更多")
                             .font(.system(size: 12))
@@ -679,8 +683,9 @@ private struct LoadingIndicator: View {
     var body: some View {
         HStack {
             Spacer()
-            ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: Color.theme.accent))
+            ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                .frame(width: 50, height: 50)
+                .foregroundColor(.red)
             Spacer()
         }
         .padding()
@@ -1137,7 +1142,7 @@ private struct TrendingRoleCard: View {
     }
 }
 
-// 热点内容视图
+// MARK: - 热点内容视图
 private struct TrendingContentView: View {
     @ObservedObject var viewModel: FeedViewModel
     @State private var selectedTab = 0
@@ -1145,229 +1150,15 @@ private struct TrendingContentView: View {
     @State private var errorMessage: String = ""
     @State private var showError: Bool = false
     @State private var isRefreshing = false
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            // 热点标签页切换
-            HStack(spacing: 32) {
-                Button(action: { 
-                    withAnimation {
-                        selectedTab = 0
-                    } 
-                }) {
-                    VStack(spacing: 4) {
-                        Text("热门故事")
-                            .font(.system(size: 16))
-                            .foregroundColor(selectedTab == 0 ? Color.theme.primaryText : Color.theme.tertiaryText)
-                            .fontWeight(selectedTab == 0 ? .semibold : .regular)
-                        
-                        // 下划线指示器
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundColor(selectedTab == 0 ? Color.theme.accent : Color.clear)
-                    }
-                }
-                
-                Button(action: { 
-                    withAnimation {
-                        selectedTab = 1
-                    }
-                }) {
-                    VStack(spacing: 4) {
-                        Text("热门角色")
-                            .font(.system(size: 16))
-                            .foregroundColor(selectedTab == 1 ? Color.theme.primaryText : Color.theme.tertiaryText)
-                            .fontWeight(selectedTab == 1 ? .semibold : .regular)
-                        
-                        // 下划线指示器
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundColor(selectedTab == 1 ? Color.theme.accent : Color.clear)
-                    }
-                }
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            
-            // 内容区域
+            TrendingTabBar(selectedTab: $selectedTab)
             TabView(selection: $selectedTab) {
-                // 热门故事
-                ScrollView {
-                    RefreshableScrollView(
-                        isRefreshing: $isRefreshing,
-                        onRefresh: {
-                            Task {
-                                await viewModel.loadTrendingStories()
-                                try? await Task.sleep(nanoseconds: 500_000_000) // 添加轻微延迟以显示刷新效果
-                                isRefreshing = false
-                            }
-                        }
-                    ) {
-                        VStack(alignment: .leading, spacing: 0) {
-                            if isRefreshing {
-                                HStack {
-                                    Spacer()
-                                    VStack(spacing: 8) {
-                                        ProgressView()
-                                        Text("正在刷新...")
-                                            .font(.caption)
-                                            .foregroundColor(Color.theme.tertiaryText)
-                                    }
-                                    .padding(.vertical, 20)
-                                    Spacer()
-                                }
-                            }
-                            
-                            if viewModel.isLoadingTrending && !isRefreshing {
-                                HStack {
-                                    Spacer()
-                                    ProgressView()
-                                        .padding(.vertical, 40)
-                                    Spacer()
-                                }
-                            } else if viewModel.trendingStories.isEmpty && !viewModel.isLoadingTrending {
-                                VStack {
-                                    Text("暂无热门故事")
-                                        .font(.system(size: 16))
-                                        .foregroundColor(Color.theme.tertiaryText)
-                                        .padding(.vertical, 40)
-                                    Button("刷新") {
-                                        Task {
-                                            await viewModel.loadTrendingStories()
-                                        }
-                                    }
-                                    .padding()
-                                }
-                                .frame(maxWidth: .infinity)
-                            } else if !viewModel.trendingStories.isEmpty {
-                                LazyVStack(alignment: .leading, spacing: 8) {
-                                    ForEach(viewModel.trendingStories, id: \.Id) { story in
-                                        TrendingStoryCard(story: story, viewModel: viewModel)
-                                            .padding(.horizontal)
-                                            .onAppear {
-                                                if story.Id == viewModel.trendingStories.last?.Id && viewModel.hasMoreTrendingStories {
-                                                    Task {
-                                                        await viewModel.loadMoreTrendingStories()
-                                                    }
-                                                }
-                                            }
-                                    }
-                                    
-                                    if viewModel.isLoadingMoreTrending {
-                                        HStack {
-                                            Spacer()
-                                            ProgressView()
-                                                .padding()
-                                            Spacer()
-                                        }
-                                    }
-                                    
-                                    if !viewModel.hasMoreTrendingStories && !viewModel.trendingStories.isEmpty {
-                                        HStack {
-                                            Spacer()
-                                            Text("没有更多热门故事了")
-                                                .font(.system(size: 14))
-                                                .foregroundColor(Color.theme.tertiaryText)
-                                                .padding()
-                                            Spacer()
-                                        }
-                                    }
-                                }
-                                .padding(.vertical)
-                            }
-                        }
-                    }
-                }
-                .tag(0)
-                
-                // 热门角色
-                ScrollView {
-                    RefreshableScrollView(
-                        isRefreshing: $isRefreshing,
-                        onRefresh: {
-                            Task {
-                                await viewModel.loadTrendingRoles()
-                                try? await Task.sleep(nanoseconds: 500_000_000) // 添加轻微延迟以显示刷新效果
-                                isRefreshing = false
-                            }
-                        }
-                    ) {
-                        VStack(alignment: .leading, spacing: 0) {
-                            if isRefreshing {
-                                HStack {
-                                    Spacer()
-                                    VStack(spacing: 8) {
-                                        ProgressView()
-                                        Text("正在刷新...")
-                                            .font(.caption)
-                                            .foregroundColor(Color.theme.tertiaryText)
-                                    }
-                                    .padding(.vertical, 20)
-                                    Spacer()
-                                }
-                            }
-                            
-                            if viewModel.isLoadingTrending && !isRefreshing {
-                                HStack {
-                                    Spacer()
-                                    ProgressView()
-                                        .padding(.vertical, 40)
-                                    Spacer()
-                                }
-                            } else if viewModel.trendingRoles.isEmpty && !viewModel.isLoadingTrending {
-                                VStack {
-                                    Text("暂无热门角色")
-                                        .font(.system(size: 16))
-                                        .foregroundColor(Color.theme.tertiaryText)
-                                        .padding(.vertical, 40)
-                                    Button("刷新") {
-                                        Task {
-                                            await viewModel.loadTrendingRoles()
-                                        }
-                                    }
-                                    .padding()
-                                }
-                                .frame(maxWidth: .infinity)
-                            } else if !viewModel.trendingRoles.isEmpty {
-                                LazyVStack(alignment: .leading, spacing: 8) {
-                                    ForEach(viewModel.trendingRoles, id: \.Id) { role in
-                                        TrendingRoleCard(role: role, viewModel: viewModel)
-                                            .padding(.horizontal)
-                                            .onAppear {
-                                                if role.Id == viewModel.trendingRoles.last?.Id && viewModel.hasMoreTrendingRoles {
-                                                    Task {
-                                                        await viewModel.loadMoreTrendingRoles()
-                                                    }
-                                                }
-                                            }
-                                    }
-                                    
-                                    if viewModel.isLoadingMoreTrending {
-                                        HStack {
-                                            Spacer()
-                                            ProgressView()
-                                                .padding()
-                                            Spacer()
-                                        }
-                                    }
-                                    
-                                    if !viewModel.hasMoreTrendingRoles && !viewModel.trendingRoles.isEmpty {
-                                        HStack {
-                                            Spacer()
-                                            Text("没有更多热门角色了")
-                                                .font(.system(size: 14))
-                                                .foregroundColor(Color.theme.tertiaryText)
-                                                .padding()
-                                            Spacer()
-                                        }
-                                    }
-                                }
-                                .padding(.vertical)
-                            }
-                        }
-                    }
-                }
-                .tag(1)
+                TrendingStoriesSection(viewModel: viewModel, isRefreshing: $isRefreshing)
+                    .tag(0)
+                TrendingRolesSection(viewModel: viewModel, isRefreshing: $isRefreshing)
+                    .tag(1)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
@@ -1386,6 +1177,204 @@ private struct TrendingContentView: View {
             Button("确定", role: .cancel) { }
         } message: {
             Text(errorMessage)
+        }
+    }
+}
+
+// MARK: - 顶部Tab栏
+private struct TrendingTabBar: View {
+    @Binding var selectedTab: Int
+    var body: some View {
+        HStack(spacing: 32) {
+            TrendingTabButton(title: "热门故事", isSelected: selectedTab == 0) { selectedTab = 0 }
+            TrendingTabButton(title: "热门角色", isSelected: selectedTab == 1) { selectedTab = 1 }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+    }
+}
+
+private struct TrendingTabButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+    var body: some View {
+        Button(action: { withAnimation { action() } }) {
+            VStack(spacing: 4) {
+                Text(title)
+                    .font(.system(size: 16))
+                    .foregroundColor(isSelected ? Color.theme.primaryText : Color.theme.tertiaryText)
+                    .fontWeight(isSelected ? .semibold : .regular)
+                Rectangle()
+                    .frame(height: 2)
+                    .foregroundColor(isSelected ? Color.theme.accent : Color.clear)
+            }
+        }
+    }
+}
+
+// MARK: - 热门故事内容区
+private struct TrendingStoriesSection: View {
+    @ObservedObject var viewModel: FeedViewModel
+    @Binding var isRefreshing: Bool
+
+    var body: some View {
+        ScrollView {
+            RefreshableScrollView(
+                isRefreshing: $isRefreshing,
+                onRefresh: {
+                    Task {
+                        await viewModel.loadTrendingStories()
+                        try? await Task.sleep(nanoseconds: 500_000_000)
+                        isRefreshing = false
+                    }
+                }
+            ) {
+                VStack(alignment: .leading, spacing: 0) {
+                    if isRefreshing {
+                        TrendingLoadingView(message: "正在刷新...")
+                    } else if viewModel.isLoadingTrending {
+                        TrendingLoadingView()
+                    } else if viewModel.trendingStories.isEmpty {
+                        TrendingEmptyView(message: "暂无热门故事") {
+                            Task { await viewModel.loadTrendingStories() }
+                        }
+                    } else {
+                        TrendingStoriesList(viewModel: viewModel)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct TrendingStoriesList: View {
+    @ObservedObject var viewModel: FeedViewModel
+    var body: some View {
+        LazyVStack(alignment: .leading, spacing: 8) {
+            ForEach(viewModel.trendingStories, id: \.Id) { story in
+                TrendingStoryCard(story: story, viewModel: viewModel)
+                    .padding(.horizontal)
+                    .onAppear {
+                        if story.Id == viewModel.trendingStories.last?.Id && viewModel.hasMoreTrendingStories {
+                            Task { await viewModel.loadMoreTrendingStories() }
+                        }
+                    }
+            }
+            if viewModel.isLoadingMoreTrending {
+                TrendingLoadingView(message: "加载更多...")
+            }
+            if !viewModel.hasMoreTrendingStories && !viewModel.trendingStories.isEmpty {
+                TrendingNoMoreView(message: "没有更多热门故事了")
+            }
+        }
+        .padding(.vertical)
+    }
+}
+
+// MARK: - 热门角色内容区
+private struct TrendingRolesSection: View {
+    @ObservedObject var viewModel: FeedViewModel
+    @Binding var isRefreshing: Bool
+
+    var body: some View {
+        ScrollView {
+            RefreshableScrollView(
+                isRefreshing: $isRefreshing,
+                onRefresh: {
+                    Task {
+                        await viewModel.loadTrendingRoles()
+                        try? await Task.sleep(nanoseconds: 500_000_000)
+                        isRefreshing = false
+                    }
+                }
+            ) {
+                VStack(alignment: .leading, spacing: 0) {
+                    if isRefreshing {
+                        TrendingLoadingView(message: "正在刷新...")
+                    } else if viewModel.isLoadingTrending {
+                        TrendingLoadingView()
+                    } else if viewModel.trendingRoles.isEmpty {
+                        TrendingEmptyView(message: "暂无热门角色") {
+                            Task { await viewModel.loadTrendingRoles() }
+                        }
+                    } else {
+                        TrendingRolesList(viewModel: viewModel)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct TrendingRolesList: View {
+    @ObservedObject var viewModel: FeedViewModel
+    var body: some View {
+        LazyVStack(alignment: .leading, spacing: 8) {
+            ForEach(viewModel.trendingRoles, id: \.Id) { role in
+                TrendingRoleCard(role: role, viewModel: viewModel)
+                    .padding(.horizontal)
+                    .onAppear {
+                        if role.Id == viewModel.trendingRoles.last?.Id && viewModel.hasMoreTrendingRoles {
+                            Task { await viewModel.loadMoreTrendingRoles() }
+                        }
+                    }
+            }
+            if viewModel.isLoadingMoreTrending {
+                TrendingLoadingView(message: "加载更多...")
+            }
+            if !viewModel.hasMoreTrendingRoles && !viewModel.trendingRoles.isEmpty {
+                TrendingNoMoreView(message: "没有更多热门角色了")
+            }
+        }
+        .padding(.vertical)
+    }
+}
+
+// MARK: - 通用视图组件
+private struct TrendingLoadingView: View {
+    var message: String = "加载中..."
+    var body: some View {
+        HStack {
+            Spacer()
+            ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                .frame(width: 50, height: 50)
+                .foregroundColor(.red)
+            Text(message)
+                .font(.caption)
+                .foregroundColor(Color.theme.tertiaryText)
+            Spacer()
+        }
+        .padding(.vertical, 20)
+    }
+}
+
+private struct TrendingEmptyView: View {
+    let message: String
+    let action: () -> Void
+    var body: some View {
+        VStack {
+            Text(message)
+                .font(.system(size: 16))
+                .foregroundColor(Color.theme.tertiaryText)
+                .padding(.vertical, 40)
+            Button("刷新", action: action)
+                .padding()
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+private struct TrendingNoMoreView: View {
+    let message: String
+    var body: some View {
+        HStack {
+            Spacer()
+            Text(message)
+                .font(.system(size: 14))
+                .foregroundColor(Color.theme.tertiaryText)
+                .padding()
+            Spacer()
         }
     }
 }

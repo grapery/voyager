@@ -8,6 +8,7 @@
 import SwiftUI
 import Kingfisher
 import Combine
+import ActivityIndicatorView
 
 // MARK: - Main Group View
 struct GroupView: View {

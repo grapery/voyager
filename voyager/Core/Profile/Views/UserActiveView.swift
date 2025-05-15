@@ -8,7 +8,7 @@
 import SwiftUI
 import PhotosUI
 import Kingfisher
-
+import ActivityIndicatorView
 
 
 // MARK: - User Activity View
@@ -46,8 +46,9 @@ struct UserActivesView: View {
                 }
                 
                 if isLoadingMore {
-                    ProgressView()
-                        .frame(height: 50)
+                    ActivityIndicatorView(isVisible: .constant(isLoadingMore), type: .arcs())
+                                            .frame(width: 50, height: 50)
+                                            .foregroundColor(.red)
                 }
             }
             .padding()
@@ -176,7 +177,9 @@ private struct ActiveRefreshControl: View {
             HStack {
                 Spacer()
                 if isRefreshing {
-                    ProgressView()
+                    ActivityIndicatorView(isVisible: .constant(isRefreshing), type: .arcs())
+                                            .frame(width: 50, height: 50)
+                                            .foregroundColor(.red)
                 }
                 Spacer()
             }

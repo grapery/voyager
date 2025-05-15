@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ActivityIndicatorView
 
 struct DeleteGroupView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>

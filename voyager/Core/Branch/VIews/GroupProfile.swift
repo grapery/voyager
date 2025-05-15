@@ -8,6 +8,7 @@
 import SwiftUI
 import Kingfisher
 import Combine
+import ActivityIndicatorView
 
 struct GroupProfileTabBar: View {
     @Binding var selectedTab: Int

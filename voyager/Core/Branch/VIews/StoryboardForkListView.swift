@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import ActivityIndicatorView
 
 struct StoryboardForkListView: View {
     @ObservedObject var viewModel: StoryViewModel
@@ -66,9 +67,9 @@ struct StoryboardForkListView: View {
                     
                     // 加载状态指示器
                     if viewModel.isLoadingForkList(for: boardId) {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                            .padding(.horizontal)
+                        ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                            .frame(width: 50, height: 50)
+                            .foregroundColor(.red)
                     }
                 }
                 .padding(.horizontal, 16)
@@ -103,8 +104,9 @@ private struct ForkStoryBoardCard: View {
                         Rectangle()
                             .fill(Color.theme.tertiaryBackground)
                             .overlay(
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle())
+                                ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                                    .frame(width: 50, height: 50)
+                                    .foregroundColor(.red)
                             )
                     }
                     .resizable()

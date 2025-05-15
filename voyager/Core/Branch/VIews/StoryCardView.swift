@@ -1,5 +1,7 @@
 import SwiftUI
 import Kingfisher
+import ActivityIndicatorView
+
 
 struct StoryCardView: View {
     let story: Story

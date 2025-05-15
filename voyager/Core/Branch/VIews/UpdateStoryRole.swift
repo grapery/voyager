@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import ActivityIndicatorView
 
 // 编辑角色视图
 struct EditStoryRoleDetailView: View {

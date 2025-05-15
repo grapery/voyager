@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ConcentricOnboarding
+import ActivityIndicatorView
 
 struct GraperyApp: View {
     @StateObject private var userState = UserStateManager.shared
@@ -18,8 +19,9 @@ struct GraperyApp: View {
         Group {
             if userState.isLoading {
                 // 显示加载界面
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle())
+                ActivityIndicatorView(isVisible: .constant(userState.isLoading), type: .arcs())
+                                            .frame(width: 100, height: 100)
+                                            .foregroundColor(.red)
             } else if userState.isLoggedIn && userState.currentUser != nil {
                 MainTabView(user: userState.currentUser!)
             } else {

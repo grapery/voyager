@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import ActivityIndicatorView
 
 struct UpdateGroupView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import ActivityIndicatorView
 
 // 创建角色视图
 struct NewStoryRole: View {

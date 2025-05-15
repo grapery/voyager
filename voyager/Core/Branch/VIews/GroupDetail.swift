@@ -8,6 +8,7 @@
 import SwiftUI
 import Kingfisher
 import Combine
+import ActivityIndicatorView
 
 // MARK: - Group Header View
 struct GroupHeaderView: View {
@@ -403,11 +404,9 @@ struct GroupDetailView: View {
             Color.theme.background.ignoresSafeArea() 
             if isLoading {
                 VStack {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle())
-                    Text("加载中...")
-                        .foregroundColor(.secondary)
-                        .padding(.top, 8)
+                    ActivityIndicatorView(isVisible: .constant(isLoading), type: .arcs())
+                                            .frame(width: 50, height: 50)
+                                            .foregroundColor(.red)
                 }
             } else {
                 ScrollView {

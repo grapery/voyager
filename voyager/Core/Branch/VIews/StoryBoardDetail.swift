@@ -10,6 +10,7 @@ import SwiftUI
 import Kingfisher
 import Combine
 import AVKit
+import ActivityIndicatorView
 
 
 // 媒体项目类型

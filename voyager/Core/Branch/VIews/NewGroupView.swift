@@ -8,6 +8,7 @@
 import SwiftUI
 import UIKit
 import PhotosUI
+import ActivityIndicatorView
 
 struct NewGroupView: View {
     @Environment(\.presentationMode) var presentationMode

@@ -9,6 +9,7 @@ import SwiftUI
 import Kingfisher
 import Combine
 import AVKit
+import ActivityIndicatorView
 
 struct StoryView: View {
     @StateObject var viewModel: StoryViewModel

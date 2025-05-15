@@ -10,8 +10,9 @@ struct StoriesTab: View {
         ScrollView {
             LazyVStack(spacing: 12) {
                 if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 200)
+                    ActivityIndicatorView(isVisible: .constant(isLoading), type: .arcs())
+                                            .frame(width: 200, height: 200)
+                                            .foregroundColor(.red)
                 } else if viewModel.storyboards.isEmpty {
                     EmptyStateView(
                         image: "doc.text",
@@ -41,8 +42,9 @@ struct RolesTab: View {
         ScrollView {
             LazyVStack(spacing: 12) {
                 if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 200)
+                    ActivityIndicatorView(isVisible: .constant(isLoading), type: .arcs())
+                                            .frame(width: 200, height: 200)
+                                            .foregroundColor(.red)
                 } else if viewModel.storyRoles.isEmpty {
                     EmptyStateView(
                         image: "person.circle",

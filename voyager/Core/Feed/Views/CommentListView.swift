@@ -1,5 +1,6 @@
 import SwiftUI
 import Kingfisher
+import ActivityIndicatorView
 
 struct CommentListView: View {
     let storyId: Int64

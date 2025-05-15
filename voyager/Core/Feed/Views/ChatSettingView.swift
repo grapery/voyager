@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import ActivityIndicatorView
 
 struct ChatSettingView: View {
     // 你可以根据实际需要传递 user/role 等参数

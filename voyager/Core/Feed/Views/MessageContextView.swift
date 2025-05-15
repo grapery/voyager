@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import ActivityIndicatorView
 
 struct MessageContextView: View {
     @ObservedObject var viewModel: MessageContextViewModel

@@ -1,4 +1,5 @@
 import SwiftUI
+import ActivityIndicatorView
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
