@@ -602,36 +602,31 @@ struct RoleCard: View {
             Button(action: {
                 showingDetail = true
             }) {
-                HStack(alignment: .top, spacing: 12) { // 改为顶部对齐
+                HStack(alignment: .top, spacing: 12) {
                     // 角色头像
                     KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
                         .cacheMemoryOnly()
                         .fade(duration: 0.25)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 120, height: 120)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                    
+                        .frame(width: 80, height: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
                     // 右侧信息区域
-                    VStack(alignment: .leading, spacing: 12) { // 增加间距
+                    VStack(alignment: .leading, spacing: 12) {
                         // 1. 角色名称
                         Text(role.role.characterName)
-                            .font(.system(size: 20, weight: .semibold)) // 增大字号
+                            .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(Color.theme.primaryText)
                             .lineLimit(1)
-                        
                         // 2. 角色描述
                         Text(role.role.characterDescription)
                             .font(.system(size: 14))
                             .foregroundColor(Color.theme.secondaryText)
                             .lineLimit(3)
                             .multilineTextAlignment(.leading)
-                        
-                        Spacer() // 添加弹性空间
-                        
+                        Spacer()
                         // 3. 创建者信息
                         HStack(spacing: 8) {
-                            // 创建者头像
                             KFImage(URL(string: convertImagetoSenceImage(url: role.role.creator.avatar, scene: .small)))
                                 .cacheMemoryOnly()
                                 .fade(duration: 0.25)
@@ -639,68 +634,69 @@ struct RoleCard: View {
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 16, height: 16)
                                 .clipShape(Circle())
-                            
                             Text("创建者: \(role.role.creator.name)")
                                 .font(.system(size: 12))
                                 .foregroundColor(Color.theme.tertiaryText)
-                            
                             Spacer()
-                            
                             Text(formatDate(timestamp: role.role.ctime))
                                 .font(.system(size: 12))
                                 .foregroundColor(Color.theme.tertiaryText)
                         }
                     }
-                    .frame(height: 120, alignment: .top) // 固定高度，确保与头像等高
+                    .frame(height: 80, alignment: .top)
+                    Spacer()
+                    // 右上角交互按钮
+                    VStack(spacing: 8) {
+                        Button(action: {
+                            Task{
+                                if self.role.role.currentUserStatus.isLiked{
+                                    await self.viewModel.unlikeStoryRole(roleId: self.role.role.roleID)
+                                    self.role.role.currentUserStatus.isLiked = false
+                                    self.role.role.likeCount -= 1
+                                }else{
+                                    await self.viewModel.likeStoryRole(roleId: self.role.role.roleID)
+                                    self.role.role.currentUserStatus.isLiked = true
+                                    self.role.role.likeCount += 1
+                                }
+                            }
+                        }) {
+                            Image(systemName: self.role.role.currentUserStatus.isLiked ? "heart.fill" : "heart")
+                                .font(.system(size: 16))
+                                .foregroundColor(self.role.role.currentUserStatus.isLiked ? Color.red: Color.theme.tertiaryText)
+                                .frame(width: 28, height: 28)
+                                .background(Color(.systemGray6))
+                                .clipShape(Circle())
+                        }
+                        Text("\(role.role.likeCount)")
+                            .font(.system(size: 12))
+                            .foregroundColor(Color.theme.tertiaryText)
+                        Button(action: {
+                            Task{
+                                if self.role.role.currentUserStatus.isFollowed{
+                                    await self.viewModel.unfollowStoryRole(roleId: self.role.role.roleID)
+                                    self.role.role.currentUserStatus.isFollowed = false
+                                    self.role.role.followCount -= 1
+                                }else{
+                                    await self.viewModel.followStoryRole(roleId: self.role.role.roleID)
+                                    self.role.role.currentUserStatus.isFollowed = true
+                                    self.role.role.followCount += 1
+                                }
+                            }
+                        }) {
+                            Image(systemName: self.role.role.currentUserStatus.isFollowed ?  "bell.fill":"bell")
+                                .font(.system(size: 16))
+                                .foregroundColor(self.role.role.currentUserStatus.isFollowed ? Color.red: Color.theme.tertiaryText)
+                                .frame(width: 28, height: 28)
+                                .background(Color(.systemGray6))
+                                .clipShape(Circle())
+                        }
+                        Text("\(role.role.followCount)")
+                            .font(.system(size: 12))
+                            .foregroundColor(Color.theme.tertiaryText)
+                    }
                 }
             }
             .buttonStyle(PlainButtonStyle())
-            
-            // 交互栏
-            HStack(spacing: 24) {
-                // 喜欢按钮
-                StorySubViewInteractionButton(
-                    icon: self.role.role.currentUserStatus.isLiked ? "heart.fill" : "heart",
-                    count: "\(role.role.likeCount)",
-                    color: self.role.role.currentUserStatus.isLiked ? Color.red: Color.theme.tertiaryText,
-                    action: {
-                        Task{
-                            if self.role.role.currentUserStatus.isLiked{
-                                await self.viewModel.unlikeStoryRole(roleId: self.role.role.roleID)
-                                self.role.role.currentUserStatus.isLiked = false
-                                self.role.role.likeCount -= 1
-                            }else{
-                                await self.viewModel.likeStoryRole(roleId: self.role.role.roleID)
-                                self.role.role.currentUserStatus.isLiked = true
-                                self.role.role.likeCount += 1
-                            }
-                        }
-                    }
-                )
-                
-                // 关注按钮
-                StorySubViewInteractionButton(
-                    icon: self.role.role.currentUserStatus.isFollowed ?  "bell.fill":"bell",
-                    count: "\(role.role.followCount)",
-                    color: self.role.role.currentUserStatus.isFollowed ? Color.red: Color.theme.tertiaryText,
-                    action: {
-                        Task{
-                            if self.role.role.currentUserStatus.isFollowed{
-                                await self.viewModel.unfollowStoryRole(roleId: self.role.role.roleID)
-                                self.role.role.currentUserStatus.isFollowed = false
-                                self.role.role.followCount -= 1
-                            }else{
-                                await self.viewModel.followStoryRole(roleId: self.role.role.roleID)
-                                self.role.role.currentUserStatus.isFollowed = true
-                                self.role.role.followCount += 1
-                            }
-                        }
-                    }
-                )
-
-                Spacer()
-            }
-            .padding(.top, 8)
         }
         .padding(16)
         .background(Color.theme.secondaryBackground)

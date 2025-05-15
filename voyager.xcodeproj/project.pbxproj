@@ -132,7 +132,12 @@
 		0FFE24442D7457D3000A8389 /* message.connect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFE24412D7457D3000A8389 /* message.connect.swift */; };
 		0FFE24482D747526000A8389 /* UnpublishedStoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFE24472D747526000A8389 /* UnpublishedStoryViewModel.swift */; };
 		ED4EAC3B2DC44C9300A2F2DC /* UserStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4EAC3A2DC44C9300A2F2DC /* UserStateManager.swift */; };
+		ED55B4C12DD571D30042853F /* ConcentricOnboarding in Frameworks */ = {isa = PBXBuildFile; productRef = ED55B4C02DD571D30042853F /* ConcentricOnboarding */; };
+		ED55B4C32DD571E00042853F /* AnchoredPopup in Frameworks */ = {isa = PBXBuildFile; productRef = ED55B4C22DD571E00042853F /* AnchoredPopup */; };
+		ED55B4C52DD571EB0042853F /* ScalingHeaderScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = ED55B4C42DD571EB0042853F /* ScalingHeaderScrollView */; };
 		ED8E0CE32DC5CCF6007D1D8C /* ChatSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED8E0CE22DC5CCF6007D1D8C /* ChatSettingView.swift */; };
+		EDBCB9F62DD56D2300D35F2D /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBCB9F52DD56D1A00D35F2D /* MockData.swift */; };
+		EDBCB9FA2DD56D5900D35F2D /* OnboardingPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBCB9F92DD56D4800D35F2D /* OnboardingPageView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -264,6 +269,8 @@
 		0FFE24472D747526000A8389 /* UnpublishedStoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnpublishedStoryViewModel.swift; sourceTree = "<group>"; };
 		ED4EAC3A2DC44C9300A2F2DC /* UserStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStateManager.swift; sourceTree = "<group>"; };
 		ED8E0CE22DC5CCF6007D1D8C /* ChatSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSettingView.swift; sourceTree = "<group>"; };
+		EDBCB9F52DD56D1A00D35F2D /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
+		EDBCB9F92DD56D4800D35F2D /* OnboardingPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPageView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -286,9 +293,12 @@
 				0F7F1ED12CAFC972006A66C0 /* Kingfisher in Frameworks */,
 				0F95603F2B065AA800C1DA0D /* SwiftProtobufPluginLibrary in Frameworks */,
 				0F14420D2B0E4CED00581674 /* OpenAPIURLSession in Frameworks */,
+				ED55B4C12DD571D30042853F /* ConcentricOnboarding in Frameworks */,
 				0F7E9E4C2B11FCA3000849E2 /* ConnectNIO in Frameworks */,
+				ED55B4C32DD571E00042853F /* AnchoredPopup in Frameworks */,
 				0FD831AC2B12037600A319DA /* ConnectNIO in Frameworks */,
 				0F95603B2B065A9C00C1DA0D /* OpenAPIRuntime in Frameworks */,
+				ED55B4C52DD571EB0042853F /* ScalingHeaderScrollView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -602,6 +612,8 @@
 		0FFA50702B0857DA00D3A4CF /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				EDBCB9F92DD56D4800D35F2D /* OnboardingPageView.swift */,
+				EDBCB9F52DD56D1A00D35F2D /* MockData.swift */,
 				0FFA50712B0857DA00D3A4CF /* ContentView.swift */,
 			);
 			path = Views;
@@ -718,6 +730,9 @@
 				0FD831AD2B12037600A319DA /* protoc-gen-connect-swift */,
 				0FD831B32B12045900A319DA /* OpenAPIURLSession */,
 				0F7F1ED02CAFC972006A66C0 /* Kingfisher */,
+				ED55B4C02DD571D30042853F /* ConcentricOnboarding */,
+				ED55B4C22DD571E00042853F /* AnchoredPopup */,
+				ED55B4C42DD571EB0042853F /* ScalingHeaderScrollView */,
 			);
 			productName = voyager;
 			productReference = 0F59E7272B064E2D007C2B74 /* voyager.app */;
@@ -800,6 +815,9 @@
 				0F7F1ECF2CAFC972006A66C0 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 				0F2C6CE32CAFCA9A009BA8F1 /* XCLocalSwiftPackageReference "../connect-swift" */,
 				0F2C6CE42CAFCB41009BA8F1 /* XCLocalSwiftPackageReference "../Kingfisher" */,
+				EDBCB9EA2DD568A400D35F2D /* XCRemoteSwiftPackageReference "ScalingHeaderScrollView" */,
+				EDBCB9EE2DD568F800D35F2D /* XCRemoteSwiftPackageReference "AnchoredPopup" */,
+				EDBCB9F22DD56B5100D35F2D /* XCRemoteSwiftPackageReference "ConcentricOnboarding" */,
 			);
 			productRefGroup = 0F59E7282B064E2D007C2B74 /* Products */;
 			projectDirPath = "";
@@ -882,6 +900,7 @@
 				0F6F16CD2C8680B3004FAAD9 /* StoryService.swift in Sources */,
 				0FFA50892B0857DA00D3A4CF /* SearchViewModel.swift in Sources */,
 				0F980A312CACC9CB00510E5A /* StoryProfileViewModel.swift in Sources */,
+				EDBCB9F62DD56D2300D35F2D /* MockData.swift in Sources */,
 				0FFA508B2B0857DA00D3A4CF /* CircularProfileImageView.swift in Sources */,
 				0F7602B52BB992E400F8D900 /* GroupViewModel.swift in Sources */,
 				0F980A272CAA959400510E5A /* GroupDetail.swift in Sources */,
@@ -925,6 +944,7 @@
 				0F1838C02DA175B9003D66B6 /* Storyboardsummary.swift in Sources */,
 				0F576B702D9E106300DE5FA1 /* ShareStoryboardView.swift in Sources */,
 				0F59E7B22B065409007C2B74 /* network.swift in Sources */,
+				EDBCB9FA2DD56D5900D35F2D /* OnboardingPageView.swift in Sources */,
 				0F1117D42BB7AE0900B022AA /* CommentViewModel.swift in Sources */,
 				0FFA509E2B0857DA00D3A4CF /* CompleteRegistrationView.swift in Sources */,
 				0F59E7B42B065409007C2B74 /* resources.swift in Sources */,
@@ -1045,6 +1065,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -1334,6 +1355,30 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		EDBCB9EA2DD568A400D35F2D /* XCRemoteSwiftPackageReference "ScalingHeaderScrollView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/ScalingHeaderScrollView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+		EDBCB9EE2DD568F800D35F2D /* XCRemoteSwiftPackageReference "AnchoredPopup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/AnchoredPopup.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.6;
+			};
+		};
+		EDBCB9F22DD56B5100D35F2D /* XCRemoteSwiftPackageReference "ConcentricOnboarding" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/ConcentricOnboarding.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1417,6 +1462,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0FFA50AB2B086C0B00D3A4CF /* XCRemoteSwiftPackageReference "nas-20170626" */;
 			productName = AlibabacloudNAS20170626;
+		};
+		ED55B4C02DD571D30042853F /* ConcentricOnboarding */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EDBCB9F22DD56B5100D35F2D /* XCRemoteSwiftPackageReference "ConcentricOnboarding" */;
+			productName = ConcentricOnboarding;
+		};
+		ED55B4C22DD571E00042853F /* AnchoredPopup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EDBCB9EE2DD568F800D35F2D /* XCRemoteSwiftPackageReference "AnchoredPopup" */;
+			productName = AnchoredPopup;
+		};
+		ED55B4C42DD571EB0042853F /* ScalingHeaderScrollView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EDBCB9EA2DD568A400D35F2D /* XCRemoteSwiftPackageReference "ScalingHeaderScrollView" */;
+			productName = ScalingHeaderScrollView;
 		};
 /* End XCSwiftPackageProductDependency section */
 

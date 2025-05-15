@@ -152,6 +152,7 @@ struct StoryRoleDetailView: View {
         self.roleId = roleId
         self.userId = userId
         self._viewModel = StateObject(wrappedValue: StoryRoleModel(userId: userId, roleId: roleId))
+
         if let role = role {
             print("init role")
             self._role = State(initialValue: role)
@@ -462,9 +463,9 @@ struct RoleInfoTab: View {
         ScrollView {
             VStack(spacing: 16) {
                 RoleSummarySection(role: role, viewModel: viewModel, onRoleUpdate: onRoleUpdate)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 8)
             }
-            .padding(.vertical, 16)
+            .padding(.vertical, 8)
         }
         .frame(maxWidth: .infinity)
     }
@@ -923,29 +924,90 @@ struct EditDescriptionView: View {
                 
                 // Display the character description fields
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        DescriptionField(emoji: "📝", title: "角色描述", text: roleDescription.description_p)
-                        DashedDivider()
-                        DescriptionField(emoji: "🎯", title: "短期目标", text: roleDescription.shortTermGoal)
-                        DashedDivider()
-                        DescriptionField(emoji: "🏆", title: "长期目标", text: roleDescription.longTermGoal)
-                        DashedDivider()
-                        DescriptionField(emoji: "😃", title: "性格特征", text: roleDescription.personality)
-                        DashedDivider()
-                        DescriptionField(emoji: "📖", title: "背景故事", text: roleDescription.background)
-                        DashedDivider()
-                        DescriptionField(emoji: "🤝", title: "处事方式", text: roleDescription.handlingStyle)
-                        DashedDivider()
-                        DescriptionField(emoji: "👀", title: "认知范围", text: roleDescription.cognitionRange)
-                        DashedDivider()
-                        DescriptionField(emoji: "💡", title: "能力特点", text: roleDescription.abilityFeatures)
-                        DashedDivider()
-                        DescriptionField(emoji: "👤", title: "外貌特征", text: roleDescription.appearance)
-                        DashedDivider()
-                        DescriptionField(emoji: "👗", title: "着装偏好", text: roleDescription.dressPreference)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Group {
+                            VStack(alignment: .leading, spacing: 8) {
+                                DescriptionField(emoji: "📝", title: "角色描述", text: roleDescription.description_p)
+                            }
+                            .padding(14)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(14)
+                        }
+                        Group {
+                            VStack(alignment: .leading, spacing: 8) {
+                                DescriptionField(emoji: "🎯", title: "短期目标", text: roleDescription.shortTermGoal)
+                            }
+                            .padding(14)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(14)
+                        }
+                        Group {
+                            VStack(alignment: .leading, spacing: 8) {
+                                DescriptionField(emoji: "🏆", title: "长期目标", text: roleDescription.longTermGoal)
+                            }
+                            .padding(14)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(14)
+                        }
+                        Group {
+                            VStack(alignment: .leading, spacing: 8) {
+                                DescriptionField(emoji: "😃", title: "性格特征", text: roleDescription.personality)
+                            }
+                            .padding(14)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(14)
+                        }
+                        Group {
+                            VStack(alignment: .leading, spacing: 8) {
+                                DescriptionField(emoji: "📖", title: "背景故事", text: roleDescription.background)
+                            }
+                            .padding(14)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(14)
+                        }
+                        Group {
+                            VStack(alignment: .leading, spacing: 8) {
+                                DescriptionField(emoji: "🤝", title: "处事方式", text: roleDescription.handlingStyle)
+                            }
+                            .padding(14)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(14)
+                        }
+                        Group {
+                            VStack(alignment: .leading, spacing: 8) {
+                                DescriptionField(emoji: "👀", title: "认知范围", text: roleDescription.cognitionRange)
+                            }
+                            .padding(14)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(14)
+                        }
+                        Group {
+                            VStack(alignment: .leading, spacing: 8) {
+                                DescriptionField(emoji: "💡", title: "能力特点", text: roleDescription.abilityFeatures)
+                            }
+                            .padding(14)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(14)
+                        }
+                        Group {
+                            VStack(alignment: .leading, spacing: 8) {
+                                DescriptionField(emoji: "👤", title: "外貌特征", text: roleDescription.appearance)
+                            }
+                            .padding(14)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(14)
+                        }
+                        Group {
+                            VStack(alignment: .leading, spacing: 8) {
+                                DescriptionField(emoji: "👗", title: "着装偏好", text: roleDescription.dressPreference)
+                            }
+                            .padding(14)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(14)
+                        }
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 16)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 8)
                 }
                 
                 Spacer()
@@ -1033,7 +1095,6 @@ private struct DescriptionField: View {
             Text(text)
                 .font(.system(size: 15))
                 .foregroundColor(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -1533,29 +1594,90 @@ struct RoleDetailTab: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                DescriptionField(emoji: "📝", title: "角色描述", text: role.role.characterDetail.description_p)
-                DashedDivider()
-                DescriptionField(emoji: "🎯", title: "短期目标", text: role.role.characterDetail.shortTermGoal)
-                DashedDivider()
-                DescriptionField(emoji: "🏆", title: "长期目标", text: role.role.characterDetail.longTermGoal)
-                DashedDivider()
-                DescriptionField(emoji: "😃", title: "性格特征", text: role.role.characterDetail.personality)
-                DashedDivider()
-                DescriptionField(emoji: "📖", title: "背景故事", text: role.role.characterDetail.background)
-                DashedDivider()
-                DescriptionField(emoji: "🤝", title: "处事方式", text: role.role.characterDetail.handlingStyle)
-                DashedDivider()
-                DescriptionField(emoji: "👀", title: "认知范围", text: role.role.characterDetail.cognitionRange)
-                DashedDivider()
-                DescriptionField(emoji: "💡", title: "能力特点", text: role.role.characterDetail.abilityFeatures)
-                DashedDivider()
-                DescriptionField(emoji: "👤", title: "外貌特征", text: role.role.characterDetail.appearance)
-                DashedDivider()
-                DescriptionField(emoji: "👗", title: "着装偏好", text: role.role.characterDetail.dressPreference)
+            VStack(alignment: .leading, spacing: 8) {
+                Group {
+                    VStack(alignment: .leading, spacing: 8) {
+                        DescriptionField(emoji: "📝", title: "角色描述", text: role.role.characterDetail.description_p)
+                    }
+                    .padding(14)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(14)
+                }
+                Group {
+                    VStack(alignment: .leading, spacing: 8) {
+                        DescriptionField(emoji: "🎯", title: "短期目标", text: role.role.characterDetail.shortTermGoal)
+                    }
+                    .padding(14)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(14)
+                }
+                Group {
+                    VStack(alignment: .leading, spacing: 8) {
+                        DescriptionField(emoji: "🏆", title: "长期目标", text: role.role.characterDetail.longTermGoal)
+                    }
+                    .padding(14)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(14)
+                }
+                Group {
+                    VStack(alignment: .leading, spacing: 8) {
+                        DescriptionField(emoji: "😃", title: "性格特征", text: role.role.characterDetail.personality)
+                    }
+                    .padding(14)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(14)
+                }
+                Group {
+                    VStack(alignment: .leading, spacing: 8) {
+                        DescriptionField(emoji: "📖", title: "背景故事", text: role.role.characterDetail.background)
+                    }
+                    .padding(14)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(14)
+                }
+                Group {
+                    VStack(alignment: .leading, spacing: 8) {
+                        DescriptionField(emoji: "🤝", title: "处事方式", text: role.role.characterDetail.handlingStyle)
+                    }
+                    .padding(14)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(14)
+                }
+                Group {
+                    VStack(alignment: .leading, spacing: 8) {
+                        DescriptionField(emoji: "👀", title: "认知范围", text: role.role.characterDetail.cognitionRange)
+                    }
+                    .padding(14)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(14)
+                }
+                Group {
+                    VStack(alignment: .leading, spacing: 8) {
+                        DescriptionField(emoji: "💡", title: "能力特点", text: role.role.characterDetail.abilityFeatures)
+                    }
+                    .padding(14)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(14)
+                }
+                Group {
+                    VStack(alignment: .leading, spacing: 8) {
+                        DescriptionField(emoji: "👤", title: "外貌特征", text: role.role.characterDetail.appearance)
+                    }
+                    .padding(14)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(14)
+                }
+                Group {
+                    VStack(alignment: .leading, spacing: 8) {
+                        DescriptionField(emoji: "👗", title: "着装偏好", text: role.role.characterDetail.dressPreference)
+                    }
+                    .padding(14)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(14)
+                }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 16)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 8)
         }
         .frame(maxWidth: .infinity)
     }
