@@ -8,6 +8,7 @@
 import SwiftUI
 import Kingfisher
 import PhotosUI
+import ActivityIndicatorView
 
 
 struct CharacterCell: View {
@@ -199,11 +200,10 @@ struct StoryRoleDetailView: View {
                     .padding(.vertical, 8)
                 }
                 
-                if isLoading {
-                    ProgressView("加载中...")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.black.opacity(0.1))
-                }
+                ActivityIndicatorView(isVisible: $isLoading, type: .arcs())
+                            .frame(width: .infinity, height: .infinity)
+                            .foregroundColor(.red)  
+                            .background(Color.black.opacity(0.1))
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .tabBar)

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Kingfisher
+import ActivityIndicatorView
 
 let defaultAvator = "https://grapery-dev.oss-cn-shanghai.aliyuncs.com/default.png"
 
@@ -28,90 +29,21 @@ enum MessageStatus: Int64 {
 struct MessageView: View {
     @ObservedObject var viewModel: MessageViewModel
     @State private var searchText = ""
-    @State private var isSearching = false
-    @State private var isLoadingMore = false
-    @State private var messageToDelete: Int64?
     @State private var showingDeleteAlert = false
-    @State private var user: User?
-    @State private var showMessageContext = false
-    
-    init(user: User? = nil) {
+    @State private var messageToDelete: Int64?
+    let user: User
+
+    init(user: User) {
         self.user = user
-        self.viewModel = MessageViewModel(userId: user!.userID)
+        self.viewModel = MessageViewModel(userId: user.userID)
     }
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // 使用通用导航栏
-                CommonNavigationBar(
-                    title: "消息",
-                    onAddTapped: {
-                        // 处理添加新消息操作
-                    }
-                )
-                
-                // 使用通用搜索栏
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(Color.theme.tertiaryText)
-                    TextField("搜索消息", text: $searchText)
-                        .foregroundColor(Color.theme.inputText)
-                    if !searchText.isEmpty {
-                        Button(action: { searchText = "" }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(Color.theme.tertiaryText)
-                        }
-                    }
-                }
-                .padding(.vertical, 8)
-                .padding(.horizontal, 12)
-                .background(Color.theme.tertiaryBackground)
-                .clipShape(Capsule())
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                
-                // 消息列表
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(viewModel.msgCtxs, id: \.id) { msgCtx in
-                            VStack(spacing: 0) {
-                                MessageContextCellView(
-                                    msgCtxId: msgCtx.chatinfo.chatID,
-                                    user: msgCtx.chatinfo.user,
-                                    userId: user!.userID,
-                                    role: StoryRole(Id: msgCtx.chatinfo.role.roleID, role: msgCtx.chatinfo.role),
-                                    lastMessage: msgCtx.chatinfo.lastMessage,
-                                    onDelete: { id in
-                                        messageToDelete = id
-                                        showingDeleteAlert = true
-                                    }
-                                )
-                                
-                                if msgCtx.id != viewModel.msgCtxs.last?.id {
-                                    Divider()
-                                        .background(Color.theme.divider)
-                                }
-                            }
-                        }
-                        
-                        // 加载更多指示器
-                        if viewModel.isLoading {
-                            ProgressView()
-                                .padding()
-                                .font(.system(size: 12))
-                        }
-                        
-                        // 没有更多数据提示
-                        if !viewModel.hasMorePages && !viewModel.msgCtxs.isEmpty {
-                            Text("没有更多聊天会话了")
-                                .foregroundColor(.gray)
-                                .padding()
-                                .font(.system(size: 12))
-                        }
-                    }
-                }
-                .background(Color.theme.background)
+                TopBar()
+                SearchBar()
+                MessageList()
             }
             .alert("确认删除", isPresented: $showingDeleteAlert) {
                 Button("取消", role: .cancel) { }
@@ -126,6 +58,77 @@ struct MessageView: View {
                 Text("确定要删除这个聊天会话吗？此操作无法撤销。")
             }
             .background(Color.theme.background)
+        }
+    }
+
+    // 顶部导航栏
+    @ViewBuilder
+    private func TopBar() -> some View {
+        CommonNavigationBar(
+            title: "消息",
+            onAddTapped: { }
+        )
+    }
+
+    // 搜索栏
+    @ViewBuilder
+    private func SearchBar() -> some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(Color.theme.tertiaryText)
+            TextField("搜索消息", text: $searchText)
+                .foregroundColor(Color.theme.inputText)
+            if !searchText.isEmpty {
+                Button(action: { searchText = "" }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(Color.theme.tertiaryText)
+                }
+            }
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .background(Color.theme.tertiaryBackground)
+        .clipShape(Capsule())
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+    }
+
+    // 消息列表
+    @ViewBuilder
+    private func MessageList() -> some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(viewModel.msgCtxs, id: \.id) { msgCtx in
+                    VStack(spacing: 0) {
+                        MessageContextCellView(
+                            msgCtxId: msgCtx.chatinfo.chatID,
+                            user: msgCtx.chatinfo.user,
+                            userId: user.userID,
+                            role: StoryRole(Id: msgCtx.chatinfo.role.roleID, role: msgCtx.chatinfo.role),
+                            lastMessage: msgCtx.chatinfo.lastMessage,
+                            onDelete: { id in
+                                messageToDelete = id
+                                showingDeleteAlert = true
+                            }
+                        )
+                        if msgCtx.id != viewModel.msgCtxs.last?.id {
+                            Divider().background(Color.theme.divider)
+                        }
+                    }
+                }
+                if viewModel.isLoading {
+                    ActivityIndicatorView(isVisible: .constant(viewModel.isLoading), type: .arcs())
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(.red)
+                        .background(Color.black.opacity(0.1))
+                }
+                if !viewModel.hasMorePages && !viewModel.msgCtxs.isEmpty {
+                    Text("没有更多聊天会话了")
+                        .foregroundColor(.gray)
+                        .padding()
+                        .font(.system(size: 12))
+                }
+            }
         }
         .background(Color.theme.background)
     }

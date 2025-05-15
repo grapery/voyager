@@ -96,7 +96,6 @@ class MessageViewModel: ObservableObject{
     // 加载更多
     @MainActor
     func fetchMoreChatContexts() async {
-        print("fetchMoreChatContexts :",isLoading,hasMorePages)
         guard !isLoading && hasMorePages else { return }
         
         isLoading = true

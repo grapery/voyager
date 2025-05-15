@@ -1,5 +1,6 @@
 import SwiftUI
 import Kingfisher
+import ActivityIndicatorView
 
 struct AllGroupsView: View {
     @Environment(\.dismiss) private var dismiss
@@ -324,13 +325,9 @@ struct LoadMoreView: View {
     
     var body: some View {
         HStack {
-            if isLoading {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle())
-                Text("加载中...")
-                    .font(.system(size: 14))
-                    .foregroundColor(Color.theme.tertiaryText)
-            }
+            ActivityIndicatorView(isVisible: $isLoading, type: .arcs())
+                            .frame(width: 50, height: 50)
+                            .foregroundColor(.red)  
         }
         .frame(height: 50)
     }

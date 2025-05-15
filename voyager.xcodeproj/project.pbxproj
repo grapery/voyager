@@ -135,6 +135,7 @@
 		ED55B4C12DD571D30042853F /* ConcentricOnboarding in Frameworks */ = {isa = PBXBuildFile; productRef = ED55B4C02DD571D30042853F /* ConcentricOnboarding */; };
 		ED55B4C32DD571E00042853F /* AnchoredPopup in Frameworks */ = {isa = PBXBuildFile; productRef = ED55B4C22DD571E00042853F /* AnchoredPopup */; };
 		ED55B4C52DD571EB0042853F /* ScalingHeaderScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = ED55B4C42DD571EB0042853F /* ScalingHeaderScrollView */; };
+		ED55B4D02DD632BC0042853F /* ActivityIndicatorView in Frameworks */ = {isa = PBXBuildFile; productRef = ED55B4CF2DD632BC0042853F /* ActivityIndicatorView */; };
 		ED8E0CE32DC5CCF6007D1D8C /* ChatSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED8E0CE22DC5CCF6007D1D8C /* ChatSettingView.swift */; };
 		EDBCB9F62DD56D2300D35F2D /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBCB9F52DD56D1A00D35F2D /* MockData.swift */; };
 		EDBCB9FA2DD56D5900D35F2D /* OnboardingPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBCB9F92DD56D4800D35F2D /* OnboardingPageView.swift */; };
@@ -282,6 +283,7 @@
 				0F00475D2B088B5B005FF1A6 /* OpenAPIRuntime in Frameworks */,
 				0F117B7C2B06DE97000B00D0 /* Kingfisher in Frameworks */,
 				0FD831AA2B12037600A319DA /* ConnectMocks in Frameworks */,
+				ED55B4D02DD632BC0042853F /* ActivityIndicatorView in Frameworks */,
 				0FD831B42B12045900A319DA /* OpenAPIURLSession in Frameworks */,
 				0F7E9E4E2B11FCA3000849E2 /* protoc-gen-connect-swift in Frameworks */,
 				0FFA50AD2B086C0B00D3A4CF /* AlibabacloudNAS20170626 in Frameworks */,
@@ -733,6 +735,7 @@
 				ED55B4C02DD571D30042853F /* ConcentricOnboarding */,
 				ED55B4C22DD571E00042853F /* AnchoredPopup */,
 				ED55B4C42DD571EB0042853F /* ScalingHeaderScrollView */,
+				ED55B4CF2DD632BC0042853F /* ActivityIndicatorView */,
 			);
 			productName = voyager;
 			productReference = 0F59E7272B064E2D007C2B74 /* voyager.app */;
@@ -818,6 +821,7 @@
 				EDBCB9EA2DD568A400D35F2D /* XCRemoteSwiftPackageReference "ScalingHeaderScrollView" */,
 				EDBCB9EE2DD568F800D35F2D /* XCRemoteSwiftPackageReference "AnchoredPopup" */,
 				EDBCB9F22DD56B5100D35F2D /* XCRemoteSwiftPackageReference "ConcentricOnboarding" */,
+				ED55B4CD2DD62F100042853F /* XCRemoteSwiftPackageReference "ActivityIndicatorView" */,
 			);
 			productRefGroup = 0F59E7282B064E2D007C2B74 /* Products */;
 			projectDirPath = "";
@@ -1355,6 +1359,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		ED55B4CD2DD62F100042853F /* XCRemoteSwiftPackageReference "ActivityIndicatorView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/ActivityIndicatorView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.1;
+			};
+		};
 		EDBCB9EA2DD568A400D35F2D /* XCRemoteSwiftPackageReference "ScalingHeaderScrollView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/exyte/ScalingHeaderScrollView.git";
@@ -1477,6 +1489,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EDBCB9EA2DD568A400D35F2D /* XCRemoteSwiftPackageReference "ScalingHeaderScrollView" */;
 			productName = ScalingHeaderScrollView;
+		};
+		ED55B4CF2DD632BC0042853F /* ActivityIndicatorView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ED55B4CD2DD62F100042853F /* XCRemoteSwiftPackageReference "ActivityIndicatorView" */;
+			productName = ActivityIndicatorView;
 		};
 /* End XCSwiftPackageProductDependency section */
 
