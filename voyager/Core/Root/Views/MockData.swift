@@ -8,7 +8,7 @@
 import UIKit
 import SwiftUI
 
-struct PageData {
+struct OnboardingPageData {
     let title: String
     let header: String
     let content: String
@@ -18,29 +18,29 @@ struct PageData {
 }
 
 struct MockData {
-    static let pages: [PageData] = [
-        PageData(
+    static let pages: [OnboardingPageData] = [
+        OnboardingPageData(
             title: "Eating grapes 101",
             header: "Step 1",
             content: "Break off a branch holding a few grapes and lay it on your plate.",
             imageName: "screen 1",
             color: Color(hex: "F38181"),
             textColor: Color(hex: "FFFFFF")),
-        PageData(
+        OnboardingPageData(
             title: "Eating grapes 101",
             header: "Step 2",
             content: "Put a grape in your mouth whole.",
             imageName: "screen 2",
             color: Color(hex: "FCE38A"),
             textColor: Color(hex: "4A4A4A")),
-        PageData(
+        OnboardingPageData(
             title: "Eating grapes 101",
             header: "Step 3",
             content: "Deposit the seeds into your thumb and first two fingers.",
             imageName: "screen 3",
             color: Color(hex: "95E1D3"),
             textColor: Color(hex: "4A4A4A")),
-        PageData(
+        OnboardingPageData(
             title: "Eating grapes 101",
             header: "Step 4",
             content: "Place the seeds on your plate.",

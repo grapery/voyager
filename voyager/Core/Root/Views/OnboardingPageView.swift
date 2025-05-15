@@ -10,7 +10,7 @@ import SwiftUI
 
 struct PageView: View {
     
-    let page: PageData
+    let page: OnboardingPageData
     let imageWidth: CGFloat = 150
     let textWidth: CGFloat = 350
     
