@@ -11,7 +11,9 @@ import ConcentricOnboarding
 struct GraperyApp: View {
     @StateObject private var userState = UserStateManager.shared
     @StateObject var registrationViewModel = RegistrationViewModel()
-    
+    @AppStorage("hasSeenOnboarding1") var hasSeenOnboarding: Bool = false
+    @State private var showOnboarding: Bool = false
+
     var body: some View {
         Group {
             if userState.isLoading {
@@ -25,6 +27,17 @@ struct GraperyApp: View {
                     .environmentObject(registrationViewModel)
             }
         }
+        .onAppear {
+            if !hasSeenOnboarding {
+                showOnboarding = true
+            }
+        }
+        .fullScreenCover(isPresented: $showOnboarding) {
+            OnBoardingView {
+                hasSeenOnboarding = true
+                showOnboarding = false
+            }
+        }
         .task {
             // 初始化用户状态
             await userState.initialize()
@@ -34,16 +47,18 @@ struct GraperyApp: View {
 
 
 
-struct ContentView: View {
+struct OnBoardingView: View {
     
     @State private var currentIndex: Int = 0
-    
+    var onFinish: (() -> Void)? = nil
+
     var body: some View {
         ConcentricOnboardingView(pageContents: MockData.pages.map { (PageView(page: $0), $0.color) })
             .duration(1.0)
             .nextIcon("chevron.forward")
             .animationDidEnd {
                 print("Animation Did End")
+                onFinish?()
             }
     }
 }
