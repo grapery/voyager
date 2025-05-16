@@ -323,7 +323,7 @@ private struct FeedItemCard: View {
                                                             Rectangle()
                                                                 .fill(Color.theme.tertiaryBackground)
                                                                 .overlay(
-                                                                    ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                                                                    ActivityIndicatorView(isVisible: .constant(true), type: .arcs(count: 5, lineWidth: 2))
                                                                         .frame(width: 50, height: 50)
                                                                 )
                                                         }
@@ -570,7 +570,7 @@ private struct FeedViewRefreshControl: View {
             HStack {
                 Spacer()
                 if isRefreshing {
-                    ActivityIndicatorView(isVisible: .constant(isRefreshing), type: .arcs())
+                    ActivityIndicatorView(isVisible: .constant(isRefreshing), type: .arcs(count: 5, lineWidth: 2))
                         .frame(width: 50, height: 50)
                         .foregroundColor(.red)
                 }
@@ -649,7 +649,7 @@ private struct FeedItemList: View {
                     HStack {
                         Spacer()
                         if isLoadingMore {
-                            ActivityIndicatorView(isVisible: .constant(isLoadingMore), type: .arcs())
+                            ActivityIndicatorView(isVisible: .constant(isLoadingMore), type: .arcs(count: 5, lineWidth: 2))
                                 .frame(width: 50, height: 50)
                                 .foregroundColor(.red)
                         }
@@ -683,7 +683,7 @@ private struct LoadingIndicator: View {
     var body: some View {
         HStack {
             Spacer()
-            ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+            ActivityIndicatorView(isVisible: .constant(true), type: .arcs(count: 5, lineWidth: 2))
                 .frame(width: 50, height: 50)
                 .foregroundColor(.red)
             Spacer()
@@ -1150,6 +1150,8 @@ private struct TrendingContentView: View {
     @State private var errorMessage: String = ""
     @State private var showError: Bool = false
     @State private var isRefreshing = false
+    @State private var showDeleteAlert = false
+    @State private var storyToDelete: Story? = nil
 
     var body: some View {
         VStack(spacing: 0) {
@@ -1177,6 +1179,20 @@ private struct TrendingContentView: View {
             Button("确定", role: .cancel) { }
         } message: {
             Text(errorMessage)
+        }
+        .popup(isPresented: $showDeleteAlert) {
+            DeleteConfirmationPopup(
+                story: storyToDelete,
+                onConfirm: {
+                    if let story = storyToDelete {
+                        Task {
+                            await viewModel.deleteStory(storyId: story.Id)
+                            storyToDelete = nil
+                            showDeleteAlert = false
+                        }
+                    }
+                }
+            )
         }
     }
 }
@@ -1337,7 +1353,7 @@ private struct TrendingLoadingView: View {
     var body: some View {
         HStack {
             Spacer()
-            ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+            ActivityIndicatorView(isVisible: .constant(true), type: .arcs(count: 5, lineWidth: 2))
                 .frame(width: 50, height: 50)
                 .foregroundColor(.red)
             Text(message)
@@ -1509,6 +1525,67 @@ private struct TrendingStoryCard: View {
                 label: { EmptyView() }
             )
         )
+    }
+}
+
+// MARK: - 删除确认弹窗
+private struct DeleteConfirmationPopup: View {
+    let story: Story?
+    let onConfirm: () -> Void
+    @Environment(\.popupDismiss) var dismiss
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 60, height: 60)
+                .foregroundColor(.red)
+                .padding(.top, 20)
+            
+            Text("确认删除")
+                .foregroundColor(.black)
+                .font(.system(size: 24, weight: .bold))
+                .padding(.top, 12)
+            
+            Text("确定要删除这个故事吗？此操作无法撤销。")
+                .foregroundColor(.black)
+                .font(.system(size: 16))
+                .opacity(0.6)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 20)
+            
+            HStack(spacing: 12) {
+                Button {
+                    dismiss?()
+                } label: {
+                    Text("取消")
+                        .font(.system(size: 16, weight: .medium))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .foregroundColor(.black)
+                        .background(Color.gray.opacity(0.2))
+                        .cornerRadius(8)
+                }
+                
+                Button {
+                    onConfirm()
+                } label: {
+                    Text("删除")
+                        .font(.system(size: 16, weight: .medium))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .foregroundColor(.white)
+                        .background(Color.red)
+                        .cornerRadius(8)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 20)
+        }
+        .frame(width: 300)
+        .background(Color.white.cornerRadius(16))
     }
 }
 

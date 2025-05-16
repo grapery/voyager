@@ -46,7 +46,7 @@ struct UserActivesView: View {
                 }
                 
                 if isLoadingMore {
-                    ActivityIndicatorView(isVisible: .constant(isLoadingMore), type: .arcs())
+                    ActivityIndicatorView(isVisible: .constant(isLoadingMore), type: .arcs(count: 5, lineWidth: 2))
                                             .frame(width: 50, height: 50)
                                             .foregroundColor(.red)
                 }
@@ -177,7 +177,7 @@ private struct ActiveRefreshControl: View {
             HStack {
                 Spacer()
                 if isRefreshing {
-                    ActivityIndicatorView(isVisible: .constant(isRefreshing), type: .arcs())
+                    ActivityIndicatorView(isVisible: .constant(isRefreshing), type: .arcs(count: 5, lineWidth: 2))
                                             .frame(width: 50, height: 50)
                                             .foregroundColor(.red)
                 }

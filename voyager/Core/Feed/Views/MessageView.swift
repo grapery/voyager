@@ -117,7 +117,7 @@ struct MessageView: View {
                     }
                 }
                 if viewModel.isLoading {
-                    ActivityIndicatorView(isVisible: .constant(viewModel.isLoading), type: .arcs())
+                    ActivityIndicatorView(isVisible: .constant(viewModel.isLoading), type: .arcs(count: 5, lineWidth: 2))
                         .frame(width: 20, height: 20)
                         .foregroundColor(.red)
                         .background(Color.black.opacity(0.1))

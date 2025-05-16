@@ -97,6 +97,17 @@ struct MainTabView: View {
                         .foregroundColor(selectedItem == 4 ? Color.theme.primary : Color.theme.tertiaryText)
                 }
                 .tag(4)
+            NavigationStack{
+                TestContentView()
+            }
+                .onTapGesture {
+                    self.selectedItem = 5
+                }
+                .tabItem {
+                    Text("验证视图")
+                        .foregroundColor(selectedItem == 4 ? Color.theme.primary : Color.theme.tertiaryText)
+                }
+                .tag(5)
         }
         .background(Color.theme.background)
         .accentColor(Color.theme.accent)

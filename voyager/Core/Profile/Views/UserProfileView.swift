@@ -10,6 +10,7 @@ import SwiftUI
 import Kingfisher
 import PhotosUI
 import ActivityIndicatorView
+import PopupView
 
 // MARK: - Main View
 struct UserProfileView: View {
@@ -1236,7 +1237,6 @@ struct UnpublishedStoryBoardCellView: View {
     var board: StoryBoardActive
     var userId: Int64
     @ObservedObject var viewModel: UnpublishedStoryViewModel
-    @State private var showingPublishAlert = false
     @State private var showingDeleteAlert = false
     @State private var showingEditView = false
     @State private var isAnimating = false
@@ -1384,7 +1384,7 @@ struct UnpublishedStoryBoardCellView: View {
                         isAnimating = true
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        showingPublishAlert = true
+                        showingEditView = true
                         isAnimating = false
                     }
                 }) {
@@ -1433,17 +1433,6 @@ struct UnpublishedStoryBoardCellView: View {
                 .transition(.move(edge: .bottom))
                 .animation(.spring(response: 0.5, dampingFraction: 0.8), value: showingEditView)
             }
-        }
-        .alert("确认发布", isPresented: $showingPublishAlert) {
-            Button("取消", role: .cancel) { }
-            Button("发布", role: .destructive) {
-                Task {
-                    // TODO: 调用发布API
-                    // await viewModel.publishStoryBoard(boardId: board.id)
-                }
-            }
-        } message: {
-            Text("确定要发布这个故事板吗？发布后将无法修改。")
         }
         .alert("确认删除", isPresented: $showingDeleteAlert) {
             Button("取消", role: .cancel) { }
@@ -1571,6 +1560,49 @@ private var userStatus: String {
     // 假设有 user.statusList: [String]，这里只取第一个
     // return user.statusList.first ?? ""
     return all.first ?? ""
+}
+
+struct PopupMiddle: View {
+
+    @Environment(\.popupDismiss) var dismiss
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Image("winner")
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 226, maxHeight: 226)
+            
+            Text("Congratulations!")
+                .foregroundColor(.black)
+                .font(.system(size: 24))
+                .padding(.top, 12)
+            
+            Text("item.value")
+                .foregroundColor(.black)
+                .font(.system(size: 16))
+                .opacity(0.6)
+                .multilineTextAlignment(.center)
+                .padding(.bottom, 20)
+            
+            Button {
+                dismiss?()
+            } label: {
+                Text("Thanks")
+                    .font(.system(size: 18, weight: .bold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .padding(.horizontal, 24)
+                    .foregroundColor(.white)
+                    .background(Color(hex: "9265F8"))
+                    .cornerRadius(12)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(EdgeInsets(top: 37, leading: 24, bottom: 40, trailing: 24))
+        .background(Color.white.cornerRadius(20))
+        .padding(.horizontal, 40)
+    }
 }
 
 

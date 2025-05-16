@@ -19,7 +19,7 @@ struct GraperyApp: View {
         Group {
             if userState.isLoading {
                 // 显示加载界面
-                ActivityIndicatorView(isVisible: .constant(userState.isLoading), type: .arcs())
+                ActivityIndicatorView(isVisible: .constant(userState.isLoading), type: .arcs(count: 5, lineWidth: 2))
                                             .frame(width: 100, height: 100)
                                             .foregroundColor(.red)
             } else if userState.isLoggedIn && userState.currentUser != nil {

@@ -110,7 +110,7 @@ struct EditUserProfileView: View {
                 if isLoading {
                     Color.black.opacity(0.3)
                         .ignoresSafeArea()
-                    ActivityIndicatorView(isVisible: .constant(isLoading), type: .arcs())
+                    ActivityIndicatorView(isVisible: .constant(isLoading), type: .arcs(count: 5, lineWidth: 2))
                                             .frame(width: 50, height: 50)
                                             .foregroundColor(.red)
                 }

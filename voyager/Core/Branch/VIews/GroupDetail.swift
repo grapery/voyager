@@ -404,7 +404,7 @@ struct GroupDetailView: View {
             Color.theme.background.ignoresSafeArea() 
             if isLoading {
                 VStack {
-                    ActivityIndicatorView(isVisible: .constant(isLoading), type: .arcs())
+                    ActivityIndicatorView(isVisible: .constant(isLoading), type: .arcs(count: 5, lineWidth: 2))
                                             .frame(width: 50, height: 50)
                                             .foregroundColor(.red)
                 }

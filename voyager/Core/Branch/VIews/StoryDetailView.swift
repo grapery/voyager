@@ -91,7 +91,7 @@ struct StoryDetailView: View {
                     )
                     .overlay(
                         isUpdatingAvatar ? 
-                        ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                        ActivityIndicatorView(isVisible: .constant(true), type: .arcs(count: 5, lineWidth: 2))
                             .frame(width: 80, height: 80)
                             .foregroundColor(.red)
                         : nil

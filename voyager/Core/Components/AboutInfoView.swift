@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ScalingHeaderScrollView
 
 struct AboutInfoView: View {
     let defaultURL = URL(string: "https://www.grapery.xyz")!
@@ -45,6 +46,24 @@ struct AboutInfoView: View {
                     }
                 }
             }
+        }
+    }
+}
+
+
+struct TestContentView: View {
+
+    var body: some View {
+       ScalingHeaderScrollView {
+            ZStack {
+                Rectangle()
+                    .fill(.gray.opacity(0.15))
+                Image("header")
+            }
+        } content: {
+            Text("↓ Pull to refresh ↓")
+                .multilineTextAlignment(.center)
+                .padding()
         }
     }
 }

@@ -67,7 +67,7 @@ struct StoryboardForkListView: View {
                     
                     // 加载状态指示器
                     if viewModel.isLoadingForkList(for: boardId) {
-                        ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                        ActivityIndicatorView(isVisible: .constant(true), type: .arcs(count: 5, lineWidth: 2))
                             .frame(width: 50, height: 50)
                             .foregroundColor(.red)
                     }
@@ -104,7 +104,7 @@ private struct ForkStoryBoardCard: View {
                         Rectangle()
                             .fill(Color.theme.tertiaryBackground)
                             .overlay(
-                                ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                                ActivityIndicatorView(isVisible: .constant(true), type: .arcs(count: 5, lineWidth: 2))
                                     .frame(width: 50, height: 50)
                                     .foregroundColor(.red)
                             )

@@ -200,7 +200,7 @@ struct StoryRoleDetailView: View {
                     .padding(.vertical, 8)
                 }
                 
-                ActivityIndicatorView(isVisible: $isLoading, type: .arcs())
+                ActivityIndicatorView(isVisible: $isLoading, type: .arcs(count: 5, lineWidth: 2))
                             .frame(width: .infinity, height: .infinity)
                             .foregroundColor(.red)  
                             .background(Color.black.opacity(0.1))
