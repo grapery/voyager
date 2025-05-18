@@ -8,24 +8,22 @@
 import SwiftUI
 
 enum MainTab: Int, CaseIterable {
-    case bold, italic, underline, highlight, code
+    case DiscoverOption, GroupOption, MessgeOption, PersonOption
 
     var icon: String {
         switch self {
-        case .bold: return "bold"
-        case .italic: return "italic"
-        case .underline: return "underline"
-        case .highlight: return "textformat"
-        case .code: return "chevron.left.slash.chevron.right"
+        case .DiscoverOption: return "discover"
+        case .GroupOption: return "group"
+        case .MessgeOption: return "message"
+        case .PersonOption: return "person"
         }
     }
     var label: String {
         switch self {
-        case .bold: return "B"
-        case .italic: return "I"
-        case .underline: return "U"
-        case .highlight: return "Aa"
-        case .code: return "</>"
+        case .DiscoverOption: return "d"
+        case .GroupOption: return "g"
+        case .MessgeOption: return "m"
+        case .PersonOption: return "p"
         }
     }
 }
@@ -55,24 +53,20 @@ struct CustomTabBar: View {
                                     .frame(width: 36, height: 36)
                                     .matchedGeometryEffect(id: "selectedTab", in: animation)
                             }
-                            if tab == .bold {
+                            if tab == .DiscoverOption {
                                 Image(systemName: "target")
                                     .font(.system(size: 18, weight: .bold))
                                     .foregroundColor(selected == tab ? Color(hex: "#23202A") : Color(hex: "#5B4B8A"))
-                            } else if tab == .italic {
+                            } else if tab == .GroupOption {
                                 Image(systemName: "circle.hexagonpath")
                                     .font(.system(size: 18, weight: .regular)).italic()
                                     .foregroundColor(selected == tab ? Color(hex: "#23202A") : Color(hex: "#5B4B8A"))
-                            } else if tab == .underline {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 18, weight: .regular)).underline()
-                                    .foregroundColor(selected == tab ? Color(hex: "#23202A") : Color(hex: "#5B4B8A"))
-                            } else if tab == .highlight {
+                            } else if tab == .MessgeOption {
                                 Image(systemName: "message")
                                     .font(.system(size: 17, weight: .regular))
                                     .foregroundColor(selected == tab ? Color(hex: "#23202A") : Color(hex: "#5B4B8A"))
-                            } else if tab == .code {
-                                Image(systemName: "person") 
+                            } else if tab == .PersonOption {
+                                Image(systemName: "person")
                                     .font(.system(size: 17, weight: .regular))
                                     .foregroundColor(selected == tab ? Color(hex: "#23202A") : Color(hex: "#5B4B8A"))
                             }
@@ -89,14 +83,18 @@ struct CustomTabBar: View {
     }
 }
 
+
 struct MainTabView: View {
     @State var user: User
-    @State private var selectedTab: MainTab = .bold
-    @State private var oldSelectedTab: MainTab = .bold
+    @State private var selectedTab: MainTab = .DiscoverOption
+    @State private var oldSelectedTab: MainTab = .DiscoverOption
+    @State private var showTabBar: Bool = true
+    
+    
     init(user: User) {
         self.user = user
-        self.selectedTab = .bold
-        self.oldSelectedTab = .bold
+        self.selectedTab = .DiscoverOption
+        self.oldSelectedTab = .DiscoverOption
         
         // 设置 UITabBar 的外观
         let appearance = UITabBarAppearance()
@@ -113,17 +111,18 @@ struct MainTabView: View {
             // 主内容区域，背景透明
             Group {
                 switch selectedTab {
-                case .bold: FeedView(user: user)
-                case .italic: GroupView(user: user)
-                case .underline: MessageView(user: user)
-                case .highlight: UserProfileView(user: user)
-                case .code: Text("Code View")
+                case .DiscoverOption: FeedView(user: user, showTabBar: $showTabBar)
+                case .GroupOption: GroupView(user: user)
+                case .MessgeOption: MessageView(user: user)
+                case .PersonOption: UserProfileView(user: user)
                 }
             }
             .background(Color.clear)
             // CustomTabBar 紧贴底部，8pt 间距
-            CustomTabBar(selected: $selectedTab)
-                .padding(.bottom, 8)
+            if showTabBar {
+                CustomTabBar(selected: $selectedTab)
+                    .padding(.bottom, 8)
+            }
         }
         .background(Color.clear)
     }

@@ -23,10 +23,12 @@ struct FeedView: View {
     @State private var errorMessage: String = ""
     @State private var showError: Bool = false
     @State private var selectedStoryBoardId: Int64? = nil
+    @Binding var showTabBar: Bool
     
     
-    init(user: User) {
+    init(user: User, showTabBar: Binding<Bool>) {
         self._viewModel = StateObject(wrappedValue: FeedViewModel(user: user))
+        self._showTabBar = showTabBar
     }
     
     var body: some View {
@@ -90,7 +92,7 @@ struct FeedView: View {
                     .tag(1)
                     
                     // 发现页面
-                    DiscoveryView(viewModel: viewModel, messageText: "最近那边发生了什么事情？")
+                    DiscoveryView(viewModel: viewModel, messageText: "最近那边发生了什么事情？", showTabBar: $showTabBar)
                     .tag(2)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
@@ -697,11 +699,13 @@ private struct DiscoveryView: View {
     @State private var isShowingKeyboard = false
     @State private var navigateToStory = false
     @State private var selectedStory: Story?
+    @Binding var showTabBar: Bool
     
-    init(viewModel: FeedViewModel, messageText: String) {
+    init(viewModel: FeedViewModel, messageText: String, showTabBar: Binding<Bool>) {
         self.viewModel = viewModel
         self.messageText = ""
         self.messages = [ChatMessage]()
+        self._showTabBar = showTabBar
     }
     
     var body: some View {
@@ -841,10 +845,12 @@ private struct DiscoveryView: View {
             }
         )
         .onAppear {
+            self.showTabBar = false
             setupInitialMessages()
             setupKeyboardNotifications()
         }
         .onDisappear {
+            self.showTabBar = true
             NotificationCenter.default.removeObserver(self)
         }
     }

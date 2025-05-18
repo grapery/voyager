@@ -23,7 +23,7 @@ struct APIClient{
             self.client = ProtocolClient(
                 httpClient: URLSessionHTTPClient(),
                 config: ProtocolClientConfig(
-                    host: "http://192.168.1.78:12305",
+                    host: "http://192.168.1.82:12305",
                     networkProtocol: .connect, // Or .grpcWeb
                     codec: ProtoCodec()
                 )
@@ -43,8 +43,9 @@ struct APIClient{
                 $0.account = account
                 $0.password = password
             }
+            print("Login request \(request as Any)")
             let resp = await authClient.login(request: request, headers: [:])
-            
+            print("Login resp \(resp as Any)")
             guard let message = resp.message, !message.data.token.isEmpty else {
                 throw NSError(domain: "LoginError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Login failed: Empty token"])
             }
