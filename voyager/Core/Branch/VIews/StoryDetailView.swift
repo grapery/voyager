@@ -45,7 +45,6 @@ struct StoryDetailView: View {
             }
         }
         .navigationTitle("故事详情")
-        .navigationBarHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(isEditing ? "保存" : "编辑") {
