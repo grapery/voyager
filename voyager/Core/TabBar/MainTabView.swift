@@ -7,19 +7,101 @@
 
 import SwiftUI
 
+enum MainTab: Int, CaseIterable {
+    case bold, italic, underline, highlight, code
+
+    var icon: String {
+        switch self {
+        case .bold: return "bold"
+        case .italic: return "italic"
+        case .underline: return "underline"
+        case .highlight: return "textformat"
+        case .code: return "chevron.left.slash.chevron.right"
+        }
+    }
+    var label: String {
+        switch self {
+        case .bold: return "B"
+        case .italic: return "I"
+        case .underline: return "U"
+        case .highlight: return "Aa"
+        case .code: return "</>"
+        }
+    }
+}
+
+struct CustomTabBar: View {
+    @Binding var selected: MainTab
+    @Namespace var animation
+
+    var body: some View {
+        ZStack {
+            Capsule()
+                .fill(Color(hex: "#D1C3F6"))
+                .frame(height: 52)
+                .shadow(color: .black.opacity(0.10), radius: 12, x: 0, y: 6)
+            HStack(spacing: 0) {
+                ForEach(MainTab.allCases, id: \.self) { tab in
+                    Spacer(minLength: 0)
+                    Button {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                            selected = tab
+                        }
+                    } label: {
+                        ZStack {
+                            if selected == tab {
+                                Circle()
+                                    .fill(.white)
+                                    .frame(width: 36, height: 36)
+                                    .matchedGeometryEffect(id: "selectedTab", in: animation)
+                            }
+                            if tab == .bold {
+                                Image(systemName: "target")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundColor(selected == tab ? Color(hex: "#23202A") : Color(hex: "#5B4B8A"))
+                            } else if tab == .italic {
+                                Image(systemName: "circle.hexagonpath")
+                                    .font(.system(size: 18, weight: .regular)).italic()
+                                    .foregroundColor(selected == tab ? Color(hex: "#23202A") : Color(hex: "#5B4B8A"))
+                            } else if tab == .underline {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 18, weight: .regular)).underline()
+                                    .foregroundColor(selected == tab ? Color(hex: "#23202A") : Color(hex: "#5B4B8A"))
+                            } else if tab == .highlight {
+                                Image(systemName: "message")
+                                    .font(.system(size: 17, weight: .regular))
+                                    .foregroundColor(selected == tab ? Color(hex: "#23202A") : Color(hex: "#5B4B8A"))
+                            } else if tab == .code {
+                                Image(systemName: "person") 
+                                    .font(.system(size: 17, weight: .regular))
+                                    .foregroundColor(selected == tab ? Color(hex: "#23202A") : Color(hex: "#5B4B8A"))
+                            }
+                        }
+                        .frame(width: 44, height: 44)
+                    }
+                    Spacer(minLength: 0)
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 4)
+    }
+}
+
 struct MainTabView: View {
     @State var user: User
-    @State private var selectedItem: Int = 1
-    @State private var oldSelectedItem: Int = 1
+    @State private var selectedTab: MainTab = .bold
+    @State private var oldSelectedTab: MainTab = .bold
     init(user: User) {
         self.user = user
-        self.selectedItem = 1
-        self.oldSelectedItem = 1
+        self.selectedTab = .bold
+        self.oldSelectedTab = .bold
         
         // 设置 UITabBar 的外观
         let appearance = UITabBarAppearance()
         appearance.configureWithDefaultBackground()
-        appearance.backgroundColor = UIColor(Color.theme.secondaryBackground)
+        appearance.backgroundColor = UIColor(Color.clear)
         
         // 调整 TabBar 的高度
         UITabBar.appearance().standardAppearance = appearance
@@ -27,77 +109,23 @@ struct MainTabView: View {
         UITabBar.appearance().frame.size.height = 30 // 设置标准高度
     }
     var body: some View {
-        TabView (selection: $selectedItem){
-            NavigationStack{
-                FeedView(user: self.user)
+        ZStack(alignment: .bottom) {
+            // 主内容区域，背景透明
+            Group {
+                switch selectedTab {
+                case .bold: FeedView(user: user)
+                case .italic: GroupView(user: user)
+                case .underline: MessageView(user: user)
+                case .highlight: UserProfileView(user: user)
+                case .code: Text("Code View")
+                }
             }
-                .onTapGesture {
-                    self.selectedItem = 1
-                }
-                .tabItem {
-                    Circle()
-                        .fill(selectedItem == 1 ? Color.theme.primary : Color.clear)
-                        .overlay(
-                            Image(systemName: "target")
-                                .foregroundColor(selectedItem == 1 ? Color.theme.buttonText : Color.theme.tertiaryText)
-                        )
-                    Text("发现")
-                        .foregroundColor(selectedItem == 1 ? Color.theme.primary : Color.theme.tertiaryText)
-                }
-                .tag(1)
-            NavigationStack{
-                GroupView(user: self.user)
-            }
-                .onTapGesture {
-                    self.selectedItem = 2
-                }
-                .tabItem {
-                    Circle()
-                        .fill(selectedItem == 2 ? Color.theme.primary : Color.clear)
-                        .overlay(
-                            Image(systemName: "circle.hexagonpath")
-                                .foregroundColor(selectedItem == 2 ? Color.theme.buttonText : Color.theme.tertiaryText)
-                        )
-                    Text("小组")
-                        .foregroundColor(selectedItem == 2 ? Color.theme.primary : Color.theme.tertiaryText)
-                }
-                .tag(2)
-            NavigationStack{
-                MessageView(user: self.user)
-            }
-                .onTapGesture {
-                    self.selectedItem = 3
-                }
-                .tabItem {
-                    Circle()
-                        .fill(selectedItem == 3 ? Color.theme.primary : Color.clear)
-                        .overlay(
-                            Image(systemName: "message")
-                                .foregroundColor(selectedItem == 3 ? Color.theme.buttonText : Color.theme.tertiaryText)
-                        )
-                    Text("消息")
-                        .foregroundColor(selectedItem == 3 ? Color.theme.primary : Color.theme.tertiaryText)
-                }
-                .tag(3)
-            NavigationStack{
-                UserProfileView(user: self.user)
-            }
-                .onTapGesture {
-                    self.selectedItem = 4
-                }
-                .tabItem {
-                    Circle()
-                        .fill(selectedItem == 4 ? Color.theme.primary : Color.clear)
-                        .overlay(
-                            Image(systemName: "person")
-                                .foregroundColor(selectedItem == 4 ? Color.theme.buttonText : Color.theme.tertiaryText)
-                        )
-                    Text("个人")
-                        .foregroundColor(selectedItem == 4 ? Color.theme.primary : Color.theme.tertiaryText)
-                }
-                .tag(4)
+            .background(Color.clear)
+            // CustomTabBar 紧贴底部，8pt 间距
+            CustomTabBar(selected: $selectedTab)
+                .padding(.bottom, 8)
         }
-        .background(Color.theme.background)
-        .accentColor(Color.theme.accent)
+        .background(Color.clear)
     }
 }
+
