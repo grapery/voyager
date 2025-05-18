@@ -8,6 +8,7 @@
 import SwiftUI
 import Kingfisher
 import Combine
+import ScalingHeaderScrollView
 
 // MARK: - Group Header View
 struct GroupHeaderView: View {
@@ -27,7 +28,6 @@ struct GroupHeaderView: View {
                 .fade(duration: 0.25)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(height: 240)
                 .clipped()
                 .overlay(
                     LinearGradient(
@@ -95,7 +95,7 @@ struct GroupInfoView: View {
     @Binding var showNewStoryView: Bool
     
     var body: some View {
-        HStack(alignment: .top, spacing: 8) {
+        HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 16) {
                     KFImage(URL(string: convertImagetoSenceImage(url: group?.info.avatar, scene: .small)))
@@ -108,20 +108,20 @@ struct GroupInfoView: View {
                         .overlay(Circle().stroke(Color.white, lineWidth: 2))
                         .padding(.leading, 4)
                     
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(group?.info.name ?? "")
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(alignment: .top){
+                            Text(group?.info.name ?? "")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        }
                         GroupStatsView(group: group)
                     }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             
-            GroupActionButtonsView(group: group, viewModel: viewModel, user: currentUser, showNewStoryView: $showNewStoryView)
-                .padding(.trailing, 12)
+            
         }
     }
 }
@@ -131,7 +131,7 @@ struct GroupStatsView: View {
     let group: BranchGroup?
     
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 8) {
             StatItemView(
                 icon: "book.fill",
                 value: Int64(group?.info.profile.groupStoryNum ?? 0),
@@ -159,16 +159,13 @@ struct StatItemView: View {
     let title: String
     
     var body: some View {
-        VStack(alignment: .center, spacing: 4) {
+        HStack(alignment: .center, spacing: 4) {
             Image(systemName: icon)
                 .foregroundColor(.white.opacity(0.9))
                 .font(.system(size: 14))
             Text("\(value)")
                 .foregroundColor(.white.opacity(0.9))
                 .font(.system(size: 14))
-            Text(title)
-                .foregroundColor(.white.opacity(0.9))
-                .font(.system(size: 12))
         }
     }
 }
@@ -191,31 +188,29 @@ struct GroupActionButtonsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 4) {
+        HStack() {
             Button(action: {
                 showNewStoryView = true
             }) {
                 HStack(spacing: 2) {
                     Image(systemName: "plus")
                         .font(.system(size: 15))
-                    Text("创建故事")
-                        .font(.system(size: 15))
                 }
                 .foregroundColor(.white)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 4)
+                .frame(width: 24, height: 24)
+                .background(Color.theme.secondary.opacity(0.3))
                 .background(Color.theme.accent)
-                .cornerRadius(12)
+                .clipShape(Circle())
             }
             
             Button(action: {
                 Task {
                     if group?.info.currentUserStatus.isJoined == false {
-                        await viewModel.JoinGroup(groupdId: group?.info.groupID ?? 0)
+                        _ = await viewModel.JoinGroup(groupdId: group?.info.groupID ?? 0)
                         group?.info.currentUserStatus.isJoined = true
                         group?.info.profile.groupMemberNum = (group?.info.profile.groupMemberNum)! + 1
                     } else {
-                        await viewModel.LeaveGroup(groupdId: group?.info.groupID ?? 0)
+                        _ = await viewModel.LeaveGroup(groupdId: group?.info.groupID ?? 0)
                         group?.info.currentUserStatus.isJoined = false
                         group?.info.profile.groupMemberNum = (group?.info.profile.groupMemberNum)! - 1
                     }
@@ -224,14 +219,12 @@ struct GroupActionButtonsView: View {
                 HStack(spacing: 2) {
                     Image(systemName: group?.info.currentUserStatus.isJoined ?? false ? "person.badge.minus" : "person.badge.plus")
                         .font(.system(size: 15))
-                    Text(group?.info.currentUserStatus.isJoined ?? false ? "已加入" : "加入小组")
-                        .font(.system(size: 15))
                 }
                 .foregroundColor(.white)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 4)
+                .frame(width: 24, height: 24)
+                .background(Color.theme.secondary.opacity(0.3))
                 .background(group?.info.currentUserStatus.isJoined ?? false ? Color.theme.tertiaryBackground : Color.theme.accent)
-                .cornerRadius(12)
+                .clipShape(Circle())
             }
             
             Button(action: {
@@ -264,14 +257,12 @@ struct GroupActionButtonsView: View {
                 HStack(spacing: 2) {
                     Image(systemName: group?.info.currentUserStatus.isFollowed ?? false ? "bell.fill" : "bell")
                         .font(.system(size: 15))
-                    Text(group?.info.currentUserStatus.isFollowed ?? false ? "已关注" : "关注小组")
-                        .font(.system(size: 15))
                 }
                 .foregroundColor(.white)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 4)
+                .frame(width: 24, height: 24)
+                .background(Color.theme.secondary.opacity(0.3))
                 .background(group?.info.currentUserStatus.isFollowed ?? false ? Color.theme.tertiaryBackground : Color.theme.accent)
-                .cornerRadius(12)
+                .clipShape(Circle())
             }
         }
         .alert(errorTitle, isPresented: $showError) {
@@ -400,7 +391,6 @@ struct GroupDetailView: View {
     
     var body: some View {
         ZStack {
-            Color.theme.background.ignoresSafeArea() 
             if isLoading {
                 VStack {
                     ProgressView()
@@ -410,34 +400,32 @@ struct GroupDetailView: View {
                         .padding(.top, 8)
                 }
             } else {
-                ScrollView {
-                    VStack(spacing: 0) {
-                        GroupHeaderView(
-                            group: group,
-                            currentUser: user,
-                            viewModel: $viewModel,
-                            showNewStoryView: $showNewStoryView,
-                            onBack: { dismiss() },
-                            //onDetail: {showGroupDetail  = true },
-                            onSettings: {showUpdateGroupView = true }
-                        )
-                        
-                        StoryListHeaderView(
-                            stories: viewModel.storys,
-                            selectedStoryId: $selectedStoryId,
-                            isHeaderSticky: isHeaderSticky
-                        )
-                        
-                        StoryListContentView(
-                            stories: viewModel.storys,
-                            selectedStoryId: selectedStoryId,
-                            userId: user.userID,
-                            viewModel: viewModel,
-                            isHeaderSticky: isHeaderSticky
-                        )
-                        Spacer(minLength: 0)
-                    }
+                ScalingHeaderScrollView {
+                    // Background Image with Gradient
+                    KFImage(URL(string: convertImagetoSenceImage(url: group?.info.avatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .clipped()
+                } content: {
+                    StoryListHeaderView(
+                        stories: viewModel.storys,
+                        selectedStoryId: $selectedStoryId,
+                        isHeaderSticky: isHeaderSticky
+                    )
+                    
+                    StoryListContentView(
+                        stories: viewModel.storys,
+                        selectedStoryId: selectedStoryId,
+                        userId: user.userID,
+                        viewModel: viewModel,
+                        isHeaderSticky: isHeaderSticky
+                    )
+                    Spacer(minLength: 0)
                 }
+                .allowsHeaderCollapse()
+                .ignoresSafeArea()
                 .background(Color.theme.background)
                 .navigationBarHidden(true)
                 .fullScreenCover(isPresented: $showNewStoryView) {
@@ -477,6 +465,53 @@ struct GroupDetailView: View {
 //                .sheet(isPresented: $showGroupDetail) {
 //                    GroupProfileView()
 //                }
+                VStack(spacing: 0) {
+                    // Top Navigation Bar
+                    HStack {
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Image(systemName: "chevron.left")
+                                .foregroundColor(.white)
+                                .frame(width: 24, height: 24)
+                                .background(Color.theme.secondary.opacity(0.3))
+                                .clipShape(Circle())
+                        }
+                        Spacer()
+                        
+                        HStack{
+                            Spacer()
+                            GroupActionButtonsView(group: group, viewModel: viewModel, user: currentUser, showNewStoryView: $showNewStoryView)
+                            Button(action: {
+                                
+                            }) {
+                                Image(systemName: "slider.vertical.3")
+                                    .foregroundColor(.white)
+                                    .frame(width: 24, height: 24)
+                                    .background(Color.theme.secondary.opacity(0.3))
+                                    .clipShape(Circle())
+                            }
+                            Button(action: {
+                                showUpdateGroupView = true
+                            }) {
+                                Image(systemName: "gearshape")
+                                    .foregroundColor(.white)
+                                    .frame(width: 24, height: 24)
+                                    .background(Color.theme.secondary.opacity(0.3))
+                                    .clipShape(Circle())
+                            }
+                        }
+                        .padding(.trailing, 8)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.top, 4)
+                    
+                    GroupInfoView(group: group, currentUser: currentUser, viewModel: $viewModel, showNewStoryView: $showNewStoryView)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 4)
+                    
+                    Spacer()
+                }
             }
         }
         .onAppear {
