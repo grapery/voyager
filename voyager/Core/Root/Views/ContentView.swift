@@ -11,7 +11,7 @@ import ConcentricOnboarding
 struct GraperyApp: View {
     @StateObject private var userState = UserStateManager.shared
     @StateObject var registrationViewModel = RegistrationViewModel()
-    @AppStorage("hasSeenOnboarding1") var hasSeenOnboarding: Bool = false
+    @AppStorage("hasSeenOnboarding2") var hasSeenOnboarding: Bool = false
     @State private var showOnboarding: Bool = false
 
     var body: some View {

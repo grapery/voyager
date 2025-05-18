@@ -1,5 +1,5 @@
 {
-  "originHash" : "75621e2592ad14c4a62e36fea510ca63e920807c9c3b469040aae85fc426e5c1",
+  "originHash" : "9d455c4e11319d43bef6d0252ca0aeed8939b4146d61777feeebf9418a305087",
   "pins" : [
     {
       "identity" : "activityindicatorview",
@@ -96,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mattpolzin/OpenAPIKit.git",
       "state" : {
-        "revision" : "35dd374038497a8118d89300851861fb40c36209",
-        "version" : "3.2.2"
+        "revision" : "4f31a7bd0c518ef69e5346640c3a13df140cc41e",
+        "version" : "3.5.1"
       }
     },
     {
@@ -141,8 +141,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections.git",
       "state" : {
-        "revision" : "a902f1823a7ff3c9ab2fba0f992396b948eda307",
-        "version" : "1.0.5"
+        "revision" : "671108c96644956dddcd89dd59c203dcdb36cec7",
+        "version" : "1.1.4"
       }
     },
     {
