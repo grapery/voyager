@@ -136,6 +136,8 @@
 		ED55B4C32DD571E00042853F /* AnchoredPopup in Frameworks */ = {isa = PBXBuildFile; productRef = ED55B4C22DD571E00042853F /* AnchoredPopup */; };
 		ED55B4C52DD571EB0042853F /* ScalingHeaderScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = ED55B4C42DD571EB0042853F /* ScalingHeaderScrollView */; };
 		ED55B4D02DD632BC0042853F /* ActivityIndicatorView in Frameworks */ = {isa = PBXBuildFile; productRef = ED55B4CF2DD632BC0042853F /* ActivityIndicatorView */; };
+		ED6EA4842DDAA56100C5BA3D /* ProfileHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6EA4822DDAA56100C5BA3D /* ProfileHelpers.swift */; };
+		ED6EA4852DDAA56100C5BA3D /* ProfileScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6EA4832DDAA56100C5BA3D /* ProfileScreen.swift */; };
 		ED8E0CE32DC5CCF6007D1D8C /* ChatSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED8E0CE22DC5CCF6007D1D8C /* ChatSettingView.swift */; };
 		EDBCB9F62DD56D2300D35F2D /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBCB9F52DD56D1A00D35F2D /* MockData.swift */; };
 		EDBCB9FA2DD56D5900D35F2D /* OnboardingPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBCB9F92DD56D4800D35F2D /* OnboardingPageView.swift */; };
@@ -269,6 +271,8 @@
 		0FFE24422D7457D3000A8389 /* message.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = message.pb.swift; sourceTree = "<group>"; };
 		0FFE24472D747526000A8389 /* UnpublishedStoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnpublishedStoryViewModel.swift; sourceTree = "<group>"; };
 		ED4EAC3A2DC44C9300A2F2DC /* UserStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStateManager.swift; sourceTree = "<group>"; };
+		ED6EA4822DDAA56100C5BA3D /* ProfileHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHelpers.swift; sourceTree = "<group>"; };
+		ED6EA4832DDAA56100C5BA3D /* ProfileScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileScreen.swift; sourceTree = "<group>"; };
 		ED8E0CE22DC5CCF6007D1D8C /* ChatSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSettingView.swift; sourceTree = "<group>"; };
 		EDBCB9F52DD56D1A00D35F2D /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
 		EDBCB9F92DD56D4800D35F2D /* OnboardingPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPageView.swift; sourceTree = "<group>"; };
@@ -518,6 +522,8 @@
 		0FFA505C2B0857DA00D3A4CF /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				ED6EA4822DDAA56100C5BA3D /* ProfileHelpers.swift */,
+				ED6EA4832DDAA56100C5BA3D /* ProfileScreen.swift */,
 				0F5D96182D6A169F00A2EDFE /* SearchBar.swift */,
 				0F6D23E12D1DAAFA005AEE55 /* MediaPlay.swift */,
 				0F6D23DF2D1CE002005AEE55 /* ImagePicker.swift */,
@@ -893,6 +899,8 @@
 				0F576B6E2D9E104B00DE5FA1 /* ShareStoryView.swift in Sources */,
 				0FF7FF5C2CA23D8700F92343 /* StoryViewModel.swift in Sources */,
 				0F59E7372B064E2F007C2B74 /* voyager.xcdatamodeld in Sources */,
+				ED6EA4842DDAA56100C5BA3D /* ProfileHelpers.swift in Sources */,
+				ED6EA4852DDAA56100C5BA3D /* ProfileScreen.swift in Sources */,
 				0F1D0D112CC86DFD00D12E0B /* Story.swift in Sources */,
 				0F3568B22B2212CE00F6CA74 /* vstore.xcdatamodeld in Sources */,
 				0F62EF682CE822BD00BED6A7 /* AllGroupsView.swift in Sources */,
