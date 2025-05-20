@@ -1358,62 +1358,42 @@ struct UnpublishedStoryBoardCellView: View {
             .padding(.vertical, 16)
             
             // 交互栏
-            HStack(spacing: 24) {
+            HStack(spacing: 8) {
                 // 编辑
                 Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        isAnimating = true
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        showingEditView = true
-                        isAnimating = false
-                    }
+                    showingEditView = true
                 }) {
                     InteractionStatItem(
                         icon: "paintbrush.pointed",
                         text: "编辑",
-                        color: Color.theme.tertiaryText
+                        color: Color.theme.accent
                     )
                 }
-                .scaleEffect(isAnimating ? 0.8 : 1)
-                
+                Spacer()
                 // 发布
                 Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        isAnimating = true
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        showingPublishAlert = true
-                        isAnimating = false
-                    }
+                    showingPublishAlert = true
                 }) {
                     InteractionStatItem(
                         icon: "mountain.2",
                         text: "发布",
-                        color: Color.theme.tertiaryText
+                        color: Color.theme.accent
                     )
                 }
-                .scaleEffect(isAnimating ? 0.8 : 1)
-                
+                Spacer()
                 // 删除
                 Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        isAnimating = true
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        showingDeleteAlert = true
-                        isAnimating = false
-                    }
+                    showingDeleteAlert = true
                 }) {
                     InteractionStatItem(
                         icon: "trash",
                         text: "删除",
-                        color: Color.theme.tertiaryText
+                        color: Color.theme.accent
                     )
                 }
-                .scaleEffect(isAnimating ? 0.8 : 1)
-                
                 Spacer()
+                // 故事版状态
+                StoryboardStatusView(status: board.boardStatus())
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -1570,6 +1550,52 @@ private var userStatus: String {
     // 假设有 user.statusList: [String]，这里只取第一个
     // return user.statusList.first ?? ""
     return all.first ?? ""
+}
+
+
+
+private struct StoryboardStatusView: View {
+    let status: StoryboardStatus
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: iconName)
+                .font(.system(size: 14, weight: .bold))
+            Text(statusText)
+                .font(.system(size: 14, weight: .medium))
+        }
+        .foregroundColor(statusColor)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+        .background(statusColor.opacity(0.1))
+        .cornerRadius(8)
+    }
+    private var iconName: String {
+        switch status {
+        case .draft: return "doc.plaintext"
+        case .scene: return "rectangle.3.offgrid"
+        case .image: return "photo.on.rectangle"
+        case .finished: return "checkmark.seal"
+        case .published: return "paperplane"
+        }
+    }
+    private var statusText: String {
+        switch status {
+        case .draft: return "草稿"
+        case .scene: return "场景"
+        case .image: return "图片"
+        case .finished: return "完成"
+        case .published: return "已发布"
+        }
+    }
+    private var statusColor: Color {
+        switch status {
+        case .draft: return .gray
+        case .scene: return .orange
+        case .image: return .blue
+        case .finished: return .green
+        case .published: return .green
+        }
+    }
 }
 
 

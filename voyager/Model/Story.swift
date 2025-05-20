@@ -69,6 +69,11 @@ class StoryBoard: Identifiable {
     }
 }
 
+// 新增：故事版状态视图
+public enum StoryboardStatus {
+    case draft, scene, image, finished, published
+}
+
 class StoryBoardActive: Identifiable {
     var id: Int64
     var boardActive: Common_StoryBoardActive
@@ -81,6 +86,25 @@ class StoryBoardActive: Identifiable {
             return true
         }
         return false
+    }
+    
+    func boardStatus() -> StoryboardStatus{
+        if self.boardActive.storyboard.stage.rawValue == 1 ||  self.boardActive.storyboard.stage.rawValue == 2 {
+            return .draft
+        }
+        if self.boardActive.storyboard.stage.rawValue == 3 || self.boardActive.storyboard.stage.rawValue == 4 {
+            return .scene
+        }
+        if self.boardActive.storyboard.stage.rawValue == 5 ||  self.boardActive.storyboard.stage.rawValue == 6 ||  self.boardActive.storyboard.stage.rawValue == 7 {
+            return .image
+        }
+        if self.boardActive.storyboard.stage.rawValue == 8 {
+            return .finished
+        }
+        if self.boardActive.storyboard.stage.rawValue == 10 {
+            return .published
+        }
+        return .draft
     }
 }
 
