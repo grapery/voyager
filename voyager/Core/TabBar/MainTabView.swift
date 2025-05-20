@@ -48,9 +48,9 @@ struct CustomTabBar: View {
                     } label: {
                         ZStack {
                             if selected == tab {
-                                Circle()
+                                Capsule()
                                     .fill(.white)
-                                    .frame(width: 36, height: 36)
+                                    .frame(width: 84, height:42)
                                     .matchedGeometryEffect(id: "selectedTab", in: animation)
                             }
                             if tab == .DiscoverOption {
@@ -104,7 +104,7 @@ struct MainTabView: View {
         // 调整 TabBar 的高度
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
-        UITabBar.appearance().frame.size.height = 30 // 设置标准高度
+        UITabBar.appearance().frame.size.height = 5 // 设置标准高度
     }
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -118,10 +118,10 @@ struct MainTabView: View {
                 }
             }
             .background(Color.clear)
-            // CustomTabBar 紧贴底部，8pt 间距
+            // CustomTabBar 紧贴底部，去除多余间距
             if showTabBar {
                 CustomTabBar(selected: $selectedTab)
-                    .padding(.bottom, 8)
+                    .padding(.bottom, 0)
             }
         }
         .background(Color.clear)

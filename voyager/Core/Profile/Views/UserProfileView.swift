@@ -9,6 +9,7 @@
 import SwiftUI
 import Kingfisher
 import PhotosUI
+import ActivityIndicatorView
 
 // MARK: - Main View
 struct UserProfileView: View {
@@ -343,9 +344,22 @@ struct UserProfileView: View {
         ZStack {
             Color.black.opacity(0.3)
                 .ignoresSafeArea()
-            ProgressView()
-                .tint(.white)
-                .scaleEffect(1.5)
+            VStack {
+                Spacer()
+                VStack(spacing: 12) {
+                    HStack {
+                        ActivityIndicatorView(isVisible: $isLoading, type: .arcs())
+                            .frame(width: 64, height: 64)
+                            .foregroundColor(.red)
+                    }
+                            .frame(height: 50)
+                    Text("加载中......")
+                        .foregroundColor(.secondary)
+                        .font(.system(size: 14))
+                }
+                .frame(maxWidth: .infinity)
+                Spacer()
+            }
         }
     }
     
@@ -1224,8 +1238,22 @@ struct PendingTab: View {
             }
             
             if viewModel.isLoading {
-                ProgressView()
-                    .padding()
+                VStack {
+                    Spacer()
+                    VStack(spacing: 12) {
+                        HStack {
+                            ActivityIndicatorView(isVisible: $viewModel.isLoading, type: .arcs())
+                                .frame(width: 64, height: 64)
+                                .foregroundColor(.red)
+                        }
+                                .frame(height: 50)
+                        Text("加载中......")
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 14))
+                    }
+                    .frame(maxWidth: .infinity)
+                    Spacer()
+                }
             }
         }
     }
@@ -1463,13 +1491,12 @@ private struct InteractionStatItem: View {
     
     var body: some View {
         HStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 14))
             Text(text)
-                .font(.system(size: 14))
+                .font(.system(size: 14, weight: .medium))
         }
         .foregroundColor(color)
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: color)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
     }
 }
 
@@ -1519,8 +1546,22 @@ struct RefreshableScrollView<Content: View>: View {
             .frame(height: 0)
             
             if isRefreshing {
-                ProgressView()
-                    .padding(8)
+                VStack {
+                    Spacer()
+                    VStack(spacing: 12) {
+                        HStack {
+                            ActivityIndicatorView(isVisible: $isRefreshing, type: .arcs())
+                                .frame(width: 64, height: 64)
+                                .foregroundColor(.red)
+                        }
+                                .frame(height: 50)
+                        Text("加载中......")
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 14))
+                    }
+                    .frame(maxWidth: .infinity)
+                    Spacer()
+                }
             }
             
             content

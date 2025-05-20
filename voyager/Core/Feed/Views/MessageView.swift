@@ -116,11 +116,21 @@ struct MessageView: View {
                         }
                     }
                 }
-                if viewModel.isLoading {
-                    ActivityIndicatorView(isVisible: .constant(viewModel.isLoading), type: .arcs())
-                        .frame(width: 20, height: 20)
-                        .foregroundColor(.red)
-                        .background(Color.black.opacity(0.1))
+                VStack {
+                    Spacer()
+                    VStack(spacing: 12) {
+                        HStack {
+                            ActivityIndicatorView(isVisible: $viewModel.isLoading, type: .arcs())
+                                .frame(width: 64, height: 64)
+                                .foregroundColor(.red)
+                        }
+                                .frame(height: 50)
+                        Text("加载中......")
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 14))
+                    }
+                    .frame(maxWidth: .infinity)
+                    Spacer()
                 }
                 if !viewModel.hasMorePages && !viewModel.msgCtxs.isEmpty {
                     Text("没有更多聊天会话了")

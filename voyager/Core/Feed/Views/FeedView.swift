@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import ActivityIndicatorView
 
 enum FeedType{
     case Groups
@@ -648,8 +649,22 @@ private struct FeedItemList: View {
                     HStack {
                         Spacer()
                         if isLoadingMore {
-                            ProgressView()
-                                .padding(.trailing, 8)
+                            VStack {
+                                Spacer()
+                                VStack(spacing: 12) {
+                                    HStack {
+                                        ActivityIndicatorView(isVisible: $isLoadingMore, type: .arcs())
+                                            .frame(width: 64, height: 64)
+                                            .foregroundColor(.red)
+                                    }
+                                            .frame(height: 50)
+                                    Text("加载中......")
+                                        .foregroundColor(.secondary)
+                                        .font(.system(size: 14))
+                                }
+                                .frame(maxWidth: .infinity)
+                                Spacer()
+                            }
                         }
                         Text(isLoadingMore ? "加载中..." : "加载更多")
                             .font(.system(size: 12))
@@ -661,7 +676,7 @@ private struct FeedItemList: View {
             }
 
             if viewModel.isLoading && !viewModel.isRefreshing {
-                LoadingIndicator()
+                LoadingIndicator(isLoading: viewModel.isLoading)
             }
 
             if !viewModel.hasMoreData && !viewModel.storyBoardActives.isEmpty {
@@ -678,14 +693,24 @@ private struct FeedItemList: View {
 
 // 加载指示器
 private struct LoadingIndicator: View {
+    @State var isLoading: Bool
     var body: some View {
-        HStack {
+        VStack {
             Spacer()
-            ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: Color.theme.accent))
+            VStack(spacing: 12) {
+                HStack {
+                    ActivityIndicatorView(isVisible: $isLoading, type: .arcs())
+                        .frame(width: 64, height: 64)
+                        .foregroundColor(.red)
+                }
+                        .frame(height: 50)
+                Text("加载中......")
+                    .foregroundColor(.secondary)
+                    .font(.system(size: 14))
+            }
+            .frame(maxWidth: .infinity)
             Spacer()
         }
-        .padding()
     }
 }
 
@@ -1211,24 +1236,39 @@ private struct TrendingContentView: View {
                     ) {
                         VStack(alignment: .leading, spacing: 0) {
                             if isRefreshing {
-                                HStack {
+                                VStack {
                                     Spacer()
-                                    VStack(spacing: 8) {
-                                        ProgressView()
-                                        Text("正在刷新...")
-                                            .font(.caption)
-                                            .foregroundColor(Color.theme.tertiaryText)
+                                    VStack(spacing: 12) {
+                                        HStack {
+                                            ActivityIndicatorView(isVisible: $isRefreshing, type: .arcs())
+                                                .frame(width: 64, height: 64)
+                                                .foregroundColor(.red)
+                                        }
+                                                .frame(height: 50)
+                                        Text("加载中......")
+                                            .foregroundColor(.secondary)
+                                            .font(.system(size: 14))
                                     }
-                                    .padding(.vertical, 20)
+                                    .frame(maxWidth: .infinity)
                                     Spacer()
                                 }
                             }
                             
                             if viewModel.isLoadingTrending && !isRefreshing {
-                                HStack {
+                                VStack {
                                     Spacer()
-                                    ProgressView()
-                                        .padding(.vertical, 40)
+                                    VStack(spacing: 12) {
+                                        HStack {
+                                            ActivityIndicatorView(isVisible: $viewModel.isLoadingTrending, type: .arcs())
+                                                .frame(width: 64, height: 64)
+                                                .foregroundColor(.red)
+                                        }
+                                                .frame(height: 50)
+                                        Text("加载中......")
+                                            .foregroundColor(.secondary)
+                                            .font(.system(size: 14))
+                                    }
+                                    .frame(maxWidth: .infinity)
                                     Spacer()
                                 }
                             } else if viewModel.trendingStories.isEmpty && !viewModel.isLoadingTrending {
@@ -1260,10 +1300,20 @@ private struct TrendingContentView: View {
                                     }
                                     
                                     if viewModel.isLoadingMoreTrending {
-                                        HStack {
+                                        VStack {
                                             Spacer()
-                                            ProgressView()
-                                                .padding()
+                                            VStack(spacing: 12) {
+                                                HStack {
+                                                    ActivityIndicatorView(isVisible: $viewModel.isLoadingTrending, type: .arcs())
+                                                        .frame(width: 64, height: 64)
+                                                        .foregroundColor(.red)
+                                                }
+                                                        .frame(height: 50)
+                                                Text("加载中......")
+                                                    .foregroundColor(.secondary)
+                                                    .font(.system(size: 14))
+                                            }
+                                            .frame(maxWidth: .infinity)
                                             Spacer()
                                         }
                                     }
@@ -1300,24 +1350,39 @@ private struct TrendingContentView: View {
                     ) {
                         VStack(alignment: .leading, spacing: 0) {
                             if isRefreshing {
-                                HStack {
+                                VStack {
                                     Spacer()
-                                    VStack(spacing: 8) {
-                                        ProgressView()
-                                        Text("正在刷新...")
-                                            .font(.caption)
-                                            .foregroundColor(Color.theme.tertiaryText)
+                                    VStack(spacing: 12) {
+                                        HStack {
+                                            ActivityIndicatorView(isVisible: $viewModel.isRefreshing, type: .arcs())
+                                                .frame(width: 64, height: 64)
+                                                .foregroundColor(.red)
+                                        }
+                                                .frame(height: 50)
+                                        Text("加载中......")
+                                            .foregroundColor(.secondary)
+                                            .font(.system(size: 14))
                                     }
-                                    .padding(.vertical, 20)
+                                    .frame(maxWidth: .infinity)
                                     Spacer()
                                 }
                             }
                             
                             if viewModel.isLoadingTrending && !isRefreshing {
-                                HStack {
+                                VStack {
                                     Spacer()
-                                    ProgressView()
-                                        .padding(.vertical, 40)
+                                    VStack(spacing: 12) {
+                                        HStack {
+                                            ActivityIndicatorView(isVisible: $viewModel.isLoadingTrending, type: .arcs())
+                                                .frame(width: 64, height: 64)
+                                                .foregroundColor(.red)
+                                        }
+                                                .frame(height: 50)
+                                        Text("加载中......")
+                                            .foregroundColor(.secondary)
+                                            .font(.system(size: 14))
+                                    }
+                                    .frame(maxWidth: .infinity)
                                     Spacer()
                                 }
                             } else if viewModel.trendingRoles.isEmpty && !viewModel.isLoadingTrending {
@@ -1349,10 +1414,20 @@ private struct TrendingContentView: View {
                                     }
                                     
                                     if viewModel.isLoadingMoreTrending {
-                                        HStack {
+                                        VStack {
                                             Spacer()
-                                            ProgressView()
-                                                .padding()
+                                            VStack(spacing: 12) {
+                                                HStack {
+                                                    ActivityIndicatorView(isVisible: $viewModel.isLoadingMoreTrending, type: .arcs())
+                                                        .frame(width: 64, height: 64)
+                                                        .foregroundColor(.red)
+                                                }
+                                                        .frame(height: 50)
+                                                Text("加载中......")
+                                                    .foregroundColor(.secondary)
+                                                    .font(.system(size: 14))
+                                            }
+                                            .frame(maxWidth: .infinity)
                                             Spacer()
                                         }
                                     }

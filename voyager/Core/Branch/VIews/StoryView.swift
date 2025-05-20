@@ -9,6 +9,7 @@ import SwiftUI
 import Kingfisher
 import Combine
 import AVKit
+import ActivityIndicatorView
 
 struct StoryView: View {
     @StateObject var viewModel: StoryViewModel
@@ -110,9 +111,12 @@ struct StoryView: View {
                 VStack {
                     Spacer()
                     VStack(spacing: 12) {
-                        ProgressView()
-                            .scaleEffect(2.0)
-                            .padding()
+                        HStack {
+                            ActivityIndicatorView(isVisible: $viewModel.isLoading, type: .arcs())
+                                .frame(width: 64, height: 64)
+                                .foregroundColor(.red)
+                        }
+                                .frame(height: 50)
                         Text("加载中......")
                             .foregroundColor(.secondary)
                             .font(.system(size: 14))
@@ -174,7 +178,18 @@ struct StoryView: View {
             if viewModel.isLoading {
                 VStack {
                     Spacer()
-                    ProgressView()
+                    VStack(spacing: 12) {
+                        HStack {
+                            ActivityIndicatorView(isVisible: $viewModel.isLoading, type: .arcs())
+                                .frame(width: 64, height: 64)
+                                .foregroundColor(.red)
+                        }
+                                .frame(height: 50)
+                        Text("加载中......")
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 14))
+                    }
+                    .frame(maxWidth: .infinity)
                     Spacer()
                 }
             } else if let boards = viewModel.storyboards, !boards.isEmpty {
