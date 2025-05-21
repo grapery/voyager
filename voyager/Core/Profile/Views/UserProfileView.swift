@@ -1166,6 +1166,7 @@ private struct StoryboardsListView: View {
 struct PendingTab: View {
     @StateObject private var viewModel: UnpublishedStoryViewModel
     @State private var isRefreshing = false
+    @State private var didLoad = false
     
     init(userId: Int64) {
         _viewModel = StateObject(wrappedValue: UnpublishedStoryViewModel(userId: userId))
@@ -1191,7 +1192,8 @@ struct PendingTab: View {
         }
         .background(Color.theme.background)
         .task {
-            if viewModel.unpublishedStoryboards.isEmpty {
+            if !didLoad {
+                didLoad = true
                 await viewModel.fetchUnpublishedStoryboards()
             }
         }
@@ -1223,10 +1225,8 @@ struct PendingTab: View {
                         viewModel: viewModel
                     )
                     .onAppear {
-                        if board.id == viewModel.unpublishedStoryboards.last?.id {
-                            Task {
-                                await viewModel.fetchUnpublishedStoryboards()
-                            }
+                        Task {
+                            await viewModel.fetchUnpublishedStoryboards()
                         }
                     }
                     
