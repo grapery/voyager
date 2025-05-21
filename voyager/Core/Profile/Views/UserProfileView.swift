@@ -1190,13 +1190,6 @@ struct PendingTab: View {
                 }
             }
         }
-        .background(Color.theme.background)
-        .task {
-            if !didLoad {
-                didLoad = true
-                await viewModel.fetchUnpublishedStoryboards()
-            }
-        }
         .alert("加载失败", isPresented: $viewModel.hasError) {
             Button("确定", role: .cancel) { }
         } message: {
@@ -1216,27 +1209,25 @@ struct PendingTab: View {
     }
     
     private var UnPublishedstoryBoardsListView: some View {
-        LazyVStack(spacing: 0) {
-            ForEach(viewModel.unpublishedStoryboards) { board in
-                VStack(spacing: 0) {
-                    UnpublishedStoryBoardCellView(
-                        board: board,
-                        userId: viewModel.userId,
-                        viewModel: viewModel
-                    )
-                    .onAppear {
-                        Task {
-                            await viewModel.fetchUnpublishedStoryboards()
+        ZStack{
+            LazyVStack(spacing: 0) {
+                ForEach(viewModel.unpublishedStoryboards) { board in
+                    VStack(spacing: 0) {
+                        UnpublishedStoryBoardCellView(
+                            board: board,
+                            userId: viewModel.userId,
+                            viewModel: viewModel
+                        )
+                        
+                        
+                        if board.id != viewModel.unpublishedStoryboards.last?.id {
+                            Divider()
+                                .background(Color.theme.divider)
                         }
-                    }
-                    
-                    if board.id != viewModel.unpublishedStoryboards.last?.id {
-                        Divider()
-                            .background(Color.theme.divider)
                     }
                 }
             }
-            
+                
             if viewModel.isLoading {
                 VStack {
                     Spacer()
@@ -1246,7 +1237,7 @@ struct PendingTab: View {
                                 .frame(width: 64, height: 64)
                                 .foregroundColor(.red)
                         }
-                                .frame(height: 50)
+                        .frame(height: 50)
                         Text("加载中......")
                             .foregroundColor(.secondary)
                             .font(.system(size: 14))
@@ -1254,7 +1245,13 @@ struct PendingTab: View {
                     .frame(maxWidth: .infinity)
                     Spacer()
                 }
+                
             }
+        }
+        .onAppear {
+            Task {
+                    await viewModel.fetchUnpublishedStoryboards()
+                }
         }
     }
 }
@@ -1309,22 +1306,20 @@ struct UnpublishedStoryBoardCellView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
+            // 顶部：标题与草稿标记同行对齐
+            HStack(alignment: .firstTextBaseline) {
+                Text(board.boardActive.storyboard.title)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(Color.theme.primaryText)
+                    .lineLimit(2)
+                Spacer()
+                StoryboardStatusView(status: board.boardStatus())
+            }
+            .padding(.top, 12)
+            .padding(.horizontal, 16)
+
             // 标题和内容区域
             VStack(alignment: .leading, spacing: 8) {
-                // 标题和时间
-                HStack {
-                    Text(board.boardActive.storyboard.title)
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(Color.theme.primaryText)
-                        .lineLimit(2)
-                    
-                    Spacer()
-                    
-                    Text(formatDate(board.boardActive.storyboard.ctime))
-                        .font(.system(size: 13))
-                        .foregroundColor(Color.theme.tertiaryText)
-                }
-                
                 // 故事信息
                 HStack(spacing: 4) {
                     Text("所属故事：")
@@ -1334,13 +1329,11 @@ struct UnpublishedStoryBoardCellView: View {
                         .font(.system(size: 14))
                         .foregroundColor(Color.theme.accent)
                 }
-                
                 // 内容
                 Text(board.boardActive.storyboard.content)
                     .font(.system(size: 15))
                     .foregroundColor(Color.theme.secondaryText)
                     .lineLimit(3)
-                
                 if !self.sceneMediaContents.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
@@ -1367,7 +1360,6 @@ struct UnpublishedStoryBoardCellView: View {
                                                     .stroke(Color.theme.border, lineWidth: 0.5)
                                             )
                                     }
-                                    
                                     // 场景标题
                                     Text(sceneContent.sceneTitle)
                                         .font(.system(size: 13))
@@ -1383,48 +1375,42 @@ struct UnpublishedStoryBoardCellView: View {
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 16)
-            
-            // 交互栏
-            HStack(spacing: 8) {
-                // 编辑
-                Button(action: {
-                    showingEditView = true
-                }) {
-                    InteractionStatItem(
-                        icon: "paintbrush.pointed",
-                        text: "编辑",
-                        color: Color.theme.accent
-                    )
+            .padding(.top, 4)
+            .padding(.bottom, 8)
+
+            // 底部：按钮与时间下沿对齐
+            HStack(alignment: .lastTextBaseline) {
+                HStack(spacing: 8) {
+                    Button(action: { showingEditView = true }) {
+                        InteractionStatItem(
+                            icon: "paintbrush.pointed",
+                            text: "编辑",
+                            color: Color.black
+                        )
+                    }
+                    Button(action: { showingPublishAlert = true }) {
+                        InteractionStatItem(
+                            icon: "mountain.2",
+                            text: "发布",
+                            color: Color.black
+                        )
+                    }
+                    Button(action: { showingDeleteAlert = true }) {
+                        InteractionStatItem(
+                            icon: "trash",
+                            text: "删除",
+                            color: Color.black
+                        )
+                    }
                 }
+                .font(.system(size: 15)) // 保证和时间字号一致
                 Spacer()
-                // 发布
-                Button(action: {
-                    showingPublishAlert = true
-                }) {
-                    InteractionStatItem(
-                        icon: "mountain.2",
-                        text: "发布",
-                        color: Color.theme.accent
-                    )
-                }
-                Spacer()
-                // 删除
-                Button(action: {
-                    showingDeleteAlert = true
-                }) {
-                    InteractionStatItem(
-                        icon: "trash",
-                        text: "删除",
-                        color: Color.theme.accent
-                    )
-                }
-                Spacer()
-                // 故事版状态
-                StoryboardStatusView(status: board.boardStatus())
+                Text(formatDate(board.boardActive.storyboard.ctime))
+                    .font(.system(size: 13))
+                    .foregroundColor(Color.theme.tertiaryText)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.bottom, 12)
         }
         .background(Color.theme.secondaryBackground)
         .overlay(errorToastOverlay)
