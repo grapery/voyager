@@ -36,10 +36,12 @@ struct CompleteRegistrationView: View {
             
             Button {
                 Task {
+                    print("start register")
                     await viewModel.createUser()
+                    dismiss()
                 }
             } label: {
-                Text("注册完成")
+                Text("完成注册")
                     .font(.headline)
                     .foregroundColor(.white)
                     .fontWeight(.bold)
@@ -55,7 +57,7 @@ struct CompleteRegistrationView: View {
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Image(systemName: "arrowshape.left")
+                Image(systemName: "chevron.left")
                     .imageScale(.large)
                     .onTapGesture {
                         dismiss()

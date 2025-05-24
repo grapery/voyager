@@ -23,7 +23,7 @@ struct APIClient{
             self.client = ProtocolClient(
                 httpClient: URLSessionHTTPClient(),
                 config: ProtocolClientConfig(
-                    host: "http://192.168.1.82:12305",
+                    host: "http://127.0.0.1:12305",
                     networkProtocol: .connect, // Or .grpcWeb
                     codec: ProtoCodec()
                 )
@@ -68,7 +68,9 @@ struct APIClient{
                 $0.password = password;
                 $0.name = name;
             }
+            
             resp = await authClient.register(request: request, headers: [:])
+            print(resp.message as Any)
             result.code = resp.message!.code
             result = resp.message!
         }

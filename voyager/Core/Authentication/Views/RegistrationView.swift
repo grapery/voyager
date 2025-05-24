@@ -96,7 +96,7 @@ struct RegistrationView: View {
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Image(systemName: "arrowshape.left")
+                Image(systemName: "chevron.left")
                     .imageScale(.large)
                     .onTapGesture {
                         dismiss()

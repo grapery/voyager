@@ -71,7 +71,45 @@ struct SettingsView: View {
             .alert("确认退出登录？", isPresented: $showLogoutAlert) {
                 Button("取消", role: .cancel) { }
                 Button("退出登录", role: .destructive) {
-                    // TODO: 实现退出登录逻辑
+                    Task {
+                        // 1. 调用 AuthService 的登出方法
+                        await AuthService.shared.signout()
+                        
+                        // 2. 清理 UserDefaults 中的用户数据
+                        UserDefaults.standard.removeObject(forKey: "VoyagerUserToken")
+                        UserDefaults.standard.removeObject(forKey: "VoyagerTokenExpiration")
+                        UserDefaults.standard.removeObject(forKey: "VoyagerUserEmail")
+                        UserDefaults.standard.removeObject(forKey: "VoyagerCurrentUser")
+                        
+                        //                        // 3. 清理 Kingfisher 图片缓存
+                        //                        KingfisherManager.shared.cache.clearMemoryCache()
+                        //                        KingfisherManager.shared.cache.clearDiskCache()
+                        
+                        // 4. 清理 CoreData 中的消息数据
+                        do {
+                            try CoreDataManager.shared.cleanupOldMessages(olderThan: 0)
+                        } catch {
+                            print("Failed to cleanup messages: \(error)")
+                        }
+                        
+                        // // 5. 清理本地文件缓存
+                        // if let cacheURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
+                        //     do {
+                        //         let fileURLs = try FileManager.default.contentsOfDirectory(at: cacheURL, includingPropertiesForKeys: nil)
+                        //         for fileURL in fileURLs {
+                        //             try FileManager.default.removeItem(at: fileURL)
+                        //         }
+                        //     } catch {
+                        //         print("Failed to cleanup cache directory: \(error)")
+                        //     }
+                        // }
+                        
+                        // 6. 重置用户状态
+                        UserStateManager.shared.logout()
+                        
+                        // 7. 关闭设置页面
+                        dismiss()
+                    }
                 }
             }
         }

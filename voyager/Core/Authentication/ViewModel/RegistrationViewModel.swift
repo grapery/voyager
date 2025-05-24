@@ -26,6 +26,7 @@ class RegistrationViewModel: ObservableObject {
             print("register user error")
             return
         }
+        print("register user: \(self.email), \(self.password), \(self.username), \(self.fullname)")
         Task{
             let result = await service.register(account: self.email, password: self.password, name: self.username, full_name: self.fullname)
             print("register result:\(result)")
