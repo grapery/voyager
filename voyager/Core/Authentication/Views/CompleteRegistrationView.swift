@@ -11,6 +11,7 @@ struct CompleteRegistrationView: View {
     
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModel: RegistrationViewModel
+    var onComplete: () -> Void
     
     var body: some View {
         VStack {
@@ -36,12 +37,11 @@ struct CompleteRegistrationView: View {
             
             Button {
                 Task {
-                    print("start register")
                     await viewModel.createUser()
-                    dismiss()
+                    onComplete()
                 }
             } label: {
-                Text("完成注册")
+                Text("注册完成")
                     .font(.headline)
                     .foregroundColor(.white)
                     .fontWeight(.bold)
@@ -52,12 +52,10 @@ struct CompleteRegistrationView: View {
             }
             
             Spacer()
-            
-            
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Image(systemName: "chevron.left")
+                Image(systemName: "arrowshape.left")
                     .imageScale(.large)
                     .onTapGesture {
                         dismiss()
@@ -70,7 +68,7 @@ struct CompleteRegistrationView: View {
 struct CompleteRegistrationView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack{
-            CompleteRegistrationView()
+            CompleteRegistrationView(onComplete: {})
         }
     }
 }

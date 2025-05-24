@@ -11,6 +11,7 @@ struct RegistrationView: View {
     
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModel: RegistrationViewModel
+    @State private var showCompleteRegistration = false
     
     private var isDisabled: Bool {
         return viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.username.isEmpty || viewModel.fullname.isEmpty
@@ -76,10 +77,8 @@ struct RegistrationView: View {
             
             Spacer()
             
-            
-            NavigationLink {
-                CompleteRegistrationView()
-                    .navigationBarBackButtonHidden()
+            Button {
+                showCompleteRegistration = true
             } label: {
                 Text("注册")
                     .font(.headline)
@@ -103,7 +102,13 @@ struct RegistrationView: View {
                     }
             }
         }
-        
+        .navigationDestination(isPresented: $showCompleteRegistration) {
+            CompleteRegistrationView(onComplete: {
+                // 注册完成后，关闭所有视图，返回到登录页面
+                dismiss()
+            })
+            .navigationBarBackButtonHidden()
+        }
     }
 }
 
