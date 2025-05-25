@@ -8,6 +8,20 @@
 import SwiftUI
 import Kingfisher
 
+struct RoundedCorners: Shape {
+    var radius: CGFloat = 20.0
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(
+            roundedRect: rect,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        return Path(path.cgPath)
+    }
+}
+
 struct StoryDetailView: View {
     @State var storyId: Int64
     @StateObject private var viewModel: StoryDetailViewModel
@@ -201,11 +215,16 @@ struct StoryDetailView: View {
                     }
                 )) {
                     SettingRow(title: "故事简介") {
-                        Text(viewModel.story?.storyInfo.desc ?? "")
+                        let desc = viewModel.story?.storyInfo.desc ?? ""
+                        Text(desc.isEmpty ? " " : desc)
                             .font(.subheadline)
                             .foregroundColor(Color.theme.secondaryText)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
+                            .padding(12)
+                            .frame(minHeight: 24, alignment: .leading)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(10)
                     }
                 }
                 
@@ -221,11 +240,16 @@ struct StoryDetailView: View {
                     }
                 )) {
                     SettingRow(title: "故事背景") {
-                        Text(viewModel.story?.storyInfo.params.background ?? "")
+                        let bg = viewModel.story?.storyInfo.params.background ?? ""
+                        Text(bg.isEmpty ? " " : bg)
                             .font(.subheadline)
                             .foregroundColor(Color.theme.secondaryText)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
+                            .padding(12)
+                            .frame(minHeight: 24, alignment: .leading)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(10)
                     }
                 }
                 
@@ -241,11 +265,16 @@ struct StoryDetailView: View {
                     }
                 )) {
                     SettingRow(title: "正面提示词") {
-                        Text(viewModel.story?.storyInfo.params.negativePrompt ?? "")
+                        let pos = viewModel.story?.storyInfo.params.negativePrompt ?? ""
+                        Text(pos.isEmpty ? " " : pos)
                             .font(.subheadline)
                             .foregroundColor(Color.theme.secondaryText)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
+                            .padding(12)
+                            .frame(minHeight: 24, alignment: .leading)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(10)
                     }
                 }
                 
@@ -261,18 +290,23 @@ struct StoryDetailView: View {
                     }
                 )) {
                     SettingRow(title: "负面提示词") {
-                        Text(viewModel.story?.storyInfo.params.negativePrompt ?? "")
+                        let neg = viewModel.story?.storyInfo.params.negativePrompt ?? ""
+                        Text(neg.isEmpty ? " " : neg)
                             .font(.subheadline)
                             .foregroundColor(Color.theme.secondaryText)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
+                            .padding(12)
+                            .frame(minHeight: 24, alignment: .leading)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(10)
                     }
                 }
                 // 用新版 SettingRow 组件实现"故事风格"和"场景数量"
                 SettingRow(title: "故事风格") {
                     StylePicker(selectedStyle: Binding(
-                        get: { viewModel.story?.storyInfo.params.style ?? "写实风格" },
-                        set: { viewModel.story?.storyInfo.params.style = $0 }
+                        get: { viewModel.storyStyle },
+                        set: { viewModel.storyStyle = $0 }
                     ))
                 }
                 SettingRow(title: "场景数量") {
@@ -585,74 +619,79 @@ struct StorySettingDetailView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            // 原有的文本编辑器
+            // 文本编辑区
             TextEditor(text: isEditing ? $content : .constant(content))
                 .font(.body)
                 .padding()
-                .frame(maxWidth: .infinity, minHeight: 200)
+                .frame(maxWidth: .infinity, minHeight: 64, maxHeight: 96, alignment: .top)
                 .background(Color(.systemBackground))
-                .cornerRadius(9)
+                .cornerRadius(8)
                 .disabled(!isEditing)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 9)
+                    RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.gray.opacity(0.2), lineWidth: 1)
                 )
-                .padding()
-            
+                .padding(.top, 32)
+                .padding(.horizontal)
+
             // AI 渲染控制区域
-            VStack(spacing: 12) {
-                Toggle("使用 AI 优化内容", isOn: $isAIRendering)
-                    .disabled(!isEditing)
-                    .padding(.horizontal)
+            HStack(alignment: .center, spacing: 8) {
+                Text("使用 AI 优化内容")
+                    .font(.body)
+                Toggle("", isOn: $isAIRendering)
+                    .labelsHidden()
+                    .toggleStyle(SwitchToggleStyle(tint: .green))
+                    .scaleEffect(0.75)
+                    .frame(height: 24)
+                    .padding(.trailing, 4)
+            }
+            .padding(.horizontal)
+
+            if isAIRendering {
+                Button(action: {
+                    aiGeneratedContent = "AI渲染: \(content)"
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "wand.and.stars")
+                        Text("AI渲染")
+                            .font(.system(size: 15, weight: .medium))
+                    }
+                    .frame(width: 200, height: 36)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(6)
+                }
+                .disabled(!isEditing)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.horizontal)
                 
-                if isAIRendering {
-                    Button(action: {
-                        // TODO: 调用 AI 渲染 API
-                        // 这里是示例代码，需要替换为实际的 AI 渲染逻辑
-                        aiGeneratedContent = "AI渲染: \(content)"
-                    }) {
-                        HStack {
-                            Image(systemName: "wand.and.stars")
-                            Text("开始 AI 优化")
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                    }
-                    .disabled(!isEditing)
-                    .padding(.horizontal)
-                    
-                    if !aiGeneratedContent.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("AI 优化结果:")
-                                .font(.headline)
-                            
-                            Text(aiGeneratedContent)
-                                .padding()
-                                .background(Color(.systemGray6))
-                                .cornerRadius(8)
-                            
-                            Button(action: {
-                                content = aiGeneratedContent
-                            }) {
-                                HStack {
-                                    Image(systemName: "checkmark.circle")
-                                    Text("应用 AI 优化结果")
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.green)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
+                if !aiGeneratedContent.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("AI 优化结果:")
+                            .font(.headline)
+                        Text(aiGeneratedContent)
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(8)
+                        Button(action: {
+                            content = aiGeneratedContent
+                        }) {
+                            HStack {
+                                Image(systemName: "checkmark.circle")
+                                Text("应用 AI 优化结果")
                             }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
                         }
-                        .padding(.horizontal)
                     }
+                    .padding(.horizontal)
                 }
             }
         }
+        .frame(maxHeight: .infinity, alignment: .top)
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -667,6 +706,14 @@ struct StorySettingDetailView: View {
                         aiGeneratedContent = ""
                     }
                 }
+                .foregroundColor(isEditing ? .blue : .gray)
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("取消") {
+                    isAIRendering = false
+                    isEditing = false
+                }
+                .foregroundColor(isEditing ? .blue : .gray)
             }
         }
     }
@@ -700,39 +747,98 @@ struct StylePicker: View {
     @Binding var selectedStyle: String
     let styles = ["写实风格", "动漫风格", "油画风格", "水彩风格", "素描风格"]
 
-    var body: some View {
-        Menu {
-            ForEach(styles, id: \.self) { style in
-                Button {
-                    selectedStyle = style
-                } label: {
-                    HStack {
-                        if selectedStyle == style {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(.green)
-                        }
-                        Text(style)
-                    }
-                }
-            }
-        } label: {
-            HStack {
-                Text(selectedStyle)
-                    .foregroundColor(.primary)
-                Spacer()
-                Image(systemName: "chevron.down")
-                    .foregroundColor(.gray)
-            }
-            .padding(.horizontal, 12)
-            .frame(height: 36)
-            .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color(.systemGray4), lineWidth: 1)
-            )
-            .frame(width: 160, alignment: .leading)
+    func imageName(for style: String) -> String? {
+        switch style {
+        case "写实风格": return "style_realistic"
+        case "动漫风格": return "style_anime"
+        case "油画风格": return "style_oil"
+        case "水彩风格": return "style_watercolor"
+        case "素描风格": return "style_sketch"
+        default: return nil
         }
-        .frame(width: 160, alignment: .leading)
+    }
+
+    var currentIndex: Int {
+        styles.firstIndex(of: selectedStyle) ?? 0
+    }
+
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 0) {
+                // 左按钮
+                Button(action: {
+                    let newIndex = (currentIndex - 1 + styles.count) % styles.count
+                    selectedStyle = styles[newIndex]
+                }) {
+                    ZStack {
+                        Color.purple.opacity(0.08)
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.purple)
+                            .font(.system(size: 18, weight: .bold))
+                    }
+                    .frame(width: 56, height: 40)
+                }
+                .clipShape(RoundedCorners(radius: 20, corners: [.topLeft, .bottomLeft]))
+                .buttonStyle(PlainButtonStyle())
+
+                // 中间风格名
+                Text(selectedStyle)
+                    .font(.system(size: 16, weight: .medium))
+                    .frame(minWidth: 60, maxWidth: .infinity, minHeight: 40, maxHeight: 40)
+                    .background(Color.white)
+                    .animation(.default, value: selectedStyle)
+                    .overlay(
+                        Rectangle()
+                            .frame(width: 1)
+                            .foregroundColor(Color.gray.opacity(0.2)),
+                        alignment: .leading
+                    )
+                    .overlay(
+                        Rectangle()
+                            .frame(width: 1)
+                            .foregroundColor(Color.gray.opacity(0.2)),
+                        alignment: .trailing
+                    )
+
+                // 右按钮
+                Button(action: {
+                    let newIndex = (currentIndex + 1) % styles.count
+                    selectedStyle = styles[newIndex]
+                }) {
+                    ZStack {
+                        Color.purple.opacity(0.08)
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.purple)
+                            .font(.system(size: 18, weight: .bold))
+                    }
+                    .frame(width: 56, height: 40)
+                }
+                .clipShape(RoundedCorners(radius: 20, corners: [.topRight, .bottomRight]))
+                .buttonStyle(PlainButtonStyle())
+            }
+            .overlay(
+                Capsule()
+                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+            )
+            .frame(height: 40)
+
+            // 样例图片区域
+            if let imageName = imageName(for: selectedStyle), UIImage(named: imageName) != nil {
+                Image(imageName)
+                    .resizable()
+                    .aspectRatio(1, contentMode: .fit)
+                    .frame(height: 80)
+                    .cornerRadius(10)
+                    .padding(.top, 4)
+            } else {
+                Image(systemName: "photo.fill.on.rectangle.fill")
+                    .resizable()
+                    .aspectRatio(1, contentMode: .fit)
+                    .frame(height: 80)
+                    .foregroundColor(.gray.opacity(0.5))
+                    .padding(.top, 4)
+            }
+        }
     }
 }
 
@@ -752,8 +858,7 @@ struct SceneStepper: View {
                 }
             }) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .fill(count > minValue ? Color.purple.opacity(0.08) : Color.white)
+                    Color.purple.opacity(0.08)
                     Image(systemName: "triangle.fill")
                         .rotationEffect(.degrees(180))
                         .foregroundColor(lastTapped == "down" ? .purple : .gray)
@@ -761,6 +866,7 @@ struct SceneStepper: View {
                 }
                 .frame(width: 56, height: 40)
             }
+            .clipShape(RoundedCorners(radius: 20, corners: [.topLeft, .bottomLeft]))
             .buttonStyle(PlainButtonStyle())
 
             // 中间文本
@@ -790,8 +896,7 @@ struct SceneStepper: View {
                 }
             }) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .fill(count < maxValue ? Color.purple.opacity(0.08) : Color.white)
+                    Color.purple.opacity(0.08)
                     Image(systemName: "triangle.fill")
                         .rotationEffect(.degrees(0))
                         .foregroundColor(lastTapped == "up" ? .purple : .gray)
@@ -799,9 +904,9 @@ struct SceneStepper: View {
                 }
                 .frame(width: 56, height: 40)
             }
+            .clipShape(RoundedCorners(radius: 20, corners: [.topRight, .bottomRight]))
             .buttonStyle(PlainButtonStyle())
         }
-        .clipShape(Capsule())
         .overlay(
             Capsule()
                 .stroke(Color.gray.opacity(0.5), lineWidth: 1)

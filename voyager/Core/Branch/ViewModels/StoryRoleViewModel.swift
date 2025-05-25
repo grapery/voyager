@@ -264,6 +264,7 @@ class StoryDetailViewModel: ObservableObject {
     @Published var characters: [StoryRole]? = []
     @Published var participants: [User] = []
     @Published var sceneCount : Int = 4
+    @Published var storyStyle : String = ""
     var likes: Int = 0
     var followers: Int = 0
     var members: Int = 0
@@ -277,6 +278,7 @@ class StoryDetailViewModel: ObservableObject {
         self.storyId = storyId
         self.userId = userId
         self.sceneCount = Int((story?.storyInfo.params.sceneCount)!)
+        self.storyStyle = story?.storyInfo.params.style ?? ""
         
         self.characters = [StoryRole]()
         self.participants = [User]()
