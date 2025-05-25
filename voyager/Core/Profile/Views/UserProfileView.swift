@@ -1173,20 +1173,35 @@ struct PendingTab: View {
     }
     
     var body: some View {
-        ScrollView {
-            RefreshableScrollView(
-                isRefreshing: $isRefreshing,
-                onRefresh: {
-                    Task {
-                        await viewModel.refreshData()
-                        isRefreshing = false
+        ZStack {
+            if viewModel.isLoading {
+                VStack {
+                    Spacer()
+                    VStack(spacing: 12) {
+                        HStack {
+                            ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                                .frame(width: 64, height: 64)
+                                .foregroundColor(.red)
+                        }
+                        .frame(height: 50)
+                        Text("加载中......")
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 14))
                     }
+                    .frame(maxWidth: .infinity)
+                    Spacer()
                 }
-            ) {
-                if viewModel.unpublishedStoryboards.isEmpty && !viewModel.isLoading {
-                    emptyStateView
-                } else {
-                    UnPublishedstoryBoardsListView
+            } else if viewModel.unpublishedStoryboards.isEmpty {
+                emptyStateView
+            } else {
+                UnPublishedstoryBoardsListView
+            }
+        }
+        .onAppear {
+            if !didLoad {
+                didLoad = true
+                Task {
+                    await viewModel.fetchUnpublishedStoryboards()
                 }
             }
         }
@@ -1209,49 +1224,21 @@ struct PendingTab: View {
     }
     
     private var UnPublishedstoryBoardsListView: some View {
-        ZStack{
-            LazyVStack(spacing: 0) {
-                ForEach(viewModel.unpublishedStoryboards) { board in
-                    VStack(spacing: 0) {
-                        UnpublishedStoryBoardCellView(
-                            board: board,
-                            userId: viewModel.userId,
-                            viewModel: viewModel
-                        )
-                        
-                        
-                        if board.id != viewModel.unpublishedStoryboards.last?.id {
-                            Divider()
-                                .background(Color.theme.divider)
-                        }
+        LazyVStack(spacing: 0) {
+            ForEach(viewModel.unpublishedStoryboards) { board in
+                VStack(spacing: 0) {
+                    UnpublishedStoryBoardCellView(
+                        board: board,
+                        userId: viewModel.userId,
+                        viewModel: viewModel
+                    )
+                    
+                    if board.id != viewModel.unpublishedStoryboards.last?.id {
+                        Divider()
+                            .background(Color.theme.divider)
                     }
                 }
             }
-                
-            if viewModel.isLoading {
-                VStack {
-                    Spacer()
-                    VStack(spacing: 12) {
-                        HStack {
-                            ActivityIndicatorView(isVisible: $viewModel.isLoading, type: .arcs())
-                                .frame(width: 64, height: 64)
-                                .foregroundColor(.red)
-                        }
-                        .frame(height: 50)
-                        Text("加载中......")
-                            .foregroundColor(.secondary)
-                            .font(.system(size: 14))
-                    }
-                    .frame(maxWidth: .infinity)
-                    Spacer()
-                }
-                
-            }
-        }
-        .onAppear {
-            Task {
-                    await viewModel.fetchUnpublishedStoryboards()
-                }
         }
     }
 }

@@ -1274,24 +1274,6 @@ private struct TrendingContentView: View {
                                                 }
                                             }
                                     }
-                                    if viewModel.isLoadingMoreTrending {
-                                        VStack {
-                                            Spacer()
-                                            VStack(spacing: 12) {
-                                                HStack {
-                                                    ActivityIndicatorView(isVisible: $viewModel.isLoadingMoreTrending, type: .arcs())
-                                                        .frame(width: 64, height: 64)
-                                                        .foregroundColor(.red)
-                                                }
-                                                .frame(height: 50)
-                                                Text("加载中......")
-                                                    .foregroundColor(.secondary)
-                                                    .font(.system(size: 14))
-                                            }
-                                            .frame(maxWidth: .infinity)
-                                            Spacer()
-                                        }
-                                    }
                                     if !viewModel.hasMoreTrendingStories && !viewModel.trendingStories.isEmpty {
                                         HStack {
                                             Spacer()
@@ -1366,24 +1348,6 @@ private struct TrendingContentView: View {
                                                 }
                                             }
                                     }
-                                    if viewModel.isLoadingMoreTrending {
-                                        VStack {
-                                            Spacer()
-                                            VStack(spacing: 12) {
-                                                HStack {
-                                                    ActivityIndicatorView(isVisible: $viewModel.isLoadingMoreTrending, type: .arcs())
-                                                        .frame(width: 64, height: 64)
-                                                        .foregroundColor(.red)
-                                                }
-                                                .frame(height: 50)
-                                                Text("加载中......")
-                                                    .foregroundColor(.secondary)
-                                                    .font(.system(size: 14))
-                                            }
-                                            .frame(maxWidth: .infinity)
-                                            Spacer()
-                                        }
-                                    }
                                     if !viewModel.hasMoreTrendingRoles && !viewModel.trendingRoles.isEmpty {
                                         HStack {
                                             Spacer()
@@ -1455,7 +1419,7 @@ private struct TrendingStoryCard: View {
                         
                         // 故事信息
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(story.storyInfo.name)
+                            Text(story.storyInfo.title)
                                 .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(Color.theme.primaryText)
                                 .lineLimit(1)
@@ -1491,7 +1455,7 @@ private struct TrendingStoryCard: View {
                     if story.storyInfo.currentUserStatus.isFollowed {
                         Button {
                             Task {
-                                await viewModel.unfollowStory(userId: viewModel.userId, storyId: story.storyInfo.id)
+                                _ = await viewModel.unfollowStory(userId: viewModel.userId, storyId: story.storyInfo.id)
                                 story.storyInfo.currentUserStatus.isFollowed = false
                             }
                         } label: {
@@ -1506,7 +1470,7 @@ private struct TrendingStoryCard: View {
                     } else {
                         Button {
                             Task {
-                                await viewModel.followStory(userId: viewModel.userId, storyId: story.storyInfo.id)
+                                _ = await viewModel.followStory(userId: viewModel.userId, storyId: story.storyInfo.id)
                                 story.storyInfo.currentUserStatus.isFollowed = true
                             }
                         } label: {
