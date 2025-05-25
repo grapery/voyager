@@ -204,7 +204,7 @@ struct StoryboardSummary: View {
             .padding(.horizontal, 16)
             
             
-            HStack(spacing: 8) {
+            HStack(spacing: 4) {
                 // 交互按钮
                 InteractionButtonsView(
                     storyboard: storyboard,
@@ -212,6 +212,19 @@ struct StoryboardSummary: View {
                     viewModel: viewModel
                 )
             }
+            .frame( alignment: .leading)
+            .padding(.horizontal, 16)
+            // 创建时间
+            HStack(spacing: 4) {
+                Spacer()
+                    .font(.system(size: 12))
+                    .foregroundColor(.theme.secondaryText)
+                Text(formatCtime(storyboard.storyboard.ctime))
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.theme.primaryText)
+                    .lineLimit(1)
+            }
+            .frame(alignment: .trailing)
             .padding(.horizontal, 16)
             
             Divider()
@@ -382,6 +395,13 @@ struct StoryboardSummary: View {
             Spacer()
         }
         .padding(.horizontal, 16)
+    }
+    
+    private func formatCtime(_ ctime: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(ctime))
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy年MM月dd日 HH:mm:ss"
+        return formatter.string(from: date)
     }
 }
 
