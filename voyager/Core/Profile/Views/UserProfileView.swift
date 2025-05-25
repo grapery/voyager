@@ -30,6 +30,7 @@ struct UserProfileView: View {
     @State private var backgroundUpdateToastMessage = ""
     @State private var isShowingStoryView = false
     @State private var selectedStoryId: Int64? = nil
+    @StateObject private var unpublishedViewModel: UnpublishedStoryViewModel
     
     // 判断是否是当前登录用户
     private var isCurrentUser: Bool {
@@ -39,6 +40,7 @@ struct UserProfileView: View {
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
         self.user = user
+        self._unpublishedViewModel = StateObject(wrappedValue: UnpublishedStoryViewModel(userId: user.userID))
     }
     
     var body: some View {
@@ -328,7 +330,7 @@ struct UserProfileView: View {
                     .frame(maxWidth: .infinity)
                 
                 if isCurrentUser {
-                    PendingTab(userId: viewModel.user?.userID ?? 0)
+                    PendingTab(viewModel: unpublishedViewModel)
                         .tag(2)
                         .id("pending")
                         .frame(maxWidth: .infinity)
@@ -1164,13 +1166,8 @@ private struct StoryboardsListView: View {
 }
 
 struct PendingTab: View {
-    @StateObject private var viewModel: UnpublishedStoryViewModel
+    @ObservedObject var viewModel: UnpublishedStoryViewModel
     @State private var isRefreshing = false
-    @State private var didLoad = false
-    
-    init(userId: Int64) {
-        _viewModel = StateObject(wrappedValue: UnpublishedStoryViewModel(userId: userId))
-    }
     
     var body: some View {
         ZStack {
@@ -1197,12 +1194,9 @@ struct PendingTab: View {
                 UnPublishedstoryBoardsListView
             }
         }
-        .onAppear {
-            if !didLoad {
-                didLoad = true
-                Task {
-                    await viewModel.fetchUnpublishedStoryboards()
-                }
+        .task {
+            if viewModel.unpublishedStoryboards.isEmpty && !viewModel.isLoading {
+                await viewModel.fetchUnpublishedStoryboards()
             }
         }
         .alert("加载失败", isPresented: $viewModel.hasError) {
@@ -1324,7 +1318,7 @@ struct UnpublishedStoryBoardCellView: View {
                 if !self.sceneMediaContents.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            ForEach(self.sceneMediaContents, id: \.id) { sceneContent in
+                            ForEach(self.sceneMediaContents, id: \ .id) { sceneContent in
                                 VStack(alignment: .leading, spacing: 4) {
                                     // 场景图片（取第一张）
                                     if let firstMedia = sceneContent.mediaItems.first {
@@ -1361,9 +1355,8 @@ struct UnpublishedStoryBoardCellView: View {
                     }
                 }
             }
+            .padding(.vertical, 16)
             .padding(.horizontal, 16)
-            .padding(.top, 4)
-            .padding(.bottom, 8)
 
             // 底部：按钮与时间下沿对齐
             HStack(alignment: .lastTextBaseline) {
@@ -1400,6 +1393,13 @@ struct UnpublishedStoryBoardCellView: View {
             .padding(.bottom, 12)
         }
         .background(Color.theme.secondaryBackground)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.theme.border, lineWidth: 0.5)
+        )
+        .padding(.vertical, 8)
+        .padding(.horizontal, 8)
         .overlay(errorToastOverlay)
         .fullScreenCover(isPresented: $showingEditView) {
             NavigationStack {

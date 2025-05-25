@@ -117,32 +117,70 @@ struct StoryboardSummary: View {
         storyboard: Common_StoryBoardActive,
         dismiss: DismissAction
     ) -> some View {
-        HStack(spacing: 12) {
-            Button(action: { dismiss() }) {
-                Image(systemName: "chevron.left")
-                    .foregroundColor(.primary)
-                    .imageScale(.large)
+        VStack{
+            HStack(spacing: 4) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.primary)
+                        .imageScale(.large)
+                }
+                Spacer()
+                // 故事板标题和内容
+                HStack(alignment: .center) {
+                    Text(storyboard.storyboard.title)
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundColor(.theme.primaryText)
+                }
+                .padding(.horizontal, 16)
+                
+                Spacer()
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
             
-            // 用户信息
-            HStack(spacing: 8) {
-                // 故事头像
-                KFImage(URL(string: convertImagetoSenceImage(url: storyboard.summary.storyAvatar, scene: .small)))
-                    .cacheMemoryOnly()
-                    .fade(duration: 0.25)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 32, height: 32)
-                    .clipShape(Circle())
-                Text(storyboard.summary.storyTitle)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.theme.primaryText)
+            // 新的故事信息和创建者信息区域
+            HStack(alignment: .center) {
+                // 故事图片+title（左对齐）
+                HStack(spacing: 8) {
+                    KFImage(URL(string: convertImagetoSenceImage(url: storyboard.summary.storyAvatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 32, height: 32)
+                        .clipShape(Circle())
+                    Text(String(storyboard.summary.storyTitle.prefix(5)))
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.theme.primaryText)
+                        .lineLimit(1)
+                }
+                // 左侧内容靠左
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // 创建者信息靠右
+                HStack(spacing: 4) {
+                    Label("创建者:", systemImage: "person.circle")
+                        .font(.system(size: 12))
+                        .foregroundColor(.theme.secondaryText)
+                    KFImage(URL(string: storyboard.creator.userAvatar))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 20, height: 20)
+                        .clipShape(Circle())
+                    Text(storyboard.creator.userName)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.theme.primaryText)
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            
-            Spacer()
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        
     }
     
     // MARK: - StoryboardSummaryDetailsView
@@ -153,14 +191,6 @@ struct StoryboardSummary: View {
         currentSceneIndex: Binding<Int>
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            // 故事板标题和内容
-            HStack{
-                Text(storyboard.storyboard.title)
-                    .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(.theme.primaryText)
-            }
-            .padding(.horizontal, 16)
-            
             Text(storyboard.storyboard.content)
                 .font(.system(size: 14))
                 .foregroundColor(.theme.secondaryText)
@@ -173,6 +203,7 @@ struct StoryboardSummary: View {
             )
             .padding(.horizontal, 16)
             
+            
             HStack(spacing: 8) {
                 // 交互按钮
                 InteractionButtonsView(
@@ -180,31 +211,6 @@ struct StoryboardSummary: View {
                     userId: userId,
                     viewModel: viewModel
                 )
-                
-                Spacer()
-                
-                // 创建者信息区域
-                HStack(alignment: .center, spacing: 8) {
-                    Label("创建者:", systemImage: "person.circle")
-                        .font(.system(size: 12))
-                        .foregroundColor(.theme.secondaryText)
-                    
-                    Button(action: { }) {
-                        HStack(spacing: 4) {
-                            KFImage(URL(string: storyboard.creator.userAvatar))
-                                .cacheMemoryOnly()
-                                .fade(duration: 0.25)
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 20, height: 20)
-                                .clipShape(Circle())
-                            Text("\(storyboard.creator.userName)")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.theme.primaryText)
-                                .lineLimit(1)
-                        }
-                    }
-                }
             }
             .padding(.horizontal, 16)
             
