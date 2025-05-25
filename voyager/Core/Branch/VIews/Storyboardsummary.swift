@@ -241,7 +241,7 @@ struct StoryboardSummary: View {
                 userId: userId,
                 totalCommentNum: Int(storyboard.totalCommentCount)
             )
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 16)
         }
         .padding(.top, 8)
     }
@@ -387,7 +387,7 @@ struct StoryboardSummary: View {
             
             // 分支按钮
             InteractionButton(
-                icon: "arrow.triangle.branch",
+                icon: "signpost.right.and.left",
                 count: Int(storyboard.totalForkCount),
                 isActive: false,
                 action: {

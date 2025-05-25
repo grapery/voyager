@@ -241,7 +241,7 @@ private struct FeedForkStoryBoardCard: View {
             HStack(spacing: 16) {
                 Label("\(board.boardActive.totalLikeCount)", systemImage: "heart")
                 Label("\(board.boardActive.totalCommentCount)", systemImage: "bubble.left")
-                Label("\(board.boardActive.totalForkCount)", systemImage: "arrow.triangle.branch")
+                Label("\(board.boardActive.totalForkCount)", systemImage: "signpost.right.and.left")
             }
             .font(.system(size: 12))
             .foregroundColor(Color.theme.tertiaryText)

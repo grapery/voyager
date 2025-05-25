@@ -144,7 +144,7 @@ struct StoryBoardView: View {
                             // TODO: 处理查看分支事件
                         }) {
                             HStack(spacing: 4) {
-                                Image(systemName: "arrow.triangle.branch")
+                                Image(systemName: "signpost.right.and.left")
                                     .foregroundColor(.theme.tertiaryText)
                                 Text("\(board?.boardActive.totalForkCount ?? 0)")
                                     .font(.system(size: 14))
