@@ -196,7 +196,7 @@ struct GroupItemContentView: View {
     var body: some View {
         ZStack(alignment: .trailing) {
             // 右侧梯形背景
-            if let bgUrl = URL(string: group.info.avatar), !group.info.avatar.isEmpty {
+            if let bgUrl = URL(string: group.info.profile.backgroudURL), !group.info.profile.backgroudURL.isEmpty {
                 KFImage(bgUrl)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
