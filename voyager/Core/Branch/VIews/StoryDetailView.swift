@@ -31,19 +31,17 @@ struct StoryDetailView: View {
             Color(.systemGray6).ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 10) {
+                VStack(spacing: 8) {
                     storyHeader
                     storyStats
                     Divider()
                     //storyDetails
                     aiGenerationDetails
                     Divider()
-                    sceneStyle
-                    Divider()
                     charactersList
                     participantsList
                 }
-                .padding()
+                .padding(.horizontal)
             }
         }
         .navigationTitle("故事详情")
@@ -190,7 +188,7 @@ struct StoryDetailView: View {
     
     private var aiGenerationDetails: some View {
         VStack(alignment: .leading, spacing: 8) {
-            VStack() {
+            VStack(spacing: 8) {
                 NavigationLink(destination: StorySettingDetailView(
                     title: "故事简介",
                     content: Binding(
@@ -202,7 +200,13 @@ struct StoryDetailView: View {
                         viewModel.saveStory()
                     }
                 )) {
-                    SettingRow(title: "故事简介", content: viewModel.story?.storyInfo.desc ?? "")
+                    SettingRow(title: "故事简介") {
+                        Text(viewModel.story?.storyInfo.desc ?? "")
+                            .font(.subheadline)
+                            .foregroundColor(Color.theme.secondaryText)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                    }
                 }
                 
                 NavigationLink(destination: StorySettingDetailView(
@@ -216,7 +220,13 @@ struct StoryDetailView: View {
                         viewModel.saveStory()
                     }
                 )) {
-                    SettingRow(title: "故事背景", content: viewModel.story?.storyInfo.params.background ?? "")
+                    SettingRow(title: "故事背景") {
+                        Text(viewModel.story?.storyInfo.params.background ?? "")
+                            .font(.subheadline)
+                            .foregroundColor(Color.theme.secondaryText)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                    }
                 }
                 
                 NavigationLink(destination: StorySettingDetailView(
@@ -230,7 +240,13 @@ struct StoryDetailView: View {
                         viewModel.saveStory()
                     }
                 )) {
-                    SettingRow(title: "正面提示词", content: viewModel.story?.storyInfo.params.negativePrompt ?? "")
+                    SettingRow(title: "正面提示词") {
+                        Text(viewModel.story?.storyInfo.params.negativePrompt ?? "")
+                            .font(.subheadline)
+                            .foregroundColor(Color.theme.secondaryText)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                    }
                 }
                 
                 NavigationLink(destination: StorySettingDetailView(
@@ -244,40 +260,31 @@ struct StoryDetailView: View {
                         viewModel.saveStory()
                     }
                 )) {
-                    SettingRow(title: "负面提示词", content: viewModel.story?.storyInfo.params.negativePrompt ?? "")
+                    SettingRow(title: "负面提示词") {
+                        Text(viewModel.story?.storyInfo.params.negativePrompt ?? "")
+                            .font(.subheadline)
+                            .foregroundColor(Color.theme.secondaryText)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                    }
                 }
-                
-                
+                // 用新版 SettingRow 组件实现"故事风格"和"场景数量"
+                SettingRow(title: "故事风格") {
+                    StylePicker(selectedStyle: Binding(
+                        get: { viewModel.story?.storyInfo.params.style ?? "写实风格" },
+                        set: { viewModel.story?.storyInfo.params.style = $0 }
+                    ))
+                }
+                SettingRow(title: "场景数量") {
+                    SceneStepper(count: Binding(
+                        get: { Int(viewModel.sceneCount) },
+                        set: { viewModel.sceneCount = Int(Int32($0)) }
+                    ))
+                }
             }
             .background(Color(.systemBackground))
             .cornerRadius(8)
         }
-    }
-    
-    private var  sceneStyle: some View{
-        VStack(alignment: .leading, spacing: 8){
-            HStack() {
-                Text("故事风格")
-                    .font(.headline)
-                    .frame(width: 72, alignment: .leading)
-                StylePicker(selectedStyle: Binding(
-                    get: { viewModel.story?.storyInfo.params.style ?? "写实风格" },
-                    set: { viewModel.story?.storyInfo.params.style = $0 }
-                ))
-            }
-            Spacer()
-            HStack() {
-                Text("场景数量")
-                    .font(.headline)
-                    .frame(width: 72, alignment: .leading)
-                SceneStepper(count: Binding(
-                    get: { Int(viewModel.story?.storyInfo.params.sceneCount ?? 1) },
-                    set: { viewModel.story?.storyInfo.params.sceneCount = Int32($0) }
-                ))
-            }
-        }
-        .background(Color(.systemBackground))
-        .cornerRadius(8)
     }
     
     private var charactersList: some View {
@@ -665,21 +672,21 @@ struct StorySettingDetailView: View {
     }
 }
 
-struct SettingRow: View {
+struct SettingRow<Content: View>: View {
     let title: String
-    let content: String
-    
+    let content: Content
+
+    init(title: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.headline)
                 .foregroundColor(Color.theme.primaryText)
-            
-            Text(content)
-                .font(.subheadline)
-                .foregroundColor(Color.theme.secondaryText)
-                .lineLimit(2)
-                .multilineTextAlignment(.leading)
+            content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -736,36 +743,70 @@ struct SceneStepper: View {
     @State private var lastTapped: String? = nil // "up" or "down"
 
     var body: some View {
-        HStack(spacing: 8) {
-            Text("\(count) 个场景")
-                .font(.system(size: 16, weight: .medium))
-                .frame(width: 90, alignment: .leading)
-            Button(action: {
-                if count < maxValue {
-                    count += 1
-                    lastTapped = "up"
-                }
-            }) {
-                Image(systemName: "triangle.fill")
-                    .rotationEffect(.degrees(0))
-                    .foregroundColor(lastTapped == "up" ? .green : .gray)
-                    .font(.system(size: 22, weight: .bold))
-            }
-            .buttonStyle(PlainButtonStyle())
+        HStack(spacing: 0) {
+            // 左按钮（减少）
             Button(action: {
                 if count > minValue {
                     count -= 1
                     lastTapped = "down"
                 }
             }) {
-                Image(systemName: "triangle.fill")
-                    .rotationEffect(.degrees(180))
-                    .foregroundColor(lastTapped == "down" ? .green : .gray)
-                    .font(.system(size: 22, weight: .bold))
+                ZStack {
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(count > minValue ? Color.purple.opacity(0.08) : Color.white)
+                    Image(systemName: "triangle.fill")
+                        .rotationEffect(.degrees(180))
+                        .foregroundColor(lastTapped == "down" ? .purple : .gray)
+                        .font(.system(size: 18, weight: .bold))
+                }
+                .frame(width: 56, height: 40)
+            }
+            .buttonStyle(PlainButtonStyle())
+
+            // 中间文本
+            Text("\(count) 个场景")
+                .font(.system(size: 16, weight: .medium))
+                .frame(minWidth: 60, maxWidth: .infinity, minHeight: 40, maxHeight: 40)
+                .background(Color.white)
+                .animation(.default, value: count)
+                .overlay(
+                    Rectangle()
+                        .frame(width: 1)
+                        .foregroundColor(Color.gray.opacity(0.2)),
+                    alignment: .leading
+                )
+                .overlay(
+                    Rectangle()
+                        .frame(width: 1)
+                        .foregroundColor(Color.gray.opacity(0.2)),
+                    alignment: .trailing
+                )
+
+            // 右按钮（增加）
+            Button(action: {
+                if count < maxValue {
+                    count += 1
+                    lastTapped = "up"
+                }
+            }) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(count < maxValue ? Color.purple.opacity(0.08) : Color.white)
+                    Image(systemName: "triangle.fill")
+                        .rotationEffect(.degrees(0))
+                        .foregroundColor(lastTapped == "up" ? .purple : .gray)
+                        .font(.system(size: 18, weight: .bold))
+                }
+                .frame(width: 56, height: 40)
             }
             .buttonStyle(PlainButtonStyle())
         }
-        .frame(height: 36)
+        .clipShape(Capsule())
+        .overlay(
+            Capsule()
+                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+        )
+        .frame(height: 40)
     }
 }
 

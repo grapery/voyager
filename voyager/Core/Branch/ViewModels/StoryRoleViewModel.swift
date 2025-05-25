@@ -263,6 +263,7 @@ class StoryDetailViewModel: ObservableObject {
     public let userId: Int64
     @Published var characters: [StoryRole]? = []
     @Published var participants: [User] = []
+    @Published var sceneCount : Int = 4
     var likes: Int = 0
     var followers: Int = 0
     var members: Int = 0
@@ -275,6 +276,7 @@ class StoryDetailViewModel: ObservableObject {
         self.story = story
         self.storyId = storyId
         self.userId = userId
+        self.sceneCount = Int((story?.storyInfo.params.sceneCount)!)
         
         self.characters = [StoryRole]()
         self.participants = [User]()
@@ -296,6 +298,15 @@ class StoryDetailViewModel: ObservableObject {
     
     func saveStory() {
         // TODO: Implement API call to save story changes
+    }
+    
+    func saveSceneCount() async -> Error? {
+//        let err = await APIClient.shared.updateSceneCount(userId: self.userId, storyId: self.storyId, sceneCount: self.sceneCount)
+//        if err != nil {
+//            print("saveSceneCount failed: ", err!)
+//            return err
+//        }
+        return nil
     }
     
     func uploadImage(_ image: UIImage) async throws -> String {
