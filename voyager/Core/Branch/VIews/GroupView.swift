@@ -148,19 +148,17 @@ struct GroupViewListItemView: View {
     @State private var showingStoryInfo = false
     
     var body: some View {
-        Button(action: {
-            showGroupDetail = true
-        }) {
-            VStack(spacing: 0) {
-                GroupItemContentView(group: group, viewModel: viewModel, showingStoryInfo: $showingStoryInfo)
-                
-                if group.id != viewModel.groups.last?.id {
-                    Divider()
-                        .background(Color.gray)
-                }
+        VStack(spacing: 0) {
+            // 始终渲染 GroupItemContentView
+            GroupItemContentView(group: group, viewModel: viewModel, showingStoryInfo: $showingStoryInfo)
+            if group.id != viewModel.groups.last?.id {
+                Divider().background(Color.gray)
             }
         }
-        .buttonStyle(PlainButtonStyle())
+        .contentShape(Rectangle())
+        .onTapGesture {
+            showGroupDetail = true
+        }
         .fullScreenCover(isPresented: $showGroupDetail) {
             NavigationStack {
                 GroupDetailView(user: viewModel.user, group: group)
@@ -196,25 +194,81 @@ struct GroupItemContentView: View {
     @Binding var showingStoryInfo: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            GroupHeaderInfoView(group: group)
-            
-            if !group.info.desc.isEmpty {
-                Text(group.info.desc)
-                    .font(.system(size: 14))
-                    .foregroundColor(Color.theme.secondaryText)
-                    .lineLimit(2)
+        ZStack(alignment: .trailing) {
+            // 右侧梯形背景
+            if let bgUrl = URL(string: group.info.avatar), !group.info.avatar.isEmpty {
+                KFImage(bgUrl)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 90)
+                    .clipShape(TrapezoidShape())
+                    .opacity(0.18)
+                    .allowsHitTesting(false)
+            } else {
+                // 没有图片时用多个三角形拼梯形
+                TrapezoidTriangles()
+                    .frame(width: 90)
+                    .opacity(0.18)
+                    .allowsHitTesting(false)
             }
-            
-            GroupInteractionButtonsView(
-                group: group,
-                viewModel: viewModel,
-                showingStoryInfo: $showingStoryInfo
-            )
+            // 主体内容
+            VStack(alignment: .leading, spacing: 12) {
+                GroupHeaderInfoView(group: group)
+                if !group.info.desc.isEmpty {
+                    Text(group.info.desc)
+                        .font(.system(size: 14))
+                        .foregroundColor(Color.theme.secondaryText)
+                        .lineLimit(2)
+                }
+                GroupInteractionButtonsView(
+                    group: group,
+                    viewModel: viewModel,
+                    showingStoryInfo: $showingStoryInfo
+                )
+            }
+            .padding(.vertical, 16)
+            .padding(.horizontal, 16)
+            .background(Color.theme.secondaryBackground)
         }
-        .padding(.vertical, 16)
-        .padding(.horizontal, 16)
-        .background(Color.theme.secondaryBackground)
+    }
+}
+
+// 梯形裁切 shape
+struct TrapezoidShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let topInset: CGFloat = rect.width * 0.18
+        path.move(to: CGPoint(x: topInset, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.closeSubpath()
+        return path
+    }
+}
+
+// 没有图片时用多个三角形拼梯形
+struct TrapezoidTriangles: View {
+    var body: some View {
+        GeometryReader { geo in
+            let w = geo.size.width
+            let h = geo.size.height
+            ZStack {
+                ForEach(0..<5) { i in
+                    let topInset = CGFloat(i) * w * 0.04 + w * 0.18
+                    let y0 = CGFloat(i) * h / 5
+                    let y1 = CGFloat(i+1) * h / 5
+                    Path { path in
+                        path.move(to: CGPoint(x: topInset, y: y0))
+                        path.addLine(to: CGPoint(x: w, y: y0))
+                        path.addLine(to: CGPoint(x: w, y: y1))
+                        path.addLine(to: CGPoint(x: topInset + w*0.04, y: y1))
+                        path.closeSubpath()
+                    }
+                    .fill(Color.yellow.opacity(0.18))
+                }
+            }
+        }
     }
 }
 
