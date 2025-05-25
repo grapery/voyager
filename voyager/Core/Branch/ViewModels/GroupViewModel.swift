@@ -58,7 +58,11 @@ class GroupViewModel: ObservableObject {
         )
         print("fetchMoreGroups: \(fetchedGroups.count), page: \(nextPage)")
         if !fetchedGroups.isEmpty {
-            self.groups.append(contentsOf: fetchedGroups)
+            // 只追加未出现过的 group
+            let newGroups = fetchedGroups.filter { new in
+                !self.groups.contains(where: { $0.info.groupID == new.info.groupID })
+            }
+            self.groups.append(contentsOf: newGroups)
             self.hasMorePages = fetchedGroups.count == self.groupPageSize
             self.groupPage = nextPage // 只在成功时自增
             print("fetchMoreGroups page: \(self.groupPage)")
