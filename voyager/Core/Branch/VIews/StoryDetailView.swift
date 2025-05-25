@@ -38,6 +38,8 @@ struct StoryDetailView: View {
                     //storyDetails
                     aiGenerationDetails
                     Divider()
+                    sceneStyle
+                    Divider()
                     charactersList
                     participantsList
                 }
@@ -187,12 +189,8 @@ struct StoryDetailView: View {
     }
     
     private var aiGenerationDetails: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            Text("故事设置")
-                .font(.headline)
-                .padding(.top)
-            
-            VStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
+            VStack() {
                 NavigationLink(destination: StorySettingDetailView(
                     title: "故事简介",
                     content: Binding(
@@ -249,61 +247,37 @@ struct StoryDetailView: View {
                     SettingRow(title: "负面提示词", content: viewModel.story?.storyInfo.params.negativePrompt ?? "")
                 }
                 
-                // 故事风格选择
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("故事风格")
-                        .font(.headline)
-                    if isEditing {
-                        Picker("选择风格", selection: Binding(
-                            get: { viewModel.story?.storyInfo.params.style ?? "写实风格" },
-                            set: { viewModel.story?.storyInfo.params.style = $0 }
-                        )) {
-                            Text("写实风格").tag("写实风格")
-                            Text("动漫风格").tag("动漫风格")
-                            Text("油画风格").tag("油画风格")
-                            Text("水彩风格").tag("水彩风格")
-                            Text("素描风格").tag("素描风格")
-                        }
-                        .pickerStyle(MenuPickerStyle())
-                        .padding(14)
-                        .background(Color(.systemGray5))
-                        .cornerRadius(14)
-                    } else {
-                        Text(viewModel.story?.storyInfo.params.style ?? "写实风格")
-                            .padding(14)
-                            .background(Color(.systemGray5))
-                            .cornerRadius(14)
-                    }
-                }
                 
-                // 场景数量设置
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("场景数量")
-                        .font(.headline)
-                    if isEditing {
-                        Picker("选择场景数量", selection: Binding(
-                            get: { viewModel.story?.storyInfo.params.sceneCount ?? 1 },
-                            set: { viewModel.story?.storyInfo.params.sceneCount = $0 }
-                        )) {
-                            ForEach(1...8, id: \.self) { count in
-                                Text("\(count)个场景").tag(count)
-                            }
-                        }
-                        .pickerStyle(MenuPickerStyle())
-                        .padding(14)
-                        .background(Color(.systemGray5))
-                        .cornerRadius(14)
-                    } else {
-                        Text("\(viewModel.story?.storyInfo.params.sceneCount ?? 1)个场景")
-                            .padding(14)
-                            .background(Color(.systemGray5))
-                            .cornerRadius(14)
-                    }
-                }
             }
             .background(Color(.systemBackground))
-            .cornerRadius(12)
+            .cornerRadius(8)
         }
+    }
+    
+    private var  sceneStyle: some View{
+        VStack(alignment: .leading, spacing: 8){
+            HStack() {
+                Text("故事风格")
+                    .font(.headline)
+                    .frame(width: 72, alignment: .leading)
+                StylePicker(selectedStyle: Binding(
+                    get: { viewModel.story?.storyInfo.params.style ?? "写实风格" },
+                    set: { viewModel.story?.storyInfo.params.style = $0 }
+                ))
+            }
+            Spacer()
+            HStack() {
+                Text("场景数量")
+                    .font(.headline)
+                    .frame(width: 72, alignment: .leading)
+                SceneStepper(count: Binding(
+                    get: { Int(viewModel.story?.storyInfo.params.sceneCount ?? 1) },
+                    set: { viewModel.story?.storyInfo.params.sceneCount = Int32($0) }
+                ))
+            }
+        }
+        .background(Color(.systemBackground))
+        .cornerRadius(8)
     }
     
     private var charactersList: some View {
@@ -381,12 +355,12 @@ struct StoryDetailView: View {
     private var participantsList: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("参与故事创建")
+                Text("参与创作")
                     .font(.headline)
                     .foregroundColor(Color.theme.primaryText)
                 Spacer()
                 NavigationLink(destination: AllParticipantsView(viewModel: viewModel)) {
-                    Text("查看\(viewModel.participants.count)名群成员 >")
+                    Text("\(viewModel.participants.count)小组成员 >")
                         .font(.subheadline)
                         .foregroundColor(Color.theme.tertiaryText)
                 }
@@ -711,6 +685,87 @@ struct SettingRow: View {
         .padding()
         .background(Color.theme.secondaryBackground)
         .cornerRadius(8)
+    }
+}
+
+// ====== 新增自定义控件 ======
+struct StylePicker: View {
+    @Binding var selectedStyle: String
+    let styles = ["写实风格", "动漫风格", "油画风格", "水彩风格", "素描风格"]
+
+    var body: some View {
+        Menu {
+            ForEach(styles, id: \.self) { style in
+                Button {
+                    selectedStyle = style
+                } label: {
+                    HStack {
+                        if selectedStyle == style {
+                            Image(systemName: "checkmark")
+                                .foregroundColor(.green)
+                        }
+                        Text(style)
+                    }
+                }
+            }
+        } label: {
+            HStack {
+                Text(selectedStyle)
+                    .foregroundColor(.primary)
+                Spacer()
+                Image(systemName: "chevron.down")
+                    .foregroundColor(.gray)
+            }
+            .padding(.horizontal, 12)
+            .frame(height: 36)
+            .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color(.systemGray4), lineWidth: 1)
+            )
+            .frame(width: 160, alignment: .leading)
+        }
+        .frame(width: 160, alignment: .leading)
+    }
+}
+
+struct SceneStepper: View {
+    @Binding var count: Int
+    let minValue: Int = 1
+    let maxValue: Int = 8
+    @State private var lastTapped: String? = nil // "up" or "down"
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Text("\(count) 个场景")
+                .font(.system(size: 16, weight: .medium))
+                .frame(width: 90, alignment: .leading)
+            Button(action: {
+                if count < maxValue {
+                    count += 1
+                    lastTapped = "up"
+                }
+            }) {
+                Image(systemName: "triangle.fill")
+                    .rotationEffect(.degrees(0))
+                    .foregroundColor(lastTapped == "up" ? .green : .gray)
+                    .font(.system(size: 22, weight: .bold))
+            }
+            .buttonStyle(PlainButtonStyle())
+            Button(action: {
+                if count > minValue {
+                    count -= 1
+                    lastTapped = "down"
+                }
+            }) {
+                Image(systemName: "triangle.fill")
+                    .rotationEffect(.degrees(180))
+                    .foregroundColor(lastTapped == "down" ? .green : .gray)
+                    .font(.system(size: 22, weight: .bold))
+            }
+            .buttonStyle(PlainButtonStyle())
+        }
+        .frame(height: 36)
     }
 }
 

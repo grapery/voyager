@@ -98,49 +98,75 @@ struct MessageView: View {
     private func MessageList() -> some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-                ForEach(viewModel.msgCtxs, id: \.id) { msgCtx in
-                    VStack(spacing: 0) {
-                        MessageContextCellView(
-                            msgCtxId: msgCtx.chatinfo.chatID,
-                            user: msgCtx.chatinfo.user,
-                            userId: user.userID,
-                            role: StoryRole(Id: msgCtx.chatinfo.role.roleID, role: msgCtx.chatinfo.role),
-                            lastMessage: msgCtx.chatinfo.lastMessage,
-                            onDelete: { id in
-                                messageToDelete = id
-                                showingDeleteAlert = true
+                if viewModel.msgCtxs.isEmpty && !viewModel.isLoading {
+                    // 空状态
+                    VStack {
+                        Spacer()
+                        Text("没有聊天会话")
+                            .foregroundColor(.gray)
+                            .padding()
+                        Spacer()
+                    }
+                } else {
+                    ForEach(viewModel.msgCtxs, id: \.id) { msgCtx in
+                        VStack(spacing: 0) {
+                            MessageContextCellView(
+                                msgCtxId: msgCtx.chatinfo.chatID,
+                                user: msgCtx.chatinfo.user,
+                                userId: user.userID,
+                                role: StoryRole(Id: msgCtx.chatinfo.role.roleID, role: msgCtx.chatinfo.role),
+                                lastMessage: msgCtx.chatinfo.lastMessage,
+                                onDelete: { id in
+                                    messageToDelete = id
+                                    showingDeleteAlert = true
+                                }
+                            )
+                            if msgCtx.id != viewModel.msgCtxs.last?.id {
+                                Divider().background(Color.theme.divider)
                             }
-                        )
-                        if msgCtx.id != viewModel.msgCtxs.last?.id {
-                            Divider().background(Color.theme.divider)
+                        }
+                        .onAppear {
+                            // 上拉加载更多
+                            if msgCtx.id == viewModel.msgCtxs.last?.id && viewModel.hasMorePages && !viewModel.isLoading {
+                                Task {
+                                    await viewModel.fetchMoreChatContexts()
+                                }
+                            }
                         }
                     }
-                }
-                VStack {
-                    Spacer()
-                    VStack(spacing: 12) {
-                        HStack {
-                            ActivityIndicatorView(isVisible: $viewModel.isLoading, type: .arcs())
-                                .frame(width: 64, height: 64)
-                                .foregroundColor(.red)
+                    if viewModel.isLoading {
+                        // 加载中
+                        VStack {
+                            Spacer()
+                            VStack(spacing: 12) {
+                                HStack {
+                                    ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                                        .frame(width: 32, height: 32)
+                                        .foregroundColor(.red)
+                                }
+                                .frame(height: 32)
+                                Text("加载中……")
+                                    .foregroundColor(.secondary)
+                                    .font(.system(size: 14))
+                            }
+                            .frame(maxWidth: .infinity)
+                            Spacer()
                         }
-                                .frame(height: 50)
-                        Text("加载中......")
-                            .foregroundColor(.secondary)
-                            .font(.system(size: 14))
+                    } else if !viewModel.hasMorePages && !viewModel.msgCtxs.isEmpty {
+                        // 没有更多
+                        Text("没有更多聊天会话了")
+                            .foregroundColor(.gray)
+                            .padding()
+                            .font(.system(size: 12))
                     }
-                    .frame(maxWidth: .infinity)
-                    Spacer()
-                }
-                if !viewModel.hasMorePages && !viewModel.msgCtxs.isEmpty {
-                    Text("没有更多聊天会话了")
-                        .foregroundColor(.gray)
-                        .padding()
-                        .font(.system(size: 12))
                 }
             }
         }
         .background(Color.theme.background)
+        .refreshable {
+            // 下拉刷新
+            await viewModel.fetchInitialChatContexts()
+        }
     }
 }
 

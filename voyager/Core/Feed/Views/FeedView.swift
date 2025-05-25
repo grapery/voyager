@@ -1176,6 +1176,7 @@ private struct TrendingContentView: View {
     @State private var errorMessage: String = ""
     @State private var showError: Bool = false
     @State private var isRefreshing = false
+    @State private var didAppear = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -1191,14 +1192,11 @@ private struct TrendingContentView: View {
                             .font(.system(size: 16))
                             .foregroundColor(selectedTab == 0 ? Color.theme.primaryText : Color.theme.tertiaryText)
                             .fontWeight(selectedTab == 0 ? .semibold : .regular)
-                        
-                        // 下划线指示器
                         Rectangle()
                             .frame(height: 2)
                             .foregroundColor(selectedTab == 0 ? Color.theme.accent : Color.clear)
                     }
                 }
-                
                 Button(action: { 
                     withAnimation {
                         selectedTab = 1
@@ -1209,8 +1207,6 @@ private struct TrendingContentView: View {
                             .font(.system(size: 16))
                             .foregroundColor(selectedTab == 1 ? Color.theme.primaryText : Color.theme.tertiaryText)
                             .fontWeight(selectedTab == 1 ? .semibold : .regular)
-                        
-                        // 下划线指示器
                         Rectangle()
                             .frame(height: 2)
                             .foregroundColor(selectedTab == 1 ? Color.theme.accent : Color.clear)
@@ -1219,7 +1215,6 @@ private struct TrendingContentView: View {
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
-            
             // 内容区域
             TabView(selection: $selectedTab) {
                 // 热门故事
@@ -1229,22 +1224,22 @@ private struct TrendingContentView: View {
                         onRefresh: {
                             Task {
                                 await viewModel.loadTrendingStories()
-                                try? await Task.sleep(nanoseconds: 500_000_000) // 添加轻微延迟以显示刷新效果
+                                try? await Task.sleep(nanoseconds: 500_000_000)
                                 isRefreshing = false
                             }
                         }
                     ) {
                         VStack(alignment: .leading, spacing: 0) {
-                            if isRefreshing {
+                            if isRefreshing || viewModel.isLoadingTrending {
                                 VStack {
                                     Spacer()
                                     VStack(spacing: 12) {
                                         HStack {
-                                            ActivityIndicatorView(isVisible: $isRefreshing, type: .arcs())
+                                            ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
                                                 .frame(width: 64, height: 64)
                                                 .foregroundColor(.red)
                                         }
-                                                .frame(height: 50)
+                                        .frame(height: 50)
                                         Text("加载中......")
                                             .foregroundColor(.secondary)
                                             .font(.system(size: 14))
@@ -1252,26 +1247,7 @@ private struct TrendingContentView: View {
                                     .frame(maxWidth: .infinity)
                                     Spacer()
                                 }
-                            }
-                            
-                            if viewModel.isLoadingTrending && !isRefreshing {
-                                VStack {
-                                    Spacer()
-                                    VStack(spacing: 12) {
-                                        HStack {
-                                            ActivityIndicatorView(isVisible: $viewModel.isLoadingTrending, type: .arcs())
-                                                .frame(width: 64, height: 64)
-                                                .foregroundColor(.red)
-                                        }
-                                                .frame(height: 50)
-                                        Text("加载中......")
-                                            .foregroundColor(.secondary)
-                                            .font(.system(size: 14))
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    Spacer()
-                                }
-                            } else if viewModel.trendingStories.isEmpty && !viewModel.isLoadingTrending {
+                            } else if viewModel.trendingStories.isEmpty {
                                 VStack {
                                     Text("暂无热门故事")
                                         .font(.system(size: 16))
@@ -1285,9 +1261,9 @@ private struct TrendingContentView: View {
                                     .padding()
                                 }
                                 .frame(maxWidth: .infinity)
-                            } else if !viewModel.trendingStories.isEmpty {
+                            } else {
                                 LazyVStack(alignment: .leading, spacing: 8) {
-                                    ForEach(viewModel.trendingStories, id: \.Id) { story in
+                                    ForEach(viewModel.trendingStories, id: \ .Id) { story in
                                         TrendingStoryCard(story: story, viewModel: viewModel)
                                             .padding(.horizontal)
                                             .onAppear {
@@ -1298,17 +1274,16 @@ private struct TrendingContentView: View {
                                                 }
                                             }
                                     }
-                                    
                                     if viewModel.isLoadingMoreTrending {
                                         VStack {
                                             Spacer()
                                             VStack(spacing: 12) {
                                                 HStack {
-                                                    ActivityIndicatorView(isVisible: $viewModel.isLoadingTrending, type: .arcs())
+                                                    ActivityIndicatorView(isVisible: $viewModel.isLoadingMoreTrending, type: .arcs())
                                                         .frame(width: 64, height: 64)
                                                         .foregroundColor(.red)
                                                 }
-                                                        .frame(height: 50)
+                                                .frame(height: 50)
                                                 Text("加载中......")
                                                     .foregroundColor(.secondary)
                                                     .font(.system(size: 14))
@@ -1317,7 +1292,6 @@ private struct TrendingContentView: View {
                                             Spacer()
                                         }
                                     }
-                                    
                                     if !viewModel.hasMoreTrendingStories && !viewModel.trendingStories.isEmpty {
                                         HStack {
                                             Spacer()
@@ -1335,7 +1309,6 @@ private struct TrendingContentView: View {
                     }
                 }
                 .tag(0)
-                
                 // 热门角色
                 ScrollView {
                     RefreshableScrollView(
@@ -1343,22 +1316,22 @@ private struct TrendingContentView: View {
                         onRefresh: {
                             Task {
                                 await viewModel.loadTrendingRoles()
-                                try? await Task.sleep(nanoseconds: 500_000_000) // 添加轻微延迟以显示刷新效果
+                                try? await Task.sleep(nanoseconds: 500_000_000)
                                 isRefreshing = false
                             }
                         }
                     ) {
                         VStack(alignment: .leading, spacing: 0) {
-                            if isRefreshing {
+                            if isRefreshing || viewModel.isLoadingTrending {
                                 VStack {
                                     Spacer()
                                     VStack(spacing: 12) {
                                         HStack {
-                                            ActivityIndicatorView(isVisible: $viewModel.isRefreshing, type: .arcs())
+                                            ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
                                                 .frame(width: 64, height: 64)
                                                 .foregroundColor(.red)
                                         }
-                                                .frame(height: 50)
+                                        .frame(height: 50)
                                         Text("加载中......")
                                             .foregroundColor(.secondary)
                                             .font(.system(size: 14))
@@ -1366,26 +1339,7 @@ private struct TrendingContentView: View {
                                     .frame(maxWidth: .infinity)
                                     Spacer()
                                 }
-                            }
-                            
-                            if viewModel.isLoadingTrending && !isRefreshing {
-                                VStack {
-                                    Spacer()
-                                    VStack(spacing: 12) {
-                                        HStack {
-                                            ActivityIndicatorView(isVisible: $viewModel.isLoadingTrending, type: .arcs())
-                                                .frame(width: 64, height: 64)
-                                                .foregroundColor(.red)
-                                        }
-                                                .frame(height: 50)
-                                        Text("加载中......")
-                                            .foregroundColor(.secondary)
-                                            .font(.system(size: 14))
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    Spacer()
-                                }
-                            } else if viewModel.trendingRoles.isEmpty && !viewModel.isLoadingTrending {
+                            } else if viewModel.trendingRoles.isEmpty {
                                 VStack {
                                     Text("暂无热门角色")
                                         .font(.system(size: 16))
@@ -1399,9 +1353,9 @@ private struct TrendingContentView: View {
                                     .padding()
                                 }
                                 .frame(maxWidth: .infinity)
-                            } else if !viewModel.trendingRoles.isEmpty {
+                            } else {
                                 LazyVStack(alignment: .leading, spacing: 8) {
-                                    ForEach(viewModel.trendingRoles, id: \.Id) { role in
+                                    ForEach(viewModel.trendingRoles, id: \ .Id) { role in
                                         TrendingRoleCard(role: role, viewModel: viewModel)
                                             .padding(.horizontal)
                                             .onAppear {
@@ -1412,7 +1366,6 @@ private struct TrendingContentView: View {
                                                 }
                                             }
                                     }
-                                    
                                     if viewModel.isLoadingMoreTrending {
                                         VStack {
                                             Spacer()
@@ -1422,7 +1375,7 @@ private struct TrendingContentView: View {
                                                         .frame(width: 64, height: 64)
                                                         .foregroundColor(.red)
                                                 }
-                                                        .frame(height: 50)
+                                                .frame(height: 50)
                                                 Text("加载中......")
                                                     .foregroundColor(.secondary)
                                                     .font(.system(size: 14))
@@ -1431,7 +1384,6 @@ private struct TrendingContentView: View {
                                             Spacer()
                                         }
                                     }
-                                    
                                     if !viewModel.hasMoreTrendingRoles && !viewModel.trendingRoles.isEmpty {
                                         HStack {
                                             Spacer()
@@ -1454,12 +1406,15 @@ private struct TrendingContentView: View {
         }
         .background(Color.theme.background)
         .onAppear {
-            Task {
-                if viewModel.trendingStories.isEmpty {
-                    await viewModel.loadTrendingStories()
-                }
-                if viewModel.trendingRoles.isEmpty {
-                    await viewModel.loadTrendingRoles()
+            if !didAppear {
+                didAppear = true
+                Task {
+                    if viewModel.trendingStories.isEmpty {
+                        await viewModel.loadTrendingStories()
+                    }
+                    if viewModel.trendingRoles.isEmpty {
+                        await viewModel.loadTrendingRoles()
+                    }
                 }
             }
         }
