@@ -137,48 +137,6 @@ struct StoryboardSummary: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
-            
-            // 新的故事信息和创建者信息区域
-            HStack(alignment: .center) {
-                // 故事图片+title（左对齐）
-                HStack(spacing: 8) {
-                    KFImage(URL(string: convertImagetoSenceImage(url: storyboard.summary.storyAvatar, scene: .small)))
-                        .cacheMemoryOnly()
-                        .fade(duration: 0.25)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 32, height: 32)
-                        .clipShape(Circle())
-                    Text(String(storyboard.summary.storyTitle.prefix(5)))
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.theme.primaryText)
-                        .lineLimit(1)
-                }
-                // 左侧内容靠左
-                .frame(maxWidth: .infinity, alignment: .leading)
-                
-                // 创建者信息靠右
-                HStack(spacing: 4) {
-                    Label("创建者:", systemImage: "person.circle")
-                        .font(.system(size: 12))
-                        .foregroundColor(.theme.secondaryText)
-                    KFImage(URL(string: storyboard.creator.userAvatar))
-                        .cacheMemoryOnly()
-                        .fade(duration: 0.25)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 20, height: 20)
-                        .clipShape(Circle())
-                    Text(storyboard.creator.userName)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.theme.primaryText)
-                        .lineLimit(1)
-                }
-                .frame(maxWidth: .infinity, alignment: .trailing)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
         }
         
     }
@@ -191,10 +149,14 @@ struct StoryboardSummary: View {
         currentSceneIndex: Binding<Int>
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(storyboard.storyboard.content)
-                .font(.system(size: 14))
-                .foregroundColor(.theme.secondaryText)
-                .padding(.horizontal, 16)
+            HStack{
+                Text(storyboard.storyboard.content)
+                    .font(.system(size: 14))
+                    .foregroundColor(.theme.secondaryText)
+                    .padding(.horizontal, 16)
+            }
+            .frame( alignment: .leading)
+            .padding(.horizontal, 8)
             
             // 场景列表
             ScenesListView(
@@ -203,7 +165,61 @@ struct StoryboardSummary: View {
             )
             .padding(.horizontal, 16)
             
-            
+            // 新的故事信息和创建者信息区域
+            HStack(alignment: .center) {
+                // 故事图片+title（左对齐）
+                HStack(spacing: 8) {
+                    KFImage(URL(string: convertImagetoSenceImage(url: storyboard.summary.storyAvatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 24, height: 24)
+                        .clipShape(Circle())
+                    Text(String(storyboard.summary.storyTitle.prefix(5)))
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.theme.primaryText)
+                        .lineLimit(1)
+                }
+                // 左侧内容靠左
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // 创建者信息靠右
+                VStack{
+                    HStack(spacing: 4) {
+                        Label("创建者:", systemImage: "person.circle")
+                            .font(.system(size: 8))
+                            .foregroundColor(.theme.secondaryText)
+                        KFImage(URL(string: storyboard.creator.userAvatar))
+                            .cacheMemoryOnly()
+                            .fade(duration: 0.25)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 8, height: 8)
+                            .clipShape(Circle())
+                        Text(storyboard.creator.userName)
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.theme.primaryText)
+                            .lineLimit(1)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    // 创建时间
+                    HStack(spacing: 4) {
+                        Spacer()
+                            .font(.system(size: 8))
+                            .foregroundColor(.theme.secondaryText)
+                        Text(formatCtime(storyboard.storyboard.ctime))
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.theme.primaryText)
+                            .lineLimit(1)
+                        }
+                        .frame(alignment: .trailing)
+                        .padding(.horizontal, 8)
+                    }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 16)
+           
             HStack(spacing: 4) {
                 // 交互按钮
                 InteractionButtonsView(
@@ -213,19 +229,7 @@ struct StoryboardSummary: View {
                 )
             }
             .frame( alignment: .leading)
-            .padding(.horizontal, 16)
-            // 创建时间
-            HStack(spacing: 4) {
-                Spacer()
-                    .font(.system(size: 12))
-                    .foregroundColor(.theme.secondaryText)
-                Text(formatCtime(storyboard.storyboard.ctime))
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.theme.primaryText)
-                    .lineLimit(1)
-            }
-            .frame(alignment: .trailing)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 4)
             
             Divider()
                 .padding(.vertical, 4)
@@ -237,9 +241,9 @@ struct StoryboardSummary: View {
                 userId: userId,
                 totalCommentNum: Int(storyboard.totalCommentCount)
             )
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 8)
         }
-        .padding(.top, 12)
+        .padding(.top, 8)
     }
     
     // MARK: - ScenesListView
