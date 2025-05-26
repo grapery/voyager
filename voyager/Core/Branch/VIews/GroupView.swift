@@ -195,24 +195,24 @@ struct GroupItemContentView: View {
     
     var body: some View {
         ZStack(alignment: .trailing) {
-            // 右侧梯形背景
+            // 右侧梯形背景（调试用头像字段）
             if let bgUrl = URL(string: group.info.profile.backgroudURL), !group.info.profile.backgroudURL.isEmpty {
                 KFImage(bgUrl)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 90)
+                    .frame(width: 256)
                     .clipShape(TrapezoidShape())
-                    .opacity(0.18)
+                    .opacity(0.68)
                     .allowsHitTesting(false)
             } else {
                 // 没有图片时用多个三角形拼梯形
                 TrapezoidTriangles()
-                    .frame(width: 90)
-                    .opacity(0.18)
+                    .frame(width: 256)
+                    .opacity(0.68)
                     .allowsHitTesting(false)
             }
             // 主体内容
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
                 GroupHeaderInfoView(group: group)
                 if !group.info.desc.isEmpty {
                     Text(group.info.desc)
@@ -228,7 +228,7 @@ struct GroupItemContentView: View {
             }
             .padding(.vertical, 16)
             .padding(.horizontal, 16)
-            .background(Color.theme.secondaryBackground)
+            .background(Color.theme.secondaryBackground.opacity(0.36))
         }
     }
 }
@@ -249,26 +249,35 @@ struct TrapezoidShape: Shape {
 
 // 没有图片时用多个三角形拼梯形
 struct TrapezoidTriangles: View {
+    // 随机颜色生成器
+    private func randomColor(index: Int) -> Color {
+        let colors: [Color] = [
+            .yellow, .orange, .blue, .green, .purple, .pink, .red, .mint, .teal, .indigo
+        ]
+        return colors[index % colors.count].opacity(0.32)
+    }
     var body: some View {
         GeometryReader { geo in
             let w = geo.size.width
             let h = geo.size.height
+            let count = 10
             ZStack {
-                ForEach(0..<5) { i in
-                    let topInset = CGFloat(i) * w * 0.04 + w * 0.18
-                    let y0 = CGFloat(i) * h / 5
-                    let y1 = CGFloat(i+1) * h / 5
-                    Path { path in
-                        path.move(to: CGPoint(x: topInset, y: y0))
-                        path.addLine(to: CGPoint(x: w, y: y0))
-                        path.addLine(to: CGPoint(x: w, y: y1))
-                        path.addLine(to: CGPoint(x: topInset + w*0.04, y: y1))
-                        path.closeSubpath()
-                    }
-                    .fill(Color.yellow.opacity(0.18))
+                ForEach(0..<count, id: \ .self) { i in
+                    // 随机半径
+                    let radius = CGFloat.random(in: w*0.08...w*0.18)
+                    // 随机 y 坐标
+                    let y = CGFloat.random(in: 0...(h-radius))
+                    // 随机 x 坐标（保证在梯形区域内）
+                    let leftX = w * 0.18 + (y / h) * (w * 0.82)
+                    let x = CGFloat.random(in: leftX...(w-radius))
+                    Circle()
+                        .fill(randomColor(index: i))
+                        .frame(width: radius*2, height: radius*2)
+                        .position(x: x + radius, y: y + radius)
                 }
             }
         }
+        .clipShape(TrapezoidShape())
     }
 }
 
