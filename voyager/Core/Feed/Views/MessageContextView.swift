@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import ActivityIndicatorView
 
 struct MessageContextView: View {
     @ObservedObject var viewModel: MessageContextViewModel
@@ -337,7 +338,7 @@ struct MessageContextView: View {
                     Button(action: onSendMessage) {
                         Image(systemName: "paperplane.circle.fill")
                             .font(.system(size: 24))
-                            .foregroundColor(newMessageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color(.systemGray3) : Color(red: 0.56, green: 0.84, blue: 0.38)) // 浅绿色
+                            .foregroundColor(newMessageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color(.systemGray3) : Color(red: 0.56, green: 0.44, blue: 0.50)) // 浅绿色
                     }
                     .frame(width: 28, height: 28)
                     .disabled(newMessageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)

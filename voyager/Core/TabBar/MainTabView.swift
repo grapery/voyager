@@ -36,7 +36,7 @@ struct CustomTabBar: View {
         ZStack {
             Capsule()
                 .fill(Color(hex: "#D1C3F6"))
-                .frame(height: 52)
+                .frame(height: 50)
                 .shadow(color: .black.opacity(0.10), radius: 12, x: 0, y: 6)
             HStack(spacing: 0) {
                 ForEach(MainTab.allCases, id: \.self) { tab in
@@ -79,7 +79,7 @@ struct CustomTabBar: View {
             .padding(.horizontal, 4)
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 4)
+        .padding(.bottom, 0)
     }
 }
 
@@ -119,6 +119,7 @@ struct MainTabView: View {
             }
             .background(Color.clear)
             // CustomTabBar 紧贴底部，去除多余间距
+            Spacer()
             if showTabBar {
                 CustomTabBar(selected: $selectedTab)
                     .padding(.bottom, 0)

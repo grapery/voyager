@@ -8,6 +8,7 @@
 import SwiftUI
 import UIKit
 import PhotosUI
+import ActivityIndicatorView
 
 struct NewGroupView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -30,9 +31,10 @@ struct NewGroupView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.theme.background.ignoresSafeArea()
-                
+                RandomCirclesBackground()
+                    .ignoresSafeArea()
                 VStack(spacing: 24) {
+                    Spacer(minLength: 42)
                     // 头像选择区域
                     PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
                         if let avatar = avatar {
@@ -43,29 +45,43 @@ struct NewGroupView: View {
                                 .clipShape(Circle())
                                 .overlay(Circle().stroke(Color.theme.border, lineWidth: 1))
                         } else {
-                            Image(systemName: "infinity.circle")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 100, height: 100)
-                                .foregroundColor(Color.theme.accent)
+                            ZStack {
+                                RandomCirclesAvatar()
+                                    .frame(width: 100, height: 100)
+                                    .clipShape(Circle())
+                                Image(systemName: "infinity.circle")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 100)
+                                    .foregroundColor(Color.theme.accent)
+                            }
                         }
                     }
-                    .padding(.top, 32)
-                    
                     // 输入区域
-                    VStack(spacing: 16) {
-                        TextField("小组名称", text: $name)
-                            .textFieldStyle(CustomTextFieldStyle())
-                        
-                        TextField("小组描述", text: $description)
-                            .textFieldStyle(CustomTextFieldStyle())
+                    VStack(spacing: 8) {
+                        HStack(alignment: .center, spacing: 8) {
+                            Text("小组名称")
+                                .font(.system(size: 16))
+                                .foregroundColor(.primary)
+                                .frame(width: 72, alignment: .leading)
+                            TextField("请输入小组名称", text: $name)
+                                .foregroundColor(.white)
+                                .textFieldStyle(CustomTextFieldStyle())
+                        }
+                        HStack(alignment: .center, spacing: 8) {
+                            Text("小组描述")
+                                .font(.system(size: 16))
+                                .foregroundColor(.primary)
+                                .frame(width: 72, alignment: .leading)
+                            TextField("请输入小组描述", text: $description)
+                                .foregroundColor(.white)
+                                .textFieldStyle(CustomTextFieldStyle())
+                        }
                     }
                     .padding(.horizontal, 24)
-                    
                     Spacer()
-                    
                     // 按钮区域
-                    VStack(spacing: 16) {
+                    HStack(spacing: 16) {
                         Button(action: createGroup) {
                             if isLoading {
                                 ProgressView()
@@ -81,7 +97,6 @@ struct NewGroupView: View {
                         .background(Color.theme.accent)
                         .clipShape(RoundedRectangle(cornerRadius: 25))
                         .disabled(isLoading)
-                        
                         Button(action: { dismiss() }) {
                             Text("取消")
                                 .font(.headline)
@@ -136,27 +151,23 @@ struct NewGroupView: View {
             showAlert(message: "请输入小组名称")
             return
         }
-        
-        guard let avatar = avatar else {
-            showAlert(message: "请选择小组头像")
-            return
-        }
-        
         isLoading = true
-        
         Task {
+            var avatarImage: UIImage? = avatar
+            // 如果没有上传头像，自动生成一张随机圆图片
+            if avatarImage == nil {
+                avatarImage = RandomCirclesAvatar().snapshot()
+            }
             do {
                 let imageUrl = try await Task.detached {
-                    try AliyunClient.UploadImage(image: avatar)
+                    try AliyunClient.UploadImage(image: avatarImage!)
                 }.value
-                
                 let (result, err) = await viewModel.createGroup(
                     creatorId: viewModel.user.userID,
                     name: name,
                     description: description,
                     avatar: imageUrl
                 )
-                
                 await MainActor.run {
                     isLoading = false
                     if err == nil {
@@ -178,6 +189,72 @@ struct NewGroupView: View {
     private func showAlert(message: String) {
         alertMessage = message
         showAlert = true
+    }
+}
+
+// 随机圆背景
+struct RandomCirclesBackground: View {
+    var body: some View {
+        GeometryReader { geo in
+            let w = geo.size.width
+            let h = geo.size.height
+            let count = 18
+            ZStack {
+                ForEach(0..<count, id: \ .self) { i in
+                    let radius = CGFloat.random(in: w*0.08...w*0.18)
+                    let x = CGFloat.random(in: 0...(w-radius*2))
+                    let y = CGFloat.random(in: 0...(h-radius*2))
+                    Circle()
+                        .fill(RandomCirclesAvatar.randomColor(index: i))
+                        .frame(width: radius*2, height: radius*2)
+                        .position(x: x + radius, y: y + radius)
+                }
+            }
+        }
+    }
+}
+
+// 随机圆头像
+struct RandomCirclesAvatar: View {
+    static func randomColor(index: Int) -> Color {
+        let colors: [Color] = [
+            .yellow, .orange, .blue, .green, .purple, .pink, .red, .mint, .teal, .indigo
+        ]
+        return colors[index % colors.count].opacity(0.32)
+    }
+    var body: some View {
+        GeometryReader { geo in
+            let w = geo.size.width
+            let h = geo.size.height
+            let count = 6
+            ZStack {
+                ForEach(0..<count, id: \ .self) { i in
+                    let radius = CGFloat.random(in: w*0.18...w*0.38)
+                    let x = CGFloat.random(in: 0...(w-radius*2))
+                    let y = CGFloat.random(in: 0...(h-radius*2))
+                    Circle()
+                        .fill(Self.randomColor(index: i))
+                        .frame(width: radius*2, height: radius*2)
+                        .position(x: x + radius, y: y + radius)
+                }
+            }
+        }
+    }
+}
+
+// UIImage 快照扩展
+import UIKit
+extension View {
+    func snapshot() -> UIImage {
+        let controller = UIHostingController(rootView: self)
+        let view = controller.view
+        let targetSize = controller.view.intrinsicContentSize
+        view?.bounds = CGRect(origin: .zero, size: targetSize)
+        view?.backgroundColor = .clear
+        let renderer = UIGraphicsImageRenderer(size: targetSize)
+        return renderer.image { _ in
+            view?.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
+        }
     }
 }
 
