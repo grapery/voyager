@@ -1168,6 +1168,7 @@ private struct StoryboardsListView: View {
 struct PendingTab: View {
     @ObservedObject var viewModel: UnpublishedStoryViewModel
     @State private var isRefreshing = false
+    @State private var didLoad = false
     
     var body: some View {
         ZStack {
@@ -1194,9 +1195,12 @@ struct PendingTab: View {
                 UnPublishedstoryBoardsListView
             }
         }
-        .task {
-            if viewModel.unpublishedStoryboards.isEmpty && !viewModel.isLoading {
-                await viewModel.fetchUnpublishedStoryboards()
+        .onAppear {
+            if !didLoad {
+                didLoad = true
+                Task {
+                    await viewModel.fetchUnpublishedStoryboards()
+                }
             }
         }
         .alert("加载失败", isPresented: $viewModel.hasError) {
