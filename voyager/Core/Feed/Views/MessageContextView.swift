@@ -35,25 +35,32 @@ struct MessageContextView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            ChatNavigationBar(title: role?.role.characterName ?? "", onDismiss: { dismiss() }, onSetting: { showChatSetting = true })
+        ZStack {
+            // 背景视图
+            TrapezoidTriangles()
+                .opacity(0.42)
+                .ignoresSafeArea()
             
-            ChatMessageList(
-                messages: $viewModel.messages,
-                currentUserId: self.currentUserId,
-                currentRoleId: self.currentRoleId,
-                onLoadMore: loadMoreMessages
-            )
-            
-            ChatInputBar(
-                newMessageContent: $newMessageContent,
-                isInputFocused: $isInputFocused,
-                onSendMessage: {
-                    Task {
-                        await sendMessage()
+            VStack(spacing: 0) {
+                ChatNavigationBar(title: role?.role.characterName ?? "", onDismiss: { dismiss() }, onSetting: { showChatSetting = true })
+                
+                ChatMessageList(
+                    messages: $viewModel.messages,
+                    currentUserId: self.currentUserId,
+                    currentRoleId: self.currentRoleId,
+                    onLoadMore: loadMoreMessages
+                )
+                
+                ChatInputBar(
+                    newMessageContent: $newMessageContent,
+                    isInputFocused: $isInputFocused,
+                    onSendMessage: {
+                        Task {
+                            await sendMessage()
+                        }
                     }
-                }
-            )
+                )
+            }
         }
         .navigationBarHidden(true)
         .ignoresSafeArea(.keyboard)

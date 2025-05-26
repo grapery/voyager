@@ -148,10 +148,10 @@ struct GroupViewListItemView: View {
     @State private var showingStoryInfo = false
     
     var body: some View {
-        VStack(spacing: 0) {
+            VStack(spacing: 0) {
             // 始终渲染 GroupItemContentView
-            GroupItemContentView(group: group, viewModel: viewModel, showingStoryInfo: $showingStoryInfo)
-            if group.id != viewModel.groups.last?.id {
+                GroupItemContentView(group: group, viewModel: viewModel, showingStoryInfo: $showingStoryInfo)
+                if group.id != viewModel.groups.last?.id {
                 Divider().background(Color.gray)
             }
         }
@@ -213,21 +213,21 @@ struct GroupItemContentView: View {
             }
             // 主体内容
             VStack(alignment: .leading, spacing: 4) {
-                GroupHeaderInfoView(group: group)
-                if !group.info.desc.isEmpty {
-                    Text(group.info.desc)
-                        .font(.system(size: 14))
-                        .foregroundColor(Color.theme.secondaryText)
-                        .lineLimit(2)
-                }
-                GroupInteractionButtonsView(
-                    group: group,
-                    viewModel: viewModel,
-                    showingStoryInfo: $showingStoryInfo
-                )
+            GroupHeaderInfoView(group: group)
+            if !group.info.desc.isEmpty {
+                Text(group.info.desc)
+                    .font(.system(size: 14))
+                    .foregroundColor(Color.theme.secondaryText)
+                    .lineLimit(2)
             }
-            .padding(.vertical, 16)
-            .padding(.horizontal, 16)
+            GroupInteractionButtonsView(
+                group: group,
+                viewModel: viewModel,
+                showingStoryInfo: $showingStoryInfo
+            )
+        }
+        .padding(.vertical, 16)
+        .padding(.horizontal, 16)
             .background(Color.theme.secondaryBackground.opacity(0.36))
         }
     }
@@ -269,7 +269,7 @@ struct TrapezoidTriangles: View {
                     let y = CGFloat.random(in: 0...(h-radius))
                     // 随机 x 坐标（保证在梯形区域内）
                     let leftX = w * 0.18 + (y / h) * (w * 0.82)
-                    let x = CGFloat.random(in: leftX...(w-radius))
+                    let x = CGFloat.random(in: min(leftX, w-radius)...(w-radius))
                     Circle()
                         .fill(randomColor(index: i))
                         .frame(width: radius*2, height: radius*2)

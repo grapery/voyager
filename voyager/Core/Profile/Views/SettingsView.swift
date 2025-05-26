@@ -207,19 +207,26 @@ struct SettingsDetailView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 24) {
-                Spacer().frame(height: 16)
-                Text(detailType.title)
-                    .font(.title2).bold()
-                    .multilineTextAlignment(.center)
-                ScrollView {
-                    Text(detailType.content)
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                        .padding()
-                        .multilineTextAlignment(.leading)
+            ZStack {
+                // 背景视图
+                TrapezoidTriangles()
+                    .opacity(0.1)
+                    .ignoresSafeArea()
+                
+                VStack(spacing: 24) {
+                    Spacer().frame(height: 16)
+                    Text(detailType.title)
+                        .font(.title2).bold()
+                        .multilineTextAlignment(.center)
+                    ScrollView {
+                        Text(detailType.content)
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                            .padding()
+                            .multilineTextAlignment(.leading)
+                    }
+                    Spacer()
                 }
-                Spacer()
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -1188,11 +1188,11 @@ struct PendingTab: View {
                     }
                     .frame(maxWidth: .infinity)
                     Spacer()
-                }
+                    }
             } else if viewModel.unpublishedStoryboards.isEmpty {
-                emptyStateView
-            } else {
-                UnPublishedstoryBoardsListView
+                    emptyStateView
+                } else {
+                    UnPublishedstoryBoardsListView
             }
         }
         .onAppear {
@@ -1222,22 +1222,22 @@ struct PendingTab: View {
     }
     
     private var UnPublishedstoryBoardsListView: some View {
-        LazyVStack(spacing: 0) {
-            ForEach(viewModel.unpublishedStoryboards) { board in
-                VStack(spacing: 0) {
-                    UnpublishedStoryBoardCellView(
-                        board: board,
-                        userId: viewModel.userId,
-                        viewModel: viewModel
-                    )
-                    
-                    if board.id != viewModel.unpublishedStoryboards.last?.id {
-                        Divider()
-                            .background(Color.theme.divider)
+            LazyVStack(spacing: 0) {
+                ForEach(viewModel.unpublishedStoryboards) { board in
+                    VStack(spacing: 0) {
+                        UnpublishedStoryBoardCellView(
+                            board: board,
+                            userId: viewModel.userId,
+                            viewModel: viewModel
+                        )
+                        
+                        if board.id != viewModel.unpublishedStoryboards.last?.id {
+                            Divider()
+                                .background(Color.theme.divider)
+                        }
                     }
                 }
             }
-        }
     }
 }
 
