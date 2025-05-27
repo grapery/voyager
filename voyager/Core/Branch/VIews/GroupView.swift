@@ -271,11 +271,14 @@ struct TrapezoidTriangles: View {
                     let leftX = w * 0.18 + (y / h) * (w * 0.82)
                     let lower = min(leftX, w - radius)
                     let upper = w - radius
-                    let x = CGFloat.random(in: min(lower, upper)...max(lower, upper))
-                    Circle()
-                        .fill(randomColor(index: i))
-                        .frame(width: radius*2, height: radius*2)
-                        .position(x: x + radius, y: y + radius)
+                    if lower <= upper {
+                        let x = CGFloat.random(in: lower...upper)
+                        Circle()
+                            .fill(randomColor(index: i))
+                            .frame(width: radius*2, height: radius*2)
+                            .position(x: x + radius, y: y + radius)
+                    }
+                    // 如果 lower > upper，跳过该圆
                 }
             }
         }
