@@ -253,7 +253,7 @@ struct UserProfileView: View {
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.black)
                         .padding(.top, 24)
-                    VStack(spacing: 20) {
+                    VStack(alignment: .listRowSeparatorTrailing,spacing: 20) {
                         StatsDetailRow(icon: "fossil.shell", iconColor: Color.blue, title: "创建了故事", value: "\(viewModel.profile.createdStoryNum)")
                         StatsDetailRow(icon: "person.text.rectangle", iconColor: Color.purple, title: "创建了角色", value: "\(viewModel.profile.createdRoleNum)")
                         StatsDetailRow(icon: "list.clipboard", iconColor: Color.green, title: "创建了故事版", value: "\(viewModel.profile.createdStoryNum)")
@@ -568,7 +568,7 @@ struct UserProfileView: View {
                                 .cornerRadius(18)
                         }
                         Button(action: onMessage) {
-                            Text("讯息")
+                            Text("消息")
                                 .font(.system(size: 15, weight: .medium))
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 18)
@@ -731,28 +731,38 @@ struct StoryboardCell: View {
                 // 底部统计
                 HStack(spacing: 24) {
                     StatLabel(
-                        icon: "heart.fill",
+                        icon: "heart",
                         count: Int(board.boardActive.totalLikeCount),
-                        iconColor: Color.theme.tertiaryText,
+                        iconColor: Color.red,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     StatLabel(
-                        icon: "bubble.left.fill",
+                        icon: "bubble.left",
                         count: Int(board.boardActive.totalCommentCount),
-                        iconColor: Color.theme.tertiaryText,
+                        iconColor: Color.blue,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     StatLabel(
                         icon: "signpost.right.and.left",
                         count: Int(board.boardActive.totalForkCount),
-                        iconColor: Color.theme.tertiaryText,
+                        iconColor: Color.blue,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     Spacer()
                     HStack{
+                        KFImage(URL(string: convertImagetoSenceImage(url: board.boardActive.summary.storyAvatar, scene: .small)))
+                            .cacheMemoryOnly()
+                            .fade(duration: 0.25)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 16, height: 16)
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle().stroke(Color.theme.border, lineWidth: 0.5)
+                            )
                         Text("故事：")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(Color.theme.primaryText)
@@ -817,23 +827,23 @@ struct StoryboardActiveCell: View {
                 // 底部统计
                 HStack(spacing: 24) {
                     StatLabel(
-                        icon: "heart.fill",
+                        icon: "heart",
                         count: Int(board.boardActive.totalLikeCount),
-                        iconColor: Color.theme.tertiaryText,
+                        iconColor: Color.red,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     StatLabel(
-                        icon: "bubble.left.fill",
+                        icon: "bubble.left",
                         count: Int(board.boardActive.totalCommentCount),
-                        iconColor: Color.theme.tertiaryText,
+                        iconColor: Color.blue,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     StatLabel(
                         icon: "signpost.right.and.left",
                         count: Int(board.boardActive.totalForkCount),
-                        iconColor: Color.theme.tertiaryText,
+                        iconColor: Color.blue,
                         countColor: Color.theme.tertiaryText
                     )
                     
@@ -1364,7 +1374,7 @@ struct UnpublishedStoryBoardCellView: View {
 
             // 底部：按钮与时间下沿对齐
             HStack(alignment: .lastTextBaseline) {
-                HStack(spacing: 8) {
+                HStack(spacing: 4) {
                     Button(action: { showingEditView = true }) {
                         InteractionStatItem(
                             icon: "paintbrush.pointed",
