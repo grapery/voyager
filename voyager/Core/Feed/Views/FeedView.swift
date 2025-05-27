@@ -735,27 +735,42 @@ private struct DiscoveryView: View {
     
     var body: some View {
         ZStack(alignment: .bottom) {
+            // 聊天消息区背景
+            TrapezoidTriangles()
+                .opacity(0.81)
+                .ignoresSafeArea()
             // 内容区域
             VStack(spacing: 0) {
                 // 聊天消息列表
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(spacing: 16) {
-                            ForEach(messages) { message in
-                                ChatBubble(message: message)
-                                    .padding(.horizontal, 16)
-                                    .id(message.id)
-                                    .transition(.opacity.combined(with: .move(edge: .bottom)))
-                                    .onTapGesture {
-                                        if message.msg.sender == 42 { // AI消息可点击查看故事
-                                            handleMessageTap(message)
+                            if messages.isEmpty {
+                                // 空状态
+                                VStack {
+                                    Spacer()
+                                    Text("没有聊天消息")
+                                        .foregroundColor(.gray)
+                                        .padding()
+                                    Spacer()
+                                }
+                            } else {
+                                ForEach(messages) { message in
+                                    ChatBubble(message: message)
+                                        .padding(.horizontal, 16)
+                                        .id(message.id)
+                                        .transition(.opacity.combined(with: .move(edge: .bottom)))
+                                        .onTapGesture {
+                                            if message.msg.sender == 42 { // AI消息可点击查看故事
+                                                handleMessageTap(message)
+                                            }
                                         }
-                                    }
+                                }
+                                
+                                Color.clear
+                                    .frame(height: 10)
+                                    .id("bottom")
                             }
-                            
-                            Color.clear
-                                .frame(height: 10)
-                                .id("bottom")
                         }
                         .padding(.top, 12)
                         .padding(.bottom, 8)
@@ -765,7 +780,7 @@ private struct DiscoveryView: View {
                             }
                         }
                     }
-                    .background(Color.theme.background)
+                    .background(Color.theme.background.opacity(0.85))
                     .contentShape(Rectangle())
                     .onTapGesture {
                         if isFocused {
@@ -776,15 +791,12 @@ private struct DiscoveryView: View {
                 
                 Spacer(minLength: 0)
             }
-            
             // 键盘隐藏按钮 - 只在键盘显示时出现
             if isFocused {
                 VStack {
                     Spacer()
-                    
                     HStack {
                         Spacer()
-                        
                         Button(action: {
                             isFocused = false
                         }) {
@@ -798,8 +810,6 @@ private struct DiscoveryView: View {
                         .padding(.trailing, 16)
                         .padding(.bottom, 8)
                     }
-                    
-                    // 调整键盘高度的空间
                     Rectangle()
                         .fill(Color.clear)
                         .frame(height: keyboardHeight > 0 ? keyboardHeight - 45 : 0)
@@ -807,60 +817,12 @@ private struct DiscoveryView: View {
                 .transition(.opacity)
                 .animation(.easeInOut(duration: 0.2), value: isFocused)
             }
-            
-            // 输入栏 - 固定在底部
-            VStack(spacing: 0) {
-                Divider()
-                
-                HStack(alignment: .center, spacing: 8) {
-                    // 左侧附加按钮
-                    Button(action: {}) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.leading, 8)
-                    
-                    // 输入框
-                    ZStack(alignment: .leading) {
-                        if messageText.isEmpty {
-                            Text("请输入您的问题...")
-                                .foregroundColor(Color.gray.opacity(0.8))
-                                .padding(.leading, 8)
-                                .padding(.top, 8)
-                                .padding(.bottom, 8)
-                        }
-                        
-                        TextField("", text: $messageText)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 8)
-                            .focused($isFocused)
-                            .onChange(of: isFocused) { focused in
-                                withAnimation(.easeInOut(duration: 0.25)) {
-                                    isShowingKeyboard = focused
-                                }
-                            }
-                    }
-                    .background(Color(.systemGray6))
-                    .cornerRadius(18)
-                    .padding(.vertical, 6)
-                    
-                    // 发送按钮
-                    Button(action: sendMessage) {
-                        Image(systemName: "paperplane.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(messageText.isEmpty ? Color.gray.opacity(0.6) : .blue)
-                            .rotationEffect(.degrees(45))
-                            .padding(8)
-                    }
-                    .disabled(messageText.isEmpty)
-                    .padding(.trailing, 4)
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.white)
-            }
-            .padding(.bottom, isFocused ? (keyboardHeight > 0 ? 0 : 0) : 0)
+            // 新输入栏
+            InputBar(
+                text: $messageText,
+                isFocused: $isFocused,
+                onSend: sendMessage
+            )
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .background(
@@ -965,6 +927,59 @@ private struct DiscoveryView: View {
         } else {
             return "我理解您说的是'你好'。请问还有其他我能帮助您的吗？"
         }
+    }
+}
+
+// 新增 InputBar 组件
+private struct InputBar: View {
+    @Binding var text: String
+    var isFocused: FocusState<Bool>.Binding
+    var onSend: () -> Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Button(action: {}) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 24))
+                    .foregroundColor(.gray)
+            }
+            .frame(width: 36, height: 36)
+
+            ZStack(alignment: .leading) {
+                if text.isEmpty {
+                    Text("请输入您的问题...")
+                        .foregroundColor(Color.gray.opacity(0.8))
+                        .padding(.leading, 4)
+                }
+                TextField("", text: $text)
+                    .focused(isFocused)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 8)
+            }
+            .background(Color(.systemGray6))
+            .cornerRadius(18)
+
+            Button(action: onSend) {
+                Image(systemName: "paperplane.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(text.isEmpty ? Color.gray.opacity(0.6) : .blue)
+                    .rotationEffect(.degrees(45))
+            }
+            .frame(width: 36, height: 36)
+            .disabled(text.isEmpty)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(
+            Color.white
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .shadow(color: Color.black.opacity(0.04), radius: 8, y: 2)
+        )
+        .padding(.horizontal, 8)
+        .padding(.bottom, 0)
+        .overlay(
+            Divider(), alignment: .top
+        )
     }
 }
 

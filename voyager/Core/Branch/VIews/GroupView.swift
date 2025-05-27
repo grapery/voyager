@@ -265,11 +265,13 @@ struct TrapezoidTriangles: View {
                 ForEach(0..<count, id: \ .self) { i in
                     // 随机半径
                     let radius = CGFloat.random(in: w*0.08...w*0.18)
-                    // 随机 y 坐标
-                    let y = CGFloat.random(in: 0...(h-radius))
+                    let maxY = max(0, h - radius)
+                    let y = CGFloat.random(in: 0...maxY)
                     // 随机 x 坐标（保证在梯形区域内）
                     let leftX = w * 0.18 + (y / h) * (w * 0.82)
-                    let x = CGFloat.random(in: min(leftX, w-radius)...(w-radius))
+                    let lower = min(leftX, w - radius)
+                    let upper = w - radius
+                    let x = CGFloat.random(in: min(lower, upper)...max(lower, upper))
                     Circle()
                         .fill(randomColor(index: i))
                         .frame(width: radius*2, height: radius*2)
