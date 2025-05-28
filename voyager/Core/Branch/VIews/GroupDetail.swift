@@ -9,6 +9,7 @@ import SwiftUI
 import Kingfisher
 import Combine
 import ScalingHeaderScrollView
+import ActivityIndicatorView
 
 // MARK: - Group Header View
 struct GroupHeaderView: View {
@@ -117,34 +118,35 @@ struct GroupInfoView: View {
                         }
                         GroupStatsView(group: group)
                     }
+                    VStack(alignment: .leading, spacing: 4){
+                        Button(action: {
+                            showNewStoryView = true
+                        }) {
+                            HStack(spacing: 4) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.white.opacity(0.9))
+                                        .frame(width: 20, height: 20)
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundColor(Color.theme.accent)
+                                }
+                                Text("创建故事")
+                                    .font(.system(size: 15, weight: .light))
+                                    .foregroundColor(.white)
+                            }
+                            .padding(.horizontal, 2)
+                            .padding(.vertical, 2)
+                            .background(Color.theme.accent)
+                            .clipShape(Capsule())
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            VStack{
-                Button(action: {
-                    showNewStoryView = true
-                }) {
-                    HStack(spacing: 2) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.white.opacity(0.9))
-                                .frame(width: 20, height: 20)
-                            Image(systemName: "plus")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(Color.theme.accent)
-                        }
-                        Text("创建故事")
-                            .font(.system(size: 15, weight: .light))
-                            .foregroundColor(.white)
-                    }
-                    .padding(.horizontal, 2)
-                    .padding(.vertical, 2)
-                    .background(Color.theme.accent)
-                    .clipShape(Capsule())
-                }
-                .buttonStyle(PlainButtonStyle())
-            }
-            .frame(maxWidth: .infinity, alignment: .trailing)
+            
         }
     }
 }
@@ -354,10 +356,6 @@ struct StoryListContentView: View {
     
     var body: some View {
         ZStack {
-            TrapezoidTriangles()
-                .opacity(0.64)
-                .ignoresSafeArea()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             LazyVStack(spacing: 0) {
                 if let selectedId = selectedStoryId {
@@ -409,11 +407,20 @@ struct GroupDetailView: View {
         ZStack {
             if isLoading {
                 VStack {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle())
-                    Text("加载中...")
-                        .foregroundColor(.secondary)
-                        .padding(.top, 8)
+                    Spacer()
+                    VStack(spacing: 12) {
+                        HStack {
+                            ActivityIndicatorView(isVisible: $isLoading, type: .arcs())
+                                .frame(width: 64, height: 64)
+                                .foregroundColor(.red)
+                        }
+                                .frame(height: 50)
+                        Text("加载中......")
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 14))
+                    }
+                    .frame(maxWidth: .infinity)
+                    Spacer()
                 }
             } else {
                 ScalingHeaderScrollView {
