@@ -120,8 +120,31 @@ struct GroupInfoView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            
-            
+            VStack{
+                Button(action: {
+                    showNewStoryView = true
+                }) {
+                    HStack(spacing: 2) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.white.opacity(0.9))
+                                .frame(width: 20, height: 20)
+                            Image(systemName: "plus")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(Color.theme.accent)
+                        }
+                        Text("创建故事")
+                            .font(.system(size: 15, weight: .light))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, 2)
+                    .padding(.vertical, 2)
+                    .background(Color.theme.accent)
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
 }
@@ -190,20 +213,6 @@ struct GroupActionButtonsView: View {
     var body: some View {
         HStack() {
             Button(action: {
-                showNewStoryView = true
-            }) {
-                HStack(spacing: 2) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 15))
-                }
-                .foregroundColor(.white)
-                .frame(width: 24, height: 24)
-                .background(Color.theme.secondary.opacity(0.3))
-                .background(Color.theme.accent)
-                .clipShape(Circle())
-            }
-            
-            Button(action: {
                 Task {
                     if group?.info.currentUserStatus.isJoined == false {
                         _ = await viewModel.JoinGroup(groupdId: group?.info.groupID ?? 0)
@@ -223,7 +232,7 @@ struct GroupActionButtonsView: View {
                 .foregroundColor(.white)
                 .frame(width: 24, height: 24)
                 .background(Color.theme.secondary.opacity(0.3))
-                .background(group?.info.currentUserStatus.isJoined ?? false ? Color.theme.tertiaryBackground : Color.theme.accent)
+                .background(group?.info.currentUserStatus.isJoined ?? false ? Color.blue :Color.theme.tertiaryBackground)
                 .clipShape(Circle())
             }
             
@@ -261,7 +270,7 @@ struct GroupActionButtonsView: View {
                 .foregroundColor(.white)
                 .frame(width: 24, height: 24)
                 .background(Color.theme.secondary.opacity(0.3))
-                .background(group?.info.currentUserStatus.isFollowed ?? false ? Color.theme.tertiaryBackground : Color.theme.accent)
+                .background(group?.info.currentUserStatus.isFollowed ?? false ? Color.blue: Color.theme.tertiaryBackground)
                 .clipShape(Circle())
             }
         }
@@ -344,22 +353,29 @@ struct StoryListContentView: View {
     let isHeaderSticky: Bool
     
     var body: some View {
-        LazyVStack(spacing: 0) {
-            if let selectedId = selectedStoryId {
-                ForEach(stories.filter { $0.storyInfo.id == selectedId }) { story in
-                    VStack{
-                        StoryUpdateCell(story: story, userId: userId, viewModel: viewModel)
+        ZStack {
+            TrapezoidTriangles()
+                .opacity(0.64)
+                .ignoresSafeArea()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            
+            LazyVStack(spacing: 0) {
+                if let selectedId = selectedStoryId {
+                    ForEach(stories.filter { $0.storyInfo.id == selectedId }) { story in
+                        VStack{
+                            StoryUpdateCell(story: story, userId: userId, viewModel: viewModel)
+                        }
                     }
-                }
-            } else {
-                ForEach(stories.sorted { $0.storyInfo.ctime > $1.storyInfo.ctime }) { story in
-                    VStack{
-                        StoryUpdateCell(story: story, userId: userId, viewModel: viewModel)
+                } else {
+                    ForEach(stories.sorted { $0.storyInfo.ctime > $1.storyInfo.ctime }) { story in
+                        VStack{
+                            StoryUpdateCell(story: story, userId: userId, viewModel: viewModel)
+                        }
                     }
                 }
             }
+            .padding(.top, isHeaderSticky ? 100 : 0)
         }
-        .padding(.top, isHeaderSticky ? 100 : 0)
     }
 }
 
