@@ -266,7 +266,7 @@ struct StoryRoleDetailView: View {
     private func uploadAvatar(_ image: UIImage) async {
         isLoading = true
         do {
-            let imageUrl = try await AliyunClient.UploadImage(image: image)
+            let imageUrl = try AliyunClient.UploadImage(image: image)
             let error = await viewModel.updateRoleAvatar(userId: userId, roleId: roleId, avatar: imageUrl)
             await MainActor.run {
                 isLoading = false
@@ -1418,12 +1418,13 @@ struct PosterView: View {
     private func handleAIGenerate() async {
         isAIGenerating = true
         defer { isAIGenerating = false }
-        do {
+        print("handleAIGenerate self.role ", self.role as Any)
+        do{
             // TODO: 调用你的AI生成接口
             let result = await viewModel.generateStoryRolePoster(
                 userId: (self.role?.role.storyID)!,
                 roleId: self.role!.role.roleID,
-                storyId: self.currentUserId)
+                storyId: self.role!.role.storyID)
             // 更新图片逻辑
             if result.1 == nil {
                 self.role?.role.posterImageURL = result.0!
@@ -1442,11 +1443,16 @@ struct PosterView: View {
     private func handleUpload(image: UIImage) async {
         isUploading = true
         defer { isUploading = false }
+        print("handleUpload self.role ", self.role as Any)
         do {
             
-            let url = try await AliyunClient.UploadImage(image: image)
-            print("post url ",url as Any)
-            let err = try await viewModel.updateStoryRolePoster(
+            let url = try AliyunClient.UploadImage(image: image)
+            if url.isEmpty {
+                errorMessage = "上传失败：获取图片URL失败"
+                showError = true
+                return
+            }
+            let err = await viewModel.updateStoryRolePoster(
                 userId: (self.role?.role.storyID)!,
                 roleId: self.role!.role.roleID,
                 posterUrl: url)

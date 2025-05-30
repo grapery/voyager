@@ -1178,7 +1178,6 @@ private struct StoryboardsListView: View {
 struct PendingTab: View {
     @ObservedObject var viewModel: UnpublishedStoryViewModel
     @State private var isRefreshing = false
-    @State private var didLoad = false
     
     var body: some View {
         ZStack {
@@ -1198,16 +1197,17 @@ struct PendingTab: View {
                     }
                     .frame(maxWidth: .infinity)
                     Spacer()
-                    }
+                }
             } else if viewModel.unpublishedStoryboards.isEmpty {
                     emptyStateView
                 } else {
-                    UnPublishedstoryBoardsListView
+                    ScrollView{
+                        UnPublishedstoryBoardsListView
+                    }
             }
         }
         .onAppear {
-            if !didLoad {
-                didLoad = true
+            if self.$viewModel.unpublishedStoryboards.wrappedValue.isEmpty{
                 Task {
                     await viewModel.fetchUnpublishedStoryboards()
                 }
@@ -1232,22 +1232,44 @@ struct PendingTab: View {
     }
     
     private var UnPublishedstoryBoardsListView: some View {
-            LazyVStack(spacing: 0) {
-                ForEach(viewModel.unpublishedStoryboards) { board in
-                    VStack(spacing: 0) {
-                        UnpublishedStoryBoardCellView(
-                            board: board,
-                            userId: viewModel.userId,
-                            viewModel: viewModel
-                        )
-                        
-                        if board.id != viewModel.unpublishedStoryboards.last?.id {
-                            Divider()
-                                .background(Color.theme.divider)
+        LazyVStack(spacing: 0) {
+            ForEach(viewModel.unpublishedStoryboards) { board in
+                VStack(spacing: 0) {
+                    UnpublishedStoryBoardCellView(
+                        board: board,
+                        userId: viewModel.userId,
+                        viewModel: viewModel
+                    )
+                    .onAppear {
+                        // 下滑到最后一个草稿时加载更多
+                        if board.id == viewModel.unpublishedStoryboards.last?.id && viewModel.hasMorePages && !viewModel.isLoading {
+                            Task {
+                                await viewModel.fetchUnpublishedStoryboards()
+                            }
                         }
+                    }
+                    if board.id != viewModel.unpublishedStoryboards.last?.id {
+                        Divider()
+                            .background(Color.theme.divider)
                     }
                 }
             }
+            // 加载中指示器
+            if viewModel.isLoading && viewModel.unpublishedStoryboards.count > 0 {
+                loadingOverlay(isLoading: true)
+            }
+            // 没有更多
+            if !viewModel.hasMorePages && !viewModel.unpublishedStoryboards.isEmpty {
+                HStack {
+                    Spacer()
+                    Text("没有更多草稿了")
+                        .font(.system(size: 13))
+                        .foregroundColor(.gray)
+                        .padding(.vertical, 8)
+                    Spacer()
+                }
+            }
+        }
     }
 }
 
@@ -1317,7 +1339,7 @@ struct UnpublishedStoryBoardCellView: View {
             VStack(alignment: .leading, spacing: 8) {
                 // 故事信息
                 HStack(spacing: 4) {
-                    Text("所属故事：")
+                    Text("故事：")
                         .font(.system(size: 14))
                         .foregroundColor(Color.theme.tertiaryText)
                     Text(board.boardActive.summary.storyTitle)

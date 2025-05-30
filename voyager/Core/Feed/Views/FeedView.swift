@@ -675,10 +675,6 @@ private struct FeedItemList: View {
                 }
             }
 
-            if viewModel.isLoading && !viewModel.isRefreshing {
-                LoadingIndicator(isLoading: viewModel.isLoading)
-            }
-
             if !viewModel.hasMoreData && !viewModel.storyBoardActives.isEmpty {
                 Text("没有更多了")
                     .font(.system(size: 12))
