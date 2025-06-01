@@ -6,22 +6,16 @@
 //
 
 import SwiftUI
+import ActivityIndicatorView
 
 struct EditStoryBoardView: View {
     @Environment(\.presentationMode) var presentationMode
     public var storyId: Int64
     public var boardId: Int64
     public var userId: Int64
-    public var storyboardActive: StoryBoardActive
-    @State var viewModel: UnpublishedStoryViewModel
-    init(storyId: Int64, boardId: Int64, userId: Int64, storyboardActive: StoryBoardActive, viewModel: UnpublishedStoryViewModel) {
-        self.storyId = storyId
-        self.boardId = boardId
-        self.userId = userId
-        self.storyboardActive = storyboardActive
-        self.viewModel = viewModel
-        self.currentStep = Int(storyboardActive.boardActive.storyboard.stage.rawValue)
-    }
+    @StateObject var viewModel: UnpublishedStoryViewModel
+    @State private var storyboardActive: StoryBoardActive?
+    
     // 步骤状态控制
     @State private var currentStep = 0
     @State private var isLoading = false
@@ -35,136 +29,188 @@ struct EditStoryBoardView: View {
     
     var steps = ["编辑故事板", "创建场景", "编辑场景图片", "发布"]
     
+    init(storyId: Int64, boardId: Int64, userId: Int64,viewModel: UnpublishedStoryViewModel) {
+        self.storyId = storyId
+        self.boardId = boardId
+        self.userId = userId
+        self._viewModel = StateObject(wrappedValue: viewModel)
+    }
+    
     var body: some View {
-        VStack(spacing: 0) {
-            // 自定义导航栏
-            CustomNavigationBar(title: "编辑故事板", presentationMode: presentationMode)
-                .background(Color.theme.secondaryBackground)
-                .shadow(color: Color.black.opacity(0.05), radius: 4, y: 2)
-            
-            // 进度指示器
-            StoryboardStepIndicatorView(steps: steps, currentStep: currentStep)
-                .padding(.vertical, 12)
-                .background(Color.theme.secondaryBackground)
-            
-            // 主要内容区域
-            ScrollView {
-                VStack(spacing: 20) {
-                    switch currentStep {
-                    case 0:
-                        EditBoardStepView(
-                            title: $boardTitle,
-                            content: $boardContent,
-                            isLoading: $isLoading
-                        )
-                        .transition(
-                            .asymmetric(
-                                insertion: .move(edge: slideDirection == 1 ? .trailing : .leading)
-                                    .combined(with: .opacity),
-                                removal: .move(edge: slideDirection == 1 ? .leading : .trailing)
-                                    .combined(with: .opacity)
-                            )
-                        )
-                    case 1:
-                        CreateScenesStepView(
-                            scenes: $scenes,
-                            isLoading: $isLoading
-                        )
-                        .transition(
-                            .asymmetric(
-                                insertion: .move(edge: slideDirection == 1 ? .trailing : .leading)
-                                    .combined(with: .opacity),
-                                removal: .move(edge: slideDirection == 1 ? .leading : .trailing)
-                                    .combined(with: .opacity)
-                            )
-                        )
-                    case 2:
-                        PublishStepView(
-                            generatedImages: $generatedImages,
-                            isLoading: $isLoading
-                        )
-                        .transition(
-                            .asymmetric(
-                                insertion: .move(edge: slideDirection == 1 ? .trailing : .leading)
-                                    .combined(with: .opacity),
-                                removal: .move(edge: slideDirection == 1 ? .leading : .trailing)
-                                    .combined(with: .opacity)
-                            )
-                        )
-                    default:
-                        EmptyView()
+        ZStack{
+            if isLoading {
+                VStack {
+                    Spacer()
+                    VStack(spacing: 12) {
+                        HStack {
+                            ActivityIndicatorView(isVisible: $viewModel.isLoading, type: .arcs())
+                                .frame(width: 64, height: 64)
+                                .foregroundColor(.red)
+                        }
+                                .frame(height: 50)
+                        Text("加载中......")
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 14))
                     }
+                    .frame(maxWidth: .infinity)
+                    Spacer()
                 }
-                .padding()
+            }else{
+                VStack(spacing: 0) {
+                    // 自定义导航栏
+                    CustomNavigationBar(title: "编辑故事板", presentationMode: presentationMode)
+                        .background(Color.theme.secondaryBackground)
+                        .shadow(color: Color.black.opacity(0.05), radius: 4, y: 2)
+                    
+                    // 进度指示器
+                    StoryboardStepIndicatorView(steps: steps, currentStep: currentStep)
+                        .padding(.vertical, 12)
+                        .background(Color.theme.secondaryBackground)
+                    
+                    // 主要内容区域
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            switch currentStep {
+                            case 0:
+                                EditBoardStepView(
+                                    title: $boardTitle,
+                                    content: $boardContent,
+                                    isLoading: $isLoading
+                                )
+                                .transition(
+                                    .asymmetric(
+                                        insertion: .move(edge: slideDirection == 1 ? .trailing : .leading)
+                                            .combined(with: .opacity),
+                                        removal: .move(edge: slideDirection == 1 ? .leading : .trailing)
+                                            .combined(with: .opacity)
+                                    )
+                                )
+                            case 1:
+                                CreateScenesStepView(
+                                    scenes: $scenes,
+                                    isLoading: $isLoading
+                                )
+                                .transition(
+                                    .asymmetric(
+                                        insertion: .move(edge: slideDirection == 1 ? .trailing : .leading)
+                                            .combined(with: .opacity),
+                                        removal: .move(edge: slideDirection == 1 ? .leading : .trailing)
+                                            .combined(with: .opacity)
+                                    )
+                                )
+                            case 2:
+                                PublishStepView(
+                                    generatedImages: $generatedImages,
+                                    isLoading: $isLoading
+                                )
+                                .transition(
+                                    .asymmetric(
+                                        insertion: .move(edge: slideDirection == 1 ? .trailing : .leading)
+                                            .combined(with: .opacity),
+                                        removal: .move(edge: slideDirection == 1 ? .leading : .trailing)
+                                            .combined(with: .opacity)
+                                    )
+                                )
+                            default:
+                                EmptyView()
+                            }
+                        }
+                        .padding()
+                    }
+                    .background(Color.theme.background)
+                    
+                    // 底部导航按钮
+                    HStack(spacing: 20) {
+                        if currentStep > 0 {
+                            Button(action: {
+                                slideDirection = -1
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    currentStep -= 1
+                                }
+                            }) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "chevron.left")
+                                    Text("上一步")
+                                }
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(Color.theme.tertiaryText)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 12)
+                                .background(Color.theme.tertiaryBackground)
+                                .clipShape(Capsule())
+                            }
+                        }
+                        
+                        Spacer()
+                        
+                        if currentStep < steps.count - 1 {
+                            Button(action: {
+                                slideDirection = 1
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    currentStep += 1
+                                }
+                            }) {
+                                HStack(spacing: 8) {
+                                    Text("下一步")
+                                    Image(systemName: "chevron.right")
+                                }
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 12)
+                                .background(Color.theme.accent)
+                                .clipShape(Capsule())
+                            }
+                        } else {
+                            Button(action: handleFinish) {
+                                HStack(spacing: 8) {
+                                    Text("完成")
+                                    Image(systemName: "checkmark")
+                                }
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 12)
+                                .background(Color.theme.accent)
+                                .clipShape(Capsule())
+                            }
+                        }
+                    }
+                    .padding()
+                    .background(Color.theme.secondaryBackground)
+                    .shadow(color: Color.black.opacity(0.05), radius: 4, y: -2)
+                }
+                .background(Color.theme.background)
+                .ignoresSafeArea(.all, edges: .bottom)
             }
-            .background(Color.theme.background)
             
-            // 底部导航按钮
-            HStack(spacing: 20) {
-                if currentStep > 0 {
-                    Button(action: {
-                        slideDirection = -1
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            currentStep -= 1
-                        }
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "chevron.left")
-                            Text("上一步")
-                        }
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(Color.theme.tertiaryText)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .background(Color.theme.tertiaryBackground)
-                        .clipShape(Capsule())
-                    }
-                }
-                
-                Spacer()
-                
-                if currentStep < steps.count - 1 {
-                    Button(action: {
-                        slideDirection = 1
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            currentStep += 1
-                        }
-                    }) {
-                        HStack(spacing: 8) {
-                            Text("下一步")
-                            Image(systemName: "chevron.right")
-                        }
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .background(Color.theme.accent)
-                        .clipShape(Capsule())
-                    }
-                } else {
-                    Button(action: handleFinish) {
-                        HStack(spacing: 8) {
-                            Text("完成")
-                            Image(systemName: "checkmark")
-                        }
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .background(Color.theme.accent)
-                        .clipShape(Capsule())
-                    }
-                }
-            }
-            .padding()
-            .background(Color.theme.secondaryBackground)
-            .shadow(color: Color.black.opacity(0.05), radius: 4, y: -2)
         }
-        .background(Color.theme.background)
-        .ignoresSafeArea(.all, edges: .bottom)
         .onAppear {
+            // 初始化数据
+            isLoading = true
+            
             Task {
-                //self.$viewModel.restoreStoryboard(self.storyId,self.userId,self.boardId)
+                let (board,err) = await self.viewModel.getStoryboardDetails(storyboardId: self.boardId)
+                if let error = err {
+                    print("Error fetching storyboard: \(error.localizedDescription)")
+                }
+                self.storyboardActive = board
+                print("Storyboard fetched: \(String(describing: board))")
+                
+                if let board = storyboardActive {
+                    currentStep = Int(board.boardActive.storyboard.stage.rawValue)
+                    boardTitle = board.boardActive.storyboard.title
+                    boardContent = board.boardActive.storyboard.content
+                    print("Fetching storyboard details for boardId: \(self.boardId) currentSteop: \(self.currentStep)")
+                }
+                if board?.boardActive.storyboard.sences.list.isEmpty == false {
+                    // 初始化场景数据
+                    scenes = board?.boardActive.storyboard.sences.list.map { scene in
+                        StoryboardScene(title: (board?.boardActive.storyboard.title)!, description: scene.content)
+                    } ?? []
+                    
+                }
+                isLoading = false
             }
         }
     }

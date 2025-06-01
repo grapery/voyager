@@ -15,6 +15,14 @@ class UnpublishedStoryViewModel: ObservableObject {
         self.userId = userId
     }
     
+    func getStoryboardDetails(storyboardId: Int64) async -> (StoryBoardActive?,Error?) {
+        var (board,err) = await APIClient.shared.GetStoryboardActive(boardId: storyboardId)
+        if let error = err {
+            return (nil, error)
+        }
+        return (board, nil)
+    }
+    
     func fetchUnpublishedStoryboards(isRefreshing: Bool = false) async {
         await MainActor.run {
             if isRefreshing {

@@ -1454,7 +1454,6 @@ struct UnpublishedStoryBoardCellView: View {
                     storyId: board.boardActive.storyboard.storyID,
                     boardId: board.boardActive.storyboard.storyBoardID,
                     userId: userId,
-                    storyboardActive: board,
                     viewModel: viewModel
                 )
                 .transition(.move(edge: .bottom))
