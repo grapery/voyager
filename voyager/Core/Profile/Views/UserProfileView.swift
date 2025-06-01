@@ -56,8 +56,12 @@ struct UserProfileView: View {
                             user: viewModel.user ?? user,
                             profile: viewModel.profile,
                             status: userStatus,
-                            onFollow: { /* 关注逻辑 */ },
-                            onMessage: { /* 讯息逻辑 */ },
+                            onFollow: {
+                                
+                            },
+                            onMessage: {
+                                
+                            },
                             onEditProfile: { showingEditProfile = true },
                             onShowSettings: { showSettings = true },
                             onShowStats: { showStatsDetail = true }
@@ -560,27 +564,27 @@ struct UserProfileView: View {
                     HStack(spacing: 10) {
                         Button(action: onFollow) {
                             Text("关注")
-                                .font(.system(size: 15, weight: .medium))
+                                .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(.white)
-                                .padding(.horizontal, 18)
+                                .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
                                 .background(Color.blue)
-                                .cornerRadius(18)
+                                .cornerRadius(8)
                         }
                         Button(action: onMessage) {
                             Text("消息")
-                                .font(.system(size: 15, weight: .medium))
+                                .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(.white)
-                                .padding(.horizontal, 18)
+                                .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
                                 .background(Color.blue)
-                                .cornerRadius(18)
+                                .cornerRadius(8)
                         }
                     }
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 32)
-                .padding(.bottom, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 32)
             }
         }
     }
