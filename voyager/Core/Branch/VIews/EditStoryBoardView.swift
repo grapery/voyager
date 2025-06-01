@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+import Combine
+import Kingfisher
+import Foundation
 import ActivityIndicatorView
 
 struct EditStoryBoardView: View {
@@ -24,6 +27,7 @@ struct EditStoryBoardView: View {
     // 编辑故事板数据
     @State private var boardTitle: String = ""
     @State private var boardContent: String = ""
+    @State private var storyRoles: [StoryRole] = []
     @State private var scenes: [StoryboardScene] = []
     @State private var generatedImages: [String] = []
     
@@ -210,6 +214,27 @@ struct EditStoryBoardView: View {
                     } ?? []
                     
                 }
+                for role in board?.boardActive.storyboard.roles ?? [] {
+                    let storyRole = StoryRole(Id: role.roleID, role: role)
+                    storyRoles.append(storyRole)
+                }
+                
+                if board?.boardActive.storyboard.sences.list.isEmpty == false {
+                    for scene in board?.boardActive.storyboard.sences.list ?? [] {
+                        let genResult = scene.genResult
+                        if let data = genResult.data(using: .utf8),
+                           let urls = try? JSONDecoder().decode([String].self, from: data) {
+                            for urlString in urls {
+                                self.generatedImages.append(urlString)
+                            }
+                        }
+                        
+                    }
+                }
+                print("self.generatedImages : \(self.generatedImages)")
+                
+                // 模拟加载延迟
+                try await Task.sleep(nanoseconds: 1_000_000_000) // 1秒延迟
                 isLoading = false
             }
         }

@@ -103,7 +103,6 @@
 		0FD831B42B12045900A319DA /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 0FD831B32B12045900A319DA /* OpenAPIURLSession */; };
 		0FDA164E2DA4AA2800C95314 /* UserActiveModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FDA164D2DA4AA1B00C95314 /* UserActiveModel.swift */; };
 		0FDA16712DA7381E00C95314 /* StoryboardForkListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FDA16702DA7380700C95314 /* StoryboardForkListView.swift */; };
-		0FF591B72CBE3073002F60C0 /* UpdateStoryboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF591B52CBE3065002F60C0 /* UpdateStoryboardView.swift */; };
 		0FF7FF5C2CA23D8700F92343 /* StoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF7FF5B2CA23D7B00F92343 /* StoryViewModel.swift */; };
 		0FF7FF602CA23DF900F92343 /* StoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF7FF5F2CA23DF300F92343 /* StoryView.swift */; };
 		0FF7FF642CA23E3300F92343 /* StoryBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF7FF632CA23E2900F92343 /* StoryBoardView.swift */; };
@@ -139,6 +138,8 @@
 		ED6EA4842DDAA56100C5BA3D /* ProfileHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6EA4822DDAA56100C5BA3D /* ProfileHelpers.swift */; };
 		ED6EA4852DDAA56100C5BA3D /* ProfileScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6EA4832DDAA56100C5BA3D /* ProfileScreen.swift */; };
 		ED8E0CE32DC5CCF6007D1D8C /* ChatSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED8E0CE22DC5CCF6007D1D8C /* ChatSettingView.swift */; };
+		ED9EDC772DEC81110017DE69 /* EditStoryBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9EDC752DEC81110017DE69 /* EditStoryBoardView.swift */; };
+		ED9EDC782DEC81110017DE69 /* StoryBoardDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9EDC762DEC81110017DE69 /* StoryBoardDetailView.swift */; };
 		EDBCB9F62DD56D2300D35F2D /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBCB9F52DD56D1A00D35F2D /* MockData.swift */; };
 		EDBCB9FA2DD56D5900D35F2D /* OnboardingPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBCB9F92DD56D4800D35F2D /* OnboardingPageView.swift */; };
 /* End PBXBuildFile section */
@@ -243,7 +244,6 @@
 		0FCCA8762D040EF700495ADF /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		0FDA164D2DA4AA1B00C95314 /* UserActiveModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActiveModel.swift; sourceTree = "<group>"; };
 		0FDA16702DA7380700C95314 /* StoryboardForkListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryboardForkListView.swift; sourceTree = "<group>"; };
-		0FF591B52CBE3065002F60C0 /* UpdateStoryboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateStoryboardView.swift; sourceTree = "<group>"; };
 		0FF7FF5B2CA23D7B00F92343 /* StoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModel.swift; sourceTree = "<group>"; };
 		0FF7FF5F2CA23DF300F92343 /* StoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryView.swift; sourceTree = "<group>"; };
 		0FF7FF632CA23E2900F92343 /* StoryBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryBoardView.swift; sourceTree = "<group>"; };
@@ -274,6 +274,8 @@
 		ED6EA4822DDAA56100C5BA3D /* ProfileHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHelpers.swift; sourceTree = "<group>"; };
 		ED6EA4832DDAA56100C5BA3D /* ProfileScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileScreen.swift; sourceTree = "<group>"; };
 		ED8E0CE22DC5CCF6007D1D8C /* ChatSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSettingView.swift; sourceTree = "<group>"; };
+		ED9EDC752DEC81110017DE69 /* EditStoryBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditStoryBoardView.swift; sourceTree = "<group>"; };
+		ED9EDC762DEC81110017DE69 /* StoryBoardDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryBoardDetailView.swift; sourceTree = "<group>"; };
 		EDBCB9F52DD56D1A00D35F2D /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
 		EDBCB9F92DD56D4800D35F2D /* OnboardingPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPageView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -433,6 +435,8 @@
 		0F7602AE2BB98E1C00F8D900 /* VIews */ = {
 			isa = PBXGroup;
 			children = (
+				ED9EDC752DEC81110017DE69 /* EditStoryBoardView.swift */,
+				ED9EDC762DEC81110017DE69 /* StoryBoardDetailView.swift */,
 				0FDA16702DA7380700C95314 /* StoryboardForkListView.swift */,
 				0F1838BF2DA17566003D66B6 /* Storyboardsummary.swift */,
 				0F576B6F2D9E105300DE5FA1 /* ShareStoryboardView.swift */,
@@ -445,7 +449,6 @@
 				0F1D0CFE2CC4ECA700D12E0B /* StoryRoleDetailView.swift */,
 				0F29163E2CB27780002366BE /* StoryDetailView.swift */,
 				0F2916362CB12504002366BE /* NewStoryBoardView.swift */,
-				0FF591B52CBE3065002F60C0 /* UpdateStoryboardView.swift */,
 				0F2916332CB124F5002366BE /* NewStoryView.swift */,
 				0F980A292CAABEF300510E5A /* GroupProfile.swift */,
 				0FF7FF632CA23E2900F92343 /* StoryBoardView.swift */,
@@ -927,11 +930,12 @@
 				0F1CE90D2BB81B4A00C7A8AD /* comment.pb.swift in Sources */,
 				0FFA508F2B0857DA00D3A4CF /* ProfileViewModel.swift in Sources */,
 				0F980A332CACCAB000510E5A /* UserProfileView.swift in Sources */,
+				ED9EDC772DEC81110017DE69 /* EditStoryBoardView.swift in Sources */,
+				ED9EDC782DEC81110017DE69 /* StoryBoardDetailView.swift in Sources */,
 				0FA52E242D5A4E3A0078AE65 /* StoryCardView.swift in Sources */,
 				0F576B842D9FC3FB00DE5FA1 /* CommentListView.swift in Sources */,
 				ED4EAC3B2DC44C9300A2F2DC /* UserStateManager.swift in Sources */,
 				0FFA509F2B0857DA00D3A4CF /* ImageUploader.swift in Sources */,
-				0FF591B72CBE3073002F60C0 /* UpdateStoryboardView.swift in Sources */,
 				0FFA50902B0857DA00D3A4CF /* EditProfileView.swift in Sources */,
 				0F88555F2B3B10BE002AD7E4 /* item.pb.swift in Sources */,
 				0F6D23E02D1CE009005AEE55 /* ImagePicker.swift in Sources */,
