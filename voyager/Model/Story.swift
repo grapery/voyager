@@ -74,7 +74,7 @@ public enum StoryboardStatus {
     case draft, scene, image, finished, published
 }
 
-class StoryBoardActive: Identifiable {
+class StoryBoardActive: Identifiable ,Equatable, Hashable {
     var id: Int64
     var boardActive: Common_StoryBoardActive
     init(id: Int64, boardActive: Common_StoryBoardActive) {
@@ -105,6 +105,10 @@ class StoryBoardActive: Identifiable {
             return .published
         }
         return .draft
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 

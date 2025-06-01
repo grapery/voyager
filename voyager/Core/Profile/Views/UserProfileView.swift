@@ -1178,10 +1178,11 @@ private struct StoryboardsListView: View {
 struct PendingTab: View {
     @ObservedObject var viewModel: UnpublishedStoryViewModel
     @State private var isRefreshing = false
+    @State private var lastLoadedBoardId: Int64? = nil
     
     var body: some View {
         ZStack {
-            if viewModel.isLoading {
+            if viewModel.isLoading && viewModel.unpublishedStoryboards.isEmpty {
                 VStack {
                     Spacer()
                     VStack(spacing: 12) {
@@ -1199,15 +1200,26 @@ struct PendingTab: View {
                     Spacer()
                 }
             } else if viewModel.unpublishedStoryboards.isEmpty {
-                    emptyStateView
-                } else {
-                    ScrollView{
+                emptyStateView
+            } else {
+                ScrollViewReader { proxy in
+                    ScrollView {
                         UnPublishedstoryBoardsListView
+                            .id("storyboardList")
                     }
+                    .onChange(of: viewModel.unpublishedStoryboards) { newBoards in
+                        if let lastId = lastLoadedBoardId,
+                           let _ = newBoards.firstIndex(where: { $0.id == lastId }) {
+                            withAnimation {
+                                proxy.scrollTo(lastId, anchor: .top)
+                            }
+                        }
+                    }
+                }
             }
         }
         .onAppear {
-            if self.$viewModel.unpublishedStoryboards.wrappedValue.isEmpty{
+            if self.$viewModel.unpublishedStoryboards.wrappedValue.isEmpty {
                 Task {
                     await viewModel.fetchUnpublishedStoryboards()
                 }
@@ -1240,17 +1252,15 @@ struct PendingTab: View {
                         userId: viewModel.userId,
                         viewModel: viewModel
                     )
+                    .id(board.id)
                     .onAppear {
                         // 下滑到最后一个草稿时加载更多
                         if board.id == viewModel.unpublishedStoryboards.last?.id && viewModel.hasMorePages && !viewModel.isLoading {
+                            lastLoadedBoardId = board.id
                             Task {
                                 await viewModel.fetchUnpublishedStoryboards()
                             }
                         }
-                    }
-                    if board.id != viewModel.unpublishedStoryboards.last?.id {
-                        Divider()
-                            .background(Color.theme.divider)
                     }
                 }
             }
@@ -1425,17 +1435,14 @@ struct UnpublishedStoryBoardCellView: View {
                     .font(.system(size: 13))
                     .foregroundColor(Color.theme.tertiaryText)
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 12)
+            .padding(.horizontal, 8)
+            .padding(.bottom, 8)
         }
         .background(Color.theme.secondaryBackground)
-        .cornerRadius(12)
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 8)
                 .stroke(Color.theme.border, lineWidth: 0.5)
         )
-        .padding(.vertical, 8)
-        .padding(.horizontal, 8)
         .overlay(errorToastOverlay)
         .fullScreenCover(isPresented: $showingEditView) {
             NavigationStack {
