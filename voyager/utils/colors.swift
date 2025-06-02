@@ -12,7 +12,7 @@ import UIKit
 // MARK: - Theme Manager
 class ThemeManager: ObservableObject {
     static let shared = ThemeManager()
-    @Published var currentTheme: AppTheme = .dark
+    @Published var currentTheme: AppTheme = .light
     
     private init() {}
     
@@ -31,34 +31,44 @@ enum AppTheme {
         case .light:
             return ThemeColors(
                 // Background Colors
-                background: Color(hex: "F2F2F7"),
-                secondaryBackground: Color(hex: "FFFFFF"),
-                tertiaryBackground: Color(hex: "E5E5EA"),
+                background: Color(red: 0.949, green: 0.949, blue: 0.969), // #F2F2F7
+                secondaryBackground: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF
+                tertiaryBackground: Color(red: 0.898, green: 0.898, blue: 0.918), // #E5E5EA
                 
                 // Text Colors
-                primaryText: Color(hex: "000000"),
-                secondaryText: Color(hex: "3C3C43"),
-                tertiaryText: Color(hex: "787880"),
+                primaryText: Color(red: 0.0, green: 0.0, blue: 0.0), // #000000
+                secondaryText: Color(red: 0.235, green: 0.235, blue: 0.263), // #3C3C43
+                tertiaryText: Color(red: 0.471, green: 0.471, blue: 0.502), // #787880
                 
                 // Content Colors
-                primary: Color(hex: "A5D661"),     // Brand Green
-                secondary: Color(hex: "2C2C2E"),   // Dark Gray
-                accent: Color(hex: "007AFF"),      // Blue
+                primary: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661
+                secondary: Color(red: 0.173, green: 0.173, blue: 0.180), // #2C2C2E
+                accent: Color(red: 0.0, green: 0.478, blue: 1.0), // #007AFF
                 
                 // Status Colors
-                success: Color(hex: "34C759"),
-                warning: Color(hex: "FF9500"),
-                error: Color(hex: "FF3B30"),
+                success: Color(red: 0.204, green: 0.780, blue: 0.349), // #34C759
+                warning: Color(red: 1.0, green: 0.584, blue: 0.0), // #FF9500
+                error: Color(red: 1.0, green: 0.231, blue: 0.188), // #FF3B30
                 
                 // Interactive Colors
-                buttonBackground: Color(hex: "A5D661"),
-                buttonText: Color(hex: "FFFFFF"),
-                inputBackground: Color(hex: "FFFFFF"),
-                inputText: Color(hex: "000000"),
+                buttonBackground: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661
+                buttonText: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF
+                inputBackground: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF
+                inputText: Color(red: 0.0, green: 0.0, blue: 0.0), // #000000
                 
                 // Divider & Border
-                divider: Color(hex: "C6C6C8"),
-                border: Color(hex: "D1D1D6")
+                divider: Color(red: 0.776, green: 0.776, blue: 0.784), // #C6C6C8
+                border: Color(red: 0.820, green: 0.820, blue: 0.839), // #D1D1D6
+                
+                // icon and settings
+                iconColor: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661
+                settingsBackground: Color(red: 0.949, green: 0.949, blue: 0.969), // #F2F2F7
+                likeIcon: Color(red: 0.976, green: 0.231, blue: 0.188), // #FA3B30 (更亮的红色)
+                followIcon: Color(red: 0.0, green: 0.478, blue: 1.0), // #007AFF
+                joinedIcon: Color(red: 0.204, green: 0.780, blue: 0.349), // #34C759
+                commentedIcon: Color(red: 0.471, green: 0.471, blue: 0.502), // #787880
+                forkedIcon: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661
+                appProfileBlue: Color(red: 0.0, green: 0.478, blue: 1.0) // #007AFF
             )
             
         case .dark:
@@ -69,29 +79,41 @@ enum AppTheme {
                 tertiaryBackground: Color(red: 0.07, green: 0.11, blue: 0.09),
                 
                 // Text Colors
-                primaryText: Color(hex: "FFFFFF"),
-                secondaryText: Color(hex: "BFC8C2"),
-                tertiaryText: Color(hex: "98989F"),
+                primaryText: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF
+                secondaryText: Color(red: 0.749, green: 0.784, blue: 0.761), // #BFC8C2
+                tertiaryText: Color(red: 0.596, green: 0.596, blue: 0.624), // #98989F
                 
                 // Content Colors
-                primary: Color(hex: "A5D661"),
-                secondary: Color(hex: "2C2C2E"),
-                accent: Color(hex: "0A84FF"),
+                primary: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661
+                secondary: Color(red: 0.173, green: 0.173, blue: 0.180), // #2C2C2E
+                accent: Color(red: 0.039, green: 0.518, blue: 1.0), // #0A84FF
                 
                 // Status Colors
-                success: Color(hex: "30D158"),
-                warning: Color(hex: "FF9F0A"),
-                error: Color(hex: "FF453A"),
+                success: Color(red: 0.188, green: 0.820, blue: 0.345), // #30D158
+                warning: Color(red: 1.0, green: 0.624, blue: 0.039), // #FF9F0A
+                error: Color(red: 1.0, green: 0.271, blue: 0.227), // #FF453A
                 
                 // Interactive Colors
-                buttonBackground: Color(hex: "A5D661"),
-                buttonText: Color(hex: "101912"),
-                inputBackground: Color(hex: "19221A"),
-                inputText: Color(hex: "FFFFFF"),
+                buttonBackground: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661
+                buttonText: Color(red: 0.063, green: 0.098, blue: 0.071), // #101912
+                inputBackground: Color(red: 0.098, green: 0.133, blue: 0.102), // #19221A
+                inputText: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF
                 
                 // Divider & Border
-                divider: Color(hex: "232823"),
-                border: Color(hex: "38383A")
+                divider: Color(red: 0.137, green: 0.157, blue: 0.137), // #232823
+                border: Color(red: 0.220, green: 0.220, blue: 0.227), // #38383A
+                
+                // icon and settings
+                iconColor: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661
+                settingsBackground: Color(red: 0.063, green: 0.098, blue: 0.071), // #101912
+                likeIcon: Color(red: 0.976, green: 0.231, blue: 0.188), // #FA3B30
+                followIcon: Color(red: 0.039, green: 0.518, blue: 1.0), // #0A84FF
+                joinedIcon: Color(red: 0.188, green: 0.820, blue: 0.345), // #30D158
+                commentedIcon: Color(red: 0.596, green: 0.596, blue: 0.624), // #98989F
+                forkedIcon: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661
+                
+                //
+                appProfileBlue: Color(red: 0.0, green: 0.478, blue: 1.0) // #007AFF
             )
         }
     }
@@ -128,6 +150,18 @@ struct ThemeColors {
     // Divider & Border
     let divider: Color
     let border: Color
+    
+    // icon and settings
+    let iconColor: Color
+    let settingsBackground: Color
+    let likeIcon: Color
+    let followIcon: Color
+    let joinedIcon: Color // Primary color for joined icon
+    let commentedIcon: Color // Primary color for commented icon
+    let forkedIcon: Color // Primary color for forked icon
+    
+    // appProfileBlue
+    let appProfileBlue: Color
 }
 
 // MARK: - Color Extension

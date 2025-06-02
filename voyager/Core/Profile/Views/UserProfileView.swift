@@ -119,9 +119,8 @@ struct UserProfileView: View {
                             .toolbar {
                                 ToolbarItem(placement: .navigationBarLeading) {
                                     Button(action: { isShowingStoryView = false }) {
-                                        HStack(spacing: 4) {
+                                        HStack{
                                             Image(systemName: "chevron.left")
-                                            Text("返回")
                                         }
                                     }
                                 }
@@ -173,7 +172,7 @@ struct UserProfileView: View {
                     .overlay(backgroundGradient)
             } else {
                 Rectangle()
-                    .fill(Color.orange)
+                    .fill(Color.theme.background)
                     .overlay(backgroundGradient)
             }
             
@@ -185,10 +184,10 @@ struct UserProfileView: View {
                         Spacer()
                         Text("长按更换背景")
                             .font(.system(size: 14))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.theme.primaryText)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Color.black.opacity(0.5))
+                            .background(Color.theme.buttonBackground)
                             .cornerRadius(12)
                             .padding(.trailing, 16)
                             .padding(.bottom, 16)
@@ -203,10 +202,10 @@ struct UserProfileView: View {
             PhotosPicker(selection: $viewModel.backgroundSelectedImage) {
                 Text("选择图片")
                     .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.theme.primaryText)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(Color.blue)
+                    .background(Color.theme.accent)
                     .cornerRadius(12)
                     .padding()
             }
@@ -222,10 +221,10 @@ struct UserProfileView: View {
                     Spacer()
                     Text(backgroundUpdateToastMessage)
                         .font(.system(size: 14))
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.theme.primaryText)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Color.black.opacity(0.7))
+                        .background(Color.theme.buttonBackground)
                         .cornerRadius(8)
                         .padding(.bottom, 16)
                 }
@@ -238,9 +237,9 @@ struct UserProfileView: View {
     private var backgroundGradient: some View {
         LinearGradient(
             gradient: Gradient(colors: [
-                Color.black.opacity(0.4),
-                Color.black.opacity(0.2),
-                Color.black.opacity(0.4)
+                Color.theme.background.opacity(0.4),
+                Color.theme.background.opacity(0.2),
+                Color.theme.background.opacity(0.4)
             ]),
             startPoint: .top,
             endPoint: .bottom
@@ -250,20 +249,20 @@ struct UserProfileView: View {
     
     private var userStatsDetail: some View {
         ZStack {
-            Color.black.opacity(0.3).ignoresSafeArea()
+            Color.theme.background.opacity(0.3).ignoresSafeArea()
             VStack(spacing: 0) {
                 VStack(spacing: 0) {
                     Text("创建和关注")
                         .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.black)
+                        .foregroundColor(Color.theme.primaryText)
                         .padding(.top, 24)
                     VStack(alignment: .listRowSeparatorTrailing,spacing: 20) {
-                        StatsDetailRow(icon: "fossil.shell", iconColor: Color.blue, title: "创建了故事", value: "\(viewModel.profile.createdStoryNum)")
-                        StatsDetailRow(icon: "person.text.rectangle", iconColor: Color.purple, title: "创建了角色", value: "\(viewModel.profile.createdRoleNum)")
-                        StatsDetailRow(icon: "list.clipboard", iconColor: Color.green, title: "创建了故事版", value: "\(viewModel.profile.createdStoryNum)")
-                        StatsDetailRow(icon: "person.2.fill", iconColor: Color.orange, title: "关注了故事", value: "\(viewModel.profile.watchingStoryNum)")
-                        StatsDetailRow(icon: "person.text.rectangle", iconColor: Color.pink, title: "关注了角色", value: "\(viewModel.profile.watchingStoryNum)")
-                        StatsDetailRow(icon: "bonjour", iconColor: Color.yellow, title: "关注了小组", value: "\(viewModel.profile.watchingGroupNum)")
+                        StatsDetailRow(icon: "fossil.shell", iconColor: Color.theme.accent, title: "创建了故事", value: "\(viewModel.profile.createdStoryNum)")
+                        StatsDetailRow(icon: "person.text.rectangle", iconColor: Color.theme.accent, title: "创建了角色", value: "\(viewModel.profile.createdRoleNum)")
+                        StatsDetailRow(icon: "list.clipboard", iconColor: Color.theme.accent, title: "创建了故事版", value: "\(viewModel.profile.createdStoryNum)")
+                        StatsDetailRow(icon: "person.2.fill", iconColor: Color.theme.accent, title: "关注了故事", value: "\(viewModel.profile.watchingStoryNum)")
+                        StatsDetailRow(icon: "person.text.rectangle", iconColor: Color.theme.accent, title: "关注了角色", value: "\(viewModel.profile.watchingStoryNum)")
+                        StatsDetailRow(icon: "bonjour", iconColor: Color.theme.accent, title: "关注了小组", value: "\(viewModel.profile.watchingGroupNum)")
                     }
                     .padding(.vertical, 24)
                 }
@@ -271,19 +270,19 @@ struct UserProfileView: View {
                 Button(action: { showStatsDetail = false }) {
                     Text("了解")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.theme.primaryText)
                         .frame(maxWidth: .infinity)
                         .frame(height: 52)
-                        .background(Color.orange)
+                        .background(Color.theme.accent)
                         .cornerRadius(12)
                         .padding(.horizontal, 24)
                         .padding(.vertical, 16)
                 }
             }
             .frame(width: 320)
-            .background(Color.white)
+            .background(Color.theme.background)
             .cornerRadius(24)
-            .shadow(color: Color.black.opacity(0.15), radius: 16, x: 0, y: 8)
+            .shadow(color: Color.theme.background.opacity(0.15), radius: 16, x: 0, y: 8)
         }
     }
     
@@ -300,11 +299,11 @@ struct UserProfileView: View {
                     .frame(width: 32, height: 32)
                 Text(title)
                     .font(.system(size: 16))
-                    .foregroundColor(.black)
+                    .foregroundColor(Color.theme.primaryText)
                 Spacer()
                 Text(value)
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.black)
+                    .foregroundColor(Color.theme.primaryText)
             }
             .padding(.horizontal, 24)
         }
@@ -348,7 +347,7 @@ struct UserProfileView: View {
     
     private var loadingOverlay: some View {
         ZStack {
-            Color.black.opacity(0.3)
+            Color.theme.background.opacity(0.3)
                 .ignoresSafeArea()
             VStack {
                 Spacer()
@@ -356,11 +355,11 @@ struct UserProfileView: View {
                     HStack {
                         ActivityIndicatorView(isVisible: $isLoading, type: .arcs())
                             .frame(width: 64, height: 64)
-                            .foregroundColor(.red)
+                            .foregroundColor(Color.theme.accent)
                     }
                             .frame(height: 50)
                     Text("加载中......")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Color.theme.secondaryText)
                         .font(.system(size: 14))
                 }
                 .frame(maxWidth: .infinity)
@@ -490,16 +489,16 @@ struct UserProfileView: View {
                     Spacer()
                     Button(action: onEditProfile) {
                         Image(systemName: "line.3.horizontal")
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.theme.primaryText)
                             .font(.system(size: 18))
-                            .shadow(color: .black.opacity(0.3), radius: 2)
+                            .shadow(color: Color.theme.background.opacity(0.3), radius: 2)
                     }
                     .padding(.trailing, 10)
                     Button(action: onShowSettings) {
                         Image(systemName: "gearshape")
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.theme.primaryText)
                             .font(.system(size: 18))
-                            .shadow(color: .black.opacity(0.3), radius: 2)
+                            .shadow(color: Color.theme.background.opacity(0.3), radius: 2)
                     }
                     .padding(.trailing, 10)
                 }
@@ -512,21 +511,21 @@ struct UserProfileView: View {
                     )
                     .frame(width: 88, height: 88)
                     .clipShape(Circle())
-                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                    .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
+                    .overlay(Circle().stroke(Color.theme.primaryText, lineWidth: 2))
+                    .shadow(color: Color.theme.background.opacity(0.2), radius: 8, x: 0, y: 4)
                     // 用户名
                     VStack(alignment: .leading, spacing: 6) {
                         Text(user.name)
                             .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(.white)
-                            .shadow(color: .black.opacity(0.3), radius: 2)
+                            .foregroundColor(Color.theme.primaryText)
+                            .shadow(color: Color.theme.background.opacity(0.3), radius: 2)
                         if !status.isEmpty {
                             Text(status)
                                 .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.theme.primaryText)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 2)
-                                .background(Color.black.opacity(0.25))
+                                .background(Color.theme.background.opacity(0.25))
                                 .cornerRadius(8)
                         }
                     }
@@ -538,8 +537,8 @@ struct UserProfileView: View {
                 if !user.desc.isEmpty {
                     Text(user.desc)
                         .font(.system(size: 14))
-                        .foregroundColor(.white)
-                        .shadow(color: .black.opacity(0.2), radius: 1)
+                        .foregroundColor(Color.theme.primaryText)
+                        .shadow(color: Color.theme.background.opacity(0.2), radius: 1)
                         .padding(.horizontal, 20)
                         .padding(.top, 8)
                 }
@@ -565,19 +564,19 @@ struct UserProfileView: View {
                         Button(action: onFollow) {
                             Text("关注")
                                 .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.theme.primaryText)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
-                                .background(Color.blue)
+                                .background(Color.theme.accent)
                                 .cornerRadius(8)
                         }
                         Button(action: onMessage) {
                             Text("消息")
                                 .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.theme.primaryText)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
-                                .background(Color.blue)
+                                .background(Color.theme.accent)
                                 .cornerRadius(8)
                         }
                     }
@@ -737,21 +736,21 @@ struct StoryboardCell: View {
                     StatLabel(
                         icon: "heart",
                         count: Int(board.boardActive.totalLikeCount),
-                        iconColor: Color.red,
+                        iconColor: Color.theme.accent,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     StatLabel(
                         icon: "bubble.left",
                         count: Int(board.boardActive.totalCommentCount),
-                        iconColor: Color.blue,
+                        iconColor: Color.theme.accent,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     StatLabel(
                         icon: "signpost.right.and.left",
                         count: Int(board.boardActive.totalForkCount),
-                        iconColor: Color.blue,
+                        iconColor: Color.theme.accent,
                         countColor: Color.theme.tertiaryText
                     )
                     
@@ -833,21 +832,21 @@ struct StoryboardActiveCell: View {
                     StatLabel(
                         icon: "heart",
                         count: Int(board.boardActive.totalLikeCount),
-                        iconColor: Color.red,
+                        iconColor: Color.theme.accent,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     StatLabel(
                         icon: "bubble.left",
                         count: Int(board.boardActive.totalCommentCount),
-                        iconColor: Color.blue,
+                        iconColor: Color.theme.accent,
                         countColor: Color.theme.tertiaryText
                     )
                     
                     StatLabel(
                         icon: "signpost.right.and.left",
                         count: Int(board.boardActive.totalForkCount),
-                        iconColor: Color.blue,
+                        iconColor: Color.theme.accent,
                         countColor: Color.theme.tertiaryText
                     )
                     
@@ -954,10 +953,8 @@ struct ProfileRoleCell: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "chevron.left")
                                     .font(.system(size: 16, weight: .medium))
-                                Text("返回")
-                                    .font(.system(size: 16))
                             }
-                            .foregroundColor(.primary)
+                            .foregroundColor(Color.theme.primaryText)
                         }
                     }
                 }
@@ -1152,13 +1149,13 @@ private struct EmptyStateView: View {
             Spacer()
             Image(systemName: image)
                 .font(.system(size: 48))
-                .foregroundColor(.gray)
+                .foregroundColor(Color.theme.secondaryText)
             Text(title)
                 .font(.system(size: 16))
-                .foregroundColor(.gray)
+                .foregroundColor(Color.theme.secondaryText)
             Text(message)
                 .font(.system(size: 14))
-                .foregroundColor(.gray.opacity(0.8))
+                .foregroundColor(Color.theme.secondaryText)
             Spacer()
         }
     }
@@ -1193,11 +1190,11 @@ struct PendingTab: View {
                         HStack {
                             ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
                                 .frame(width: 64, height: 64)
-                                .foregroundColor(.red)
+                                .foregroundColor(Color.theme.accent)
                         }
                         .frame(height: 50)
                         Text("加载中......")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Color.theme.secondaryText)
                             .font(.system(size: 14))
                     }
                     .frame(maxWidth: .infinity)
@@ -1278,7 +1275,7 @@ struct PendingTab: View {
                     Spacer()
                     Text("没有更多草稿了")
                         .font(.system(size: 13))
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color.theme.secondaryText)
                         .padding(.vertical, 8)
                     Spacer()
                 }
@@ -1415,21 +1412,21 @@ struct UnpublishedStoryBoardCellView: View {
                         InteractionStatItem(
                             icon: "paintbrush.pointed",
                             text: "编辑",
-                            color: Color.black
+                            color: Color.theme.primaryText
                         )
                     }
                     Button(action: { showingPublishAlert = true }) {
                         InteractionStatItem(
                             icon: "mountain.2",
                             text: "发布",
-                            color: Color.black
+                            color: Color.theme.primaryText
                         )
                     }
                     Button(action: { showingDeleteAlert = true }) {
                         InteractionStatItem(
                             icon: "trash",
                             text: "删除",
-                            color: Color.black
+                            color: Color.theme.primaryText
                         )
                     }
                 }
@@ -1526,7 +1523,7 @@ private struct UnpublishedToastView: View {
         VStack {
             Text(message)
                 .font(.system(size: 14))
-                .foregroundColor(.white)
+                .foregroundColor(Color.theme.primaryText)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
                 .background(Color.theme.secondary.opacity(0.9))
@@ -1571,11 +1568,11 @@ struct RefreshableScrollView<Content: View>: View {
                         HStack {
                             ActivityIndicatorView(isVisible: $isRefreshing, type: .arcs())
                                 .frame(width: 64, height: 64)
-                                .foregroundColor(.red)
+                                .foregroundColor(Color.theme.accent)
                         }
                                 .frame(height: 50)
                         Text("加载中......")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Color.theme.secondaryText)
                             .font(.system(size: 14))
                     }
                     .frame(maxWidth: .infinity)

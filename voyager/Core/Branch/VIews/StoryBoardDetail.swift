@@ -178,7 +178,7 @@ struct StoryBoardCellView: View {
                 StorySubViewInteractionButton(
                     icon: board.boardActive.storyboard.currentUserStatus.isLiked ? "heart.fill" : "heart",
                     count: "\(board.boardActive.totalLikeCount)",
-                    color: board.boardActive.storyboard.currentUserStatus.isLiked  ? Color.red: Color.theme.tertiaryText,
+                    color: board.boardActive.storyboard.currentUserStatus.isLiked  ? Color.theme.likeIcon: Color.theme.tertiaryText,
                     action: {
                         Task{
                             if board.boardActive.storyboard.currentUserStatus.isLiked {

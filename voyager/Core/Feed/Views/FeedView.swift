@@ -25,7 +25,7 @@ struct FeedView: View {
     @State private var showError: Bool = false
     @State private var selectedStoryBoardId: Int64? = nil
     @Binding var showTabBar: Bool
-    
+    @State private var hasInitialized = false
     
     init(user: User, showTabBar: Binding<Bool>) {
         self._viewModel = StateObject(wrappedValue: FeedViewModel(user: user))
@@ -68,12 +68,12 @@ struct FeedView: View {
                 )
                 .padding(.vertical, 4)
                 
-                // 页面内容
-                TabView(selection: $selectedIndex) {
-                    // 动态页面
-                    ScrollView {
-                        VStack {
-                            // 动态内容
+                ZStack {
+                    if viewModel.isLoading || viewModel.isLoadingTrending || viewModel.isRefreshing || viewModel.isLoadingMoreTrending {
+                        LoadingIndicator(isLoading: true)
+                    } else {
+                        TabView(selection: $selectedIndex) {
+                            // 动态页面
                             LatestUpdatesView(
                                 searchText: $searchText,
                                 selectedTab: .constant(.Story),
@@ -84,19 +84,19 @@ struct FeedView: View {
                                 showError: $showError,
                                 selectedStoryBoardId: $selectedStoryBoardId
                             )
+                            .tag(0)
+                            
+                            // 热点页面
+                            TrendingContentView(viewModel: viewModel)
+                                .tag(1)
+                            
+                            // 发现页面
+                            DiscoveryView(viewModel: viewModel, messageText: "最近那边发生了什么事情？", showTabBar: $showTabBar)
+                                .tag(2)
                         }
+                        .tabViewStyle(.page(indexDisplayMode: .never))
                     }
-                    .tag(0)
-                    
-                    // 热点页面
-                    TrendingContentView(viewModel: viewModel)
-                    .tag(1)
-                    
-                    // 发现页面
-                    DiscoveryView(viewModel: viewModel, messageText: "最近那边发生了什么事情？", showTabBar: $showTabBar)
-                    .tag(2)
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
             }
             .background(Color.theme.background)
             .navigationDestination(for: Story.self) { story in
@@ -108,6 +108,19 @@ struct FeedView: View {
         } message: {
             Text(errorMessage)
         }
+    }
+}
+
+// 修改 LazyView 包装器
+private struct LazyView<Content: View>: View {
+    private let build: () -> Content
+    
+    init(_ build: @escaping () -> Content) {
+        self.build = build
+    }
+    
+    var body: some View {
+        build()
     }
 }
 
@@ -489,6 +502,7 @@ private struct LatestUpdatesView: View {
     @Binding var errorMessage: String
     @Binding var showError: Bool
     @Binding var selectedStoryBoardId: Int64?
+    @StateObject private var viewState = LatestUpdatesViewState()
     
     init(searchText: Binding<String>, 
          selectedTab: Binding<FeedType>, 
@@ -510,7 +524,7 @@ private struct LatestUpdatesView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            CategoryTabsSection(selectedTab: $selectedTab, tabs: tabs, viewModel: viewModel)
+            CategoryTabsSection(selectedTab: $selectedTab, tabs: tabs)
             FeedContentSection(
                 selectedTab: $selectedTab,
                 isRefreshing: $isRefreshing,
@@ -522,9 +536,25 @@ private struct LatestUpdatesView: View {
             )
         }
         .background(Color.theme.background)
-        .task {
-            if viewModel.storyBoardActives.isEmpty {
-                await viewModel.refreshData(type: selectedTab)
+        .onAppear {
+            // 只在第一次出现且未初始化时初始化
+            if !viewState.hasInitialized {
+                viewState.hasInitialized = true
+                viewState.lastRefreshedTab = selectedTab
+                print("Initializing feed data for tab: \(selectedTab)")
+                Task {
+                    await viewModel.refreshData(type: selectedTab)
+                }
+            }
+        }
+        .onChange(of: selectedTab) { newTab in
+            // 只在标签切换且与上次刷新的标签不同时刷新
+            if viewState.hasInitialized && viewState.lastRefreshedTab != newTab {
+                viewState.lastRefreshedTab = newTab
+                print("Tab changed to: \(newTab)")
+                Task {
+                    await viewModel.refreshData(type: newTab)
+                }
             }
         }
         .alert("加载失败", isPresented: $viewModel.hasError) {
@@ -535,20 +565,22 @@ private struct LatestUpdatesView: View {
     }
 }
 
+// 状态管理类
+private class LatestUpdatesViewState: ObservableObject {
+    @Published var hasInitialized = false
+    @Published var lastRefreshedTab: FeedType?
+    @Published var isRefreshing = false
+    @Published var isViewActive = false
+}
+
 // 分类标签区域
 private struct CategoryTabsSection: View {
     @Binding var selectedTab: FeedType
     let tabs: [(type: FeedType, title: String)]
-    @ObservedObject var viewModel: FeedViewModel
     
     var body: some View {
         CategoryTabs(selectedTab: $selectedTab, tabs: tabs)
             .padding(.vertical, 4)
-            .onChange(of: selectedTab) { newTab in
-                Task {
-                    await viewModel.refreshData(type: newTab)
-                }
-            }
     }
 }
 
@@ -594,10 +626,6 @@ private struct FeedContentSection: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                FeedViewRefreshControl(isRefreshing: $isRefreshing, threshold: 120) {
-                    await viewModel.refreshData(type: selectedTab)
-                    isRefreshing = false
-                }
                 FeedItemList(
                     viewModel: viewModel,
                     selectedTab: $selectedTab,
@@ -647,25 +675,6 @@ private struct FeedItemList: View {
                     }
                 }) {
                     HStack {
-                        Spacer()
-                        if isLoadingMore {
-                            VStack {
-                                Spacer()
-                                VStack(spacing: 12) {
-                                    HStack {
-                                        ActivityIndicatorView(isVisible: $isLoadingMore, type: .arcs())
-                                            .frame(width: 64, height: 64)
-                                            .foregroundColor(.red)
-                                    }
-                                            .frame(height: 50)
-                                    Text("加载中......")
-                                        .foregroundColor(.secondary)
-                                        .font(.system(size: 14))
-                                }
-                                .frame(maxWidth: .infinity)
-                                Spacer()
-                            }
-                        }
                         Text(isLoadingMore ? "加载中..." : "加载更多")
                             .font(.system(size: 12))
                             .foregroundColor(Color.gray)
@@ -1187,7 +1196,7 @@ private struct TrendingContentView: View {
     @State private var errorMessage: String = ""
     @State private var showError: Bool = false
     @State private var isRefreshing = false
-    @State private var didAppear = false
+    @StateObject private var viewState = TrendingContentViewState()
     
     var body: some View {
         VStack(spacing: 0) {
@@ -1226,6 +1235,7 @@ private struct TrendingContentView: View {
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
+            
             // 内容区域
             TabView(selection: $selectedTab) {
                 // 热门故事
@@ -1241,24 +1251,7 @@ private struct TrendingContentView: View {
                         }
                     ) {
                         VStack(alignment: .leading, spacing: 0) {
-                            if isRefreshing || viewModel.isLoadingTrending {
-                                VStack {
-                                    Spacer()
-                                    VStack(spacing: 12) {
-                                        HStack {
-                                            ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
-                                                .frame(width: 64, height: 64)
-                                                .foregroundColor(.red)
-                                        }
-                                        .frame(height: 50)
-                                        Text("加载中......")
-                                            .foregroundColor(.secondary)
-                                            .font(.system(size: 14))
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    Spacer()
-                                }
-                            } else if viewModel.trendingStories.isEmpty {
+                            if viewModel.trendingStories.isEmpty {
                                 VStack {
                                     Text("暂无热门故事")
                                         .font(.system(size: 16))
@@ -1274,7 +1267,7 @@ private struct TrendingContentView: View {
                                 .frame(maxWidth: .infinity)
                             } else {
                                 LazyVStack(alignment: .leading, spacing: 8) {
-                                    ForEach(viewModel.trendingStories, id: \ .Id) { story in
+                                    ForEach(viewModel.trendingStories, id: \.Id) { story in
                                         TrendingStoryCard(story: story, viewModel: viewModel)
                                             .padding(.horizontal)
                                             .onAppear {
@@ -1302,6 +1295,7 @@ private struct TrendingContentView: View {
                     }
                 }
                 .tag(0)
+                
                 // 热门角色
                 ScrollView {
                     RefreshableScrollView(
@@ -1315,24 +1309,7 @@ private struct TrendingContentView: View {
                         }
                     ) {
                         VStack(alignment: .leading, spacing: 0) {
-                            if isRefreshing || viewModel.isLoadingTrending {
-                                VStack {
-                                    Spacer()
-                                    VStack(spacing: 12) {
-                                        HStack {
-                                            ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
-                                                .frame(width: 64, height: 64)
-                                                .foregroundColor(.red)
-                                        }
-                                        .frame(height: 50)
-                                        Text("加载中......")
-                                            .foregroundColor(.secondary)
-                                            .font(.system(size: 14))
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    Spacer()
-                                }
-                            } else if viewModel.trendingRoles.isEmpty {
+                            if viewModel.trendingRoles.isEmpty {
                                 VStack {
                                     Text("暂无热门角色")
                                         .font(.system(size: 16))
@@ -1348,7 +1325,7 @@ private struct TrendingContentView: View {
                                 .frame(maxWidth: .infinity)
                             } else {
                                 LazyVStack(alignment: .leading, spacing: 8) {
-                                    ForEach(viewModel.trendingRoles, id: \ .Id) { role in
+                                    ForEach(viewModel.trendingRoles, id: \.Id) { role in
                                         TrendingRoleCard(role: role, viewModel: viewModel)
                                             .padding(.horizontal)
                                             .onAppear {
@@ -1381,13 +1358,26 @@ private struct TrendingContentView: View {
         }
         .background(Color.theme.background)
         .onAppear {
-            if !didAppear {
-                didAppear = true
+            // 只在第一次出现时初始化
+            if !viewState.hasInitialized {
+                viewState.hasInitialized = true
                 Task {
                     if viewModel.trendingStories.isEmpty {
                         await viewModel.loadTrendingStories()
                     }
                     if viewModel.trendingRoles.isEmpty {
+                        await viewModel.loadTrendingRoles()
+                    }
+                }
+            }
+        }
+        .onChange(of: selectedTab) { newTab in
+            // 只在标签切换时刷新对应数据
+            if viewState.hasInitialized {
+                Task {
+                    if newTab == 0 && viewModel.trendingStories.isEmpty {
+                        await viewModel.loadTrendingStories()
+                    } else if newTab == 1 && viewModel.trendingRoles.isEmpty {
                         await viewModel.loadTrendingRoles()
                     }
                 }
@@ -1399,6 +1389,13 @@ private struct TrendingContentView: View {
             Text(errorMessage)
         }
     }
+}
+
+// 状态管理类
+private class TrendingContentViewState: ObservableObject {
+    @Published var hasInitialized = false
+    @Published var lastRefreshedTab: Int?
+    @Published var isRefreshing = false
 }
 
 // 热门故事卡片

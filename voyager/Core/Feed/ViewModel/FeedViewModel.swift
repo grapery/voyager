@@ -63,6 +63,9 @@ class FeedViewModel: ObservableObject {
     @Published private var forkListsHasMoreMap: [Int64: Bool] = [:]
     @Published private var forkListsPageMap: [Int64: Int64] = [:]
     
+    @Published private var lastRefreshTime: Date?
+    private let minimumRefreshInterval: TimeInterval = 1.0 // 最小刷新间隔（秒）
+    
     @MainActor
     func performSearch() async {
        // Implement search logic here based on the selected tab and searchText
@@ -155,10 +158,42 @@ class FeedViewModel: ObservableObject {
     
     @MainActor
     func refreshData(type: FeedType) async {
-        guard !isLoading else { return }
+        // 检查是否正在加载或刷新
+        guard !isLoading && !isRefreshing else {
+            print("Skipping refresh - already loading or refreshing")
+            return
+        }
         
+        // 检查是否在最小刷新间隔内
+        if let lastRefresh = lastRefreshTime,
+           Date().timeIntervalSince(lastRefresh) < minimumRefreshInterval {
+            print("Skipping refresh - too soon since last refresh")
+            return
+        }
+        
+        // 检查是否已经在加载相同类型的数据
+        if activeFlowType == getActiveFlowType(for: type) && !storyBoardActives.isEmpty {
+            print("Skipping refresh - data already loaded for type: \(type)")
+            return
+        }
+        
+        // 检查是否正在加载更多数据
+        if isLoadingMoreTrending {
+            print("Skipping refresh - loading more trending data")
+            return
+        }
+        
+        print("Starting refresh for type: \(type)")
         isLoading = true
         isRefreshing = true
+        lastRefreshTime = Date()
+        
+        defer {
+            isLoading = false
+            isRefreshing = false
+            print("Finished refresh for type: \(type)")
+        }
+        
         hasError = false
         resetPagination()
         
@@ -187,8 +222,6 @@ class FeedViewModel: ObservableObject {
                 )
                 if let error = error {
                     handleError(error)
-                    isLoading = false
-                    isRefreshing = false
                     return
                 }
                 appendStoryBoards(boards)
@@ -198,19 +231,32 @@ class FeedViewModel: ObservableObject {
         } catch {
             handleError(error)
         }
-        isLoading = false
-        isRefreshing = false
+        
         if hasMoreData {
             currentPage = currentPage + 1
         }
-        
+    }
+    
+    // 获取对应的 activeFlowType
+    private func getActiveFlowType(for type: FeedType) -> Common_ActiveFlowType {
+        switch type {
+        case .Groups:
+            return Common_ActiveFlowType.groupFlowType
+        case .Story:
+            return Common_ActiveFlowType.storyFlowType
+        case .StoryRole:
+            return Common_ActiveFlowType.roleFlowType
+        }
     }
     
     @MainActor
     func loadMoreData(type: FeedType) async {
         guard !isLoading && hasMoreData else { return }
-        
+        print("loadMoreData is calling")
         isLoading = true
+        defer {
+            isLoading = false
+        }
         hasError = false
         print()
         let nextPage = currentPage
@@ -414,34 +460,52 @@ class FeedViewModel: ObservableObject {
     // 加载热门故事
     @MainActor
     func loadTrendingStories() async {
-        guard !isLoadingTrending else { return }
+        guard !isLoadingTrending && !isLoadingMoreTrending else {
+            print("Skipping loadTrendingStories - already loading")
+            return
+        }
+        
+        // 检查是否在最小刷新间隔内
+        if let lastRefresh = lastRefreshTime,
+           Date().timeIntervalSince(lastRefresh) < minimumRefreshInterval {
+            print("Skipping loadTrendingStories - too soon since last refresh")
+            return
+        }
         
         isLoadingTrending = true
         trendingStoriesPage = 0
         hasMoreTrendingStories = true
+        lastRefreshTime = Date()
+        
+        defer {
+            isLoadingTrending = false
+        }
+        
         trendingStories.removeAll()
-        
         await fetchTrendingStories()
-        
-        isLoadingTrending = false
     }
     
     // 加载更多热门故事
     @MainActor
     func loadMoreTrendingStories() async {
-        guard !isLoadingMoreTrending && hasMoreTrendingStories else { return }
+        guard !isLoadingMoreTrending && !isLoadingTrending && hasMoreTrendingStories else {
+            print("Skipping loadMoreTrendingStories - already loading or no more data")
+            return
+        }
         
         isLoadingMoreTrending = true
+        defer {
+            isLoadingMoreTrending = false
+        }
+        
         trendingStoriesPage += 1
-        
         await fetchTrendingStories()
-        
-        isLoadingMoreTrending = false
     }
     
     // 实际获取热门故事的方法
     @MainActor
     private func fetchTrendingStories() async {
+        print("fetchTrendingStories is calling")
         do {
             // 获取当前时间和一周前的时间戳
             let now = Int64(Date().timeIntervalSince1970)
@@ -487,29 +551,46 @@ class FeedViewModel: ObservableObject {
     // 加载热门角色
     @MainActor
     func loadTrendingRoles() async {
-        guard !isLoadingTrending else { return }
+        guard !isLoadingTrending && !isLoadingMoreTrending else {
+            print("Skipping loadTrendingRoles - already loading")
+            return
+        }
+        
+        // 检查是否在最小刷新间隔内
+        if let lastRefresh = lastRefreshTime,
+           Date().timeIntervalSince(lastRefresh) < minimumRefreshInterval {
+            print("Skipping loadTrendingRoles - too soon since last refresh")
+            return
+        }
         
         isLoadingTrending = true
         trendingRolesPage = 0
         hasMoreTrendingRoles = true
+        lastRefreshTime = Date()
+        
+        defer {
+            isLoadingTrending = false
+        }
+        
         trendingRoles.removeAll()
-        
         await fetchTrendingRoles()
-        
-        isLoadingTrending = false
     }
     
     // 加载更多热门角色
     @MainActor
     func loadMoreTrendingRoles() async {
-        guard !isLoadingMoreTrending && hasMoreTrendingRoles else { return }
+        guard !isLoadingMoreTrending && !isLoadingTrending && hasMoreTrendingRoles else {
+            print("Skipping loadMoreTrendingRoles - already loading or no more data")
+            return
+        }
         
         isLoadingMoreTrending = true
+        defer {
+            isLoadingMoreTrending = false
+        }
+        
         trendingRolesPage += 1
-        
         await fetchTrendingRoles()
-        
-        isLoadingMoreTrending = false
     }
     
     // 实际获取热门角色的方法

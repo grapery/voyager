@@ -272,8 +272,8 @@ struct ProfileScreen: View {
             .lineLimit(1)
             .background(
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(Color.appProfileBlue.opacity(0.08))
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.appProfileBlue))
+                    .fill(Color.theme.appProfileBlue.opacity(0.08))
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.theme.appProfileBlue))
             )
     }
 

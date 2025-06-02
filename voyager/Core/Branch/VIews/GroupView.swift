@@ -8,6 +8,7 @@
 import SwiftUI
 import Kingfisher
 import Combine
+import ActivityIndicatorView
 
 // MARK: - Main Group View
 struct GroupView: View {
@@ -26,7 +27,6 @@ struct GroupView: View {
                     searchText: $searchText,
                     onAddTapped: { isShowingNewGroupView = true }
                 )
-                
                 GroupViewListView(viewModel: viewModel)
             }
             .fullScreenCover(isPresented: $isShowingNewGroupView) {
@@ -82,24 +82,44 @@ struct GroupViewListView: View {
             ) {
                 VStack(spacing: 16) {
                     GroupListHeaderView(viewModel: viewModel)
-                    
-                    LazyVStack(spacing: 0) {
-                        ForEach(viewModel.groups) { group in
-                            GroupViewListItemView(group: group, viewModel: viewModel)
-                                .onAppear {
-                                    if group.id == viewModel.groups.last?.id {
-                                        Task {
-                                            if !isLoadingMore {
-                                                isLoadingMore = true
-                                                await viewModel.fetchMoreGroups()
-                                                isLoadingMore = false
+                    ZStack{
+                        VStack{
+                            if self.isRefreshing || self.isLoadingMore {
+                                ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                                                            .frame(width: 100, height: 100)
+                                                            .foregroundColor(.red)
+                                                            .background(Color.black.opacity(0.1))
+                            } else {
+                                if viewModel.groups.isEmpty {
+                                    Text("暂无小组")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(Color.theme.secondaryText)
+                                        .padding(.vertical, 16)
+                                    
+                                }
+                            }
+                        }
+                        
+                        LazyVStack(spacing: 0) {
+                            ForEach(viewModel.groups) { group in
+                                GroupViewListItemView(group: group, viewModel: viewModel)
+                                    .onAppear {
+                                        if group.id == viewModel.groups.last?.id {
+                                            Task {
+                                                if !isLoadingMore {
+                                                    isLoadingMore = true
+                                                    await viewModel.fetchMoreGroups()
+                                                    isLoadingMore = false
+                                                }
                                             }
                                         }
                                     }
-                                }
+                            }
                         }
+                        .padding(.top, 8)
                     }
-                    .padding(.top, 8)
+                    
+                    
                 }
                 .padding(.vertical)
             }

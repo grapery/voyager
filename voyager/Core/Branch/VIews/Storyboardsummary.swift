@@ -271,7 +271,7 @@ struct StoryboardSummary: View {
                             HStack(spacing: 4) {
                                 ForEach(0..<scenes.count, id: \.self) { index in
                                     Capsule()
-                                        .fill(Color.white)
+                                        .fill(Color.theme.secondaryText)
                                         .frame(height: 4)
                                         .opacity(currentIndex.wrappedValue == index ? 1.0 : 0.3)
                                 }
@@ -283,7 +283,7 @@ struct StoryboardSummary: View {
                             let scene = scenes[currentIndex.wrappedValue]
                             Text(scene.content)
                                 .font(.system(size: 14))
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.theme.secondaryText)
                                 .padding(.horizontal, 16)
                                 .padding(.bottom, 12)
                                 .lineLimit(2)
@@ -371,7 +371,7 @@ struct StoryboardSummary: View {
                         }
                     }
                 },
-                color: Color.red
+                color: Color.theme.likeIcon
             )
             
             // 评论按钮
@@ -382,7 +382,7 @@ struct StoryboardSummary: View {
                 action: {
                     print("add some comment")
                 },
-                color: Color.red
+                color: Color.theme.commentedIcon
             )
             
             // 分支按钮
@@ -393,7 +393,7 @@ struct StoryboardSummary: View {
                 action: {
                     print("add some comment")
                 },
-                color: Color.red
+                color: Color.theme.forkedIcon
             )
             
             Spacer()

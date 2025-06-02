@@ -50,10 +50,10 @@ struct CustomTabBar: View {
                         VStack(spacing: 4) {
                             Image(systemName: tab.icon)
                                 .font(.system(size: 20, weight: selected == tab ? .bold : .regular))
-                                .foregroundColor(selected == tab ? Color.white: Color.theme.tertiaryText)
+                                .foregroundColor(selected == tab ? Color.theme.primaryText : Color.theme.tertiaryText)
                             Text(tab.label)
                                 .font(.system(size: 12, weight: selected == tab ? .bold : .regular))
-                                .foregroundColor(selected == tab ? Color.white: Color.theme.tertiaryText)
+                                .foregroundColor(selected == tab ? Color.theme.primaryText : Color.theme.tertiaryText)
                         }
                         .frame(maxWidth: .infinity)
                     }
@@ -64,7 +64,7 @@ struct CustomTabBar: View {
             .background(
                 Color.theme.secondaryBackground
                     .clipShape(RoundedRectangle(cornerRadius: 1, style: .continuous))
-                    .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: -2)
+                    .shadow(color: Color.theme.primaryText.opacity(0.08), radius: 12, x: 0, y: -2)
             )
         }
         .padding(.horizontal, 0)

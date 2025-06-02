@@ -36,7 +36,7 @@ struct NewGroupView: View {
     
     var body: some View {
         ZStack {
-            Color(red: 0.07, green: 0.11, blue: 0.09).ignoresSafeArea()
+            Color.theme.background.ignoresSafeArea()
             ScrollView {
                 VStack(spacing: 24) {
                     // 顶部栏
@@ -44,7 +44,7 @@ struct NewGroupView: View {
                         Button(action: { presentationMode.wrappedValue.dismiss() }) {
                             Image(systemName: "xmark")
                                 .font(.system(size: 22, weight: .bold))
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.theme.primaryText)
                         }
                         Spacer()
                     }
@@ -54,7 +54,7 @@ struct NewGroupView: View {
                     // 标题
                     Text("Create Group")
                         .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.theme.primaryText)
                         .frame(maxWidth: .infinity)
                         .padding(.bottom, 8)
 
@@ -62,16 +62,16 @@ struct NewGroupView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Group Name")
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.theme.primaryText)
                         TextField("Enter groupname", text: $groupName)
                             .padding()
-                            .background(Color(red: 0.16, green: 0.21, blue: 0.18))
-                            .foregroundColor(.white)
+                            .background(Color.theme.inputBackground)
+                            .foregroundColor(Color.theme.inputText)
                             .cornerRadius(12)
                             .font(.system(size: 15))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.clear, lineWidth: 1)
+                                    .stroke(Color.theme.border, lineWidth: 1)
                             )
                     }
                     .padding(.horizontal, 20)
@@ -80,12 +80,12 @@ struct NewGroupView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Group Description")
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.theme.primaryText)
                         TextEditor(text: $groupDescription)
                             .frame(height: 80)
                             .padding(8)
-                            .background(Color(red: 0.16, green: 0.21, blue: 0.18))
-                            .foregroundColor(.white)
+                            .background(Color.theme.inputBackground)
+                            .foregroundColor(Color.theme.inputText)
                             .cornerRadius(12)
                             .font(.system(size: 15))
                     }
@@ -95,25 +95,25 @@ struct NewGroupView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Privacy")
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.theme.primaryText)
                         Menu {
                             ForEach(privacyOptions, id: \.self) { option in
                                 Button(option) {
                                     privacy = option
                                 }
                                 .padding(8)
-                                .background(Color(red: 0.16, green: 0.21, blue: 0.18))
+                                .background(Color.theme.inputBackground)
                             }
                         } label: {
                             HStack {
                                 Text(privacy)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Color.theme.inputText)
                                 Spacer()
                                 Image(systemName: "chevron.down")
-                                    .foregroundColor(.white.opacity(0.7))
+                                    .foregroundColor(Color.theme.tertiaryText)
                             }
                             .padding()
-                            .background(Color(red: 0.16, green: 0.21, blue: 0.18))
+                            .background(Color.theme.inputBackground)
                             .cornerRadius(12)
                         }
                     }
@@ -123,7 +123,7 @@ struct NewGroupView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Group Avatar")
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.theme.primaryText)
                         Button(action: {
                             showAvatarPicker = true
                         }) {
@@ -136,13 +136,13 @@ struct NewGroupView: View {
                             } else {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 24)
-                                        .fill(Color(red: 0.96, green: 0.88, blue: 0.82))
+                                        .fill(Color.theme.inputBackground)
                                         .frame(width: 180, height: 180)
                                     Image(systemName: "person.crop.square")
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 80, height: 80)
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(Color.theme.tertiaryText)
                                 }
                             }
                         }
@@ -154,7 +154,7 @@ struct NewGroupView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Background Image")
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.theme.primaryText)
                         Button(action: { showBackgroundPicker = true }) {
                             if let bg = backgroundImage {
                                 Image(uiImage: bg)
@@ -164,12 +164,12 @@ struct NewGroupView: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 18))
                             } else {
                                 RoundedRectangle(cornerRadius: 18)
-                                    .fill(Color(red: 0.16, green: 0.21, blue: 0.18))
+                                    .fill(Color.theme.inputBackground)
                                     .frame(height: 120)
                                     .overlay(
                                         Image(systemName: "photo")
                                             .font(.system(size: 40))
-                                            .foregroundColor(.gray)
+                                            .foregroundColor(Color.theme.tertiaryText)
                                     )
                             }
                         }
@@ -186,10 +186,10 @@ struct NewGroupView: View {
                         }) {
                             Text("Create")
                                 .font(.system(size: 18, weight: .bold))
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.theme.buttonText)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 52)
-                                .background(Color.green.opacity(0.7))
+                                .background(Color.theme.buttonBackground)
                                 .cornerRadius(26)
                         }
                         .padding(.horizontal, 20)
@@ -202,10 +202,10 @@ struct NewGroupView: View {
                         }) {
                             Text("Cancel")
                                 .font(.system(size: 18, weight: .bold))
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.theme.buttonText)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 52)
-                                .background(Color.gray.opacity(0.7))
+                                .background(Color.theme.buttonBackground)
                                 .cornerRadius(26)
                         }
                         .padding(.horizontal, 20)
@@ -237,7 +237,7 @@ struct NewGroupView: View {
                     .ignoresSafeArea()
                     .overlay {
                         ProgressView()
-                            .tint(.white)
+                            .tint(Color.theme.primaryText)
                     }
             }
         }

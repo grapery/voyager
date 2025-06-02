@@ -188,7 +188,7 @@ private struct AvatarSectionView: View {
             ZStack {
                 if roleAvatar.isEmpty {
                     Circle()
-                        .fill(Color.blue.opacity(0.1))
+                        .fill(Color.theme.buttonBackground.opacity(0.1))
                         .frame(width: 100, height: 100)
                     
                     Text("😊")
@@ -208,7 +208,7 @@ private struct AvatarSectionView: View {
             }
             
             Text("AI 生成形象")
-                .foregroundColor(.gray)
+                .foregroundColor(Color.theme.buttonBackground)
                 .padding(.top, 8)
         }
         .padding(.vertical)
@@ -274,7 +274,7 @@ private struct CreateRoleButton: View {
         .foregroundColor(.white)
         .frame(maxWidth: .infinity)
         .padding()
-        .background(isDisabled ? Color.gray : Color.blue)
+        .background(isDisabled ? Color.theme.buttonBackground : Color.theme.buttonText)
         .cornerRadius(10)
         .disabled(isDisabled)
         .padding()
@@ -306,7 +306,7 @@ private struct ComposeRoleDescriptionButton: View {
         .foregroundColor(.white)
         .frame(maxWidth: .infinity)
         .padding()
-        .background(isDisabled ? Color.gray : Color.blue)
+        .background(isDisabled ? Color.gray : Color.theme.buttonBackground)
         .cornerRadius(10)
         .disabled(isDisabled)
         .padding()
@@ -328,9 +328,9 @@ struct ToastView: View {
             VStack {
                 Spacer()
                 Text(message)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.theme.primaryText)
                     .padding()
-                    .background(Color.black.opacity(0.7))
+                    .background(Color.theme.tertiaryText.opacity(0.7))
                     .cornerRadius(10)
                     .padding(.bottom, 20)
             }
@@ -352,7 +352,7 @@ extension View {
         self.overlay(
             Group {
                 if isLoading {
-                    Color.black.opacity(0.4)
+                    Color.theme.primaryText.opacity(0.4)
                         .ignoresSafeArea()
                         .overlay(
                             ProgressView()
@@ -490,8 +490,8 @@ private struct DeleteImageButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: "minus.circle.fill")
-                .foregroundColor(.red)
-                .background(Color.white)
+                .foregroundColor(Color.theme.likeIcon)
+                .background(Color.theme.buttonBackground)
                 .clipShape(Circle())
         }
     }
