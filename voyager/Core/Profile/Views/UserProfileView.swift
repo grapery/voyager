@@ -50,7 +50,7 @@ struct UserProfileView: View {
                     ZStack(alignment: .top) {
                         backgroundImageView
                             .scaledToFill()
-                            .frame(width: UIScreen.main.bounds.width, height: 300)
+                            .frame(width: UIScreen.main.bounds.width, height: 280)
                             .ignoresSafeArea(edges: .top)
                         UserProfileHeaderView(
                             user: viewModel.user ?? user,
@@ -69,7 +69,7 @@ struct UserProfileView: View {
                         .contentShape(Rectangle())
                     }
                     .frame(width: UIScreen.main.bounds.width, height: 300)
-                    tabsSection
+                    UserHomeTabsSection
                 }
             }
             .ignoresSafeArea(edges: .top)
@@ -107,11 +107,6 @@ struct UserProfileView: View {
             } message: {
                 Text(errorMessage)
             }
-            .overlay {
-                if isLoading {
-                    loadingOverlay
-                }
-            }
             .fullScreenCover(isPresented: $isShowingStoryView) {
                 if let storyId = selectedStoryId {
                     NavigationStack {
@@ -139,7 +134,6 @@ struct UserProfileView: View {
                                     Button(action: { isShowingStoryView = false }) {
                                         HStack(spacing: 4) {
                                             Image(systemName: "chevron.left")
-                                            Text("返回")
                                         }
                                     }
                                 }
@@ -309,7 +303,7 @@ struct UserProfileView: View {
         }
     }
     
-    private var tabsSection: some View {
+    private var UserHomeTabsSection: some View {
         VStack(spacing: 0) {
             CustomSegmentedControl(
                 selectedIndex: $selectedTab,
@@ -493,14 +487,14 @@ struct UserProfileView: View {
                             .font(.system(size: 18))
                             .shadow(color: Color.theme.background.opacity(0.3), radius: 2)
                     }
-                    .padding(.trailing, 10)
+                    .padding(.trailing, 12)
                     Button(action: onShowSettings) {
                         Image(systemName: "gearshape")
                             .foregroundColor(Color.theme.primaryText)
                             .font(.system(size: 18))
                             .shadow(color: Color.theme.background.opacity(0.3), radius: 2)
                     }
-                    .padding(.trailing, 10)
+                    .padding(.trailing, 12)
                 }
                 .padding(.top, 50)
                 HStack(alignment: .center, spacing: 16) {
@@ -516,7 +510,7 @@ struct UserProfileView: View {
                     // 用户名
                     VStack(alignment: .leading, spacing: 6) {
                         Text(user.name)
-                            .font(.system(size: 22, weight: .bold))
+                            .font(.system(size: 24, weight: .bold))
                             .foregroundColor(Color.theme.primaryText)
                             .shadow(color: Color.theme.background.opacity(0.3), radius: 2)
                         if !status.isEmpty {
@@ -525,14 +519,14 @@ struct UserProfileView: View {
                                 .foregroundColor(Color.theme.primaryText)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 2)
-                                .background(Color.theme.background.opacity(0.25))
-                                .cornerRadius(8)
+                                .background(Color.theme.background)
+                                .cornerRadius(4)
                         }
                     }
                     Spacer()
                 }
                 .padding(.top, 50)
-                .padding(.horizontal, 20)
+                .padding(.horizontal, 24)
                 // 描述
                 if !user.desc.isEmpty {
                     Text(user.desc)
@@ -554,7 +548,8 @@ struct UserProfileView: View {
                             StatItemShortCut(count: Int(profile.watchingStoryNum), icon: "person.text.rectangle")
                             StatItemShortCut(count: Int(profile.watchingGroupNum), icon: "bonjour")
                         }
-                        .contentShape(Rectangle())
+                        .contentShape(Rectangle().stroke(lineWidth: CGFloat(2)))
+                        .colorInvert()
                         .onTapGesture {
                             onShowStats()
                         }
@@ -1026,11 +1021,11 @@ struct StatItemShortCut: View {
         VStack(spacing: 4) {
             Image(systemName: icon)
                 .font(.system(size: 12))
-                .foregroundColor(.white)
+                .foregroundColor(Color.theme.buttonText)
             
             Text("\(count)")
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundColor(Color.theme.buttonText)
         }
     }
 }
@@ -1077,7 +1072,24 @@ private struct StoriesTab: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-                if viewModel.storyboards.isEmpty {
+                if isLoading && viewModel.storyboards.isEmpty {
+                    VStack {
+                        Spacer()
+                        VStack(spacing: 12) {
+                            HStack {
+                                ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                                    .frame(width: 64, height: 64)
+                                    .foregroundColor(Color.theme.accent)
+                            }
+                            .frame(height: 50)
+                            Text("加载中......")
+                                .foregroundColor(Color.theme.secondaryText)
+                                .font(.system(size: 14))
+                        }
+                        .frame(maxWidth: .infinity)
+                        Spacer()
+                    }
+                } else if viewModel.storyboards.isEmpty {
                     EmptyStateView(
                         image: "doc.text",
                         title: "还没有故事",
@@ -1560,26 +1572,6 @@ struct RefreshableScrollView<Content: View>: View {
                 }
             }
             .frame(height: 0)
-            
-            if isRefreshing {
-                VStack {
-                    Spacer()
-                    VStack(spacing: 12) {
-                        HStack {
-                            ActivityIndicatorView(isVisible: $isRefreshing, type: .arcs())
-                                .frame(width: 64, height: 64)
-                                .foregroundColor(Color.theme.accent)
-                        }
-                                .frame(height: 50)
-                        Text("加载中......")
-                            .foregroundColor(Color.theme.secondaryText)
-                            .font(.system(size: 14))
-                    }
-                    .frame(maxWidth: .infinity)
-                    Spacer()
-                }
-            }
-            
             content
         }
         .onPreferenceChange(RefreshKey.self) { shouldRefresh in
