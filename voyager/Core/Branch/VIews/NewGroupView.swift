@@ -9,6 +9,7 @@ import SwiftUI
 import UIKit
 import PhotosUI
 import ActivityIndicatorView
+import Kingfisher
 
 struct NewGroupView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -18,113 +19,209 @@ struct NewGroupView: View {
     @State private var alertMessage: String = ""
     @State private var isLoading = false
     
-    @State private var name: String = ""
-    @State private var description: String = ""
-    @State private var avatar: UIImage?
-    @State private var showImagePicker: Bool = false
-    @State private var selectedPhotoItem: PhotosPickerItem?
+    @State private var groupName: String = ""
+    @State private var groupDescription: String = ""
+    @State private var privacy: String = "Public"
+    @State private var showPrivacyPicker = false
+    @State private var groupAvatar: UIImage?
+    @State private var showAvatarPicker = false
+    @State private var backgroundImage: UIImage?
+    @State private var showBackgroundPicker = false
+    
+    let privacyOptions = ["Public", "Private"]
     
     init(userId: Int64, viewModel: GroupViewModel) {
         self.viewModel = viewModel
     }
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                RandomCirclesBackground()
-                    .ignoresSafeArea()
+        ZStack {
+            Color(red: 0.07, green: 0.11, blue: 0.09).ignoresSafeArea()
+            ScrollView {
                 VStack(spacing: 24) {
-                    Spacer(minLength: 42)
-                    // 头像选择区域
-                    PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
-                        if let avatar = avatar {
-                            Image(uiImage: avatar)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .overlay(Circle().stroke(Color.theme.border, lineWidth: 1))
-                        } else {
-                            ZStack {
-                                RandomCirclesAvatar()
-                                    .frame(width: 100, height: 100)
-                                    .clipShape(Circle())
-                                Image(systemName: "infinity.circle")
+                    // 顶部栏
+                    HStack {
+                        Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 22, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                        Spacer()
+                    }
+                    .padding(.top, 24)
+                    .padding(.horizontal, 20)
+
+                    // 标题
+                    Text("Create Group")
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.bottom, 8)
+
+                    // Group Name
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Group Name")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.white)
+                        TextField("Enter groupname", text: $groupName)
+                            .padding()
+                            .background(Color(red: 0.16, green: 0.21, blue: 0.18))
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                            .font(.system(size: 15))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.clear, lineWidth: 1)
+                            )
+                    }
+                    .padding(.horizontal, 20)
+
+                    // Group Description
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Group Description")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.white)
+                        TextEditor(text: $groupDescription)
+                            .frame(height: 80)
+                            .padding(8)
+                            .background(Color(red: 0.16, green: 0.21, blue: 0.18))
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                            .font(.system(size: 15))
+                    }
+                    .padding(.horizontal, 20)
+
+                    // Privacy
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Privacy")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.white)
+                        Menu {
+                            ForEach(privacyOptions, id: \.self) { option in
+                                Button(option) {
+                                    privacy = option
+                                }
+                                .padding(8)
+                                .background(Color(red: 0.16, green: 0.21, blue: 0.18))
+                            }
+                        } label: {
+                            HStack {
+                                Text(privacy)
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Image(systemName: "chevron.down")
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+                            .padding()
+                            .background(Color(red: 0.16, green: 0.21, blue: 0.18))
+                            .cornerRadius(12)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+
+                    // Group Avatar
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Group Avatar")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.white)
+                        Button(action: {
+                            showAvatarPicker = true
+                        }) {
+                            if let avatar = groupAvatar {
+                                Image(uiImage: avatar)
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(width: 100, height: 100)
-                                    .foregroundColor(Color.theme.accent)
-                            }
-                        }
-                    }
-                    // 输入区域
-                    VStack(spacing: 8) {
-                        HStack(alignment: .center, spacing: 8) {
-                            Text("小组名称")
-                                .font(.system(size: 16))
-                                .foregroundColor(.primary)
-                                .frame(width: 72, alignment: .leading)
-                            TextField("请输入小组名称", text: $name)
-                                .foregroundColor(.white)
-                                .textFieldStyle(CustomTextFieldStyle())
-                        }
-                        HStack(alignment: .center, spacing: 8) {
-                            Text("小组描述")
-                                .font(.system(size: 16))
-                                .foregroundColor(.primary)
-                                .frame(width: 72, alignment: .leading)
-                            TextField("请输入小组描述", text: $description)
-                                .foregroundColor(.white)
-                                .textFieldStyle(CustomTextFieldStyle())
-                        }
-                    }
-                    .padding(.horizontal, 24)
-                    Spacer()
-                    // 按钮区域
-                    HStack(spacing: 16) {
-                        Button(action: createGroup) {
-                            if isLoading {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .frame(width: 180, height: 180)
+                                    .clipShape(RoundedRectangle(cornerRadius: 24))
                             } else {
-                                Text("创建小组")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 24)
+                                        .fill(Color(red: 0.96, green: 0.88, blue: 0.82))
+                                        .frame(width: 180, height: 180)
+                                    Image(systemName: "person.crop.square")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 80, height: 80)
+                                        .foregroundColor(.gray)
+                                }
                             }
                         }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color.theme.accent)
-                        .clipShape(RoundedRectangle(cornerRadius: 25))
-                        .disabled(isLoading)
-                        Button(action: { dismiss() }) {
-                            Text("取消")
-                                .font(.headline)
-                                .foregroundColor(Color.theme.secondaryText)
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .padding(.horizontal, 20)
+
+                    // Background Image
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Background Image")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.white)
+                        Button(action: { showBackgroundPicker = true }) {
+                            if let bg = backgroundImage {
+                                Image(uiImage: bg)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(height: 120)
+                                    .clipShape(RoundedRectangle(cornerRadius: 18))
+                            } else {
+                                RoundedRectangle(cornerRadius: 18)
+                                    .fill(Color(red: 0.16, green: 0.21, blue: 0.18))
+                                    .frame(height: 120)
+                                    .overlay(
+                                        Image(systemName: "photo")
+                                            .font(.system(size: 40))
+                                            .foregroundColor(.gray)
+                                    )
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .padding(.horizontal, 20)
+
+                    HStack{
+                        Spacer()
+                        // Create Group Button
+                        Button(action: {
+                            // 创建小组逻辑
+                            self.createGroup()
+                        }) {
+                            Text("Create")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
-                                .frame(height: 50)
-                                .background(Color.theme.secondaryBackground)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .stroke(Color.theme.border, lineWidth: 1)
-                                )
+                                .frame(height: 52)
+                                .background(Color.green.opacity(0.7))
+                                .cornerRadius(26)
                         }
-                        .disabled(isLoading)
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 24)
+                        Spacer()
+                        // Create Group Button
+                        Button(action: {
+                            // 取消创建小组逻辑
+                            presentationMode.wrappedValue.dismiss()
+                        }) {
+                            Text("Cancel")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 52)
+                                .background(Color.gray.opacity(0.7))
+                                .cornerRadius(26)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 24)
+                        Spacer()
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 32)
                 }
+                .padding(.top, 8)
             }
-            .navigationBarHidden(true)
-            .onChange(of: selectedPhotoItem) { newItem in
-                Task {
-                    if let data = try? await newItem?.loadTransferable(type: Data.self),
-                       let image = UIImage(data: data) {
-                        await MainActor.run {
-                            self.avatar = image
-                        }
-                    }
-                }
+            .sheet(isPresented: $showAvatarPicker) {
+                // 头像选择器
+                SingleImagePicker(image: $groupAvatar)
+            }
+            .sheet(isPresented: $showBackgroundPicker) {
+                // 背景图片选择器
+                SingleImagePicker(image: $backgroundImage)
             }
         }
         .alert(isPresented: $showAlert) {
@@ -147,13 +244,13 @@ struct NewGroupView: View {
     }
     
     private func createGroup() {
-        guard !name.isEmpty else {
+        guard !groupName.isEmpty else {
             showAlert(message: "请输入小组名称")
             return
         }
         isLoading = true
         Task {
-            var avatarImage: UIImage? = avatar
+            var avatarImage: UIImage? = groupAvatar
             // 如果没有上传头像，自动生成一张随机圆图片
             if avatarImage == nil {
                 avatarImage = RandomCirclesAvatar().snapshot()
@@ -164,15 +261,15 @@ struct NewGroupView: View {
                 }.value
                 let (result, err) = await viewModel.createGroup(
                     creatorId: viewModel.user.userID,
-                    name: name,
-                    description: description,
+                    name: groupName,
+                    description: groupDescription,
                     avatar: imageUrl
                 )
                 await MainActor.run {
                     isLoading = false
                     if err == nil {
                         presentationMode.wrappedValue.dismiss()
-                        print("create group success \(result?.info.name ?? name)")
+                        print("create group success \(result?.info.name ?? groupName)")
                     } else {
                         showAlert(message: err!.localizedDescription)
                     }
@@ -270,3 +367,5 @@ struct CustomTextFieldStyle: TextFieldStyle {
             .cornerRadius(12)
     }
 }
+
+
