@@ -29,7 +29,7 @@ struct GroupView: View {
                 
                 GroupViewListView(viewModel: viewModel)
             }
-            .sheet(isPresented: $isShowingNewGroupView) {
+            .fullScreenCover(isPresented: $isShowingNewGroupView) {
                 NewGroupView(userId: viewModel.user.userID, viewModel: viewModel)
             }
             .onAppear {
