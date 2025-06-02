@@ -171,22 +171,32 @@ struct StoryRoleDetailView: View {
                                 role: role,
                                 onAvatarTap: { showImagePicker = true }
                             )
-                            .padding(.top, 8)
+                            .padding(.top, 4)
                             .padding(.bottom, 2)
+                            HStack(alignment: .center, spacing: 8) {
+                                RoleStatsCard(role: role)
+                                    .frame(height: 64)
 
-                            RoleActionButtons(
-                                onChat: { showChatView = true },
-                                onPoster: { showPosterView = true }
-                            )
-                            .padding(.horizontal, 8)
-                            .padding(.bottom, 2)
-
-                            RoleStatsCard(role: role)
-                                .padding(.horizontal, 8)
-                                .padding(.bottom, 2)
+                                VStack(spacing: 12) {
+                                    StoryRoleActionButton(
+                                        title: "聊天",
+                                        icon: "bubble.left.and.bubble.right.fill",
+                                        color: Color.blue,
+                                        action: { showChatView = true }
+                                    )
+                                    StoryRoleActionButton(
+                                        title: "海报",
+                                        icon: "photo.on.rectangle.angled",
+                                        color: Color.green,
+                                        action: { showPosterView = true }
+                                    )
+                                }
+                                .frame(height: 64)
+                            }
+                            .padding(.horizontal, 4)
 
                             CustomTabSelector(selectedTab: $selectedTab)
-                                .padding(.horizontal, 8)
+                                .padding(.horizontal, 4)
                                 .padding(.bottom, 2)
 
                             RoleTabContent(
@@ -194,7 +204,7 @@ struct StoryRoleDetailView: View {
                                 viewModel: viewModel,
                                 selectedTab: $selectedTab
                             )
-                            .padding(.horizontal, 8)
+                            .padding(.horizontal, 4)
                         }
                     }
                     .padding(.vertical, 8)
@@ -325,20 +335,22 @@ struct RoleActionButtons: View {
     let onPoster: () -> Void
     
     var body: some View {
-        HStack(spacing: 12) {
+        VStack(spacing: 4) {
+            Spacer()
             StoryRoleActionButton(
                 title: "聊天",
                 icon: "message.fill",
                 color: Color.theme.accent,
                 action: onChat
             )
-            
+            Spacer()
             StoryRoleActionButton(
                 title: "海报",
                 icon: "photo.fill",
                 color: Color.theme.primary,
                 action: onPoster
             )
+            Spacer()
         }
     }
 }
@@ -351,13 +363,14 @@ struct StoryRoleActionButton: View {
     
     var body: some View {
         Button(action: action) {
-            Label(title, systemImage: icon)
-                .font(.system(size: 14))
-                .foregroundColor(.white)
-                .frame(height: 32)
-                .frame(width: 120)
-                .background(color)
-                .cornerRadius(16)
+            HStack(spacing: 4) {
+                Text(title)
+                    .font(.system(size: 15, weight: .semibold))
+            }
+            .foregroundColor(.white)
+            .frame(width: 64, height: 24)
+            .background(color)
+            .clipShape(Capsule())
         }
     }
 }
