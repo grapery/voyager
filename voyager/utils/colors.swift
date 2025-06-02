@@ -12,12 +12,12 @@ import UIKit
 // MARK: - Theme Manager
 class ThemeManager: ObservableObject {
     static let shared = ThemeManager()
-    @Published var currentTheme: AppTheme = .light
+    @Published var currentTheme: AppTheme = .dark
     
     private init() {}
     
     func toggleTheme() {
-        currentTheme = currentTheme == .light ? .dark : .light
+        currentTheme = currentTheme == .dark ? .dark : .light
     }
 }
 
@@ -64,19 +64,19 @@ enum AppTheme {
         case .dark:
             return ThemeColors(
                 // Background Colors
-                background: Color(hex: "000000"),
-                secondaryBackground: Color(hex: "1C1C1E"),
-                tertiaryBackground: Color(hex: "2C2C2E"),
+                background: Color(red: 0.07, green: 0.11, blue: 0.09), // Dark Gray Background
+                secondaryBackground: Color(red: 0.07, green: 0.11, blue: 0.09), // Dark Gray Secondary Background
+                tertiaryBackground: Color(red: 0.07, green: 0.11, blue: 0.09),
                 
                 // Text Colors
                 primaryText: Color(hex: "FFFFFF"),
-                secondaryText: Color(hex: "EBEBF5"),
+                secondaryText: Color(hex: "BFC8C2"),
                 tertiaryText: Color(hex: "98989F"),
                 
                 // Content Colors
-                primary: Color(hex: "A5D661"),     // Brand Green
-                secondary: Color(hex: "2C2C2E"),   // Dark Gray
-                accent: Color(hex: "0A84FF"),      // Blue
+                primary: Color(hex: "A5D661"),
+                secondary: Color(hex: "2C2C2E"),
+                accent: Color(hex: "0A84FF"),
                 
                 // Status Colors
                 success: Color(hex: "30D158"),
@@ -85,13 +85,13 @@ enum AppTheme {
                 
                 // Interactive Colors
                 buttonBackground: Color(hex: "A5D661"),
-                buttonText: Color(hex: "000000"),
-                inputBackground: Color(hex: "1C1C1E"),
+                buttonText: Color(hex: "101912"),
+                inputBackground: Color(hex: "19221A"),
                 inputText: Color(hex: "FFFFFF"),
                 
                 // Divider & Border
-                divider: Color(hex: "38383A"),
-                border: Color(hex: "48484A")
+                divider: Color(hex: "232823"),
+                border: Color(hex: "38383A")
             )
         }
     }
