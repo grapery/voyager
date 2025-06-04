@@ -18,7 +18,9 @@ struct StoryboardSummary: View {
     @State private var currentSceneIndex = 0
     @State private var isLoading = true
     @State private var errorMessage: String = ""
-       
+    @State private var showComments: Bool = false
+    @State private var showBoardForks: Bool = false
+    
     // 添加计算属性来获取当前故事板
     private var currentStoryboard: Common_StoryBoardActive? {
         viewModel.storyBoardActives.first { $0.storyboard.storyBoardID == storyBoardId }
@@ -236,17 +238,20 @@ struct StoryboardSummary: View {
             
             Divider()
                 .padding(.vertical, 4)
-            
-            // 评论列表
-            VStack(alignment: .leading, spacing: 8) {
+            if self.showComments {
+                // 显示评论列表
                 
-                CommentListView(
-                    storyId: storyboard.storyboard.storyID,
-                    storyboardId: storyboard.storyboard.storyBoardID,
-                    userId: userId,
-                    totalCommentNum: Int(storyboard.totalCommentCount)
-                )
-                .padding(.horizontal, 16)
+                // 评论列表
+                VStack(alignment: .leading, spacing: 8) {
+                    
+                    CommentListView(
+                        storyId: storyboard.storyboard.storyID,
+                        storyboardId: storyboard.storyboard.storyBoardID,
+                        userId: userId,
+                        totalCommentNum: Int(storyboard.totalCommentCount)
+                    )
+                    .padding(.horizontal, 16)
+                }
             }
                     
         }
@@ -278,7 +283,7 @@ struct StoryboardSummary: View {
                             HStack(spacing: 4) {
                                 ForEach(0..<scenes.count, id: \.self) { index in
                                     Capsule()
-                                        .fill(Color.theme.secondaryText)
+                                        .fill(Color.theme.secondaryText).colorInvert()
                                         .frame(height: 4)
                                         .opacity(currentIndex.wrappedValue == index ? 1.0 : 0.3)
                                 }
@@ -290,7 +295,7 @@ struct StoryboardSummary: View {
                             let scene = scenes[currentIndex.wrappedValue]
                             Text(scene.content)
                                 .font(.system(size: 14))
-                                .foregroundColor(Color.theme.secondaryText)
+                                .foregroundColor(Color.theme.secondaryText).colorInvert()
                                 .padding(.horizontal, 16)
                                 .padding(.bottom, 12)
                                 .lineLimit(2)
@@ -325,7 +330,7 @@ struct StoryboardSummary: View {
                     .aspectRatio(contentMode: .fill)
                     .frame(maxWidth: .infinity)
                     .frame(height: 400)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     .clipped()
             )
         } else {
@@ -387,7 +392,7 @@ struct StoryboardSummary: View {
                 count: Int(storyboard.totalCommentCount),
                 isActive: false,
                 action: {
-                    print("add some comment")
+                    self.showComments = !self.showComments
                 },
                 color: Color.theme.commentedIcon
             )
@@ -398,7 +403,7 @@ struct StoryboardSummary: View {
                 count: Int(storyboard.totalForkCount),
                 isActive: false,
                 action: {
-                    print("add some comment")
+                    self.showBoardForks = !self.showBoardForks
                 },
                 color: Color.theme.forkedIcon
             )
