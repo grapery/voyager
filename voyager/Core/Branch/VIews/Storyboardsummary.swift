@@ -31,26 +31,39 @@ struct StoryboardSummary: View {
     }
     
     var body: some View {
-        Group {
-            if let storyboard = currentStoryboard {
-                StoryboardContentView(
-                    storyboard: storyboard,
-                    userId: userId,
-                    viewModel: viewModel,
-                    currentSceneIndex: $currentSceneIndex,
-                    dismiss: dismiss
-                )
-            } else {
-                Text("无法加载故事板信息")
-                    .foregroundColor(.red)
+        NavigationStack {
+            Group {
+                if let storyboard = currentStoryboard {
+                    StoryboardContentView(
+                        storyboard: storyboard,
+                        userId: userId,
+                        viewModel: viewModel,
+                        currentSceneIndex: $currentSceneIndex,
+                        dismiss: dismiss
+                    )
+                } else {
+                    Text("无法加载故事板信息")
+                        .foregroundColor(.red)
+                }
+            }
+            .onAppear {
+                if currentStoryboard == nil {
+                    loadStoryboard()
+                }
             }
         }
-        .navigationBarHidden(true)
-        .onAppear {
-            if currentStoryboard == nil {
-                loadStoryboard()
-            }
-        }
+//        .toolbar {
+//            ToolbarItem(placement: .navigationBarLeading) {
+//                Button(action: { dismiss() }) {
+//                    HStack(spacing: 4) {
+//                        Image(systemName: "chevron.left")
+//                            .font(.system(size: 16, weight: .medium))
+//                        Text("返回")
+//                    }
+//                    .foregroundColor(.black)
+//                }
+//            }
+//        }
     }
     
     private func loadStoryboard() {
@@ -118,25 +131,15 @@ struct StoryboardSummary: View {
         dismiss: DismissAction
     ) -> some View {
         VStack{
-            HStack(spacing: 4) {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.primary)
-                        .imageScale(.large)
-                }
-                Spacer()
+            HStack(alignment: .center) {
                 // 故事板标题和内容
                 HStack(alignment: .center) {
-                    Text(storyboard.storyboard.title)
+                    Text(storyboard.summary.storyTitle)
                         .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.theme.primaryText)
                 }
                 .padding(.horizontal, 16)
-                
-                Spacer()
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
         }
         
     }
@@ -235,13 +238,17 @@ struct StoryboardSummary: View {
                 .padding(.vertical, 4)
             
             // 评论列表
-            CommentListView(
-                storyId: storyboard.storyboard.storyID,
-                storyboardId: storyboard.storyboard.storyBoardID,
-                userId: userId,
-                totalCommentNum: Int(storyboard.totalCommentCount)
-            )
-            .padding(.horizontal, 16)
+            VStack(alignment: .leading, spacing: 8) {
+                
+                CommentListView(
+                    storyId: storyboard.storyboard.storyID,
+                    storyboardId: storyboard.storyboard.storyBoardID,
+                    userId: userId,
+                    totalCommentNum: Int(storyboard.totalCommentCount)
+                )
+                .padding(.horizontal, 16)
+            }
+                    
         }
         .padding(.top, 8)
     }
