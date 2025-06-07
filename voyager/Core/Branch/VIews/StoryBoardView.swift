@@ -117,7 +117,7 @@ struct StoryBoardView: View {
                             )
                         }
                         .frame(height: 400)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     // 交互栏
                     HStack(spacing: 8) {

@@ -242,7 +242,7 @@ extension Common_StoryBoardActive {
 private struct FeedCardHeader: View {
     let storyBoardActive: Common_StoryBoardActive
     var body: some View {
-        HStack(spacing: 8) {
+        HStack {
             HStack(spacing: 4) {
                 HStack(spacing: 8) {
                     KFImage(URL(string: convertImagetoSenceImage(url: storyBoardActive.summary.storyAvatar, scene: .small)))
@@ -281,19 +281,25 @@ private struct FeedCardHeader: View {
                 .font(.system(size: 12))
                 .foregroundColor(Color.theme.tertiaryText)
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
     }
 }
 
 private struct FeedCardContent: View {
     let content: String
     var body: some View {
-        Text(content)
-            .font(.system(size: 15))
-            .foregroundColor(Color.theme.primaryText)
-            .lineLimit(3)
-            .padding(.horizontal)
+        VStack{
+            Text(content)
+                .font(.system(size: 15))
+                .foregroundColor(Color.theme.primaryText)
+                .lineLimit(3)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        
     }
+    
 }
 
 private struct FeedCardMedia: View {
@@ -345,7 +351,6 @@ private struct FeedCardActions: View {
     @ObservedObject var viewModel: FeedViewModel
     var body: some View {
         HStack(spacing: 4) {
-            Spacer()
             StorySubViewInteractionButton(
                 icon: storyBoardActive.storyboard.currentUserStatus.isLiked ? "heart.fill" : "heart",
                 count: "\(storyBoardActive.totalLikeCount)",
@@ -362,14 +367,12 @@ private struct FeedCardActions: View {
                     }
                 }
             )
-            Spacer()
             StorySubViewInteractionButton(
                 icon: "bubble.left",
                 count: "\(storyBoardActive.totalCommentCount)",
                 color: Color.theme.tertiaryText,
                 action: {}
             )
-            Spacer()
             StorySubViewInteractionButton(
                 icon: "signpost.right.and.left",
                 count: "\(storyBoardActive.totalForkCount)",
@@ -377,10 +380,9 @@ private struct FeedCardActions: View {
                 action: {}
             )
             Spacer()
-            Spacer()
-            Spacer()
-            Spacer()
         }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
     }
 }
 
@@ -420,7 +422,7 @@ private struct FeedItemCard: View {
                 )
             }
         ) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 8) {
                 FeedCardHeader(storyBoardActive: storyBoardActive)
                 FeedCardContent(content: storyBoardActive.storyboard.content)
                 FeedCardMedia(sceneMediaContents: sceneMediaContents)

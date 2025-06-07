@@ -48,24 +48,14 @@ struct StoryboardSummary: View {
                         .foregroundColor(.red)
                 }
             }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 8)
             .onAppear {
                 if currentStoryboard == nil {
                     loadStoryboard()
                 }
             }
         }
-//        .toolbar {
-//            ToolbarItem(placement: .navigationBarLeading) {
-//                Button(action: { dismiss() }) {
-//                    HStack(spacing: 4) {
-//                        Image(systemName: "chevron.left")
-//                            .font(.system(size: 16, weight: .medium))
-//                        Text("返回")
-//                    }
-//                    .foregroundColor(.black)
-//                }
-//            }
-//        }
     }
     
     private func loadStoryboard() {
@@ -158,17 +148,18 @@ struct StoryboardSummary: View {
                 Text(storyboard.storyboard.content)
                     .font(.system(size: 14))
                     .foregroundColor(.theme.secondaryText)
-                    .padding(.horizontal, 16)
             }
             .frame( alignment: .leading)
             .padding(.horizontal, 8)
+            .padding(.vertical, 4)
             
             // 场景列表
             ScenesListView(
                 scenes: storyboard.storyboard.sences.list,
                 currentIndex: currentSceneIndex
             )
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
             
             // 新的故事信息和创建者信息区域
             HStack(alignment: .center) {
@@ -188,7 +179,7 @@ struct StoryboardSummary: View {
                 }
                 // 左侧内容靠左
                 .frame(maxWidth: .infinity, alignment: .leading)
-                
+                .clipShape(RoundedRectangle(cornerRadius: 12))
                 // 创建者信息靠右
                 VStack{
                     HStack(spacing: 4) {
@@ -223,7 +214,8 @@ struct StoryboardSummary: View {
                     }
             }
             .frame(maxWidth: .infinity)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
            
             HStack(spacing: 4) {
                 // 交互按钮
@@ -234,7 +226,8 @@ struct StoryboardSummary: View {
                 )
             }
             .frame( alignment: .leading)
-            .padding(.horizontal, 4)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
             
             Divider()
                 .padding(.vertical, 4)
@@ -243,15 +236,15 @@ struct StoryboardSummary: View {
                 
                 // 评论列表
                 VStack(alignment: .leading, spacing: 8) {
-                    
                     CommentListView(
                         storyId: storyboard.storyboard.storyID,
                         storyboardId: storyboard.storyboard.storyBoardID,
                         userId: userId,
                         totalCommentNum: Int(storyboard.totalCommentCount)
                     )
-                    .padding(.horizontal, 16)
                 }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
             }
                     
         }
@@ -312,6 +305,7 @@ struct StoryboardSummary: View {
                         )
                     }
                     .frame(height: 400)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             )
         }
