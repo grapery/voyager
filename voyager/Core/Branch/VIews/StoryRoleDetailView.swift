@@ -646,7 +646,7 @@ struct ParticipationCell: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 2) {
                                 ForEach(self.sceneMediaContents, id: \.id) { sceneContent in
-                                    VStack(alignment: .leading, spacing: 2) {
+                                    LazyVStack(alignment: .leading, spacing: 2) {
                                         if let firstMedia = sceneContent.mediaItems.first {
                                             KFImage(firstMedia.url)
                                                 .placeholder {

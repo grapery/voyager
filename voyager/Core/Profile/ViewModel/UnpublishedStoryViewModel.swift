@@ -29,8 +29,7 @@ class UnpublishedStoryViewModel: ObservableObject {
                 currentPage = 1
                 hasMorePages = true
             }
-            
-            guard hasMorePages else { return }
+            guard hasMorePages, !isLoading else { return }
             isLoading = true
         }
         
@@ -43,28 +42,28 @@ class UnpublishedStoryViewModel: ObservableObject {
             
             await MainActor.run {
                 if let commonBoards = result.0 {
-                    // 将 Common_StoryBoard 转换为 StoryBoard
                     let boards = commonBoards.map { commonBoard in
                         StoryBoardActive(id: commonBoard.storyboard.storyBoardID, boardActive: commonBoard)
                     }
-                    
                     if isRefreshing {
                         self.unpublishedStoryboards = boards
                     } else {
-                        self.unpublishedStoryboards.append(contentsOf: boards)
+                        let newBoards = boards.filter { newBoard in
+                            !self.unpublishedStoryboards.contains(where: { $0.id == newBoard.id })
+                        }
+                        self.unpublishedStoryboards.append(contentsOf: newBoards)
                     }
-                    
-                    self.hasMorePages = boards.count >= self.pageSize
+                    self.hasMorePages = boards.count == self.pageSize
                     if self.hasMorePages {
                         self.currentPage += 1
                     }
+                } else {
+                    self.hasMorePages = false
                 }
-                
                 if let error = result.3 {
                     self.hasError = true
                     self.errorMessage = error.localizedDescription
                 }
-                
                 self.isLoading = false
             }
         }

@@ -505,7 +505,7 @@ struct UserProfileView: View {
                     )
                     .frame(width: 88, height: 88)
                     .clipShape(Circle())
-                    .overlay(Circle().stroke(Color.theme.primaryText, lineWidth: 2))
+                    .overlay(Circle().stroke(Color.theme.primaryText, lineWidth: 1))
                     .shadow(color: Color.theme.background.opacity(0.2), radius: 8, x: 0, y: 4)
                     // 用户名
                     VStack(alignment: .leading, spacing: 6) {
@@ -689,7 +689,7 @@ struct StoryboardCell: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
                                 ForEach(self.sceneMediaContents, id: \.id) { sceneContent in
-                                    VStack(alignment: .leading, spacing: 4) {
+                                    LazyVStack(alignment: .leading, spacing: 2) {
                                         // 场景图片（取第一张）
                                         if let firstMedia = sceneContent.mediaItems.first {
                                             KFImage(firstMedia.url)
@@ -1219,6 +1219,15 @@ struct PendingTab: View {
                     ScrollView {
                         UnPublishedstoryBoardsListView
                             .id("storyboardList")
+                        Button {
+                                        
+                        } label: {
+                            Text("加载更多")
+                                .font(.footnote)
+                                .foregroundColor(.black)
+                                .fontWeight(.bold)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                        }
                     }
                     .onChange(of: viewModel.unpublishedStoryboards) { newBoards in
                         if let lastId = lastLoadedBoardId,
@@ -1259,29 +1268,15 @@ struct PendingTab: View {
     private var UnPublishedstoryBoardsListView: some View {
         LazyVStack(spacing: 0) {
             ForEach(viewModel.unpublishedStoryboards) { board in
-                VStack(spacing: 0) {
-                    UnpublishedStoryBoardCellView(
-                        board: board,
-                        userId: viewModel.userId,
-                        viewModel: viewModel
-                    )
-                    .id(board.id)
-                    .onAppear {
-                        // 下滑到最后一个草稿时加载更多
-                        if board.id == viewModel.unpublishedStoryboards.last?.id && viewModel.hasMorePages && !viewModel.isLoading {
-                            lastLoadedBoardId = board.id
-                            Task {
-                                await viewModel.fetchUnpublishedStoryboards()
-                            }
-                        }
-                    }
-                }
+                UnpublishedBoardCellWrapper(
+                    board: board,
+                    userId: viewModel.userId,
+                    viewModel: viewModel
+                )
             }
-            // 加载中指示器
             if viewModel.isLoading && viewModel.unpublishedStoryboards.count > 0 {
                 loadingOverlay(isLoading: true)
             }
-            // 没有更多
             if !viewModel.hasMorePages && !viewModel.unpublishedStoryboards.isEmpty {
                 HStack {
                     Spacer()
@@ -1292,6 +1287,23 @@ struct PendingTab: View {
                     Spacer()
                 }
             }
+        }
+    }
+}
+
+private struct UnpublishedBoardCellWrapper: View {
+    let board: StoryBoardActive
+    let userId: Int64
+    @ObservedObject var viewModel: UnpublishedStoryViewModel
+
+    var body: some View {
+        VStack(spacing: 0) {
+            UnpublishedStoryBoardCellView(
+                board: board,
+                userId: userId,
+                viewModel: viewModel
+            )
+            .id(board.boardActive.storyboard.storyBoardID)
         }
     }
 }
@@ -1378,7 +1390,7 @@ struct UnpublishedStoryBoardCellView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(self.sceneMediaContents, id: \ .id) { sceneContent in
-                                VStack(alignment: .leading, spacing: 4) {
+                                LazyVStack(alignment: .leading, spacing: 2) {
                                     // 场景图片（取第一张）
                                     if let firstMedia = sceneContent.mediaItems.first {
                                         KFImage(firstMedia.url)
