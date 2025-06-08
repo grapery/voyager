@@ -876,7 +876,7 @@ struct ProfileRoleCell: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top, spacing: 16) {
+            HStack(alignment: .top, spacing: 8) {
                 // 角色头像
                 KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
                     .cacheMemoryOnly()
@@ -922,10 +922,11 @@ struct ProfileRoleCell: View {
                 .padding(.top, 4)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 16)
+            .padding(.vertical, 4)
             
             Divider()
                 .background(Color.theme.divider)
+                .padding(.horizontal,16)
         }
         .background(Color.theme.background)
         .contentShape(Rectangle())
@@ -1127,14 +1128,14 @@ private struct RolesTab: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 12) {
+            LazyVStack(spacing: 8) {
                 if viewModel.storyRoles.isEmpty {
                     EmptyStateView(
                         image: "person.circle",
                         title: "还没有角色",
                         message: "创建你的第一个角色吧"
                     )
-                    .padding(.top, 40)
+                    .padding(.top, 8)
                 } else {
                     ForEach(viewModel.storyRoles) { role in
                         ProfileRoleCell(role: role, viewModel: viewModel)
@@ -1273,6 +1274,8 @@ struct PendingTab: View {
                     userId: viewModel.userId,
                     viewModel: viewModel
                 )
+                Divider()
+                    .padding(.horizontal,16)
             }
             if viewModel.isLoading && viewModel.unpublishedStoryboards.count > 0 {
                 loadingOverlay(isLoading: true)
@@ -1464,21 +1467,33 @@ struct UnpublishedStoryBoardCellView: View {
             .padding(.bottom, 8)
         }
         .background(Color.theme.secondaryBackground)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.theme.border, lineWidth: 0.5)
-        )
         .overlay(errorToastOverlay)
         .fullScreenCover(isPresented: $showingEditView) {
             NavigationStack {
                 EditStoryBoardView(
+                    userId: userId,
                     storyId: board.boardActive.storyboard.storyID,
                     boardId: board.boardActive.storyboard.storyBoardID,
-                    userId: userId,
-                    viewModel: viewModel
+                    viewModel: StoryViewModel(storyId: board.boardActive.storyboard.storyID,  userId: userId),
+                    isPresented: $showingEditView,
                 )
                 .transition(.move(edge: .bottom))
                 .animation(.spring(response: 0.5, dampingFraction: 0.8), value: showingEditView)
+                .navigationTitle(board.boardActive.summary.storyTitle)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: {
+                            showingEditView = false
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 16, weight: .medium))
+                            }
+                            .foregroundColor(.primary)
+                        }
+                    }
+                }
             }
         }
         .alert("确认发布", isPresented: $showingPublishAlert) {

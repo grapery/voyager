@@ -36,14 +36,17 @@ class Story:Identifiable,Hashable{
 class StoryRole: Identifiable, Hashable {
     var Id: Int64
     var role: Common_StoryRole
+    var isSlected: Bool
     init(){
         self.Id = 0
         self.role = Common_StoryRole()
+        self.isSlected = false
     }
     
     init(Id: Int64, role: Common_StoryRole) {
         self.Id = Id
         self.role = role
+        self.isSlected = false
     }
     static func == (lhs: StoryRole, rhs: StoryRole) -> Bool {
         return lhs.Id == rhs.Id

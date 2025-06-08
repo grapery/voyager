@@ -88,7 +88,6 @@ struct GroupViewListView: View {
                                 ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
                                                             .frame(width: 100, height: 100)
                                                             .foregroundColor(.red)
-                                                            .background(Color.black.opacity(0.1))
                             } else {
                                 if viewModel.groups.isEmpty {
                                     Text("暂无小组")

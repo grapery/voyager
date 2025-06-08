@@ -277,7 +277,7 @@ struct NewStoryBoardView: View {
         case .draw:
             // 验证绘画步骤
             if viewModel.storyScenes.isEmpty {
-                showValidationAlert("请先生成场景")
+                showValidationAlert("请先生成故事场景")
                 return false
             }
             
@@ -364,121 +364,6 @@ struct NewStoryBoardView: View {
         .padding(24)
         .background(Color(.systemBackground))
         .cornerRadius(16)
-    }
-    
-    // 1. 修改 SceneCardView 的样式
-    private struct SceneCardView: View {
-        let scene: StoryBoardSence
-        let index: Int
-        @State private var selectedTab = 0
-        let totalScenes: Int
-        let viewModel: StoryViewModel
-        
-        var body: some View {
-            VStack(spacing: 12) {
-                // 场景指示器
-                HStack(spacing: 8) {
-                    ForEach(0..<totalScenes, id: \.self) { sceneIndex in
-                        Circle()
-                            .fill(sceneIndex == selectedTab ? Color.theme.accent : Color.theme.tertiaryText.opacity(0.3))
-                            .frame(width: 8, height: 8)
-                    }
-                }
-                .padding(.top, 8)
-                
-                // 场景标题栏
-                HStack {
-                    Text("故事场景 \(scene.senceIndex)")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(Color.theme.primaryText)
-                    Spacer()
-                }
-                .padding(.vertical, 8)
-                .padding(.horizontal, 12)
-                .background(Color.theme.primary.opacity(0.1))
-                .cornerRadius(8)
-                
-                // 内容区域 - 使用 TabView 实现横向滚动
-                TabView(selection: $selectedTab) {
-                    // 场景故事
-                    contentSection("场景故事", content: scene.content)
-                        .tag(0)
-                    
-                    // 参与人物
-                    characterSection("参与人物", characters: scene.characters)
-                        .tag(1)
-                    // 场景参考图
-                    RefImageSection(title: "场景参考图", sceneIndex: index)
-                        .tag(2)
-                    // 图片提示词
-                    contentSection("图片提示词", content: scene.imagePrompt)
-                        .tag(3)
-                }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .frame(height: 150)
-            }
-            .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.theme.secondaryBackground)
-                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
-            )
-        }
-        
-        private func contentSection(_ title: String, content: String) -> some View {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(title)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(Color.theme.secondaryText)
-                
-                ScrollView {
-                    Text(content)
-                        .font(.system(size: 15))
-                        .foregroundColor(Color.theme.primaryText)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(12)
-                        .background(Color.theme.background)
-                        .cornerRadius(8)
-                }
-            }
-            .padding(.horizontal, 4)
-        }
-        
-        private func characterSection(_ title: String, characters: [Common_Character]) -> some View {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(title)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.secondary)
-                
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(characters, id: \.id) { character in
-                            CharacterButton(character: character)
-                        }
-                    }
-                    .padding(.horizontal, 4)
-                }
-            }
-        }
-        // 场景参考图片
-        private func RefImageSection(title: String, sceneIndex: Int) -> some View {
-            VStack(alignment: .leading, spacing: 8) {
-                
-                SceneReferenceImageView(
-                    title: title,
-                    referenceImage: Binding(
-                        get: { viewModel.storyScenes[sceneIndex].referencaImage },
-                        set: { newImage in
-                            if let image = newImage {
-                                viewModel.updateSceneReferenceImage(sceneIndex: sceneIndex, image: image)
-                            }
-                        }
-                    )
-                )
-                
-            }
-            .padding(.horizontal, 4)
-        }
     }
 }
 
@@ -1721,7 +1606,7 @@ private struct RoleListView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 8) {
+            VStack(spacing: 4) {
                 ForEach(roles, id: \ .role.roleID) { role in
                     RoleSelectionRow(
                         role: role,
@@ -1739,8 +1624,6 @@ private struct RoleListView: View {
                     )
                 }
             }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 8)
         }
         .background(Color.theme.background)
     }
@@ -1808,44 +1691,52 @@ struct RoleSelectionRow: View {
     
     var body: some View {
         Button(action: onSelect) {
-            HStack(alignment: .top, spacing: 10) {
-                KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
-                    .cacheMemoryOnly()
-                    .fade(duration: 0.25)
-                    .resizable()
-                    .aspectRatio(1, contentMode: .fill)
-                    .frame(width: 48, height: 48)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .clipped()
+            HStack(alignment: .top, spacing: 4) {
+                VStack{
+                    KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
+                        .cacheMemoryOnly()
+                        .fade(duration: 0.25)
+                        .resizable()
+                        .aspectRatio(1, contentMode: .fill)
+                        .frame(width: 80, height: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .clipped()
+                }
+                .padding(.vertical,2)
+                .padding(.horizontal,2)
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(role.role.characterName)
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.primary)
-                        .padding(.top, 2)
+                        .padding(.top, 1)
                     Text(role.role.characterDescription)
                         .font(.system(size: 14))
                         .foregroundColor(.gray)
-                        .lineLimit(2)
+                        .lineLimit(3)
                         .truncationMode(.tail)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, 2)
+                .padding(.vertical,8)
+                .padding(.horizontal,8)
                 
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 22))
-                    .foregroundColor(isSelected ? .blue : .gray)
-                    .padding(.top, 8)
+                VStack{
+                    Spacer()
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        .font(.system(size: 16))
+                        .foregroundColor(isSelected ? .blue : .gray)
+                    Spacer()
+                }
+                .padding(.vertical,8)
+                .padding(.horizontal,8)
             }
-            .padding(.vertical, 6)
-            .padding(.horizontal, 10)
-            .background(Color.white)
-            .cornerRadius(12)
+            .padding(.vertical, 4)
+            .padding(.horizontal, 4)
+            .background(Color.theme.secondaryBackground)
+            .cornerRadius(4)
             .shadow(color: Color.black.opacity(0.03), radius: 1, x: 0, y: 1)
         }
         .buttonStyle(PlainButtonStyle())
-        .padding(.horizontal, 2)
-        .padding(.vertical, 2)
+        .padding()
     }
 }
 
@@ -1927,67 +1818,6 @@ struct CustomAlertView: View {
         case .success: return .green
         case .error: return .red
         case .info: return .blue
-        }
-    }
-}
-
-struct SceneReferenceImageView: View {
-    let title: String
-    @Binding var referenceImage: UIImage?
-    @State private var showImagePicker = false
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(Color.theme.secondaryText)
-            
-            if let image = referenceImage {
-                // 显示已选择的图片
-                ZStack(alignment: .topTrailing) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(height: 200)
-                        .clipped()
-                        .cornerRadius(8)
-                    
-                    Button(action: { showImagePicker = true }) {
-                        Text("编辑")
-                            .font(.system(size: 14))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.black.opacity(0.6))
-                            .cornerRadius(4)
-                    }
-                    .padding(8)
-                }
-            } else {
-                // 显示添加按钮
-                Button(action: { showImagePicker = true }) {
-                    ZStack {
-                        Rectangle()
-                            .fill(Color.theme.background)
-                            .frame(height: 200)
-                            .cornerRadius(8)
-                        
-                        VStack(spacing: 8) {
-                            Image(systemName: "plus")
-                                .font(.system(size: 24))
-                                .foregroundColor(Color.theme.secondaryText)
-                            
-                            Image(systemName: "mountain.2")
-                                .font(.system(size: 32))
-                                .foregroundColor(Color.theme.secondaryText)
-                        }
-                    }
-                }
-            }
-        }
-        .padding(.horizontal, 4)
-        .sheet(isPresented: $showImagePicker) {
-            SingleImagePicker(image: $referenceImage)
         }
     }
 }
