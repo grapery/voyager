@@ -210,10 +210,9 @@ struct StoryRoleDetailView: View {
                     .padding(.vertical, 8)
                 }
                 
-                ActivityIndicatorView(isVisible: $isLoading, type: .arcs())
-                            .frame(width: 100, height: 100)
-                            .foregroundColor(.red)
-                            .background(Color.black.opacity(0.1))
+                ActivityIndicatorView(isVisible: $isLoading, type: .growingArc(.cyan))
+                            .frame(width: 64, height: 64)
+                            .foregroundColor(.cyan)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .tabBar)

@@ -43,7 +43,7 @@ struct CommentListView: View {
                                     userId: userId,
                                     content: commentText
                                 )
-                                if err == nil {
+                                if err.1 == nil {
                                     // 重置页码并重新加载第一页
                                     viewModel.resetPagination()
                                     await viewModel.fetchStoryboardComments(storyId: storyId, storyboardId: boardId, userId: userId)
@@ -55,7 +55,7 @@ struct CommentListView: View {
                                     content: commentText,
                                     prevId: 0
                                 )
-                                if err == nil {
+                                if err.1 == nil {
                                     // 重置页码并重新加载第一页
                                     viewModel.resetPagination()
                                     await viewModel.fetchStoryComments(storyId: storyId, userId: userId)
@@ -74,7 +74,7 @@ struct CommentListView: View {
                 isFocused: $isInputFocused
             )
             Text("共 \(totalCommentNum) 条评论")
-                .font(.system(size: 14))
+                .font(.system(size: 12))
                 .foregroundColor(.theme.tertiaryText)
                 .padding(.top, 4)
             // 评论列表
@@ -117,7 +117,7 @@ struct CommentListView: View {
                                         .scaleEffect(0.8)
                                 } else {
                                     Text("加载更多评论")
-                                        .font(.system(size: 14))
+                                        .font(.system(size: 12))
                                         .foregroundColor(.theme.tertiaryText)
                                 }
                             }
@@ -179,7 +179,7 @@ private struct CommentItemView: View {
                         .placeholder { CommentAvatarPlaceholder() }
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 36, height: 36)
+                        .frame(width: 24, height: 24)
                         .clipShape(Circle())
                 }
                 
@@ -271,7 +271,7 @@ private struct CommentItemView: View {
                     ProgressView()
                         .scaleEffect(0.8)
                         .padding(.top, 8)
-                        .padding(.leading, 44)
+                        .padding(.leading, 42)
                 } else {
                     VStack(spacing: 0) {
                         ForEach(replies) { reply in
@@ -284,21 +284,19 @@ private struct CommentItemView: View {
                                         viewModel.replyToComment = reply
                                     }
                                 )
-                                .padding(.vertical, 12)
                                 
                                 if reply.id != replies.last?.id {
                                     Divider()
-                                        .padding(.leading, 40) // 分隔线左对齐到头像右侧
+                                        .padding(.leading, 42) // 分隔线左对齐到头像右侧
                                 }
                             }
                         }
                     }
-                    .padding(.top, 8)
-                    .padding(.leading, 44)
+                    .padding(.leading, 24)
                 }
             }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 4)
     }
     
     private func formatTimeAgo(timestamp: Int64) -> String {
@@ -335,15 +333,15 @@ private struct ReplyItemView: View {
                     .placeholder { CommentAvatarPlaceholder() }
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 32, height: 32)
+                    .frame(width: 24, height: 24)
                     .clipShape(Circle())
                 
                 // 内容区域
-                VStack(alignment: .leading, spacing: 6) { // 增加垂直间距
+                VStack(alignment: .leading, spacing: 4) { // 增加垂直间距
                     // 用户名、时间和点赞
                     HStack {
                         Text(reply.commentUser.name)
-                            .font(.system(size: 14, weight: .medium)) // 增加字体大小
+                            .font(.system(size: 12, weight: .medium)) // 增加字体大小
                             .foregroundColor(.theme.primaryText)
                         
                         Spacer()
@@ -378,7 +376,7 @@ private struct ReplyItemView: View {
                     
                     // 评论内容
                     Text(reply.realComment.content)
-                        .font(.system(size: 14)) // 增加字体大小
+                        .font(.system(size: 12)) // 增加字体大小
                         .foregroundColor(.theme.primaryText)
                 }
             }

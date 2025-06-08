@@ -1589,9 +1589,9 @@ private struct LoadingView: View {
                 .edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 16) {
-                ActivityIndicatorView(isVisible: .constant(true), type: .growingCircle)
-                    .frame(width: 50, height: 50)
-                    .foregroundColor(.white)
+                ActivityIndicatorView(isVisible: .constant(true), type: .growingArc(.cyan))
+                    .frame(width: 64, height: 64)
+                    .foregroundColor(.cyan)
                 
                 if !message.isEmpty {
                     Text(message)

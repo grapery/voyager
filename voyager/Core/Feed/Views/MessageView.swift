@@ -144,9 +144,9 @@ struct MessageView: View {
                                 Spacer()
                                 VStack(spacing: 12) {
                                     HStack {
-                                        ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
-                                            .frame(width: 32, height: 32)
-                                            .foregroundColor(.red)
+                                        ActivityIndicatorView(isVisible: .constant(true), type: .growingArc(.cyan))
+                                            .frame(width: 64, height: 64)
+                                            .foregroundColor(.cyan)
                                     }
                                     .frame(height: 32)
                                     Text("加载中……")

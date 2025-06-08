@@ -347,9 +347,9 @@ struct UserProfileView: View {
                 Spacer()
                 VStack(spacing: 12) {
                     HStack {
-                        ActivityIndicatorView(isVisible: $isLoading, type: .arcs())
+                        ActivityIndicatorView(isVisible: $isLoading, type: .growingArc(.cyan))
                             .frame(width: 64, height: 64)
-                            .foregroundColor(Color.theme.accent)
+                            .foregroundColor(.cyan)
                     }
                             .frame(height: 50)
                     Text("加载中......")
@@ -1078,9 +1078,9 @@ private struct StoriesTab: View {
                         Spacer()
                         VStack(spacing: 12) {
                             HStack {
-                                ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                                ActivityIndicatorView(isVisible: .constant(true), type: .growingArc(.cyan))
                                     .frame(width: 64, height: 64)
-                                    .foregroundColor(Color.theme.accent)
+                                    .foregroundColor(.cyan)
                             }
                             .frame(height: 50)
                             Text("加载中......")
@@ -1201,9 +1201,9 @@ struct PendingTab: View {
                     Spacer()
                     VStack(spacing: 12) {
                         HStack {
-                            ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                            ActivityIndicatorView(isVisible: .constant(true), type: .growingArc(.cyan))
                                 .frame(width: 64, height: 64)
-                                .foregroundColor(Color.theme.accent)
+                                .foregroundColor(.cyan)
                         }
                         .frame(height: 50)
                         Text("加载中......")

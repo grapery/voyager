@@ -325,9 +325,9 @@ struct LoadMoreView: View {
     
     var body: some View {
         HStack {
-            ActivityIndicatorView(isVisible: $isLoading, type: .arcs())
-                            .frame(width: 50, height: 50)
-                            .foregroundColor(.red)  
+            ActivityIndicatorView(isVisible: $isLoading, type: .growingArc(.cyan))
+                            .frame(width: 64, height: 64)
+                            .foregroundColor(.cyan)  
         }
         .frame(height: 50)
     }

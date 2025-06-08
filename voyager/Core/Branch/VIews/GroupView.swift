@@ -85,9 +85,9 @@ struct GroupViewListView: View {
                     ZStack{
                         VStack{
                             if self.isRefreshing || self.isLoadingMore {
-                                ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
-                                                            .frame(width: 100, height: 100)
-                                                            .foregroundColor(.red)
+                                ActivityIndicatorView(isVisible: .constant(true), type: .growingArc(.cyan))
+                                                            .frame(width: 64, height: 64)
+                                                            .foregroundColor(.cyan)
                             } else {
                                 if viewModel.groups.isEmpty {
                                     Text("暂无小组")
