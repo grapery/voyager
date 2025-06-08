@@ -727,7 +727,7 @@ struct StoryboardCell: View {
                     }
                 }
                 // 底部统计
-                HStack(spacing: 24) {
+                HStack(spacing: 8) {
                     StatLabel(
                         icon: "heart",
                         count: Int(board.boardActive.totalLikeCount),
@@ -902,7 +902,7 @@ struct ProfileRoleCell: View {
                         Text("参与故事：")
                             .font(.system(size: 14))
                             .foregroundColor(Color.theme.tertiaryText)
-                        Text("\(role.role.storyID)")
+                        Text(role.role.characterName)
                             .font(.system(size: 14))
                             .foregroundColor(Color.theme.accent)
                             .lineLimit(1)
@@ -1439,22 +1439,28 @@ struct UnpublishedStoryBoardCellView: View {
                         InteractionStatItem(
                             icon: "paintbrush.pointed",
                             text: "编辑",
-                            color: Color.theme.primaryText
+                            color: Color.theme.buttonText
                         )
+                        .background(Color.theme.buttonBackground.colorInvert().opacity(0.1))
+                        .cornerRadius(2)
                     }
                     Button(action: { showingPublishAlert = true }) {
                         InteractionStatItem(
                             icon: "mountain.2",
                             text: "发布",
-                            color: Color.theme.primaryText
+                            color: Color.theme.buttonText
                         )
+                        .background(Color.theme.buttonBackground.colorInvert().opacity(0.1))
+                        .cornerRadius(2)
                     }
                     Button(action: { showingDeleteAlert = true }) {
                         InteractionStatItem(
                             icon: "trash",
                             text: "删除",
-                            color: Color.theme.primaryText
+                            color: Color.theme.buttonText
                         )
+                        .background(Color.theme.buttonBackground.colorInvert().opacity(0.1))
+                        .cornerRadius(2)
                     }
                 }
                 .font(.system(size: 15)) // 保证和时间字号一致

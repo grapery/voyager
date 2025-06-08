@@ -74,10 +74,10 @@ struct FeedView: View {
                     } else {
                         TabView(selection: $selectedIndex) {
                             // 动态页面
-                            LatestUpdatesView(
+                            StoryActivesView(
                                 searchText: $searchText,
                                 selectedTab: .constant(.Story),
-                                tabs: [(type: FeedType.Story, title: "故事"), (type: FeedType.StoryRole, title: "角色")],
+                                tabs: [(type: FeedType.Story, title: "故事")],
                                 viewModel: viewModel,
                                 errorTitle: $errorTitle,
                                 errorMessage: $errorMessage,
@@ -475,7 +475,7 @@ struct SearchBar: View {
 }
 
 // 最新动态主视图
-private struct LatestUpdatesView: View {
+private struct StoryActivesView: View {
     @Binding var searchText: String
     @Binding var selectedTab: FeedType
     let tabs: [(type: FeedType, title: String)]
@@ -507,7 +507,7 @@ private struct LatestUpdatesView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            CategoryTabsSection(selectedTab: $selectedTab, tabs: tabs)
+            //CategoryTabsSection(selectedTab: $selectedTab, tabs: tabs)
             FeedContentSection(
                 selectedTab: $selectedTab,
                 isRefreshing: $isRefreshing,
