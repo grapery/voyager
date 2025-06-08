@@ -127,11 +127,11 @@ struct BarChartView: View {
     let range: ChatSettingView.StatRange
     var body: some View {
         GeometryReader { geo in
-            HStack(alignment: .bottom, spacing: 8) {
+            HStack(alignment: .bottom, spacing: 5) {
                 ForEach(data.indices, id: \.self) { idx in
                     let value = data[idx]
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.blue)
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.orange)
                         .frame(width: (geo.size.width / CGFloat(data.count)) - 8, height: CGFloat(value) / CGFloat((data.max() ?? 1)) * (geo.size.height - 20))
                     Text("\(value)")
                         .font(.caption2)
