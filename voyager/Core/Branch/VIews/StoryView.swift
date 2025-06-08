@@ -142,7 +142,7 @@ struct StoryView: View {
                         VStack {
                             Image(systemName: "plus")
                                 .font(.system(size: 30))
-                                .foregroundColor(Color.theme.tertiaryText)
+                                .foregroundColor(.cyan)
                         }
                         .frame(width: 120, height: 120)
                         .background(Color.theme.tertiaryBackground)
@@ -224,7 +224,7 @@ struct StoryView: View {
                         VStack {
                             Image(systemName: "plus")
                                 .font(.system(size: 30))
-                                .foregroundColor(Color.theme.tertiaryText)
+                                .foregroundColor(Color.cyan)
                         }
                         .frame(width: 120, height: 120)
                         .background(Color.theme.tertiaryBackground)
