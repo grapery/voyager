@@ -86,7 +86,7 @@ class FeedViewModel: ObservableObject {
         self.selectBoardActive = 0
         self.selectTrendingStory = 0
         self.selectTrendingStoryRole = 0
-
+        print("FeedViewModel initialized")
     }
     
     @MainActor
@@ -129,15 +129,18 @@ class FeedViewModel: ObservableObject {
     private func appendStoryBoards(_ boards: [Common_StoryBoardActive]?) {
         if let boards = boards {
             // 防止重复数据
-            let newBoards = boards.filter { newBoard in
-                !storyBoardActives.contains { $0.storyboard.storyBoardID == newBoard.storyboard.storyBoardID }
-            }
-            storyBoardActives.append(contentsOf: newBoards)
+            // 暂时移除去重逻辑，用于调试
+            // let newBoards = boards.filter { newBoard in
+            //     !storyBoardActives.contains { $0.storyboard.storyBoardID == newBoard.storyboard.storyBoardID }
+            // }
+            // storyBoardActives.append(contentsOf: newBoards)
+            storyBoardActives.append(contentsOf: boards) // 直接追加所有 Boards
+            hasMoreData = boards.count >= defaultPageSize
         }
     }
     
     // 重置分页参数
-    private func resetPagination() {
+    public func resetPagination() {
         currentPage = 0
         timeStamp = 0
         hasMoreData = true
@@ -158,32 +161,10 @@ class FeedViewModel: ObservableObject {
     
     @MainActor
     func refreshData(type: FeedType) async {
-        // 检查是否正在加载或刷新
         guard !isLoading && !isRefreshing else {
             print("Skipping refresh - already loading or refreshing")
             return
         }
-        
-        // 检查是否在最小刷新间隔内
-        if let lastRefresh = lastRefreshTime,
-           Date().timeIntervalSince(lastRefresh) < minimumRefreshInterval {
-            print("Skipping refresh - too soon since last refresh")
-            return
-        }
-        
-        // 检查是否已经在加载相同类型的数据
-        if activeFlowType == getActiveFlowType(for: type) && !storyBoardActives.isEmpty {
-            print("Skipping refresh - data already loaded for type: \(type)")
-            return
-        }
-        
-        // 检查是否正在加载更多数据
-        if isLoadingMoreTrending {
-            print("Skipping refresh - loading more trending data")
-            return
-        }
-        
-        print("Starting refresh for type: \(type)")
         isLoading = true
         isRefreshing = true
         lastRefreshTime = Date()
@@ -224,7 +205,7 @@ class FeedViewModel: ObservableObject {
                     handleError(error)
                     return
                 }
-                appendStoryBoards(boards)
+                updateStoryBoards(boards)
             case .Groups:
                 print("not support")
             }
@@ -258,7 +239,6 @@ class FeedViewModel: ObservableObject {
             isLoading = false
         }
         hasError = false
-        print()
         let nextPage = currentPage
         do {
             switch type {
@@ -272,7 +252,6 @@ class FeedViewModel: ObservableObject {
                 )
                 if let error = error {
                     handleError(error)
-                    isLoading = false
                     return
                 }
                 if let boards = boards, !boards.isEmpty {
@@ -282,6 +261,7 @@ class FeedViewModel: ObservableObject {
                 } else {
                     hasMoreData = false
                 }
+                print("loadMoreData, nextPage: ",nextPage,"currentPage: ",currentPage,"hasMoreData: ",hasMoreData)
             case .StoryRole:
                 let (boards, _, _, error) = await storyService.userWatchRoleActiveStoryBoards(
                     userId: userId,
@@ -292,7 +272,6 @@ class FeedViewModel: ObservableObject {
                 )
                 if let error = error {
                     handleError(error)
-                    isLoading = false
                     return
                 }
                 if let boards = boards, !boards.isEmpty {
@@ -308,8 +287,6 @@ class FeedViewModel: ObservableObject {
         } catch {
             handleError(error)
         }
-        
-        isLoading = false
     }
 
     func likeStoryBoard(storyId: Int64, boardId: Int64, userId: Int64) async -> Error? {
@@ -383,7 +360,7 @@ class FeedViewModel: ObservableObject {
         
         do {
             let offset = forkListsPageMap[boardId, default: 0]
-            let (fetchedBoards, pageNum, pageSize, error) = await APIClient.shared.getNextStoryboard(
+            let (fetchedBoards, _, _, error) = await APIClient.shared.getNextStoryboard(
                 userId: userId,
                 storyId: storyId,
                 boardId: boardId,
