@@ -23,7 +23,6 @@ struct FeedView: View {
     @State private var errorTitle: String = ""
     @State private var errorMessage: String = ""
     @State private var showError: Bool = false
-    @State private var selectedStoryBoardId: Int64? = nil
     @Binding var showTabBar: Bool
     @State private var hasInitialized = false
     
@@ -75,16 +74,13 @@ struct FeedView: View {
                         TabView(selection: $selectedIndex) {
                             // 动态页面
                             StoryActivesView(
-                                searchText: $searchText,
-                                selectedTab: .constant(.Story),
-                                tabs: [(type: FeedType.Story, title: "故事")],
-                                viewModel: viewModel,
-                                errorTitle: $errorTitle,
-                                errorMessage: $errorMessage,
-                                showError: $showError,
-                                selectedStoryBoardId: $selectedStoryBoardId
+                                viewModel: viewModel
                             )
                             .tag(0)
+                            .onAppear {
+                                print("StoryActivesView apear")
+                                print("StoryActivesView apear ",viewModel.storyBoardActives.count)
+                            }
                             
                             // 热点页面
                             TrendingContentView(viewModel: viewModel)
@@ -94,9 +90,18 @@ struct FeedView: View {
                             DiscoveryView(viewModel: viewModel, messageText: "最近那边发生了什么事情？", showTabBar: $showTabBar)
                                 .tag(2)
                         }
+                        .onAppear {
+                            print("TabView apear")
+                            print("TabView apear ",viewModel.storyBoardActives.count)
+                        }
                         .tabViewStyle(.page(indexDisplayMode: .never))
+                        
                     }
                 }
+            }
+            .onAppear {
+                print("FeedView apear")
+                print("FeedView apear ",viewModel.storyBoardActives.count)
             }
             .background(Color.theme.background)
             .navigationDestination(for: Story.self) { story in
@@ -110,6 +115,86 @@ struct FeedView: View {
         }
     }
 }
+
+
+ struct StoryActivesView: View {
+    let  selectedTab:FeedType = .Story
+    let tabs: [(type: FeedType, title: String)] = [(type: FeedType.Story, title: "故事")]
+    @ObservedObject var viewModel: FeedViewModel
+
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView {
+                LazyVStack(spacing: 4) {
+                    ForEach(Array(viewModel.storyBoardActives.enumerated()), id: \.element.storyboard.storyBoardID) { index, active in
+                        FeedItemCard(
+                            storyBoardActive: active,
+                            userId: viewModel.user.userID,
+                            viewModel: viewModel
+                        )
+                        .onAppear {
+                            // 只做加载更多，不做 scrollTo
+                            if index == viewModel.storyBoardActives.count - 2 {
+                                if viewModel.hasMoreData && !viewModel.isLoadingMore {
+                                    viewModel.isLoadingMore = true
+                                    Task {
+                                        await viewModel.loadMoreData(type: .Story)
+                                        viewModel.isLoadingMore = false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // 加载状态指示器
+                    if viewModel.isLoadingMore {
+                        HStack {
+                            Spacer()
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle())
+                            Spacer()
+                        }
+                        .padding(.vertical, 12)
+                    }
+                    // 没有更多数据提示
+                    if !viewModel.hasMoreData && !viewModel.storyBoardActives.isEmpty {
+                        Text("没有更多了")
+                            .font(.system(size: 12))
+                            .foregroundColor(Color.gray)
+                            .padding()
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
+            }
+            .refreshable {
+                Task {
+                    print("refreshable call")
+                    await viewModel.refreshData(type: selectedTab)
+                    try? await Task.sleep(nanoseconds: 500_000_000)
+                    viewModel.feedViewState.isRefreshing = false
+                }
+            }
+        }
+        .background(Color.theme.background)
+        .onAppear {
+            if !viewModel.feedViewState.hasInitialized {
+                print("Initializing feed data for tab: \(selectedTab)")
+                Task {
+                    await viewModel.loadMoreData(type: selectedTab)
+                    viewModel.feedViewState.hasInitialized = true
+                }
+            }
+        }
+        .alert("加载失败", isPresented: $viewModel.hasError) {
+            Button("确定", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage)
+        }
+    }
+}
+
+
 
 // 修改 LazyView 包装器
 private struct LazyView<Content: View>: View {
@@ -391,29 +476,17 @@ private struct FeedItemCard: View {
     let storyBoardActive: Common_StoryBoardActive
     let userId: Int64
     @ObservedObject var viewModel: FeedViewModel
-    @Binding var errorTitle: String
-    @Binding var errorMessage: String
-    @Binding var showError: Bool
-    @Binding var selectedStoryBoardId: Int64?
-    @Binding var navigationSelection: Int64?
     let sceneMediaContents: [SceneMediaContent]
 
-    init(storyBoardActive: Common_StoryBoardActive?=nil, userId: Int64, viewModel: FeedViewModel, errorTitle: Binding<String>, errorMessage: Binding<String>, showError: Binding<Bool>, selectedStoryBoardId: Binding<Int64?>, navigationSelection: Binding<Int64?>) {
+    init(storyBoardActive: Common_StoryBoardActive?=nil, userId: Int64, viewModel: FeedViewModel) {
         self.storyBoardActive = storyBoardActive!
         self.userId = userId
         self.viewModel = viewModel
-        self._errorTitle = errorTitle
-        self._errorMessage = errorMessage
-        self._showError = showError
-        self._selectedStoryBoardId = selectedStoryBoardId
-        self._navigationSelection = navigationSelection
         self.sceneMediaContents = storyBoardActive!.toSceneMediaContents()
     }
 
     var body: some View {
         NavigationLink(
-            tag: storyBoardActive.storyboard.storyBoardID,
-            selection: $navigationSelection,
             destination: {
                 StoryboardSummary(
                     storyBoardId: storyBoardActive.storyboard.storyBoardID,
@@ -474,88 +547,6 @@ struct SearchBar: View {
     }
 }
 
-// 最新动态主视图
-private struct StoryActivesView: View {
-    @Binding var searchText: String
-    @Binding var selectedTab: FeedType
-    let tabs: [(type: FeedType, title: String)]
-    @ObservedObject var viewModel: FeedViewModel
-    @State private var isRefreshing = false
-    @Binding var errorTitle: String
-    @Binding var errorMessage: String
-    @Binding var showError: Bool
-    @Binding var selectedStoryBoardId: Int64?
-    @StateObject private var viewState = LatestUpdatesViewState()
-    
-    init(searchText: Binding<String>, 
-         selectedTab: Binding<FeedType>, 
-         tabs: [(type: FeedType, title: String)], 
-         viewModel: FeedViewModel, 
-         errorTitle: Binding<String>, 
-         errorMessage: Binding<String>, 
-         showError: Binding<Bool>,
-         selectedStoryBoardId: Binding<Int64?>) {
-        self._searchText = searchText
-        self._selectedTab = selectedTab
-        self.tabs = tabs
-        self._viewModel = ObservedObject(wrappedValue: viewModel)
-        self._errorTitle = errorTitle
-        self._errorMessage = errorMessage
-        self._showError = showError
-        self._selectedStoryBoardId = selectedStoryBoardId
-    }
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            //CategoryTabsSection(selectedTab: $selectedTab, tabs: tabs)
-            FeedContentSection(
-                selectedTab: $selectedTab,
-                isRefreshing: $isRefreshing,
-                viewModel: viewModel,
-                errorTitle: $errorTitle,
-                errorMessage: $errorMessage,
-                showError: $showError,
-                selectedStoryBoardId: $selectedStoryBoardId
-            )
-        }
-        .background(Color.theme.background)
-        .onAppear {
-            // 只在第一次出现且未初始化时初始化
-            if !viewState.hasInitialized {
-                viewState.hasInitialized = true
-                viewState.lastRefreshedTab = selectedTab
-                print("Initializing feed data for tab: \(selectedTab)")
-                Task {
-                    await viewModel.refreshData(type: selectedTab)
-                }
-            }
-        }
-        .onChange(of: selectedTab) { newTab in
-            // 只在标签切换且与上次刷新的标签不同时刷新
-            if viewState.hasInitialized && viewState.lastRefreshedTab != newTab {
-                viewState.lastRefreshedTab = newTab
-                print("Tab changed to: \(newTab)")
-                Task {
-                    await viewModel.refreshData(type: newTab)
-                }
-            }
-        }
-        .alert("加载失败", isPresented: $viewModel.hasError) {
-            Button("确定", role: .cancel) { }
-        } message: {
-            Text(viewModel.errorMessage)
-        }
-    }
-}
-
-// 状态管理类
-private class LatestUpdatesViewState: ObservableObject {
-    @Published var hasInitialized = false
-    @Published var lastRefreshedTab: FeedType?
-    @Published var isRefreshing = false
-    @Published var isViewActive = false
-}
-
 // 分类标签区域
 private struct CategoryTabsSection: View {
     @Binding var selectedTab: FeedType
@@ -564,120 +555,6 @@ private struct CategoryTabsSection: View {
     var body: some View {
         CategoryTabs(selectedTab: $selectedTab, tabs: tabs)
             .padding(.vertical, 4)
-    }
-}
-
-// 下拉刷新控件
-private struct FeedViewRefreshControl: View {
-    @Binding var isRefreshing: Bool
-    var threshold: CGFloat = 120
-    let action: () async -> Void
-
-    var body: some View {
-        GeometryReader { geometry in
-            let offset = geometry.frame(in: .global).minY
-            if offset > threshold {
-                Spacer()
-                    .onAppear {
-                        guard !isRefreshing else { return }
-                        isRefreshing = true
-                        Task { await action() }
-                    }
-            }
-            HStack {
-                Spacer()
-                if isRefreshing {
-                    ProgressView()
-                }
-                Spacer()
-            }
-        }
-        .frame(height: 5)
-    }
-}
-
-// 内容列表区域
-private struct FeedContentSection: View {
-    @Binding var selectedTab: FeedType
-    @Binding var isRefreshing: Bool
-    @ObservedObject var viewModel: FeedViewModel
-    @Binding var errorTitle: String
-    @Binding var errorMessage: String
-    @Binding var showError: Bool
-    @Binding var selectedStoryBoardId: Int64?
-
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                FeedItemList(
-                    viewModel: viewModel,
-                    selectedTab: $selectedTab,
-                    errorTitle: $errorTitle,
-                    errorMessage: $errorMessage,
-                    showError: $showError,
-                    selectedStoryBoardId: $selectedStoryBoardId
-                )
-            }
-        }
-    }
-}
-
-// 动态列表
-private struct FeedItemList: View {
-    @ObservedObject var viewModel: FeedViewModel
-    @Binding var selectedTab: FeedType
-    @Binding var errorTitle: String
-    @Binding var errorMessage: String
-    @Binding var showError: Bool
-    @Binding var selectedStoryBoardId: Int64?
-    @State private var isLoadingMore = false
-    @State private var navigationSelection: Int64? = nil
-
-    var body: some View {
-        LazyVStack(spacing: 4) {
-            ForEach(viewModel.storyBoardActives, id: \ .storyboard.storyBoardID) { active in
-                FeedItemCard(
-                    storyBoardActive: active,
-                    userId: viewModel.user.userID,
-                    viewModel: viewModel,
-                    errorTitle: $errorTitle,
-                    errorMessage: $errorMessage,
-                    showError: $showError,
-                    selectedStoryBoardId: $selectedStoryBoardId,
-                    navigationSelection: $navigationSelection
-                )
-            }
-
-            // 加载更多按钮
-            if viewModel.hasMoreData && !viewModel.isLoading {
-                Button(action: {
-                    if !isLoadingMore {
-                        isLoadingMore = true
-                        Task {
-                            await viewModel.loadMoreData(type: selectedTab)
-                            isLoadingMore = false
-                        }
-                    }
-                }) {
-                    HStack {
-                        Text(isLoadingMore ? "加载中..." : "加载更多")
-                            .font(.system(size: 12))
-                            .foregroundColor(Color.gray)
-                        Spacer()
-                    }
-                    .padding(.vertical, 12)
-                }
-            }
-
-            if !viewModel.hasMoreData && !viewModel.storyBoardActives.isEmpty {
-                Text("没有更多了")
-                    .font(.system(size: 12))
-                    .foregroundColor(Color.gray)
-                    .padding()
-            }
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 4)
     }
 }
 
@@ -1181,7 +1058,7 @@ private struct TrendingContentView: View {
     @State private var errorMessage: String = ""
     @State private var showError: Bool = false
     @State private var isRefreshing = false
-    @StateObject private var viewState = TrendingContentViewState()
+    @StateObject public var viewState = TrendingContentViewState()
     
     var body: some View {
         VStack(spacing: 0) {

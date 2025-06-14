@@ -7,6 +7,17 @@
 
 import Foundation
 
+
+// 状态管理类
+class LatestUpdatesViewState: ObservableObject {
+    @Published var hasInitialized = false
+    @Published var lastRefreshedTab: FeedType?
+    @Published var isRefreshing = false
+    @Published var isViewActive = false
+    @Published var lastVisibleItemId: Int64?
+}
+
+
 class FeedViewModel: ObservableObject {
     @Published var timeline: Int64
     @Published var userId: Int64
@@ -66,6 +77,10 @@ class FeedViewModel: ObservableObject {
     @Published private var lastRefreshTime: Date?
     private let minimumRefreshInterval: TimeInterval = 1.0 // 最小刷新间隔（秒）
     
+    @Published public var feedViewState = LatestUpdatesViewState()
+    public var selectedStoryBoardId: Int64?
+    @Published public var isLoadingMore: Bool
+    
     @MainActor
     func performSearch() async {
        // Implement search logic here based on the selected tab and searchText
@@ -86,6 +101,7 @@ class FeedViewModel: ObservableObject {
         self.selectBoardActive = 0
         self.selectTrendingStory = 0
         self.selectTrendingStoryRole = 0
+        self.isLoadingMore = false
         print("FeedViewModel initialized")
     }
     
@@ -129,12 +145,10 @@ class FeedViewModel: ObservableObject {
     private func appendStoryBoards(_ boards: [Common_StoryBoardActive]?) {
         if let boards = boards {
             // 防止重复数据
-            // 暂时移除去重逻辑，用于调试
-            // let newBoards = boards.filter { newBoard in
-            //     !storyBoardActives.contains { $0.storyboard.storyBoardID == newBoard.storyboard.storyBoardID }
-            // }
-            // storyBoardActives.append(contentsOf: newBoards)
-            storyBoardActives.append(contentsOf: boards) // 直接追加所有 Boards
+            let newBoards = boards.filter { newBoard in
+                !storyBoardActives.contains { $0.storyboard.storyBoardID == newBoard.storyboard.storyBoardID }
+            }
+            storyBoardActives.append(contentsOf: newBoards)
             hasMoreData = boards.count >= defaultPageSize
         }
     }
@@ -239,7 +253,10 @@ class FeedViewModel: ObservableObject {
             isLoading = false
         }
         hasError = false
+        
+        // 保存当前页码，避免在异步操作过程中被修改
         let nextPage = currentPage
+        
         do {
             switch type {
             case .Story:
@@ -255,18 +272,25 @@ class FeedViewModel: ObservableObject {
                     return
                 }
                 if let boards = boards, !boards.isEmpty {
-                    appendStoryBoards(boards)
-                    hasMoreData = boards.count >= defaultPageSize
-                    if hasMoreData { currentPage = currentPage + 1 }
+                    
+                    if !boards.isEmpty {
+                        appendStoryBoards(boards)
+                        hasMoreData = boards.count >= defaultPageSize
+                        // 只有在成功加载新数据后才增加页码
+                        currentPage = nextPage + 1
+                    } else {
+                        // 如果获取到的都是重复数据，说明已经没有新数据了
+                        hasMoreData = false
+                    }
                 } else {
                     hasMoreData = false
                 }
-                print("loadMoreData, nextPage: ",nextPage,"currentPage: ",currentPage,"hasMoreData: ",hasMoreData)
+                print("loadMoreData, nextPage: \(nextPage), currentPage: \(currentPage), hasMoreData: \(hasMoreData)")
             case .StoryRole:
                 let (boards, _, _, error) = await storyService.userWatchRoleActiveStoryBoards(
                     userId: userId,
                     roleId: 0,
-                    offset: nextPage ,
+                    offset: nextPage,
                     pageSize: defaultPageSize,
                     filter: ""
                 )
@@ -275,9 +299,20 @@ class FeedViewModel: ObservableObject {
                     return
                 }
                 if let boards = boards, !boards.isEmpty {
-                    appendStoryBoards(boards)
-                    hasMoreData = boards.count >= defaultPageSize
-                    if hasMoreData { currentPage = currentPage + 1 }
+                    // 检查是否有重复数据
+                    let newBoards = boards.filter { newBoard in
+                        !storyBoardActives.contains { $0.storyboard.storyBoardID == newBoard.storyboard.storyBoardID }
+                    }
+                    
+                    if !newBoards.isEmpty {
+                        appendStoryBoards(newBoards)
+                        hasMoreData = boards.count >= defaultPageSize
+                        // 只有在成功加载新数据后才增加页码
+                        currentPage = nextPage + 1
+                    } else {
+                        // 如果获取到的都是重复数据，说明已经没有新数据了
+                        hasMoreData = false
+                    }
                 } else {
                     hasMoreData = false
                 }
@@ -683,6 +718,18 @@ class FeedViewModel: ObservableObject {
         }
         print("unfollowStory success")
         return nil
+    }
+    
+    // 更新最后可见的元素ID
+    @MainActor
+    func updateLastVisibleItemId(_ id: Int64) {
+        feedViewState.lastVisibleItemId = id
+    }
+    
+    // 获取最后可见的元素ID
+    @MainActor
+    func getLastVisibleItemId() -> Int64? {
+        return feedViewState.lastVisibleItemId
     }
 }
 

@@ -34,6 +34,7 @@ struct GroupView: View {
             }
             .onAppear {
                 Task {
+                    print("GroupView apear")
                     await viewModel.fetchGroups()
                 }
             }
@@ -103,6 +104,7 @@ struct GroupViewListView: View {
                             ForEach(viewModel.groups) { group in
                                 GroupViewListItemView(group: group, viewModel: viewModel)
                                     .onAppear {
+                                        print("viewModel.groups : ",viewModel.groups.count , "  isLoadingMore ",isLoadingMore)
                                         if group.id == viewModel.groups.last?.id {
                                             Task {
                                                 if !isLoadingMore {
@@ -116,6 +118,9 @@ struct GroupViewListView: View {
                             }
                         }
                         .padding(.top, 8)
+                        .onAppear{
+                            print("GroupViewListView apear" )
+                        }
                     }
                     
                     
