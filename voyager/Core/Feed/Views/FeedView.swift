@@ -433,7 +433,7 @@ private struct FeedCardActions: View {
     let userId: Int64
     @ObservedObject var viewModel: FeedViewModel
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 12) {
             StorySubViewInteractionButton(
                 icon: storyBoardActive.storyboard.currentUserStatus.isLiked ? "heart.fill" : "heart",
                 count: "\(storyBoardActive.totalLikeCount)",
@@ -989,7 +989,7 @@ private struct TrendingRoleCard: View {
         Button(action: {
             navigateToRoleDetail = true
         }) {
-            HStack(spacing: 16) {
+            HStack(alignment: .top, spacing: 8) {
                 // 角色头像
                 KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
                     .cacheMemoryOnly()
@@ -1001,31 +1001,39 @@ private struct TrendingRoleCard: View {
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 60, height: 60)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                
-                // 角色信息
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(role.role.characterName)
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(Color.theme.primaryText)
-                    
-                    Text(role.role.characterDescription)
-                        .font(.system(size: 14))
-                        .foregroundColor(Color.theme.secondaryText)
-                        .lineLimit(2)
-                    
-                    RoleStatsView(role: role)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                // 右侧内容区
+                ZStack(alignment: .topTrailing) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        // 名称和关注按钮同一行
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            Text(role.role.characterName)
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(Color.theme.primaryText)
+                                .lineLimit(1)
+                            Spacer(minLength: 0)
+                            // 关注按钮，2. 与名称基线对齐
+                            RoleFollowButton(role: role, viewModel: viewModel)
+                                .alignmentGuide(.firstTextBaseline) { d in d[.firstTextBaseline] }
+                        }
+                        // 角色描述，3. 宽度不超过关注按钮左侧
+                        Text(role.role.characterDescription)
+                            .font(.system(size: 14))
+                            .foregroundColor(Color.theme.secondaryText)
+                            .lineLimit(2)
+                            .truncationMode(.tail)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        // 统计栏
+                        RoleStatsView(role: role)
+                            .padding(.top, 2)
+                    }
                 }
-                
-                Spacer()
-                
-                RoleFollowButton(role: role, viewModel: viewModel)
             }
             .padding(16)
             .background(Color.theme.secondaryBackground)
-            .cornerRadius(12)
+            .cornerRadius(16)
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 16)
                     .stroke(Color.theme.border, lineWidth: 0.5)
             )
             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)

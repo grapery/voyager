@@ -217,7 +217,7 @@ struct StoryboardSummary: View {
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
            
-            HStack(spacing: 4) {
+            HStack() {
                 // 交互按钮
                 InteractionButtonsView(
                     storyboard: storyboard,
@@ -346,7 +346,7 @@ struct StoryboardSummary: View {
         viewModel: FeedViewModel,
         onShowComments: @escaping () -> Void
     ) -> some View {
-        HStack(spacing: 24) {
+        HStack(spacing: 12) {
             // 点赞按钮
             InteractionButton(
                 icon: storyboard.storyboard.currentUserStatus.isLiked ? "heart.fill" : "heart",
