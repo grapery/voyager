@@ -222,7 +222,8 @@ struct StoryboardSummary: View {
                 InteractionButtonsView(
                     storyboard: storyboard,
                     userId: userId,
-                    viewModel: viewModel
+                    viewModel: viewModel,
+                    onShowComments: { self.showComments = true }
                 )
             }
             .frame( alignment: .leading)
@@ -231,11 +232,17 @@ struct StoryboardSummary: View {
             
             Divider()
                 .padding(.vertical, 4)
-            if self.showComments {
-                // 显示评论列表
-                
-                // 评论列表
-                VStack(alignment: .leading, spacing: 8) {
+            // 评论列表弹窗
+            .sheet(isPresented: $showComments) {
+                VStack(spacing: 0) {
+                    HStack {
+                        Spacer()
+                        Text("评论列表")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.theme.primaryText)
+                        Spacer()
+                    }
+                    .padding(.vertical, 12)
                     CommentListView(
                         storyId: storyboard.storyboard.storyID,
                         storyboardId: storyboard.storyboard.storyBoardID,
@@ -243,10 +250,9 @@ struct StoryboardSummary: View {
                         totalCommentNum: Int(storyboard.totalCommentCount)
                     )
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
+                .background(Color.theme.background)
+                .presentationDetents([.medium, .large])
             }
-                    
         }
         .padding(.top, 8)
     }
@@ -336,7 +342,8 @@ struct StoryboardSummary: View {
     private func InteractionButtonsView(
         storyboard: Common_StoryBoardActive,
         userId: Int64,
-        viewModel: FeedViewModel
+        viewModel: FeedViewModel,
+        onShowComments: @escaping () -> Void
     ) -> some View {
         HStack(spacing: 24) {
             // 点赞按钮
@@ -386,7 +393,7 @@ struct StoryboardSummary: View {
                 count: Int(storyboard.totalCommentCount),
                 isActive: false,
                 action: {
-                    self.showComments = !self.showComments
+                    onShowComments()
                 },
                 color: Color.theme.commentedIcon
             )

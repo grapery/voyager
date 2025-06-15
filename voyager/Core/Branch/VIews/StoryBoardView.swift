@@ -19,6 +19,7 @@ struct StoryBoardView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var commentText = ""
     @State private var isLiked = false
+    @State private var showComments = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -141,6 +142,17 @@ struct StoryBoardView: View {
                             }
                         }
                         Button(action: {
+                            showComments = true
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "bubble.left")
+                                    .foregroundColor(.theme.tertiaryText)
+                                Text("\(board?.boardActive.totalCommentCount ?? 0)")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.theme.tertiaryText)
+                            }
+                        }
+                        Button(action: {
                             // TODO: 处理查看分支事件
                         }) {
                             HStack(spacing: 4) {
@@ -153,14 +165,27 @@ struct StoryBoardView: View {
                         }
                     }
                     .padding(.top, 8)
-                    // 评论列表
-                    CommentListView(
-                        storyId: self.storyId,
-                        storyboardId: self.board?.boardActive.storyboard.storyBoardID ?? 0,
-                        userId: self.userId,
-                        totalCommentNum: Int(self.board?.boardActive.totalCommentCount ?? 0)
-                    )
-                    
+                    // 评论列表弹窗
+                    .sheet(isPresented: $showComments) {
+                        VStack(spacing: 0) {
+                            HStack {
+                                Spacer()
+                                Text("评论列表")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(.theme.primaryText)
+                                Spacer()
+                            }
+                            .padding(.vertical, 12)
+                            CommentListView(
+                                storyId: self.storyId,
+                                storyboardId: self.board?.boardActive.storyboard.storyBoardID ?? 0,
+                                userId: self.userId,
+                                totalCommentNum: Int(self.board?.boardActive.totalCommentCount ?? 0)
+                            )
+                        }
+                        .background(Color.theme.background)
+                        .presentationDetents([.medium, .large])
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
