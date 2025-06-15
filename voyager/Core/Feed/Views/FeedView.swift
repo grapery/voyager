@@ -68,9 +68,7 @@ struct FeedView: View {
                 .padding(.vertical, 4)
                 
                 ZStack {
-                    if viewModel.isLoading || viewModel.isLoadingTrending || viewModel.isRefreshing || viewModel.isLoadingMoreTrending {
-                        LoadingIndicator(isLoading: true)
-                    } else {
+                    
                         TabView(selection: $selectedIndex) {
                             // 动态页面
                             StoryActivesView(
@@ -97,7 +95,7 @@ struct FeedView: View {
                         .tabViewStyle(.page(indexDisplayMode: .never))
                         
                     }
-                }
+                
             }
             .onAppear {
                 print("FeedView apear")
@@ -116,64 +114,66 @@ struct FeedView: View {
     }
 }
 
-
- struct StoryActivesView: View {
-    let  selectedTab:FeedType = .Story
+struct StoryActivesView: View {
+    let selectedTab: FeedType = .Story
     let tabs: [(type: FeedType, title: String)] = [(type: FeedType.Story, title: "故事")]
     @ObservedObject var viewModel: FeedViewModel
-
+    @State private var scrollPosition: Int? = nil
 
     var body: some View {
         VStack(spacing: 0) {
-            ScrollView {
-                LazyVStack(spacing: 4) {
-                    ForEach(Array(viewModel.storyBoardActives.enumerated()), id: \.element.storyboard.storyBoardID) { index, active in
-                        FeedItemCard(
-                            storyBoardActive: active,
-                            userId: viewModel.user.userID,
-                            viewModel: viewModel
-                        )
-                        .onAppear {
-                            // 只做加载更多，不做 scrollTo
-                            if index == viewModel.storyBoardActives.count - 2 {
-                                if viewModel.hasMoreData && !viewModel.isLoadingMore {
-                                    viewModel.isLoadingMore = true
-                                    Task {
-                                        await viewModel.loadMoreData(type: .Story)
-                                        viewModel.isLoadingMore = false
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(spacing: 4) {
+                        ForEach(Array(viewModel.storyBoardActives.enumerated()), id: \.element.storyboard.storyBoardID) { index, active in
+                            FeedItemCard(
+                                storyBoardActive: active,
+                                userId: viewModel.user.userID,
+                                viewModel: viewModel
+                            )
+                            .id(active.storyboard.storyBoardID)
+                            .onAppear {
+                                // 只做加载更多，不做 scrollTo
+                                if index == viewModel.storyBoardActives.count - 2 {
+                                    print("loading   next page:", index)
+                                    if viewModel.hasMoreData && !viewModel.isLoadingMore {
+                                        viewModel.isLoadingMore = true
+                                        Task {
+                                            await viewModel.loadMoreData(type: .Story)
+                                            viewModel.isLoadingMore = false
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    // 加载状态指示器
-                    if viewModel.isLoadingMore {
-                        HStack {
-                            Spacer()
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle())
-                            Spacer()
+                        // 没有更多数据提示
+                        if !viewModel.hasMoreData && !viewModel.storyBoardActives.isEmpty {
+                            Text("没有更多了")
+                                .font(.system(size: 12))
+                                .foregroundColor(Color.theme.primaryText).colorInvert()
+                                .padding()
                         }
-                        .padding(.vertical, 12)
                     }
-                    // 没有更多数据提示
-                    if !viewModel.hasMoreData && !viewModel.storyBoardActives.isEmpty {
-                        Text("没有更多了")
-                            .font(.system(size: 12))
-                            .foregroundColor(Color.gray)
-                            .padding()
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                }
+                .refreshable {
+                    viewModel.feedViewState.isRefreshing = true
+                    Task {
+                        print("refreshable call")
+                        await viewModel.refreshData(type: selectedTab)
+                        try? await Task.sleep(nanoseconds: 500_000_000)
+                        viewModel.feedViewState.isRefreshing = false
                     }
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 4)
-            }
-            .refreshable {
-                Task {
-                    print("refreshable call")
-                    await viewModel.refreshData(type: selectedTab)
-                    try? await Task.sleep(nanoseconds: 500_000_000)
-                    viewModel.feedViewState.isRefreshing = false
-                }
+//                .onChange(of: viewModel.storyBoardActives.count) { newCount in
+//                    if let lastId = viewModel.storyBoardActives.last?.storyboard.storyBoardID {
+//                        print("lastId : ",lastId)
+//                        withAnimation {
+//                            proxy.scrollTo(lastId, anchor: .bottom)
+//                        }
+//                    }
+//                }
             }
         }
         .background(Color.theme.background)
@@ -193,8 +193,6 @@ struct FeedView: View {
         }
     }
 }
-
-
 
 // 修改 LazyView 包装器
 private struct LazyView<Content: View>: View {

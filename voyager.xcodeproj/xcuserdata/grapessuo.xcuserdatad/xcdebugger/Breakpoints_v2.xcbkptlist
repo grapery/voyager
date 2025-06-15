@@ -14,9 +14,9 @@
             filePath = "voyager/Core/Feed/Views/FeedView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "590"
-            endingLineNumber = "590"
-            landmarkName = "DiscoveryView"
+            startingLineNumber = "580"
+            endingLineNumber = "580"
+            landmarkName = "LoadingIndicator"
             landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
