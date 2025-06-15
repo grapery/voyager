@@ -1439,27 +1439,24 @@ struct UnpublishedStoryBoardCellView: View {
                         InteractionStatItem(
                             icon: "paintbrush.pointed",
                             text: "编辑",
-                            color: Color.theme.buttonText
+                            color: Color.theme.inputText
                         )
-                        .background(Color.theme.buttonBackground.colorInvert().opacity(0.1))
                         .cornerRadius(2)
                     }
                     Button(action: { showingPublishAlert = true }) {
                         InteractionStatItem(
                             icon: "mountain.2",
                             text: "发布",
-                            color: Color.theme.buttonText
+                            color: Color.theme.inputText
                         )
-                        .background(Color.theme.buttonBackground.colorInvert().opacity(0.1))
                         .cornerRadius(2)
                     }
                     Button(action: { showingDeleteAlert = true }) {
                         InteractionStatItem(
                             icon: "trash",
                             text: "删除",
-                            color: Color.theme.buttonText
+                            color: Color.theme.inputText
                         )
-                        .background(Color.theme.buttonBackground.colorInvert().opacity(0.1))
                         .cornerRadius(2)
                     }
                 }
