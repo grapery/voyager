@@ -180,6 +180,8 @@ struct StoryBoardView: View {
                                 storyId: self.storyId,
                                 storyboardId: self.board?.boardActive.storyboard.storyBoardID ?? 0,
                                 userId: self.userId,
+                                userAvatarURL: defaultAvator,
+                                
                                 totalCommentNum: Int(self.board?.boardActive.totalCommentCount ?? 0)
                             )
                         }

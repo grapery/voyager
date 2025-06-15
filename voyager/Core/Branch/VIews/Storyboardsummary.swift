@@ -247,6 +247,7 @@ struct StoryboardSummary: View {
                         storyId: storyboard.storyboard.storyID,
                         storyboardId: storyboard.storyboard.storyBoardID,
                         userId: userId,
+                        userAvatarURL: defaultAvator,
                         totalCommentNum: Int(storyboard.totalCommentCount)
                     )
                 }

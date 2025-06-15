@@ -5,6 +5,7 @@ struct CommentListView: View {
     let storyId: Int64
     let storyboardId: Int64?
     let userId: Int64
+    let userAvatarURL: String?
     @StateObject private var viewModel = CommentsViewModel()
     @State private var commentText = ""
     @State private var isLoadingMore = false
@@ -71,12 +72,27 @@ struct CommentListView: View {
                     viewModel.replyToParentComment = nil
                     isInputFocused = false
                 },
-                isFocused: $isInputFocused
+                isFocused: $isInputFocused,
+                userAvatarURL: userAvatarURL
             )
-            Text("共 \(totalCommentNum) 条评论")
-                .font(.system(size: 12))
-                .foregroundColor(.theme.tertiaryText)
-                .padding(.top, 4)
+            .padding(.horizontal, 12) // 输入区域左右留白
+            .padding(.top, 8) // 顶部间距
+            .padding(.bottom, 4) // 与下方信息条间距
+
+            // "共 x 条评论"信息条
+            HStack {
+                Spacer()
+                Text("共 \(totalCommentNum) 条评论")
+                    .font(.system(size: 13))
+                    .foregroundColor(.theme.tertiaryText)
+                Spacer()
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Color.theme.tertiaryBackground)
+            .cornerRadius(8)
+            .padding(.bottom, 4) // 与评论列表间距
             // 评论列表
             ScrollView {
                 LazyVStack(spacing: 0) {
@@ -166,7 +182,7 @@ private struct CommentItemView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 8) {
+            HStack(alignment: .top, spacing: 12) {
                 // 用户头像
                 NavigationLink(destination: UserProfileView(user: User(
                     userID: comment.commentUser.userID,
@@ -179,11 +195,11 @@ private struct CommentItemView: View {
                         .placeholder { CommentAvatarPlaceholder() }
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 24, height: 24)
+                        .frame(width: 32, height: 32) // 更大头像
                         .clipShape(Circle())
                 }
                 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     // 用户名、时间和点赞按钮
                     HStack(alignment: .center) {
                         NavigationLink(destination: UserProfileView(user: User(
@@ -192,15 +208,22 @@ private struct CommentItemView: View {
                             avatar: comment.commentUser.avatar
                         ))) {
                             Text(comment.commentUser.name)
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(.theme.primaryText)
                         }
-                        
                         Spacer()
-                        
                         Text(formatTimeAgo(timestamp: comment.realComment.createdAt))
                             .font(.system(size: 12))
                             .foregroundColor(.theme.tertiaryText)
-                        
+                    }
+                    // 评论内容
+                    Text(comment.realComment.content)
+                        .font(.system(size: 15))
+                        .foregroundColor(.theme.primaryText)
+                        .padding(.vertical, 2)
+                    // 评论操作栏
+                    HStack(spacing: 20) {
+                        // 点赞按钮
                         Button(action: {
                             Task {
                                 isLiked.toggle()
@@ -213,30 +236,26 @@ private struct CommentItemView: View {
                         }) {
                             HStack(spacing: 4) {
                                 Image(systemName: isLiked ? "heart.fill" : "heart")
-                                    .font(.system(size: 12))
-                                if comment.realComment.likeCount > 0 {
-                                    Text("\(comment.realComment.likeCount)")
-                                        .font(.system(size: 12))
-                                }
+                                    .font(.system(size: 15, weight: .bold))
+                                    .scaleEffect(isLiked ? 1.2 : 1.0)
+                                    .foregroundColor(isLiked ? .theme.error : .theme.tertiaryText)
+                                    .animation(.spring(response: 0.3, dampingFraction: 0.5), value: isLiked)
+                                Text("\(comment.realComment.likeCount)")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(isLiked ? .theme.error : .theme.tertiaryText)
                             }
-                            .foregroundColor(isLiked ? .theme.error : .theme.tertiaryText)
-                            .animation(.easeInOut(duration: 0.2), value: isLiked)
                         }
-                    }
-                    
-                    // 评论内容
-                    Text(comment.realComment.content)
-                        .font(.system(size: 14))
-                        .foregroundColor(.theme.primaryText)
-                    
-                    // 评论操作栏
-                    HStack(spacing: 16) {
+                        // 回复按钮
                         Button(action: onReply) {
-                            Text("回复")
-                                .font(.system(size: 12))
-                                .foregroundColor(.theme.tertiaryText)
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrowshape.turn.up.left")
+                                    .font(.system(size: 14, weight: .medium))
+                                Text("回复")
+                                    .font(.system(size: 13, weight: .medium))
+                            }
+                            .foregroundColor(.theme.tertiaryText)
                         }
-                        
+                        // 展开回复按钮
                         if comment.realComment.replyCount > 0 {
                             Button(action: {
                                 if !showReplies {
@@ -256,22 +275,21 @@ private struct CommentItemView: View {
                                 }
                             }) {
                                 Text("\(showReplies ? "收起" : "展开")\(comment.realComment.replyCount)条回复")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.theme.tertiaryText)
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.theme.accent)
                             }
                         }
                     }
-                    .padding(.top, 4)
+                    .padding(.top, 2)
                 }
             }
-            
             // 回复列表
             if showReplies {
                 if isLoadingReplies {
                     ProgressView()
                         .scaleEffect(0.8)
                         .padding(.top, 8)
-                        .padding(.leading, 42)
+                        .padding(.leading, 44)
                 } else {
                     VStack(spacing: 0) {
                         ForEach(replies) { reply in
@@ -284,19 +302,20 @@ private struct CommentItemView: View {
                                         viewModel.replyToComment = reply
                                     }
                                 )
-                                
                                 if reply.id != replies.last?.id {
                                     Divider()
-                                        .padding(.leading, 42) // 分隔线左对齐到头像右侧
+                                        .padding(.leading, 44)
                                 }
                             }
                         }
                     }
-                    .padding(.leading, 24)
+                    .padding(.leading, 36)
                 }
             }
         }
-        .padding(.vertical, 4)
+        // 卡片样式：圆角、阴影、背景色
+        .padding(12)
+        .background(Color.theme.secondaryBackground)
     }
     
     private func formatTimeAgo(timestamp: Int64) -> String {
@@ -335,7 +354,6 @@ private struct ReplyItemView: View {
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 24, height: 24)
                     .clipShape(Circle())
-                
                 // 内容区域
                 VStack(alignment: .leading, spacing: 4) { // 增加垂直间距
                     // 用户名、时间和点赞
@@ -343,13 +361,10 @@ private struct ReplyItemView: View {
                         Text(reply.commentUser.name)
                             .font(.system(size: 12, weight: .medium)) // 增加字体大小
                             .foregroundColor(.theme.primaryText)
-                        
                         Spacer()
-                        
                         Text(formatTimeAgo(timestamp: reply.realComment.createdAt))
                             .font(.system(size: 12)) // 增加字体大小
                             .foregroundColor(.theme.tertiaryText)
-                        
                         // 点赞按钮
                         Button(action: {
                             Task {
@@ -373,7 +388,6 @@ private struct ReplyItemView: View {
                             .animation(.easeInOut(duration: 0.2), value: isLiked)
                         }
                     }
-                    
                     // 评论内容
                     Text(reply.realComment.content)
                         .font(.system(size: 12)) // 增加字体大小
@@ -382,6 +396,8 @@ private struct ReplyItemView: View {
             }
         }
         .buttonStyle(PlainButtonStyle())
+        // 保持与一级评论一致的上下间隔
+        .padding(.vertical, 4)
     }
     
     private func formatTimeAgo(timestamp: Int64) -> String {
@@ -413,7 +429,8 @@ private struct CommentInputView: View {
     let onSend: () -> Void
     let onCancelReply: () -> Void
     var isFocused: FocusState<Bool>.Binding
-    
+    let userAvatarURL: String?
+
     private var placeholderText: String {
         if let replyTo = replyToComment {
             return "回复 @\(replyTo.commentUser.name)："
@@ -422,34 +439,74 @@ private struct CommentInputView: View {
     }
     
     var body: some View {
-        HStack(spacing: 6) {
-            HStack(spacing: 4) {
-                TextField(placeholderText, text: $commentText)
-                    .focused(isFocused)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                
-                if replyToComment != nil {
-                    Button(action: onCancelReply) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 14))
-                            .foregroundColor(.theme.tertiaryText)
-                    }
-                    .padding(.trailing, 8)
+        VStack(spacing: 6) {
+            HStack(alignment: .center, spacing: 8) {
+                // 头像
+                if let url = userAvatarURL, let imageURL = URL(string: url) {
+                    KFImage(imageURL)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 36, height: 36)
+                        .clipShape(Circle())
+                } else {
+                    // 默认头像
+                    CommentAvatarPlaceholder()
+                        .frame(width: 36, height: 36)
                 }
+                // 输入框
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.theme.divider, lineWidth: 1)
+                        .background(RoundedRectangle(cornerRadius: 8).fill(Color.white))
+                        .frame(height: 40)
+                    HStack(spacing: 0) {
+                        TextField(placeholderText, text: $commentText)
+                            .focused(isFocused)
+                            .font(.system(size: 15))
+                            .foregroundColor(.theme.primaryText)
+                            .padding(.horizontal, 10)
+                            .frame(height: 40)
+                        if replyToComment != nil {
+                            Button(action: onCancelReply) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 16))
+                                    .foregroundColor(.theme.tertiaryText)
+                            }
+                            .padding(.trailing, 6)
+                        }
+                    }
+                }
+                // 发布按钮
+                Button(action: onSend) {
+                    Text("发布")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(commentText.isEmpty ? .theme.tertiaryText : .white)
+                        .frame(width: 52, height: 36)
+                        .background(commentText.isEmpty ? Color.theme.tertiaryBackground : Color.theme.accent)
+                        .cornerRadius(8)
+                }
+                .disabled(commentText.isEmpty)
             }
-            .background(Color.theme.tertiaryBackground)
-            .cornerRadius(8)
-            
-            Button(action: onSend) {
-                Image(systemName: "paperplane.fill")
-                    .foregroundColor(commentText.isEmpty ? .theme.tertiaryText : .theme.primary)
-                    .frame(width: 24, height: 24)
+            // 表情、@按钮区
+            HStack(spacing: 16) {
+                Button(action: {
+                    // TODO: 表情选择逻辑
+                }) {
+                    Image(systemName: "face.smiling")
+                        .font(.system(size: 20))
+                        .foregroundColor(.theme.tertiaryText)
+                }
+                Button(action: {
+                    // TODO: @逻辑
+                }) {
+                    Image(systemName: "at")
+                        .font(.system(size: 20))
+                        .foregroundColor(.theme.tertiaryText)
+                }
+                Spacer()
             }
+            .padding(.leading, 44) // 与输入框左侧头像对齐
         }
-        //.padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .padding(.bottom, 2)
-        .background(Color.theme.secondaryBackground)
     }
 }
