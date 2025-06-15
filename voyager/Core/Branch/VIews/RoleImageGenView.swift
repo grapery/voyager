@@ -232,11 +232,9 @@ struct RoleImageGenView: View {
                     // 生成按钮
                     Button(action: generateImages) {
                         HStack {
-                            if isGenerating {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle())
-                                    .padding(.trailing, 8)
-                            }
+                            ActivityIndicatorView(isVisible: .constant(isGenerating), type: .growingArc(.cyan))
+                                .frame(width: 64, height: 64)
+                                .foregroundColor(.cyan)
                             Text(isGenerating ? "生成中..." : "生成")
                                 .font(.system(size: 16, weight: .bold))
                         }
