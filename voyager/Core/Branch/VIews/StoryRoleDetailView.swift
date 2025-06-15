@@ -887,82 +887,93 @@ struct EditDescriptionView: View {
     let viewModel: StoryRoleModel
     let onRoleUpdate: (StoryRole) -> Void
     @Environment(\.dismiss) private var dismiss
-    @State private var roleDescription: Common_CharacterDetail
+    @State private var detail: Common_CharacterDetail
     @State private var isGenerating = false
     @State private var showError = false
     @State private var errorMessage = ""
-    
+    @State private var selectedTab = 0 // 0: 描述, 1: 图片
+
     init(role: StoryRole, viewModel: StoryRoleModel, onRoleUpdate: @escaping (StoryRole) -> Void) {
         self.role = role
         self.viewModel = viewModel
         self.onRoleUpdate = onRoleUpdate
-        _roleDescription = State(initialValue: role.role.characterDetail)
+        _detail = State(initialValue: role.role.characterDetail)
     }
-    
+
     var body: some View {
         NavigationView {
-            VStack(spacing: 12) {
-                Text("编辑角色描述")
-                    .font(.system(size: 16, weight: .medium))
-                    .padding(.top)
-                
-                // AI生成按钮
-                Button(action: {
-                    Task {
-                        await generateDescription()
+            VStack(spacing: 0) {
+                // 标题
+                Text("编辑角色信息")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(Color.theme.primaryText)
+                    .padding(.top, 8)
+                    .frame(maxWidth: .infinity, alignment: .center)
+
+                // Tab 切换栏
+                HStack(spacing: 0) {
+                    TabButton(title: "描述", selected: selectedTab == 0) {
+                        selectedTab = 0
                     }
-                }) {
-                    HStack {
-                        Image(systemName: "wand.and.stars")
-                        Text("AI生成")
-                    }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(Color.blue)
-                    .cornerRadius(20)
-                }
-                .disabled(isGenerating)
-                
-                if isGenerating {
-                    HStack {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle())
-                        Text("正在生成描述...")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
+                    TabButton(title: "图片", selected: selectedTab == 1) {
+                        selectedTab = 1
                     }
                 }
-                
-                // Display the character description fields
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Group {
-                            DescriptionField(emoji: "📝", title: "角色描述", text: roleDescription.description_p)
+                .background(Color.theme.secondaryBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.theme.border, lineWidth: 2)
+                )
+                .cornerRadius(12)
+                .padding(.horizontal, 24)
+                .padding(.top, 20)
+                .padding(.bottom, 8)
+
+                // Tab 内容
+                HStack {
+                    TabView(selection: $selectedTab) {
+                        // 描述 Tab
+                        VStack{
+                            DescriptionEditTab(
+                                detail: $detail,
+                                isGenerating: $isGenerating,
+                                onAIGenerate: generateAll
+                            )
+                            // AI生成按钮
+                            Button(action: { generateAll() }) {
+                                HStack {
+                                    Image(systemName: "wand.and.stars")
+                                    Text("AI一键生成")
+                                }
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.theme.accent)
+                                .cornerRadius(12)
+                            }
+                            .padding(.vertical, 12)
+                            .disabled(isGenerating)
                         }
-                        .padding(14)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(14)
+                        .tag(0)
+                        // 图片 Tab
+                        RoleImageGenView(viewModel: viewModel)
+                            .tag(1)
                     }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 8)
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .padding(.top, 8)
                 }
-                
-                Spacer()
+                .padding(.horizontal, 24)
             }
-            .padding()
-            .navigationBarTitleDisplayMode(.inline)
+            //.background(Color.theme.background)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("取消") { dismiss() }
+                        .foregroundColor(.red)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("保存") {
-                        Task {
-                            await saveDescription()
-                        }
-                    }
+                    Button("保存") { Task { await save() } }
+                        .foregroundColor(Color.theme.accent)
                 }
             }
             .alert("生成失败", isPresented: $showError) {
@@ -972,74 +983,131 @@ struct EditDescriptionView: View {
             }
         }
     }
-    
-    private func generateDescription() async {
+
+    /// AI一键生成所有维度
+    private func generateAll() {
         isGenerating = true
-        let (newDescription, error) = await viewModel.generateRoleDescription(
-            storyId: role.role.storyID,
-            roleId: role.role.roleID,
-            userId: viewModel.userId,
-            sampleDesc: roleDescription.description_p
-        )
-        
-        await MainActor.run {
-            isGenerating = false
-            if let error = error {
-                errorMessage = error.localizedDescription
-                showError = true
-            } else if let newDescription = newDescription {
-                self.roleDescription = newDescription
+        Task{
+            let (newDetail, error) = await viewModel.generateRoleDescription(
+                storyId: role.role.storyID,
+                roleId: role.role.roleID,
+                userId: viewModel.userId,
+                sampleDesc: detail.description_p
+            )
+            await MainActor.run {
+                isGenerating = false
+                if let error = error {
+                    errorMessage = error.localizedDescription
+                    showError = true
+                } else if let newDetail = newDetail {
+                    self.detail = newDetail
+                }
             }
         }
     }
-    
-    private func saveDescription() async {
-        do {
-            let error = await viewModel.updateRoleDescription(
-                roleId: role.role.roleID,
-                userId: viewModel.userId,
-                desc: roleDescription
-            )
-            
-            if let error = error {
-                errorMessage = error.localizedDescription
-                showError = true
-            } else {
-                var updatedRole = role
-                updatedRole.role.characterDetail = roleDescription
-                onRoleUpdate(updatedRole)
-                dismiss()
-            }
-        } catch {
+
+    /// 保存角色信息
+    private func save() async {
+        let error = await viewModel.updateRoleDescription(
+            roleId: role.role.roleID,
+            userId: viewModel.userId,
+            desc: detail
+        )
+        if let error = error {
             errorMessage = error.localizedDescription
             showError = true
+        } else {
+            var updatedRole = role
+            updatedRole.role.characterDetail = detail
+            onRoleUpdate(updatedRole)
+            dismiss()
         }
     }
 }
 
-
-// 虚线 Divider
-struct DashedDivider: View {
+// MARK: - Tab 切换按钮
+private struct TabButton: View {
+    let title: String
+    let selected: Bool
+    let action: () -> Void
     var body: some View {
-        Rectangle()
-            .fill(Color.gray.opacity(0.4))
-            .frame(height: 1)
-            .overlay(
-                GeometryReader { geometry in
-                    Path { path in
-                        let width = geometry.size.width
-                        let dash: CGFloat = 4
-                        let gap: CGFloat = 4
-                        var x: CGFloat = 0
-                        while x < width {
-                            path.move(to: CGPoint(x: x, y: 0))
-                            path.addLine(to: CGPoint(x: min(x + dash, width), y: 0))
-                            x += dash + gap
-                        }
-                    }
-                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 16, weight: selected ? .bold : .regular))
+                .foregroundColor(selected ? Color.theme.accent : Color.theme.tertiaryText)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(selected ? Color.theme.accent.opacity(0.08) : Color.clear)
+                .cornerRadius(8)
+        }
+    }
+}
+
+// MARK: - 描述编辑Tab内容
+private struct DescriptionEditTab: View {
+    @Binding var detail: Common_CharacterDetail
+    @Binding var isGenerating: Bool
+    let onAIGenerate: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+
+            if isGenerating {
+                ProgressView("AI生成中...")
+                    .padding(.bottom, 8)
+            }
+
+            // 内容区
+            ScrollView {
+                VStack(spacing: 4) {
+                    DescriptionEditField(emoji: "📝", title: "角色描述", text: $detail.description_p)
+                    DescriptionEditField(emoji: "🎯", title: "短期目标", text: $detail.shortTermGoal)
+                    DescriptionEditField(emoji: "🏆", title: "长期目标", text: $detail.longTermGoal)
+                    DescriptionEditField(emoji: "😃", title: "性格特征", text: $detail.personality)
+                    DescriptionEditField(emoji: "📖", title: "背景故事", text: $detail.background)
+                    DescriptionEditField(emoji: "🤝", title: "处事方式", text: $detail.handlingStyle)
+                    DescriptionEditField(emoji: "👀", title: "认知范围", text: $detail.cognitionRange)
+                    DescriptionEditField(emoji: "💡", title: "能力特点", text: $detail.abilityFeatures)
+                    DescriptionEditField(emoji: "👤", title: "外貌特征", text: $detail.appearance)
+                    DescriptionEditField(emoji: "👗", title: "着装偏好", text: $detail.dressPreference)
                 }
-            )
+                .padding(.horizontal, 8)
+                .padding(.bottom, 24)
+            }
+        }
+        .background(Color.theme.secondaryBackground)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.theme.border, lineWidth: 2)
+        )
+        .cornerRadius(12)
+    }
+}
+
+// MARK: - 单个维度编辑卡片
+private struct DescriptionEditField: View {
+    let emoji: String
+    let title: String
+    @Binding var text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("\(emoji) \(title)")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(Color.theme.primaryText)
+                Spacer()
+            }
+            TextEditor(text: $text)
+                .font(.system(size: 15))
+                .foregroundColor(Color.theme.primaryText)
+                .frame(minHeight: 60, maxHeight: 120)
+                .background(Color.theme.inputBackground)
+                .cornerRadius(8)
+        }
+        .padding(14)
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(14)
     }
 }
 
@@ -1518,7 +1586,7 @@ private struct DescriptionField: View {
     let text: String
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 6) {
+            HStack {              
                 Text(emoji)
                     .font(.system(size: 18))
                 Text(title)
