@@ -521,7 +521,7 @@ class FeedViewModel: ObservableObject {
         do {
             // 获取当前时间和一周前的时间戳
             let now = Int64(Date().timeIntervalSince1970)
-            let oneWeekAgo = now - 4*7 * 24 * 60 * 60
+            let oneWeekAgo = now - 365 * 24 * 60 * 60
             
             let (stories, total, _, error) = await storyService.getTrendingStoris(
                 userId: userId,
@@ -611,7 +611,7 @@ class FeedViewModel: ObservableObject {
         do {
             // 获取当前时间和一周前的时间戳
             let now = Int64(Date().timeIntervalSince1970)
-            let oneWeekAgo = now - 7 * 24 * 60 * 60
+            let oneWeekAgo = now - 365 * 24 * 60 * 60
             
             let (roles, total, _, error) = await storyService.getTrendingStoryRole(
                 userId: userId,
