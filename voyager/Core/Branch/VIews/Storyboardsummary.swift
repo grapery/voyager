@@ -217,7 +217,7 @@ struct StoryboardSummary: View {
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
            
-            HStack() {
+            //HStack() {
                 // 交互按钮
                 InteractionButtonsView(
                     storyboard: storyboard,
@@ -225,12 +225,14 @@ struct StoryboardSummary: View {
                     viewModel: viewModel,
                     onShowComments: { self.showComments = true }
                 )
-            }
-            .frame( alignment: .leading)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+//            }
+//            .frame(maxWidth: .infinity, alignment: .leading)
+//            .padding(.horizontal, 8)
             
             Divider()
+                .padding(.horizontal, 8)
                 .padding(.vertical, 4)
             // 评论列表弹窗
             .sheet(isPresented: $showComments) {
@@ -412,7 +414,6 @@ struct StoryboardSummary: View {
             
             Spacer()
         }
-        .padding(.horizontal, 16)
     }
     
     private func formatCtime(_ ctime: Int64) -> String {
