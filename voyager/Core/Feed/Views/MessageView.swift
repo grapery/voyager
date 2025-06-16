@@ -209,11 +209,11 @@ struct MessageContextCellView: View {
             HStack(spacing: 12) {
                 // 头像
                 RectProfileImageView(avatarUrl: avatarURL, size: .InChat)
-                    .frame(width: 48, height: 48)
+                    .frame(width: 60, height: 60)
                     .clipShape(Circle())
                     .overlay(
                         Circle()
-                            .stroke(Color.theme.border, lineWidth: 0.5)
+                            .stroke(Color.theme.border, lineWidth: 1)
                     )
                 
                 // 消息内容
@@ -227,6 +227,7 @@ struct MessageContextCellView: View {
                         
                         Text(formatTime(lastMessage?.timestamp ?? 0))
                             .font(.system(size: 12))
+                            .lineLimit(3)
                             .foregroundColor(Color.theme.tertiaryText)
                     }
                     

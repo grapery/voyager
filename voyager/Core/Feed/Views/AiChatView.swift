@@ -281,7 +281,7 @@ private struct InputBar: View {
 }
 
 // 更新聊天气泡组件
-private struct ChatBubble: View {
+struct ChatBubble: View {
     let message: ChatMessage
     
     private var isFromCurrentUser: Bool {
@@ -345,7 +345,7 @@ private struct ChatBubble: View {
 }
 
 // 角色统计信息视图
-private struct RoleStatsView: View {
+struct RoleStatsView: View {
     let role: StoryRole
     
     var body: some View {
@@ -366,7 +366,7 @@ private struct RoleStatsView: View {
 }
 
 // 角色关注按钮
-private struct RoleFollowButton: View {
+struct RoleFollowButton: View {
     let role: StoryRole
     let viewModel: FeedViewModel
     
