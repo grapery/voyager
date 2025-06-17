@@ -260,7 +260,7 @@ struct StoryBoardCellView: View {
             Divider().background(Color.theme.divider)
         }
         .padding(16)
-        .background(Color.theme.secondaryBackground)
+        .background(Color.theme.secondaryBackground) // 卡片色
         .cornerRadius(16)
         .fullScreenCover(isPresented: $showStoryBoard) {
             StoryBoardView(

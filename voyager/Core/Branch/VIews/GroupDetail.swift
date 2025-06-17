@@ -410,13 +410,13 @@ struct GroupDetailView: View {
                     Spacer()
                     VStack(spacing: 12) {
                         HStack {
-                            ActivityIndicatorView(isVisible: $isLoading, type: .growingArc(.cyan))
+                            ActivityIndicatorView(isVisible: $isLoading, type: .growingArc(Color.theme.accent))
                                 .frame(width: 64, height: 64)
-                                .foregroundColor(.cyan)
+                                .foregroundColor(Color.theme.accent)
                         }
                                 .frame(height: 50)
                         Text("加载中......")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Color.theme.secondaryText)
                             .font(.system(size: 14))
                     }
                     .frame(maxWidth: .infinity)

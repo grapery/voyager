@@ -677,10 +677,10 @@ struct StoryPublishView: View {
                                 VStack(spacing: 4) {
                                     Text("场景\(idx + 1)")
                                         .font(.system(size: 16, weight: selectedSceneIndex == idx ? .semibold : .regular))
-                                        .foregroundColor(.black)
+                                        .foregroundColor(Color.theme.primaryText)
                                         .frame(maxWidth: .infinity)
                                     Rectangle()
-                                        .fill(selectedSceneIndex == idx ? Color.blue : Color.clear)
+                                        .fill(selectedSceneIndex == idx ? Color.theme.accent : Color.clear)
                                         .frame(height: 2)
                                         .padding(.horizontal, 8)
                                 }
@@ -690,7 +690,7 @@ struct StoryPublishView: View {
                     }
                     .padding(.horizontal, 5)
                     .padding(.top, 8)
-                    .background(Color(.systemBackground))
+                    .background(Color.theme.background)
                 }
 
                 // 操作按钮
@@ -792,9 +792,7 @@ private struct ScenePreviewCard: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemBackground))
-                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
-            )
+                    .fill(Color.theme.background))
         }   
     }
 }
@@ -815,7 +813,7 @@ private struct InfoSection: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.subheadline)
-                .foregroundColor(.black)
+                .foregroundColor(Color.theme.primaryText)
             if let characters = characters {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
@@ -828,10 +826,10 @@ private struct InfoSection: View {
             } else {
                 Text(content)
                     .font(.body)
-                    .foregroundColor(.black)
+                    .foregroundColor(Color.theme.primaryText)
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
+                    .background(Color.theme.tertiaryBackground)
                     .cornerRadius(8)
             }
         }
@@ -854,7 +852,6 @@ private struct CharacterButton: View {
 //                        .aspectRatio(contentMode: .fill)
 //                        .frame(width: 20, height: 20)
 //                        .clipShape(Circle())
-//                }
                 
                 // 角色名称
                 Text(character.name)
@@ -899,7 +896,7 @@ struct SceneGenerationView: View {
                                     .foregroundColor(selectedSceneIndex == idx ? Color.theme.primaryText : Color.theme.tertiaryText)
                                     .frame(maxWidth: .infinity)
                                 Rectangle()
-                                    .fill(selectedSceneIndex == idx ? Color.blue : Color.clear)
+                                    .fill(selectedSceneIndex == idx ? Color.theme.accent : Color.clear)
                                     .frame(height: 2)
                                     .padding(.horizontal, 8)
                             }
@@ -909,7 +906,7 @@ struct SceneGenerationView: View {
                 }
                 .padding(.horizontal, 5)
                 .padding(.top, 8)
-                .background(Color(.systemBackground))
+                .background(Color.theme.background)
             }
 
             // Tab与内容区间距
@@ -923,12 +920,12 @@ struct SceneGenerationView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("场景故事")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Color.theme.secondaryText)
                                 TextEditor(text: scene.content)
                                     .font(.body)
                                     .frame(minHeight: 80, maxHeight: 180)
                                     .multilineTextAlignment(.leading)
-                                    .background(Color(.systemGray6))
+                                    .background(Color.theme.tertiaryBackground)
                                     .cornerRadius(8)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 8)
@@ -940,7 +937,7 @@ struct SceneGenerationView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("参与人物（用逗号分隔）")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Color.theme.secondaryText)
                             }
                             
                             // 参考图像选择
@@ -950,12 +947,12 @@ struct SceneGenerationView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("图片提示词")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Color.theme.secondaryText)
                                 TextEditor(text: scene.imagePrompt)
                                     .font(.body)
                                     .frame(minHeight: 40, maxHeight: 120)
                                     .multilineTextAlignment(.leading)
-                                    .background(Color(.systemGray6))
+                                    .background(Color.theme.tertiaryBackground)
                                     .cornerRadius(8)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 8)
@@ -1057,7 +1054,7 @@ private struct GeneratedImageSection: View {
             VStack(alignment: .center, spacing: 8) {
                 Text("生成图片")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color.theme.secondaryText)
                     .frame(maxWidth: .infinity, alignment: .center)
                 Group {
                     switch status {
@@ -1065,7 +1062,7 @@ private struct GeneratedImageSection: View {
                         let urlStr = scene.imageUrl
                         if urlStr.isEmpty {
                             Text("暂无生成图片")
-                                .foregroundColor(.gray)
+                                .foregroundColor(Color.theme.tertiaryText)
                                 .frame(height: 40)
                                 .frame(maxWidth: .infinity, alignment: .center)
                         } else {
@@ -1085,13 +1082,13 @@ private struct GeneratedImageSection: View {
                         HStack(spacing: 8) {
                             ProgressView()
                             Text("生成中，请稍等...")
-                                .foregroundColor(.blue)
+                                .foregroundColor(Color.theme.accent)
                         }
                         .frame(height: 40)
                         .frame(maxWidth: .infinity, alignment: .center)
                     case .failure(let msg):
                         Text("生成失败：\(msg)")
-                            .foregroundColor(.red)
+                            .foregroundColor(Color.theme.error)
                             .frame(height: 40)
                             .frame(maxWidth: .infinity, alignment: .center)
                     case .success(let img):
@@ -1120,7 +1117,7 @@ private struct ReferenceImagePicker: View {
         VStack(alignment: .leading, spacing: 4) {
             Text("参考图像")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(Color.theme.secondaryText)
             if let image = referenceImage {
                 ZStack(alignment: .topTrailing) {
                     Image(uiImage: image)
@@ -1131,7 +1128,7 @@ private struct ReferenceImagePicker: View {
                         .clipped()
                     Button(action: { showImagePicker = true }) {
                         Image(systemName: "pencil")
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.theme.buttonText)
                             .padding(6)
                             .background(Color.black.opacity(0.6))
                             .clipShape(Circle())
@@ -1142,11 +1139,11 @@ private struct ReferenceImagePicker: View {
                 Button(action: { showImagePicker = true }) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(Color(.systemGray6))
+                            .fill(Color.theme.tertiaryBackground)
                             .frame(height: 120)
                         Image(systemName: "plus")
                             .font(.system(size: 32))
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color.theme.tertiaryText)
                     }
                 }
             }
@@ -1189,17 +1186,17 @@ struct StoryContentView: View {
                 if !generatedStoryTitle.isEmpty || !generatedStoryContent.isEmpty {
                     Text("生成的故事内容")
                         .font(.headline)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Color.theme.primaryText)
                     
                     VStack(alignment: .leading, spacing: 12) {
                         // Title section (可编辑)
                         VStack(alignment: .leading, spacing: 4) {
                             Text("标题")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Color.theme.secondaryText)
                             TextField("请输入标题", text: $generatedStoryTitle)
                                 .font(.title3)
-                                .foregroundColor(.primary)
+                                .foregroundColor(Color.theme.primaryText)
                                 .padding(.vertical, 2)
                                 .textFieldStyle(PlainTextFieldStyle())
                         }
@@ -1210,12 +1207,12 @@ struct StoryContentView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("内容")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Color.theme.secondaryText)
                             ZStack(alignment: .topLeading) {
                                 // 隐藏的 Text 用于测量高度
                                 Text(generatedStoryContent.isEmpty ? "请输入内容..." : generatedStoryContent)
                                     .font(.body)
-                                    .foregroundColor(.clear)
+                                    .foregroundColor(Color.theme.tertiaryText)
                                     .padding(8)
                                     .background(GeometryReader { geo in
                                         Color.clear
@@ -1228,7 +1225,7 @@ struct StoryContentView: View {
                                     })
                                 TextEditor(text: $generatedStoryContent)
                                     .font(.body)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Color.theme.primaryText)
                                     .frame(height: textEditorHeight)
                                     .multilineTextAlignment(.leading)
                                     .background(Color.clear)
@@ -1249,8 +1246,8 @@ struct StoryContentView: View {
                                 .font(.callout)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 8)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
+                                .background(Color.theme.accent)
+                                .foregroundColor(Color.theme.buttonText)
                                 .cornerRadius(6)
                             }
                             
@@ -1262,15 +1259,15 @@ struct StoryContentView: View {
                                 .font(.callout)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 8)
-                                .background(Color.green)
-                                .foregroundColor(.white)
+                                .background(Color.theme.accent)
+                                .foregroundColor(Color.theme.buttonText)
                                 .cornerRadius(6)
                             }
                         }
                         .padding(.top, 0)
                     }
                     .padding()
-                    .background(Color(.systemGray6))
+                    .background(Color.theme.tertiaryBackground)
                     .cornerRadius(10)
                 } else {
                     // Empty state
@@ -1366,8 +1363,8 @@ struct StoryInputView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
+                    .background(Color.theme.accent)
+                    .foregroundColor(Color.theme.buttonText)
                     .cornerRadius(8)
                 }
                 Spacer()
@@ -1382,8 +1379,8 @@ struct StoryInputView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
-                    .background(Color.green)
-                    .foregroundColor(.white)
+                    .background(Color.theme.accent)
+                    .foregroundColor(Color.theme.buttonText)
                     .cornerRadius(8)
                 }
                 Spacer()
@@ -1396,7 +1393,7 @@ struct StoryInputView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("角色设定")
                 .font(.headline)
-                .foregroundColor(.primary)
+                .foregroundColor(Color.theme.primaryText)
             
             Button(action: {
                 isShowingRoleSelection = true
@@ -1405,10 +1402,11 @@ struct StoryInputView: View {
                     if roles!.isEmpty {
                         Image(systemName: "plus")
                             .frame(width: 50, height: 50)
-                            .background(Color.gray.opacity(0.2))
+                            .background(Color.theme.tertiaryBackground)
                             .clipShape(Circle())
                         Text("添加角色")
                             .font(.caption)
+                            .foregroundColor(Color.theme.secondaryText)
                     } else {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
@@ -1424,6 +1422,7 @@ struct StoryInputView: View {
                                         Text(role.role.characterName)
                                             .font(.caption)
                                             .lineLimit(1)
+                                            .foregroundColor(Color.theme.primaryText)
                                     }
                                 }
                             }
@@ -1434,7 +1433,7 @@ struct StoryInputView: View {
             }
             .frame(maxWidth: .infinity)
             .padding()
-            .background(Color.blue.opacity(0.1))
+            .background(Color.theme.accent)
             .cornerRadius(8)
         }
     }
@@ -1450,7 +1449,7 @@ struct InputField: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(Color.theme.secondaryText)
             
             if isMultiline {
                 TextEditor(text: $text)
@@ -1458,14 +1457,14 @@ struct InputField: View {
                     .padding(12)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                            .stroke(Color.theme.border, lineWidth: 1)
                     )
             } else {
                 TextField(placeholder, text: $text)
                     .padding(12)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                            .stroke(Color.theme.border, lineWidth: 1)
                     )
             }
         }
@@ -1708,11 +1707,11 @@ struct RoleSelectionRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(role.role.characterName)
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Color.theme.primaryText)
                         .padding(.top, 1)
                     Text(role.role.characterDescription)
                         .font(.system(size: 14))
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color.theme.secondaryText)
                         .lineLimit(3)
                         .truncationMode(.tail)
                 }
@@ -1723,7 +1722,7 @@ struct RoleSelectionRow: View {
                     Spacer()
                     Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                         .font(.system(size: 16))
-                        .foregroundColor(isSelected ? .blue : .gray)
+                        .foregroundColor(isSelected ? Color.theme.accent : Color.theme.tertiaryText)
                     Spacer()
                 }
                 .padding(.vertical,8)

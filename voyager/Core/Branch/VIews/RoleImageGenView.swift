@@ -226,6 +226,7 @@ struct RoleImageGenView: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.theme.border, lineWidth: 2)
                 )
+                .background(Color.theme.background)
                 //.padding()
                 //.padding(.bottom, 40)
                 VStack{

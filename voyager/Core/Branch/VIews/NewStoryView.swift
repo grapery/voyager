@@ -35,7 +35,7 @@ struct NewStoryView: View {
     
     var body: some View {
         ZStack {
-            Color.theme.background.ignoresSafeArea()
+            Color.theme.background.ignoresSafeArea() // 统一背景色
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: 20) {

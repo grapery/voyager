@@ -74,7 +74,7 @@ struct NewStoryRole: View {
                 )
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color.theme.secondaryBackground)
         .imagePickerSheet(
             isPresented: $showImagePicker,
             selectedImages: $selectedImages,
@@ -161,7 +161,7 @@ private struct NavigationBarView: View {
         HStack {
             Button(action: { dismiss() }) {
                 Image(systemName: "xmark")
-                    .foregroundColor(.primary)
+                    .foregroundColor(Color.theme.primaryText)
             }
             
             Spacer()
@@ -389,13 +389,13 @@ private struct DescriptionField: View {
             TextEditor(text: $roleDescription)
                 .frame(height: 100)
                 .padding(8)
-                .background(Color(.systemGray6))
+                .background(Color.theme.inputBackground)
                 .cornerRadius(8)
                 .overlay(
                     Group {
                         if roleDescription.isEmpty {
                             Text("示例：你是一位经验丰富的英语老师，拥有激发学生学习热情的教学方法。你善于运用幽默和实际应用案例，使对话充满趣味。")
-                                .foregroundColor(.gray)
+                                .foregroundColor(Color.theme.secondaryText)
                                 .padding(12)
                         }
                     }
@@ -414,13 +414,13 @@ private struct PromptField: View {
             TextEditor(text: $rolePrompt)
                 .frame(height: 100)
                 .padding(8)
-                .background(Color(.systemGray6))
+                .background(Color.theme.inputBackground)
                 .cornerRadius(8)
                 .overlay(
                     Group {
                         if rolePrompt.isEmpty {
                             Text("输入角色的详细设定和行为提示，这将指导AI扮演该角色...")
-                                .foregroundColor(.gray)
+                                .foregroundColor(Color.theme.secondaryText)
                                 .padding(12)
                         }
                     }
@@ -439,7 +439,7 @@ private struct AddReferenceImageButton: View {
                 Image(systemName: "plus")
                     .font(.system(size: 24))
                     .frame(width: 80, height: 80)
-                    .background(Color(.systemGray6))
+                    .background(Color.theme.inputBackground)
                     .cornerRadius(8)
                 Text("添加图片")
                     .font(.caption)
@@ -505,7 +505,7 @@ private struct AddImageButton: View {
         Button(action: action) {
             Image(systemName: "plus.circle.fill")
                         .font(.system(size: 24))
-                        .foregroundColor(.black)
+                        .foregroundColor(Color.theme.primaryText)
         }
     }
 }
@@ -518,7 +518,7 @@ private struct AdvancedSettingsButton: View {
             HStack {
                 Image(systemName: "plus.circle.fill")
                         .font(.system(size: 16))
-                        .foregroundColor(.black)
+                        .foregroundColor(Color.theme.primaryText)
                 Text("更多高级设置")
             }
             .foregroundColor(.blue)

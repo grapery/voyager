@@ -36,7 +36,7 @@ struct NewGroupView: View {
     
     var body: some View {
         ZStack {
-            Color.theme.background.ignoresSafeArea()
+            Color.theme.background.ignoresSafeArea() // 统一背景色
             ScrollView {
                 VStack(spacing: 24) {
                     // 顶部栏

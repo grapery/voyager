@@ -123,7 +123,7 @@ struct CharacterCell: View {
             }
         }
         .padding(4)
-        .background(Color(.systemBackground))
+        .background(Color.theme.secondaryBackground)
         .cornerRadius(4)
         .shadow(color: .black.opacity(0.1), radius: 5)
     }
@@ -216,6 +216,7 @@ struct StoryRoleDetailView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .tabBar)
+            .background(Color.theme.background)
             .sheet(isPresented: $showImagePicker) {
                 SingleImagePicker(image: $selectedImage)
             }
@@ -789,7 +790,7 @@ struct RoleSummarySection: View {
                 }
             }
             .padding(12)
-            .background(Color.theme.background)
+            .background(Color.theme.secondaryBackground)
             .cornerRadius(8)
             .sheet(isPresented: $showingDescriptionEditor) {
                 EditDescriptionView(role: role, viewModel: viewModel, onRoleUpdate: onRoleUpdate)
@@ -819,7 +820,7 @@ struct RoleSummarySection: View {
                     .multilineTextAlignment(.leading)
                 }
             .padding(12)
-            .background(Color.theme.background)
+            .background(Color.theme.secondaryBackground)
             .cornerRadius(8)
             .sheet(isPresented: $showingPromptEditor) {
                 EditPromptView(role: role, viewModel: viewModel, onRoleUpdate: onRoleUpdate)
@@ -841,7 +842,7 @@ struct RoleSummarySection: View {
                 }
             }
             .padding(12)
-            .background(Color.theme.background)
+            .background(Color.theme.secondaryBackground)
             .cornerRadius(8)
         }
         .frame(maxWidth: .infinity)
@@ -965,7 +966,6 @@ struct EditDescriptionView: View {
                 }
                 .padding(.horizontal, 24)
             }
-            //.background(Color.theme.background)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("取消") { dismiss() }
@@ -1611,52 +1611,52 @@ struct RoleDetailTab: View {
                 DescriptionField(emoji: "📝", title: "角色描述", text: role.role.characterDetail.description_p)
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
+                    .background(Color.theme.secondaryBackground)
                     .cornerRadius(8)
                 DescriptionField(emoji: "🎯", title: "短期目标", text: role.role.characterDetail.shortTermGoal)
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
+                    .background(Color.theme.secondaryBackground)
                     .cornerRadius(8)
                 DescriptionField(emoji: "🏆", title: "长期目标", text: role.role.characterDetail.longTermGoal)
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
+                    .background(Color.theme.secondaryBackground)
                     .cornerRadius(8)
                 DescriptionField(emoji: "😃", title: "性格特征", text: role.role.characterDetail.personality)
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
+                    .background(Color.theme.secondaryBackground)
                     .cornerRadius(8)
                 DescriptionField(emoji: "📖", title: "背景故事", text: role.role.characterDetail.background)
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
+                    .background(Color.theme.secondaryBackground)
                     .cornerRadius(8)
                 DescriptionField(emoji: "🤝", title: "处事方式", text: role.role.characterDetail.handlingStyle)
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
+                    .background(Color.theme.secondaryBackground)
                     .cornerRadius(8)
                 DescriptionField(emoji: "👀", title: "认知范围", text: role.role.characterDetail.cognitionRange)
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
+                    .background(Color.theme.secondaryBackground)
                     .cornerRadius(8)
                 DescriptionField(emoji: "💡", title: "能力特点", text: role.role.characterDetail.abilityFeatures)
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
+                    .background(Color.theme.secondaryBackground)
                     .cornerRadius(8)
                 DescriptionField(emoji: "👤", title: "外貌特征", text: role.role.characterDetail.appearance)
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
+                    .background(Color.theme.secondaryBackground)
                     .cornerRadius(8)
                 DescriptionField(emoji: "👗", title: "着装偏好", text: role.role.characterDetail.dressPreference)
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
+                    .background(Color.theme.secondaryBackground)
                     .cornerRadius(8)
             }
             .padding(.horizontal, 8)

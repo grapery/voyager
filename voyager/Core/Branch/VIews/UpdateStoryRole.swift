@@ -64,7 +64,7 @@ struct EditStoryRoleDetailView: View {
                 action: updateRole
             )
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color.theme.background)
         .imagePickerSheet(
             isPresented: $showImagePicker,
             selectedImages: $selectedImages,
@@ -202,7 +202,7 @@ private struct AvatarSectionView: View {
             ZStack {
                 if roleAvatar.isEmpty {
                     Circle()
-                        .fill(Color.blue.opacity(0.1))
+                        .fill(Color.theme.accent.opacity(0.1))
                         .frame(width: 100, height: 100)
                     
                     Text("😊")
@@ -241,6 +241,8 @@ private struct BasicInfoSectionView: View {
             PromptField(rolePrompt: $rolePrompt)
         }
         .padding(.horizontal)
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(10)
     }
 }
 
@@ -262,6 +264,8 @@ private struct ReferenceImagesSectionView: View {
             }
         }
         .padding(.horizontal)
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(10)
     }
 }
 
@@ -353,6 +357,7 @@ private struct NameField: View {
                 .font(.headline)
             TextField("输入名称", text: $roleName)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
+                .background(Color.theme.inputBackground)
         }
     }
 }
@@ -367,7 +372,7 @@ private struct DescriptionField: View {
             TextEditor(text: $roleDescription)
                 .frame(height: 100)
                 .padding(8)
-                .background(Color(.systemGray6))
+                .background(Color.theme.inputBackground)
                 .cornerRadius(8)
                 .overlay(
                     Group {
@@ -392,7 +397,7 @@ private struct PromptField: View {
             TextEditor(text: $rolePrompt)
                 .frame(height: 100)
                 .padding(8)
-                .background(Color(.systemGray6))
+                .background(Color.theme.inputBackground)
                 .cornerRadius(8)
                 .overlay(
                     Group {

@@ -159,7 +159,7 @@ struct StoryboardVidoeGenView: View {
                                         Text(model.displayName)
                                             .font(.system(size: 14, weight: .medium))
                                     }
-                                    .foregroundColor(selectedModel == model ? Color.white : Color.theme.primaryText)
+                                    .foregroundColor(selectedModel == model ? Color.theme.buttonText : Color.theme.primaryText)
                                     .padding(.horizontal, 18)
                                     .padding(.vertical, 8)
                                     .background(selectedModel == model ? Color.theme.accent : Color.clear)

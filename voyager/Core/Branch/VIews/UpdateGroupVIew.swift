@@ -180,7 +180,7 @@ struct UpdateGroupView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
                                 .background(Color.theme.accent)
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.theme.buttonText)
                                 .cornerRadius(10)
                         }
                         .disabled(isUpdating)
@@ -200,9 +200,9 @@ struct UpdateGroupView: View {
                             VStack {
                                 ProgressView()
                                     .scaleEffect(1.5)
-                                    .tint(.white)
+                                    .tint(Color.theme.buttonText)
                                 Text("正在更新，请稍候...")
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Color.theme.buttonText)
                                     .padding(.top, 10)
                             }
                         )

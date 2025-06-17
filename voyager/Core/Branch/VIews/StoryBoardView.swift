@@ -119,6 +119,7 @@ struct StoryBoardView: View {
                         }
                         .frame(height: 400)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .background(Color.theme.background)
                     }
                     // 交互栏
                     HStack(spacing: 8) {
@@ -197,6 +198,7 @@ struct StoryBoardView: View {
         .onAppear {
             isLiked = board?.boardActive.storyboard.currentUserStatus.isLiked ?? false
         }
+        .background(Color.theme.background)
     }
     
     private func formatTimeAgo(timestamp: Int64) -> String {

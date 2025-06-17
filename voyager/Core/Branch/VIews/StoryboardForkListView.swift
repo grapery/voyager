@@ -137,7 +137,7 @@ private struct ForkStoryBoardCard: View {
             .foregroundColor(Color.theme.tertiaryText)
         }
         .frame(width: 140)
-        .background(Color.theme.background)
+        .background(Color.theme.secondaryBackground)
     }
 }
 
@@ -248,7 +248,7 @@ private struct FeedForkStoryBoardCard: View {
         }
         .padding(12)
         .frame(width: 220)
-        .background(Color.theme.background)
+        .background(Color.theme.secondaryBackground)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)

@@ -112,13 +112,13 @@ struct StoryView: View {
                     Spacer()
                     VStack(spacing: 12) {
                         HStack {
-                            ActivityIndicatorView(isVisible: $viewModel.isLoading, type: .growingArc(.cyan))
+                            ActivityIndicatorView(isVisible: $viewModel.isLoading, type: .growingArc(Color.theme.accent))
                                 .frame(width: 64, height: 64)
-                                .foregroundColor(.cyan)
+                                .foregroundColor(Color.theme.accent)
                         }
                                 .frame(height: 50)
                         Text("加载中......")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Color.theme.secondaryText)
                             .font(.system(size: 14))
                     }
                     .frame(maxWidth: .infinity)
@@ -142,7 +142,7 @@ struct StoryView: View {
                         VStack {
                             Image(systemName: "plus")
                                 .font(.system(size: 30))
-                                .foregroundColor(.cyan)
+                                .foregroundColor(Color.theme.accent)
                         }
                         .frame(width: 120, height: 120)
                         .background(Color.theme.tertiaryBackground)
@@ -180,13 +180,13 @@ struct StoryView: View {
                     Spacer()
                     VStack(spacing: 12) {
                         HStack {
-                            ActivityIndicatorView(isVisible: $viewModel.isLoading, type: .growingArc(.cyan))
+                            ActivityIndicatorView(isVisible: $viewModel.isLoading, type: .growingArc(Color.theme.accent))
                                 .frame(width: 64, height: 64)
-                                .foregroundColor(.cyan)
+                                .foregroundColor(Color.theme.accent)
                         }
                                 .frame(height: 50)
                         Text("加载中......")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Color.theme.secondaryText)
                             .font(.system(size: 14))
                     }
                     .frame(maxWidth: .infinity)
@@ -224,7 +224,7 @@ struct StoryView: View {
                         VStack {
                             Image(systemName: "plus")
                                 .font(.system(size: 30))
-                                .foregroundColor(Color.cyan)
+                                .foregroundColor(Color.theme.accent)
                         }
                         .frame(width: 120, height: 120)
                         .background(Color.theme.tertiaryBackground)
@@ -239,7 +239,7 @@ struct StoryView: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .background(Color(.systemBackground))
+        .background(Color.theme.background)
         .fullScreenCover(isPresented: $isShowingNewStoryBoard) {
             NavigationStack{
                 NewStoryBoardView(
@@ -263,7 +263,7 @@ struct StoryView: View {
                                 Text("返回")
                                     .font(.system(size: 16))
                             }
-                            .foregroundColor(.primary)
+                            .foregroundColor(Color.theme.primaryText)
                         }
                     }
                 }

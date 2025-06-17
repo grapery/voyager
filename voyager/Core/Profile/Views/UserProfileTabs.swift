@@ -149,7 +149,7 @@ struct ProfileRoleCell: View {
                 Divider()
                     .background(Color.theme.divider)
             }
-            .background(Color.theme.background)
+            .background(Color.theme.secondaryBackground)
         }
         .buttonStyle(PlainButtonStyle())
         .fullScreenCover(isPresented: $showRoleDetail) {

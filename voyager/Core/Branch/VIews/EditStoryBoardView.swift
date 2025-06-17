@@ -153,7 +153,7 @@ private struct EditStoryBoardContentView: View {
                 titles: TimelineStep.allCases.map { $0.title }
             )
             .padding(.vertical, 2)
-            .background(Color(.systemBackground))
+            .background(Color.theme.background)
             
             Divider()
             
@@ -235,10 +235,10 @@ private struct EditStoryBoardContentView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "chevron.left")
                     }
-                    .foregroundColor(.primary)
+                    .foregroundColor(Color.theme.primaryText)
                     .frame(maxWidth: .infinity)
                     .frame(height: 32)
-                    .background(Color(.systemGray6))
+                    .background(Color.theme.tertiaryBackground)
                     .clipShape(.circle)
                 }
                 .opacity(canGoBack ? 1 : 0.5)
@@ -249,10 +249,10 @@ private struct EditStoryBoardContentView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "chevron.right")
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.theme.buttonText)
                     .frame(maxWidth: .infinity)
                     .frame(height: 32)
-                    .background(Color.blue)
+                    .background(Color.theme.accent)
                     .clipShape(.circle)
                 }
                 .opacity(canGoForward ? 1 : 0.5)
@@ -260,7 +260,7 @@ private struct EditStoryBoardContentView: View {
             }
             .padding(.horizontal)
             .padding(.vertical, 4)
-            .background(Color(.systemBackground))
+            .background(Color.theme.background)
         }
     }
     
@@ -565,7 +565,7 @@ struct EditStoryInputView: View {
             }
             .padding(20)
         }
-        .background(Color(.systemBackground))
+        .background(Color.theme.background)
     }
 }
 
@@ -684,7 +684,7 @@ private struct RoleListView: View {
                             .cornerRadius(16)
                         Text(role.role.characterName)
                             .font(.system(size: 14))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Color.theme.primaryText)
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
@@ -716,8 +716,8 @@ private struct ActionButtonsView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                .background(Color.blue)
-                .foregroundColor(.white)
+                .background(Color.theme.accent)
+                .foregroundColor(Color.theme.buttonText)
                 .cornerRadius(8)
             }
             Spacer()
@@ -733,7 +733,7 @@ private struct ActionButtonsView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
                 .background(Color.theme.secondary).colorInvert()
-                .foregroundColor(.white)
+                .foregroundColor(Color.theme.buttonText)
                 .cornerRadius(8)
             }
             Spacer()
@@ -1147,7 +1147,7 @@ private struct SceneImagesView: View {
                     }
                 }
                 .font(.system(size: 16, weight: .medium))
-                .foregroundColor(.white)
+                .foregroundColor(Color.theme.buttonText)
                 .frame(maxWidth: .infinity)
                 .padding()
                 .background(isGenerating ? Color.theme.tertiaryText : Color.theme.accent)
@@ -1206,7 +1206,7 @@ private struct EditPublishStepView: View {
                         }
                     }
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.theme.buttonText)
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(isSaving ? Color.theme.tertiaryText : Color.theme.accent)
@@ -1236,7 +1236,7 @@ private struct EditPublishStepView: View {
                         }
                     }
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.theme.buttonText)
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(isPublishing ? Color.theme.tertiaryText : Color.theme.primary)
@@ -1414,7 +1414,7 @@ struct PublishStepView: View {
                     Text("生成图片")
                 }
                 .font(.system(size: 16, weight: .medium))
-                .foregroundColor(.white)
+                .foregroundColor(Color.theme.buttonText)
                 .padding()
                 .frame(maxWidth: .infinity)
                 .background(Color.theme.accent)
@@ -1484,7 +1484,7 @@ struct StoryboardLoadingView: View {
                     // 动画圈
                     Circle()
                         .trim(from: 0, to: 0.7)
-                        .stroke(Color.blue, lineWidth: 4)
+                        .stroke(Color.theme.accent, lineWidth: 4)
                         .frame(width: 50, height: 50)
                         .rotationEffect(Angle(degrees: rotation))
                         .onAppear {
@@ -1502,11 +1502,11 @@ struct StoryboardLoadingView: View {
                 VStack(spacing: 8) {
                     Text("处理中...")
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.theme.primaryText)
                     
                     Text("请稍候")
                         .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(Color.theme.primaryText.opacity(0.8))
                 }
             }
             .padding(30)
@@ -1589,14 +1589,14 @@ private struct LoadingView: View {
                 .edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 16) {
-                ActivityIndicatorView(isVisible: .constant(true), type: .growingArc(.cyan))
+                ActivityIndicatorView(isVisible: .constant(true), type: .growingArc(Color.theme.accent))
                     .frame(width: 64, height: 64)
-                    .foregroundColor(.cyan)
+                    .foregroundColor(Color.theme.accent)
                 
                 if !message.isEmpty {
                     Text(message)
                         .font(.system(size: 16))
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.theme.primaryText)
                 }
             }
             .padding(24)

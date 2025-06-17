@@ -100,7 +100,7 @@ struct StoryDetailView: View {
                     .clipShape(Circle())
                     .overlay(
                         Circle()
-                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                            .stroke(Color.theme.border, lineWidth: 1)
                     )
                     .overlay(
                         isUpdatingAvatar ? 
@@ -133,7 +133,7 @@ struct StoryDetailView: View {
             if let createdAt = viewModel.story?.storyInfo.ctime {
                 Text("创建于: \(formatDate(timestamp: createdAt))")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color.theme.secondaryText)
             }
         }
     }
@@ -488,7 +488,7 @@ struct Stat: View {
                 .font(.headline)
             Text(title)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Color.theme.secondaryText)
         }
     }
 }
@@ -629,7 +629,7 @@ struct StorySettingDetailView: View {
                 .disabled(!isEditing)
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                        .stroke(Color.theme.border, lineWidth: 1)
                 )
                 .padding(.top, 32)
                 .padding(.horizontal)
@@ -773,7 +773,7 @@ struct StylePicker: View {
                     ZStack {
                         Color.purple.opacity(0.08)
                         Image(systemName: "chevron.left")
-                            .foregroundColor(.purple)
+                            .foregroundColor(Color.theme.accent)
                             .font(.system(size: 18, weight: .bold))
                     }
                     .frame(width: 56, height: 40)
@@ -790,13 +790,13 @@ struct StylePicker: View {
                     .overlay(
                         Rectangle()
                             .frame(width: 1)
-                            .foregroundColor(Color.gray.opacity(0.2)),
+                            .foregroundColor(Color.theme.border),
                         alignment: .leading
                     )
                     .overlay(
                         Rectangle()
                             .frame(width: 1)
-                            .foregroundColor(Color.gray.opacity(0.2)),
+                            .foregroundColor(Color.theme.border),
                         alignment: .trailing
                     )
 
@@ -808,7 +808,7 @@ struct StylePicker: View {
                     ZStack {
                         Color.purple.opacity(0.08)
                         Image(systemName: "chevron.right")
-                            .foregroundColor(.purple)
+                            .foregroundColor(Color.theme.accent)
                             .font(.system(size: 18, weight: .bold))
                     }
                     .frame(width: 56, height: 40)
@@ -818,7 +818,7 @@ struct StylePicker: View {
             }
             .overlay(
                 Capsule()
-                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                    .stroke(Color.theme.border, lineWidth: 1)
             )
             .frame(height: 40)
 
@@ -835,7 +835,7 @@ struct StylePicker: View {
                     .resizable()
                     .aspectRatio(1, contentMode: .fit)
                     .frame(height: 80)
-                    .foregroundColor(.gray.opacity(0.5))
+                    .foregroundColor(Color.theme.tertiaryText.opacity(0.5))
                     .padding(.top, 4)
             }
         }
@@ -861,7 +861,7 @@ struct SceneStepper: View {
                     Color.purple.opacity(0.08)
                     Image(systemName: "triangle.fill")
                         .rotationEffect(.degrees(180))
-                        .foregroundColor(lastTapped == "down" ? .purple : .gray)
+                        .foregroundColor(lastTapped == "down" ? Color.theme.accent : Color.theme.tertiaryText)
                         .font(.system(size: 18, weight: .bold))
                 }
                 .frame(width: 56, height: 40)
@@ -878,13 +878,13 @@ struct SceneStepper: View {
                 .overlay(
                     Rectangle()
                         .frame(width: 1)
-                        .foregroundColor(Color.gray.opacity(0.2)),
+                        .foregroundColor(Color.theme.border),
                     alignment: .leading
                 )
                 .overlay(
                     Rectangle()
                         .frame(width: 1)
-                        .foregroundColor(Color.gray.opacity(0.2)),
+                        .foregroundColor(Color.theme.border),
                     alignment: .trailing
                 )
 
@@ -899,7 +899,7 @@ struct SceneStepper: View {
                     Color.purple.opacity(0.08)
                     Image(systemName: "triangle.fill")
                         .rotationEffect(.degrees(0))
-                        .foregroundColor(lastTapped == "up" ? .purple : .gray)
+                        .foregroundColor(lastTapped == "up" ? Color.theme.accent : Color.theme.tertiaryText)
                         .font(.system(size: 18, weight: .bold))
                 }
                 .frame(width: 56, height: 40)
@@ -909,7 +909,7 @@ struct SceneStepper: View {
         }
         .overlay(
             Capsule()
-                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                .stroke(Color.theme.border, lineWidth: 1)
         )
         .frame(height: 40)
     }

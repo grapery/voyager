@@ -50,6 +50,7 @@ struct StoryboardSummary: View {
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 8)
+            .background(Color.theme.background)
             .onAppear {
                 if currentStoryboard == nil {
                     loadStoryboard()
@@ -111,10 +112,12 @@ struct StoryboardSummary: View {
                     storyboard: storyboard,
                     userId: userId,
                     viewModel: viewModel,
-                    currentSceneIndex: currentSceneIndex
+                    currentSceneIndex: currentSceneIndex,
+                    dismiss: dismiss
                 )
             }
         }
+        .background(Color.theme.background)
     }
     
     // MARK: - StoryboardHeaderView
@@ -141,7 +144,8 @@ struct StoryboardSummary: View {
         storyboard: Common_StoryBoardActive,
         userId: Int64,
         viewModel: FeedViewModel,
-        currentSceneIndex: Binding<Int>
+        currentSceneIndex: Binding<Int>,
+        dismiss: DismissAction
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack{
@@ -152,6 +156,8 @@ struct StoryboardSummary: View {
             .frame( alignment: .leading)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
+            .background(Color.theme.secondaryBackground)
+            .cornerRadius(8)
             
             // 场景列表
             ScenesListView(

@@ -51,7 +51,7 @@ struct StoryCardView: View {
             .padding(.top, 8)
         }
         .padding(12)
-        .background(Color.black.opacity(0.3))
+        .background(Color.theme.secondaryBackground)
         .cornerRadius(12)
     }
 }
