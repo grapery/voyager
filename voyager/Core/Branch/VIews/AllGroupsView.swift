@@ -18,9 +18,8 @@ struct AllGroupsView: View {
                     dismiss()
                 }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.primary)
+                        .foregroundColor(Color.theme.primaryText)
                 }
-                
                 Spacer().scaledToFit()
                 if viewModel.user.avatar.isEmpty {
                     KFImage(URL(string: convertImagetoSenceImage(url: defaultAvator, scene: .small)))
@@ -39,40 +38,37 @@ struct AllGroupsView: View {
                         .frame(width: 40, height: 40)
                         .clipShape(Circle())
                 }
-                
-                
                 Text("\(self.viewModel.user.name)的小组")
                     .font(.headline)
+                    .foregroundColor(Color.theme.primaryText)
                     .lineLimit(1)
-                
                 Spacer().scaledToFit()
             }
             .padding()
-            
-            // 主要标签栏
+            // 主标签栏卡片化
             TabBarView(selectedTab: $selectedTab, tabs: tabs)
                 .padding(.top, 4)
-            
-            // 搜索栏
+                .padding(.horizontal, 12)
+                .background(Color.theme.secondaryBackground)
+                .cornerRadius(16)
+                .shadow(color: Color.theme.primaryText.opacity(0.04), radius: 6, y: 2)
+            // 搜索栏与内容区融合
             GroupSearchBar(searchText: $searchText)
                 .padding(.vertical, 8)
-            
-            // 使用TabView替换ScrollView来支持滑动切换
+            // TabView内容区
             TabView(selection: $selectedTab) {
                 ForEach(tabs, id: \.self) { tab in
                     ScrollView {
-                        LazyVStack(spacing: 0) {
+                        LazyVStack(spacing: 8) {
                             ForEach(viewModel.groups) { group in
-                                VStack(spacing: 0) {
-                                    GroupListItemView(group: group, viewModel: viewModel)
-                                    
-                                    if group.id != viewModel.groups.last?.id {
-                                        Divider()
-                                            .background(Color.theme.divider)
-                                    }
+                                GroupListItemView(group: group, viewModel: viewModel)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                if group.id != viewModel.groups.last?.id {
+                                    Divider()
+                                        .background(Color.theme.divider)
                                 }
                             }
-                            
                             if !viewModel.groups.isEmpty {
                                 LoadMoreView(isLoading: $isLoading)
                                     .onAppear {
@@ -89,6 +85,7 @@ struct AllGroupsView: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
             .background(Color.theme.background)
         }
+        .background(Color.theme.background)
         .navigationBarHidden(true)
     }
     
@@ -142,40 +139,35 @@ struct GroupListItemView: View {
     
     var body: some View {
         Button(action: { showGroupDetail = true }) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 10) {
                 // 头部：头像和名称
                 HStack(spacing: 12) {
-                    // 小组头像
                     KFImage(URL(string: convertImagetoSenceImage(url: group.info.avatar, scene: .small)))
                         .cacheMemoryOnly()
                         .fade(duration: 0.25)
                         .placeholder {
                             Image(systemName: "person.2.circle.fill")
                                 .resizable()
-                                .foregroundColor(.gray)
+                                .foregroundColor(Color.theme.tertiaryText)
                         }
                         .resizable()
                         .scaledToFill()
                         .frame(width: 48, height: 48)
                         .clipShape(Circle())
-                    
                     VStack(alignment: .leading, spacing: 4) {
                         Text(group.info.name)
                             .font(.system(size: 16))
                             .foregroundColor(Color.theme.primaryText)
-                        
                         Text(formatDate(group.info.mtime))
                             .font(.system(size: 14))
                             .foregroundColor(Color.theme.tertiaryText)
                     }
                 }
-                
                 // 小组描述
                 Text(group.info.desc)
                     .font(.system(size: 14))
                     .foregroundColor(Color.theme.secondaryText)
                     .lineLimit(2)
-                
                 // 统计信息
                 HStack(spacing: 16) {
                     GroupStatLabel(title: "成员", count: Int(group.info.profile.groupMemberNum), icon: "person.2.fill")
@@ -184,9 +176,10 @@ struct GroupListItemView: View {
                     GroupStatLabel(title: "活跃", text: formatTimeAgo(group.info.mtime), icon: "clock.fill")
                 }
             }
-            .padding(16)
+            .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.theme.secondaryBackground)
+            .background(Color.theme.tertiaryBackground)
+            .cornerRadius(8)
         }
         .buttonStyle(PlainButtonStyle())
         .fullScreenCover(isPresented: $showGroupDetail) {
@@ -196,7 +189,7 @@ struct GroupListItemView: View {
                         showGroupDetail = false
                     }) {
                         Image(systemName: "chevron.left")
-                            .foregroundColor(.primary)
+                            .foregroundColor(Color.theme.primaryText)
                     })
             }
         }
@@ -268,18 +261,21 @@ struct GroupStatLabel: View {
         HStack(spacing: 4) {
             Image(systemName: icon)
                 .font(.system(size: 14))
+                .foregroundColor(Color.theme.tertiaryText)
             if let count = count {
                 Text("\(count)")
                     .font(.system(size: 14))
+                    .foregroundColor(Color.theme.secondaryText)
             }
             if let text = text {
                 Text(text)
                     .font(.system(size: 14))
+                    .foregroundColor(Color.theme.secondaryText)
             }
             Text(title)
                 .font(.system(size: 14))
+                .foregroundColor(Color.theme.tertiaryText)
         }
-        .foregroundColor(.gray)
     }
 }
 

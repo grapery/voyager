@@ -47,7 +47,7 @@ struct DiscoveryView: View {
                                 VStack {
                                     Spacer()
                                     Text("没有聊天消息")
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(Color.theme.secondaryText)
                                         .padding()
                                     Spacer()
                                 }
@@ -238,14 +238,14 @@ private struct InputBar: View {
             Button(action: {}) {
                 Image(systemName: "plus.circle.fill")
                     .font(.system(size: 24))
-                    .foregroundColor(.gray)
+                    .foregroundColor(Color.theme.tertiaryText)
             }
             .frame(width: 36, height: 36)
 
             ZStack(alignment: .leading) {
                 if text.isEmpty {
                     Text("请输入您的问题...")
-                        .foregroundColor(Color.gray.opacity(0.8))
+                        .foregroundColor(Color.theme.tertiaryText.opacity(0.7))
                         .padding(.leading, 4)
                 }
                 TextField("", text: $text)
@@ -253,13 +253,13 @@ private struct InputBar: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 8)
             }
-            .background(Color(.systemGray6))
+            .background(Color.theme.inputBackground)
             .cornerRadius(18)
 
             Button(action: onSend) {
                 Image(systemName: "paperplane.fill")
                     .font(.system(size: 20))
-                    .foregroundColor(text.isEmpty ? Color.gray.opacity(0.6) : .blue)
+                    .foregroundColor(text.isEmpty ? Color.theme.tertiaryText.opacity(0.5) : Color.theme.accent)
                     .rotationEffect(.degrees(45))
             }
             .frame(width: 36, height: 36)
@@ -268,9 +268,9 @@ private struct InputBar: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(
-            Color.white
+            Color.theme.inputBackground
                 .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .shadow(color: Color.black.opacity(0.04), radius: 8, y: 2)
+                .shadow(color: Color.theme.primaryText.opacity(0.04), radius: 8, y: 2)
         )
         .padding(.horizontal, 8)
         .padding(.bottom, 0)
@@ -297,12 +297,12 @@ struct ChatBubble: View {
             if !isFromCurrentUser {
                 // AI头像
                 Circle()
-                    .fill(Color.gray.opacity(0.3))
+                    .fill(Color.theme.secondaryBackground)
                     .frame(width: 36, height: 36)
                     .overlay(
                         Text("AI")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.theme.primaryText)
                     )
             } else {
                 Spacer()
@@ -314,27 +314,27 @@ struct ChatBubble: View {
                 .padding(.vertical, 10)
                 .background(
                     isFromCurrentUser
-                        ? Color.blue.opacity(0.8)
-                        : Color(.systemGray5)
+                        ? Color.theme.accent
+                        : Color.theme.secondaryBackground
                 )
-                .foregroundColor(isFromCurrentUser ? .white : .black)
+                .foregroundColor(isFromCurrentUser ? Color.white : Color.theme.primaryText)
                 .cornerRadius(18)
                 .overlay(
                     isClickable ?
                         RoundedRectangle(cornerRadius: 18)
-                            .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                            .stroke(Color.theme.accent.opacity(0.18), lineWidth: 1)
                         : nil
                 )
             
             if isFromCurrentUser {
                 // 用户头像
                 Circle()
-                    .fill(Color.blue.opacity(0.7))
+                    .fill(Color.theme.accent)
                     .frame(width: 36, height: 36)
                     .overlay(
                         Text("我")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.white)
                     )
             } else {
                 Spacer()
