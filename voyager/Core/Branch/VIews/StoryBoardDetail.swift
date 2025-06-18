@@ -261,7 +261,6 @@ struct StoryBoardCellView: View {
         }
         .padding(16)
         .background(Color.theme.secondaryBackground) // 卡片色
-        .cornerRadius(16)
         .fullScreenCover(isPresented: $showStoryBoard) {
             StoryBoardView(
                 board: board,
