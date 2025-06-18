@@ -107,7 +107,7 @@ struct MessageView: View {
                         VStack {
                             Spacer()
                             Text("没有聊天会话")
-                                .foregroundColor(.gray)
+                                .foregroundColor(Color.theme.secondaryText)
                                 .padding()
                             Spacer()
                         }
@@ -146,11 +146,11 @@ struct MessageView: View {
                                     HStack {
                                         ActivityIndicatorView(isVisible: .constant(true), type: .growingArc(.cyan))
                                             .frame(width: 64, height: 64)
-                                            .foregroundColor(.cyan)
+                                            .foregroundColor(Color.theme.accent)
                                     }
                                     .frame(height: 32)
                                     Text("加载中……")
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Color.theme.tertiaryText)
                                         .font(.system(size: 14))
                                 }
                                 .frame(maxWidth: .infinity)
@@ -159,7 +159,7 @@ struct MessageView: View {
                         } else if !viewModel.hasMorePages && !viewModel.msgCtxs.isEmpty {
                             // 没有更多
                             Text("没有更多聊天会话了")
-                                .foregroundColor(.gray)
+                                .foregroundColor(Color.theme.tertiaryText)
                                 .padding()
                                 .font(.system(size: 12))
                         }

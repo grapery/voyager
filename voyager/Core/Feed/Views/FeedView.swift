@@ -524,23 +524,23 @@ struct SearchBar: View {
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
+                .foregroundColor(Color.theme.tertiaryText)
                 .padding(.leading, 8)
             
             TextField("请输入您的问题...", text: $text)
                 .font(.system(size: 16))
-                .foregroundColor(.white)
+                .foregroundColor(Color.theme.inputText)
             
             if !text.isEmpty {
                 Button(action: { text = "" }) {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color.theme.tertiaryText)
                         .padding(.trailing, 8)
                 }
             }
         }
         .frame(height: 36)
-        .background(Color.primaryBackgroud)
+        .background(Color.theme.inputBackground)
         .cornerRadius(18)
     }
 }
@@ -909,11 +909,11 @@ private struct TrendingStoryCard: View {
                             HStack(spacing: 16) {
                                 Label("\(story.storyInfo.likeCount)", systemImage: story.storyInfo.currentUserStatus.isLiked ? "heart.fill" : "heart")
                                     .font(.system(size: 12))
-                                    .foregroundColor(Color.red)
+                                    .foregroundColor(Color.theme.error)
                                 
                                 Label("\(story.storyInfo.followCount)", systemImage: story.storyInfo.currentUserStatus.isFollowed ? "bell.fill" : "bell")
                                     .font(.system(size: 12))
-                                    .foregroundColor(Color.blue)
+                                    .foregroundColor(Color.theme.accent)
                                 
                                 Label("\(story.storyInfo.totalRoles)", systemImage: "person")
                                     .font(.system(size: 12))
@@ -938,10 +938,10 @@ private struct TrendingStoryCard: View {
                         } label: {
                             Text("已关注")
                                 .font(.system(size: 12))
-                                .foregroundColor(Color.white)
+                                .foregroundColor(Color.theme.primaryText)
                                 .fontWeight(.medium)
                                 .frame(width: 50, height: 24)
-                                .background(Color.gray)
+                                .background(Color.theme.secondaryBackground)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                     } else {
@@ -953,10 +953,10 @@ private struct TrendingStoryCard: View {
                         } label: {
                             Text("关注")
                                 .font(.system(size: 12))
-                                .foregroundColor(Color.white)
+                                .foregroundColor(Color.theme.primaryText)
                                 .fontWeight(.medium)
                                 .frame(width: 50, height: 24)
-                                .background(Color.blue)
+                                .background(Color.theme.accent)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                     }
@@ -984,7 +984,7 @@ private struct TrendingStoryCard: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.theme.border, lineWidth: 0.5)
             )
-            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+            .shadow(color: Color.theme.primaryText.opacity(0.05), radius: 2, x: 0, y: 1)
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(PlainButtonStyle())

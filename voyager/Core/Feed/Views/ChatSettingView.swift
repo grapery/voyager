@@ -131,7 +131,7 @@ struct BarChartView: View {
                 ForEach(data.indices, id: \.self) { idx in
                     let value = data[idx]
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(Color.orange)
+                        .fill(Color.theme.accent)
                         .frame(width: (geo.size.width / CGFloat(data.count)) - 8, height: CGFloat(value) / CGFloat((data.max() ?? 1)) * (geo.size.height - 20))
                     Text("\(value)")
                         .font(.caption2)

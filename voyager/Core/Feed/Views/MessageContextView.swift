@@ -229,8 +229,8 @@ struct MessageContextView: View {
                 }
             }
             .padding()
-            .background(Color.white)
-            .shadow(color: Color.gray.opacity(0.2), radius: 2, x: 0, y: 2)
+            .background(Color.theme.secondaryBackground)
+            .shadow(color: Color.theme.tertiaryText.opacity(0.08), radius: 2, x: 0, y: 2)
         }
     }
     
@@ -293,8 +293,8 @@ struct MessageContextView: View {
                                 }
                             }
                         Text("加载更多消息...")
+                            .foregroundColor(Color.theme.tertiaryText)
                     }
-                    .foregroundColor(.gray)
                     .padding(.vertical, 10)
                 }
             }
@@ -322,20 +322,20 @@ struct MessageContextView: View {
                     }) {
                         Image(systemName: "plus.circle")
                             .font(.system(size: 20))
-                            .foregroundColor(.black)
+                            .foregroundColor(Color.theme.primaryText)
                     }
                     .frame(width: 28, height: 28)
                     
                     ZStack(alignment: .leading) {
                         if newMessageContent.isEmpty {
                             Text("发送消息")
-                                .foregroundColor(Color(.systemGray3))
+                                .foregroundColor(Color.theme.tertiaryText)
                                 .padding(.leading, 6)
                         }
                         TextField("", text: $newMessageContent)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 6)
-                            .background(Color(.systemGray6))
+                            .background(Color.theme.inputBackground)
                             .cornerRadius(14)
                             .focused(isInputFocused)
                             .frame(minHeight: 28, maxHeight: 36)
@@ -345,14 +345,14 @@ struct MessageContextView: View {
                     Button(action: onSendMessage) {
                         Image(systemName: "paperplane.circle.fill")
                             .font(.system(size: 24))
-                            .foregroundColor(newMessageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color(.systemGray3) : Color(red: 0.56, green: 0.44, blue: 0.50)) // 浅绿色
+                            .foregroundColor(newMessageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.theme.tertiaryText : Color.theme.accent)
                     }
                     .frame(width: 28, height: 28)
                     .disabled(newMessageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
                 .padding(.horizontal, 6)
                 .padding(.vertical, 4)
-                .background(Color(.systemBackground))
+                .background(Color.theme.secondaryBackground)
                 .animation(.easeInOut, value: isShowingMediaOptions)
             }
         }
@@ -365,7 +365,7 @@ struct MessageContextView: View {
                 mediaOption(icon: "location", title: "位置")
             }
             .padding(6)
-            .background(Color(.systemBackground))
+            .background(Color.theme.secondaryBackground)
         }
         
         private func mediaOption(icon: String, title: String) -> some View {
@@ -455,9 +455,9 @@ struct MessageCellView: View {
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(isFromCurrentUser ? Color.blue : Color.gray.opacity(0.2))
+                    .fill(isFromCurrentUser ? Color.theme.accent : Color.theme.secondaryBackground)
             )
-            .foregroundColor(isFromCurrentUser ? .white : .black)
+            .foregroundColor(isFromCurrentUser ? Color.theme.buttonText : Color.theme.primaryText)
             .contextMenu {
                 Button(action: {
                     UIPasteboard.general.string = message.msg.message
@@ -489,7 +489,7 @@ struct MessageCellView: View {
                     .scaleEffect(0.7)
             case .MessageSendSuccess:
                 Image(systemName: "checkmark.circle")
-                    .foregroundColor(.gray)
+                    .foregroundColor(Color.theme.tertiaryText)
                     .font(.caption2)
             case .MessageSendFailed:
                 Button(action: {
@@ -498,7 +498,7 @@ struct MessageCellView: View {
                     }
                 }) {
                     Image(systemName: "arrow.clockwise.circle")
-                        .foregroundColor(.red)
+                        .foregroundColor(Color.theme.error)
                         .font(.caption2)
                 }
             }
@@ -524,12 +524,12 @@ struct MessageCellView: View {
     // 视频消息气泡
     private var videoBubble: some View {
         RoundedRectangle(cornerRadius: 16)
-            .fill(Color.black.opacity(0.1))
+            .fill(Color.theme.secondaryBackground)
             .frame(width: 200, height: 150)
             .overlay(
                 Image(systemName: "play.circle.fill")
                     .font(.largeTitle)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.theme.primaryText)
             )
     }
     
@@ -544,9 +544,9 @@ struct MessageCellView: View {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(isFromCurrentUser ? Color.blue : Color.gray.opacity(0.2))
+                .fill(isFromCurrentUser ? Color.theme.accent : Color.theme.secondaryBackground)
         )
-        .foregroundColor(isFromCurrentUser ? .white : .black)
+        .foregroundColor(isFromCurrentUser ? Color.theme.buttonText : Color.theme.primaryText)
     }
 }
 
@@ -566,7 +566,7 @@ struct AvatarView: View {
                     .resizable()
                     .scaledToFill()
             } placeholder: {
-                Color.gray.opacity(0.3)
+                Color.theme.tertiaryBackground
             }
             .frame(width: 40, height: 40)
             .clipShape(Circle())

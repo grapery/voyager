@@ -111,6 +111,7 @@ struct EditUserProfileView: View {
                         .ignoresSafeArea()
                     ProgressView()
                         .tint(.white)
+                        .background(Color.theme.background.opacity(0.3))
                 }
             }
         }

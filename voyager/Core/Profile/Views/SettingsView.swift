@@ -16,7 +16,7 @@ struct SettingsView: View {
                         SettingsRow(
                             icon: "shield.checkered",
                             title: "账号与安全",
-                            iconColor: .blue
+                            iconColor: Color.theme.accent
                         )
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -25,7 +25,7 @@ struct SettingsView: View {
                         SettingsRow(
                             icon: "exclamationmark.bubble",
                             title: "投诉与反馈",
-                            iconColor: .orange
+                            iconColor: Color.theme.warning
                         )
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -34,7 +34,7 @@ struct SettingsView: View {
                         SettingsRow(
                             icon: "person.3",
                             title: "社交媒体",
-                            iconColor: .purple
+                            iconColor: Color.theme.success
                         )
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -44,7 +44,7 @@ struct SettingsView: View {
                             icon: "info.circle",
                             title: "关于应用",
                             subtitle: "2.0.0-2429",
-                            iconColor: .gray
+                            iconColor: Color.theme.tertiaryText
                         )
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -53,7 +53,7 @@ struct SettingsView: View {
                         SettingsRow(
                             icon: "person.crop.circle.badge.clock",
                             title: "青少年模式",
-                            iconColor: .green
+                            iconColor: Color.theme.success
                         )
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -64,12 +64,12 @@ struct SettingsView: View {
                     Button(action: { showLogoutAlert = true }) {
                         HStack {
                             Image(systemName: "rectangle.portrait.and.arrow.right")
-                                .foregroundColor(.red)
+                                .foregroundColor(Color.theme.error)
                             Text("退出登录")
-                                .foregroundColor(.red)
+                                .foregroundColor(Color.theme.error)
                             Spacer()
                             Image(systemName: "chevron.right")
-                                .foregroundColor(.gray)
+                                .foregroundColor(Color.theme.tertiaryText)
                                 .font(.system(size: 14))
                         }
                     }
@@ -82,7 +82,7 @@ struct SettingsView: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: { dismiss() }) {
                         Image(systemName: "chevron.left")
-                            .foregroundColor(.primary)
+                            .foregroundColor(Color.theme.primaryText)
                     }
                 }
             }
@@ -221,7 +221,7 @@ struct SettingsDetailView: View {
                     ScrollView {
                         Text(detailType.content)
                             .font(.body)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Color.theme.secondaryText)
                             .padding()
                             .multilineTextAlignment(.leading)
                     }
@@ -233,12 +233,12 @@ struct SettingsDetailView: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: { dismiss() }) {
                         Image(systemName: "chevron.left")
-                            .foregroundColor(.primary)
+                            .foregroundColor(Color.theme.primaryText)
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("好的") { dismiss() }
-                        .foregroundColor(.blue)
+                        .foregroundColor(Color.theme.accent)
                 }
             }
         }

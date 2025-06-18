@@ -69,13 +69,13 @@ struct EmptyStateView: View {
             Spacer()
             Image(systemName: image)
                 .font(.system(size: 48))
-                .foregroundColor(.gray)
+                .foregroundColor(Color.theme.secondaryText)
             Text(title)
                 .font(.system(size: 16))
-                .foregroundColor(.gray)
+                .foregroundColor(Color.theme.secondaryText)
             Text(message)
                 .font(.system(size: 14))
-                .foregroundColor(.gray.opacity(0.8))
+                .foregroundColor(Color.theme.secondaryText.opacity(0.8))
             Spacer()
         }
     }

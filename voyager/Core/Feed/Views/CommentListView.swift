@@ -457,7 +457,7 @@ private struct CommentInputView: View {
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.theme.divider, lineWidth: 1)
-                        .background(RoundedRectangle(cornerRadius: 8).fill(Color.white))
+                        .background(RoundedRectangle(cornerRadius: 8).fill(Color.theme.inputBackground))
                         .frame(height: 40)
                     HStack(spacing: 0) {
                         TextField(placeholderText, text: $commentText)
