@@ -41,7 +41,7 @@ struct AllGroupsView: View {
                 }
                 
                 
-                Text("葡萄树的小组")
+                Text("\(self.viewModel.user.name)的小组")
                     .font(.headline)
                     .lineLimit(1)
                 
