@@ -904,7 +904,7 @@ private struct TrendingStoryCard: View {
                             Text(story.storyInfo.desc)
                                 .font(.system(size: 14))
                                 .foregroundColor(Color.theme.secondaryText)
-                                .lineLimit(2)
+                                .lineLimit(1)
                             // 统计数据
                             HStack(spacing: 16) {
                                 Label("\(story.storyInfo.likeCount)", systemImage: story.storyInfo.currentUserStatus.isLiked ? "heart.fill" : "heart")
