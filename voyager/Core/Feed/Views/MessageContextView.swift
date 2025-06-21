@@ -353,6 +353,7 @@ struct MessageContextView: View {
                 .padding(.horizontal, 6)
                 .padding(.vertical, 4)
                 .background(Color.theme.secondaryBackground)
+                .shadow(color: Color.theme.tertiaryText.opacity(0.08), radius: 2, x: 0, y: 2)
                 .animation(.easeInOut, value: isShowingMediaOptions)
             }
         }

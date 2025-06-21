@@ -251,9 +251,9 @@ struct NewGroupView: View {
         isLoading = true
         Task {
             var avatarImage: UIImage? = groupAvatar
-            // 如果没有上传头像，自动生成一张随机圆图片
+            // ç
             if avatarImage == nil {
-                avatarImage = RandomCirclesAvatar().snapshot()
+                avatarImage = UIImage(systemName: "infinity.circle")
             }
             do {
                 let imageUrl = try await Task.detached {

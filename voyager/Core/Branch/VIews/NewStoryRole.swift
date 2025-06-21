@@ -224,8 +224,14 @@ private struct BasicInfoSectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             NameField(roleName: $roleName)
+            .padding(.vertical, 8)
+            Divider().padding(.vertical, 8)
             DescriptionField(roleDescription: $roleDescription)
+            .padding(.vertical, 8)
+            Divider().padding(.vertical, 8)
             PromptField(rolePrompt: $rolePrompt)
+            .padding(.vertical, 8)
+            Divider().padding(.vertical, 8)
         }
         .padding(.horizontal)
     }
@@ -371,10 +377,13 @@ private struct NameField: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("名称")
+            Text("角色名称")
                 .font(.headline)
             TextField("输入名称", text: $roleName)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(8)
+                .background(Color.theme.inputBackground)
+                .cornerRadius(8)
+                .font(.system(size: 16))
         }
     }
 }

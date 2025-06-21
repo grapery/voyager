@@ -274,9 +274,9 @@ struct UserProfileView: View {
                 }
             }
             .frame(width: 320)
-            .background(Color.theme.background)
+            .background(Color.theme.inputBackground)
             .cornerRadius(24)
-            .shadow(color: Color.theme.background.opacity(0.15), radius: 16, x: 0, y: 8)
+            //.shadow(color: Color.theme.settingsBackground.opacity(0.15), radius: 16, x: 0, y: 8)
         }
     }
     
