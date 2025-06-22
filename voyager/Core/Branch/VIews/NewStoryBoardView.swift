@@ -994,6 +994,34 @@ struct SceneGenerationView: View {
                                         }
                                     }
                                 }
+                                ActionButton(
+                                    title: "生成所有图片",
+                                    icon: "photo.fill",
+                                    color: .blue
+                                ) {
+                                    Task {
+                                        // 新增：所有场景图片生成状态管理
+                                        for idx in viewModel.storyScenes.indices {
+                                            imageGenerationState[idx] = .generating
+                                        }
+                                        Task {
+                                            await onGenerateAllImage()
+                                            for idx in viewModel.storyScenes.indices {
+                                                let urlStr = viewModel.storyScenes[idx].imageUrl
+                                                if !urlStr.isEmpty {
+                                                    let url = URL(string: urlStr)
+                                                    let data = try? Data(contentsOf: url!)
+                                                    let img = UIImage(data: data!)
+                                                    imageGenerationState[idx] = .success(img!)
+                                                } else if urlStr.isEmpty {
+                                                    imageGenerationState[idx] = .failure("图片加载失败")
+                                                } else {
+                                                    imageGenerationState[idx] = .failure("生成失败")
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             .frame(maxWidth: .infinity, alignment: .center)
                             .padding(.top, 8)
@@ -1003,39 +1031,6 @@ struct SceneGenerationView: View {
                     }
                     
                     Spacer().frame(height: 8)
-                    
-                    // 生成所有场景图片按钮
-                    HStack {
-                        Spacer()
-                        ActionButton(
-                            title: "生成所有场景图片",
-                            icon: "photo.fill",
-                            color: .green
-                        ) {
-                            // 新增：所有场景图片生成状态管理
-                            for idx in viewModel.storyScenes.indices {
-                                imageGenerationState[idx] = .generating
-                            }
-                            Task {
-                                await onGenerateAllImage()
-                                for idx in viewModel.storyScenes.indices {
-                                    let urlStr = viewModel.storyScenes[idx].imageUrl
-                                    if !urlStr.isEmpty {
-                                        let url = URL(string: urlStr)
-                                        let data = try? Data(contentsOf: url!)
-                                        let img = UIImage(data: data!)
-                                        imageGenerationState[idx] = .success(img!)
-                                    } else if urlStr.isEmpty {
-                                        imageGenerationState[idx] = .failure("图片加载失败")
-                                    } else {
-                                        imageGenerationState[idx] = .failure("生成失败")
-                                    }
-                                }
-                            }
-                        }
-                        Spacer()
-                    }
-                    .padding(.vertical, 12)
                 }else{
                     EmptyStateView()
                 }
