@@ -597,7 +597,8 @@ struct UserProfileView: View {
                         Button(action: onBack) {
                             Image(systemName: "chevron.left")
                                 .font(.title3.weight(.light))
-                                .foregroundColor((Color.theme.buttonBackground.colorInvert() as! Color))
+                                .foregroundColor(.primary)
+                                //.padding(10)
                                 .background(Color.theme.buttonBackground.opacity(0.3))
                                 .clipShape(Circle())
                         }
@@ -610,7 +611,8 @@ struct UserProfileView: View {
                         Button(action: onShowSettings) {
                             Image(systemName: "gearshape.fill")
                                 .font(.title3.weight(.light))
-                                .foregroundColor((Color.theme.buttonBackground.colorInvert() as! Color))
+                                .foregroundColor(.primary)
+                                //.padding(10)
                                 .background(Color.theme.buttonBackground.opacity(0.3))
                                 .clipShape(Circle())
                         }
