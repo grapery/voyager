@@ -51,7 +51,6 @@ struct UserProfileView: View {
                     UserProfileHeaderView(
                         user: viewModel.user ?? user,
                         profile: viewModel.profile,
-                       
                         onBack: {
                             presentationMode.wrappedValue.dismiss()
                         },
@@ -71,6 +70,7 @@ struct UserProfileView: View {
                             showStatsDetail = true
                         },
                         viewModel: self.viewModel,
+                        isCurrentUser: self.isCurrentUser
                     )
                     
                     UserHomeTabsSection
@@ -497,85 +497,126 @@ struct UserProfileView: View {
         let onShowSettings: () -> Void
         let onShowStats: () -> Void
         @ObservedObject var viewModel: ProfileViewModel
+        let isCurrentUser: Bool
+
         var body: some View {
             ZStack(alignment: .top) {
-                // Background placeholder
-                Rectangle()
-                    .fill(Color.clear)
-                    .frame(height: 200)
+                // This container ensures the header has a fixed total height.
+                // The parent view's background will be visible behind this ZStack.
+                
+                // MARK: - Content Layer (Card and Avatar)
+                ZStack(alignment: .topLeading) {
+                    
+                    // MARK: - Info Card
+                    VStack(alignment: .leading, spacing: 12) {
+                        // Top row for stats, with space for the avatar
+                        HStack {
+                            Spacer().frame(width: 88 + 32) // Avatar width + horizontal padding
+                            
+                            HStack(spacing: 5) {
+                                ProfileStatView(count: "\(viewModel.profile.createdStoryNum)", title: "故事")
+                                Divider().frame(height: 10)
+                                ProfileStatView(count: "\(viewModel.profile.watchingStoryNum)", title: "关注")
+                                Divider().frame(height: 10)
+                                ProfileStatView(count: "\(viewModel.profile.createdStoryNum)", title: "故事版")
+                                Divider().frame(height: 10)
+                                ProfileStatView(count: "\(viewModel.profile.createdRoleNum)", title: "故事角色")
+                            }
+                            Spacer()
+                        }
+                        .padding(.top, 12)
 
-                // Info card
-                VStack(spacing: 0) {
-                    VStack(spacing: 16) {
-                        // Avatar and name
-                        VStack(spacing: 8) {
-                            RectProfileImageView(avatarUrl: user.avatar, size: .InProfile2)
-                                .frame(width: 88, height: 88)
-                                .clipShape(Circle())
-                                .overlay(Circle().stroke(Color.white, lineWidth: 4))
-                            
-                            Text(user.name)
-                                .font(.system(size: 22, weight: .bold))
-                            
-                            if !user.desc.isEmpty {
-                                Text(user.desc)
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.gray)
+                        // User Info Section
+                        VStack(alignment: .center, spacing: 8) {
+                            // Name and Badges
+                            HStack {
+                                Text(user.name)
+                                    .font(.system(size: 20, weight: .bold))
                             }
                         }
+                        .padding(.horizontal, 16)
                         
-                        // Stats in a single row
-                        HStack(spacing: 24) {
-                            ProfileStatView(count: "\(viewModel.profile.createdStoryNum)", title: "创建故事")
-                            ProfileStatView(count: "\(viewModel.profile.createdRoleNum)", title: "创建角色")
-                            ProfileStatView(count: "\(viewModel.profile.watchingStoryNum + profile.watchingGroupNum)", title: "关注")
+                        // Action Buttons
+                        if isCurrentUser {
+                            Button(action: onEditProfile) {
+                                Text("编辑资料")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.primary)
+                                    .frame(maxWidth: .infinity, minHeight: 44)
+                                    .background(Color(UIColor.systemGray5))
+                                    .clipShape(Capsule())
+                            }
+                            .padding([.horizontal, .top], 16)
+                        } else {
+                            HStack(spacing: 12) {
+                                Button(action: onFollow) {
+                                    Text("+ 关注")
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .frame(maxWidth: .infinity, minHeight: 44)
+                                        .background(Color.blue)
+                                        .clipShape(Capsule())
+                                }
+                                Button(action: onMessage) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "paperplane")
+                                        Text("发私信")
+                                    }
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(.primary)
+                                    .frame(height: 44)
+                                    .padding(.horizontal, 20)
+                                    .background(Color(UIColor.systemGray5))
+                                    .clipShape(Capsule())
+                                }
+                            }
+                            .padding([.horizontal, .top], 16)
                         }
                     }
-                    .padding(.top, -44)
+                    .padding(.vertical)
+                    .background(Color.theme.background)
+                    .cornerRadius(20)
+                    .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
+                    .padding(.horizontal, 8)
                     
-                    HStack(spacing: 12) {
-                        Button(action: onFollow) {
-                            Text("+ 关注")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 8)
-                                .background(Color.blue)
-                                .cornerRadius(8)
-                        }
-                        Button(action: onMessage) {
-                            Text("发私信")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.primary)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 8)
-                                .background(Color(UIColor.systemGray5))
-                                .cornerRadius(8)
-                        }
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 16)
+                    // MARK: - Avatar (Floating)
+                    RectProfileImageView(avatarUrl: user.avatar, size: .InContent)
+                        .frame(width: 88, height: 88)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.white, lineWidth: 4))
+                        .shadow(radius: 3)
+                        .offset(x: 24, y: -44) // Key change for floating effect
                 }
-                .background(Color.theme.background)
-                .padding(.top, 150)
+                .padding(.top, 180) // Push the card down to make space for the background
             }
+            .frame(height: 350) // Total height of the header
             .overlay(alignment: .top) {
-                // Top navigation buttons overlay
                 HStack {
-                    Spacer()
-                    HStack(spacing: 24) {
-                        Button(action: onShowStats) {
-                            Image(systemName: "line.3.horizontal")
-                                .font(.title3.weight(.medium))
+                    // Back button for non-current users
+                    if !isCurrentUser {
+                        Button(action: onBack) {
+                            Image(systemName: "chevron.left")
+                                .font(.title3.weight(.light))
+                                .foregroundColor((Color.theme.buttonBackground.colorInvert() as! Color))
+                                .background(Color.theme.buttonBackground.opacity(0.3))
+                                .clipShape(Circle())
                         }
+                    }
+                    
+                    Spacer()
+                    
+                    // Settings button for current user
+                    if isCurrentUser {
                         Button(action: onShowSettings) {
-                            Image(systemName: "gear")
-                                .font(.title3.weight(.medium))
+                            Image(systemName: "gearshape.fill")
+                                .font(.title3.weight(.light))
+                                .foregroundColor((Color.theme.buttonBackground.colorInvert() as! Color))
+                                .background(Color.theme.buttonBackground.opacity(0.3))
+                                .clipShape(Circle())
                         }
                     }
                 }
-                .foregroundColor(Color.theme.primaryText)
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
                 .padding(.top, 50) // Adjust for safe area
             }
         }
@@ -592,7 +633,7 @@ struct UserProfileView: View {
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(Color.theme.primaryText)
                 Text(title)
-                    .font(.system(size: 13))
+                    .font(.system(size: 12))
                     .foregroundColor(Color.theme.secondaryText)
             }
         }
