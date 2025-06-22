@@ -34,7 +34,7 @@ class StreamService {
             self.client = ProtocolClient(
                 httpClient: URLSessionHTTPClient(),
                 config: ProtocolClientConfig(
-                    host: "http://192.168.1.91:12307",
+                    host: "http://192.168.1.93:12307",
                     networkProtocol: .grpcWeb,
                     codec: ProtoCodec()
                 )

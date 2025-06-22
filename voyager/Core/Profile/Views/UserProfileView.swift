@@ -31,6 +31,7 @@ struct UserProfileView: View {
     @State private var isShowingStoryView = false
     @State private var selectedStoryId: Int64? = nil
     @StateObject private var unpublishedViewModel: UnpublishedStoryViewModel
+    @Environment(\.presentationMode) var presentationMode
     
     // 判断是否是当前登录用户
     private var isCurrentUser: Bool {
@@ -47,28 +48,29 @@ struct UserProfileView: View {
         ZStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    ZStack(alignment: .top) {
-                        backgroundImageView
-                            .scaledToFill()
-                            .frame(width: UIScreen.main.bounds.width, height: 280)
-                            .ignoresSafeArea(edges: .top)
-                        UserProfileHeaderView(
-                            user: viewModel.user ?? user,
-                            profile: viewModel.profile,
-                            status: userStatus,
-                            onFollow: {
-                                
-                            },
-                            onMessage: {
-                                
-                            },
-                            onEditProfile: { showingEditProfile = true },
-                            onShowSettings: { showSettings = true },
-                            onShowStats: { showStatsDetail = true }
-                        )
-                        .contentShape(Rectangle())
-                    }
-                    .frame(width: UIScreen.main.bounds.width, height: 300)
+                    UserProfileHeaderView(
+                        user: viewModel.user ?? user,
+                        profile: viewModel.profile,
+                        onBack: {
+                            presentationMode.wrappedValue.dismiss()
+                        },
+                        onFollow: {
+                            
+                        },
+                        onMessage: {
+                            
+                        },
+                        onEditProfile: {
+                            showingEditProfile = true
+                        },
+                        onShowSettings: {
+                            showSettings = true
+                        },
+                        onShowStats: {
+                            showStatsDetail = true
+                        }
+                    )
+                    
                     UserHomeTabsSection
                 }
             }
@@ -145,12 +147,6 @@ struct UserProfileView: View {
                             }
                     }
                 }
-            }
-            if showStatsDetail {
-                userStatsDetail
-                    .transition(.opacity.combined(with: .scale))
-                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: showStatsDetail)
-                    .zIndex(10)
             }
         }
     }
@@ -470,7 +466,7 @@ struct UserProfileView: View {
     private struct UserProfileHeaderView: View {
         let user: User
         let profile: UserProfile
-        let status: String
+        let onBack: () -> Void
         let onFollow: () -> Void
         let onMessage: () -> Void
         let onEditProfile: () -> Void
@@ -478,151 +474,156 @@ struct UserProfileView: View {
         let onShowStats: () -> Void
 
         var body: some View {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack{
-                    Spacer()
-                    Button(action: onEditProfile) {
-                        Image(systemName: "line.3.horizontal")
-                            .foregroundColor(Color.theme.primaryText)
-                            .font(.system(size: 18))
-                            .shadow(color: Color.theme.background.opacity(0.3), radius: 2)
+            ZStack(alignment: .top) {
+                // Background placeholder
+                Rectangle()
+                    .fill(Color.clear)
+                    .frame(height: 200)
+
+                // Info card
+                VStack(spacing: 0) {
+                    HStack(alignment: .bottom) {
+                        RectProfileImageView(avatarUrl: user.avatar, size: .InProfile2)
+                            .frame(width: 88, height: 88)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.white, lineWidth: 4))
+                            .offset(y: 8) // Adjust to sit on the top edge of the card
+                            .padding(.leading, 16)
+                        
+                        Spacer()
+                        
+                        HStack(spacing: 24) {
+                            ProfileStatView(count: "1万", title: "获赞")
+                            ProfileStatView(count: "1874", title: "被关注")
+                            ProfileStatView(count: "\(profile.watchingStoryNum + profile.watchingGroupNum)", title: "关注")
+                        }
+                        .padding(.trailing, 16)
+                        .padding(.bottom, 8)
                     }
-                    .padding(.trailing, 12)
-                    Button(action: onShowSettings) {
-                        Image(systemName: "gearshape")
-                            .foregroundColor(Color.theme.primaryText)
-                            .font(.system(size: 18))
-                            .shadow(color: Color.theme.background.opacity(0.3), radius: 2)
-                    }
-                    .padding(.trailing, 12)
-                }
-                .padding(.top, 50)
-                HStack(alignment: .center, spacing: 16) {
-                    // 头像
-                    RectProfileImageView(
-                        avatarUrl: user.avatar,
-                        size: .InProfile2
-                    )
-                    .frame(width: 88, height: 88)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(Color.theme.primaryText, lineWidth: 1))
-                    .shadow(color: Color.theme.background.opacity(0.2), radius: 8, x: 0, y: 4)
-                    // 用户名
-                    VStack(alignment: .leading, spacing: 6) {
+                    .padding(.top, -44) // Pulls the avatar and stats up
+                    
+                    VStack(alignment: .leading, spacing: 8) {
                         Text(user.name)
-                            .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(Color.theme.primaryText)
-                            .shadow(color: Color.theme.background.opacity(0.3), radius: 2)
-                        if !status.isEmpty {
-                            Text(status)
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(Color.theme.primaryText)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 2)
-                                .background(Color.theme.background)
-                                .cornerRadius(4)
+                            .font(.system(size: 22, weight: .bold))
+                            .padding(.top, 12)
+                        
+                        if !user.desc.isEmpty {
+                            Text(user.desc)
+                                .font(.system(size: 14))
+                                .foregroundColor(.gray)
                         }
                     }
-                    Spacer()
-                }
-                .padding(.top, 50)
-                .padding(.horizontal, 24)
-                // 描述
-                if !user.desc.isEmpty {
-                    Text(user.desc)
-                        .font(.system(size: 14))
-                        .foregroundColor(Color.theme.primaryText)
-                        .shadow(color: Color.theme.background.opacity(0.2), radius: 1)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 8)
-                }
-                // 统计+按钮
-                HStack(alignment: .center) {
-                    // 统计
-                    HStack(spacing: 4) {
-                        Group {
-                            StatItemShortCut(count: Int(profile.createdStoryNum), icon: "fossil.shell")
-                            StatItemShortCut(count: Int(profile.createdRoleNum), icon: "person.text.rectangle")
-                            StatItemShortCut(count: Int(profile.createdStoryNum), icon: "list.clipboard")
-                            StatItemShortCut(count: Int(profile.watchingStoryNum), icon: "person.2.fill")
-                            StatItemShortCut(count: Int(profile.watchingStoryNum), icon: "person.text.rectangle")
-                            StatItemShortCut(count: Int(profile.watchingGroupNum), icon: "bonjour")
-                        }
-                        .contentShape(Rectangle().stroke(lineWidth: CGFloat(2)))
-                        .colorInvert()
-                        .onTapGesture {
-                            onShowStats()
-                        }
-                    }
-                    Spacer()
-                    HStack(spacing: 10) {
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    HStack(spacing: 12) {
                         Button(action: onFollow) {
-                            Text("关注")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(Color.theme.primaryText)
-                                .padding(.horizontal, 16)
+                            Text("+ 关注")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
                                 .padding(.vertical, 8)
-                                .background(Color.theme.accent)
+                                .background(Color.blue)
                                 .cornerRadius(8)
                         }
                         Button(action: onMessage) {
-                            Text("消息")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(Color.theme.primaryText)
-                                .padding(.horizontal, 16)
+                            Text("发私信")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.primary)
+                                .frame(maxWidth: .infinity)
                                 .padding(.vertical, 8)
-                                .background(Color.theme.accent)
+                                .background(Color(UIColor.systemGray5))
                                 .cornerRadius(8)
                         }
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 16)
-                .padding(.bottom, 32)
+                .background(Color.theme.background)
+                .padding(.top, 150)
             }
-        }
-    }
-}
-
-// 更新分段控制器样式
-struct CustomSegmentedControl: View {
-    @Binding var selectedIndex: Int
-    let titles: [String]
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 24) {
-                ForEach(0..<titles.count, id: \.self) { index in
-                    Button(action: {
-                        withAnimation {
-                            selectedIndex = index
+            .overlay(alignment: .top) {
+                // Top navigation buttons overlay
+                HStack {
+                    Button(action: onBack) {
+                        Image(systemName: "chevron.left")
+                            .font(.title3.weight(.medium))
+                    }
+                    Spacer()
+                    HStack(spacing: 24) {
+                        Button(action: { /* Search action */ }) {
+                            Image(systemName: "magnifyingglass")
+                                .font(.title3.weight(.medium))
                         }
-                    }) {
-                        VStack(spacing: 8) {
-                            Text(titles[index])
-                                .font(.system(size: 15))
-                                .foregroundColor(selectedIndex == index ? Color.theme.accent : Color.theme.tertiaryText)
-                            
-                            // 下划线
-                            Rectangle()
-                                .fill(selectedIndex == index ? Color.theme.accent : Color.clear)
-                                .frame(height: 2)
+                        Button(action: { /* More action */ }) {
+                            Image(systemName: "ellipsis")
+                                .font(.title3.weight(.medium))
                         }
                     }
-                    .frame(maxWidth: .infinity)
                 }
+                .foregroundColor(Color.theme.primaryText)
+                .padding(.horizontal)
+                .padding(.top, 50) // Adjust for safe area
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            
-            Divider()
-                .background(Color.theme.divider)
         }
-        .background(Color.theme.background)
+    }
+
+
+    private struct ProfileStatView: View {
+        let count: String
+        let title: String
+        
+        var body: some View {
+            VStack(spacing: 4) {
+                Text(count)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(Color.theme.primaryText)
+                Text(title)
+                    .font(.system(size: 13))
+                    .foregroundColor(Color.theme.secondaryText)
+            }
+        }
+    }
+
+
+    // 更新分段控制器样式
+    struct CustomSegmentedControl: View {
+        @Binding var selectedIndex: Int
+        let titles: [String]
+        
+        var body: some View {
+            VStack(spacing: 0) {
+                HStack(spacing: 24) {
+                    ForEach(0..<titles.count, id: \.self) { index in
+                        Button(action: {
+                            withAnimation {
+                                selectedIndex = index
+                            }
+                        }) {
+                            VStack(spacing: 8) {
+                                Text(titles[index])
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(selectedIndex == index ? Color.theme.primaryText : Color.theme.tertiaryText)
+                                
+                                // 下划线
+                                Rectangle()
+                                    .fill(selectedIndex == index ? Color.theme.accent : Color.clear)
+                                    .frame(height: 2)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                
+                Divider()
+                    .background(Color.theme.divider)
+            }
+            .background(Color.theme.background)
+        }
     }
 }
-
-
 
 struct StoryboardCell: View {
     let board: StoryBoardActive

@@ -23,7 +23,7 @@ struct APIClient{
             self.client = ProtocolClient(
                 httpClient: URLSessionHTTPClient(),
                 config: ProtocolClientConfig(
-                    host: "http://192.168.1.91:12305",
+                    host: "http://192.168.1.93:12305",
                     networkProtocol: .connect, // Or .grpcWeb
                     codec: ProtoCodec()
                 )
