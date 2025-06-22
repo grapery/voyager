@@ -51,6 +51,7 @@ struct UserProfileView: View {
                     UserProfileHeaderView(
                         user: viewModel.user ?? user,
                         profile: viewModel.profile,
+                       
                         onBack: {
                             presentationMode.wrappedValue.dismiss()
                         },
@@ -68,7 +69,8 @@ struct UserProfileView: View {
                         },
                         onShowStats: {
                             showStatsDetail = true
-                        }
+                        },
+                        viewModel: self.viewModel,
                     )
                     
                     UserHomeTabsSection
@@ -161,8 +163,7 @@ struct UserProfileView: View {
                     .aspectRatio(contentMode: .fill)
                     .overlay(backgroundGradient)
             } else {
-                Rectangle()
-                    .fill(Color.theme.background)
+                RandomCirclesBackground()
                     .overlay(backgroundGradient)
             }
             
@@ -236,45 +237,31 @@ struct UserProfileView: View {
         )
     }
     
-    
-    private var userStatsDetail: some View {
-        ZStack {
-            Color.theme.background.opacity(0.3).ignoresSafeArea()
-            VStack(spacing: 0) {
-                VStack(spacing: 0) {
-                    Text("创建和关注")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(Color.theme.primaryText)
-                        .padding(.top, 24)
-                    VStack(alignment: .listRowSeparatorTrailing,spacing: 20) {
-                        StatsDetailRow(icon: "fossil.shell", iconColor: Color.theme.accent, title: "创建了故事", value: "\(viewModel.profile.createdStoryNum)")
-                        StatsDetailRow(icon: "person.text.rectangle", iconColor: Color.theme.accent, title: "创建了角色", value: "\(viewModel.profile.createdRoleNum)")
-                        StatsDetailRow(icon: "list.clipboard", iconColor: Color.theme.accent, title: "创建了故事版", value: "\(viewModel.profile.createdStoryNum)")
-                        StatsDetailRow(icon: "person.2.fill", iconColor: Color.theme.accent, title: "关注了故事", value: "\(viewModel.profile.watchingStoryNum)")
-                        StatsDetailRow(icon: "person.text.rectangle", iconColor: Color.theme.accent, title: "关注了角色", value: "\(viewModel.profile.watchingStoryNum)")
-                        StatsDetailRow(icon: "bonjour", iconColor: Color.theme.accent, title: "关注了小组", value: "\(viewModel.profile.watchingGroupNum)")
+    private struct RandomCirclesBackground: View {
+        let colors: [Color] = [.red, .blue, .green, .yellow, .purple, .orange]
+        
+        var body: some View {
+            GeometryReader { geometry in
+                ZStack {
+                    ForEach(0..<15) { _ in
+                        Circle()
+                            .fill(colors.randomElement()!)
+                            .frame(width: CGFloat.random(in: 50...200), height: CGFloat.random(in: 50...200))
+                            .position(
+                                x: CGFloat.random(in: 0...geometry.size.width),
+                                y: CGFloat.random(in: 0...geometry.size.height)
+                            )
+                            .opacity(Double.random(in: 0.1...0.5))
                     }
-                    .padding(.vertical, 24)
                 }
-                Divider()
-                Button(action: { showStatsDetail = false }) {
-                    Text("了解")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(Color.theme.primaryText)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 52)
-                        .background(Color.theme.accent)
-                        .cornerRadius(12)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 16)
-                }
+                .background(Color.theme.background)
+                .blur(radius: 60)
             }
-            .frame(width: 320)
-            .background(Color.theme.inputBackground)
-            .cornerRadius(24)
-            //.shadow(color: Color.theme.settingsBackground.opacity(0.15), radius: 16, x: 0, y: 8)
         }
     }
+    
+    
+    
     
     private struct StatsDetailRow: View {
         let icon: String
@@ -282,20 +269,20 @@ struct UserProfileView: View {
         let title: String
         let value: String
         var body: some View {
-            HStack(spacing: 16) {
+            HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 24))
+                    .font(.system(size: 12))
                     .foregroundColor(iconColor)
-                    .frame(width: 32, height: 32)
+                    .frame(width: 16, height: 16)
                 Text(title)
-                    .font(.system(size: 16))
+                    .font(.system(size: 12))
                     .foregroundColor(Color.theme.primaryText)
                 Spacer()
                 Text(value)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundColor(Color.theme.primaryText)
             }
-            .padding(.horizontal, 24)
+            .frame(width: 80)
         }
     }
     
@@ -461,7 +448,44 @@ struct UserProfileView: View {
             }
         }
     }
-
+    private var userStatsDetail: some View {
+        ZStack {
+            Color.theme.background.opacity(0.3).ignoresSafeArea()
+            VStack(spacing: 0) {
+                VStack(spacing: 0) {
+                    Text("创建和关注")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(Color.theme.primaryText)
+                        .padding(.top, 24)
+                    VStack(alignment: .listRowSeparatorTrailing,spacing: 20) {
+                        StatsDetailRow(icon: "fossil.shell", iconColor: Color.theme.accent, title: "创建了故事", value: "\(viewModel.profile.createdStoryNum)")
+                        StatsDetailRow(icon: "person.text.rectangle", iconColor: Color.theme.accent, title: "创建了角色", value: "\(viewModel.profile.createdRoleNum)")
+                        StatsDetailRow(icon: "list.clipboard", iconColor: Color.theme.accent, title: "创建了故事版", value: "\(viewModel.profile.createdStoryNum)")
+                        StatsDetailRow(icon: "person.2.fill", iconColor: Color.theme.accent, title: "关注了故事", value: "\(viewModel.profile.watchingStoryNum)")
+                        StatsDetailRow(icon: "person.text.rectangle", iconColor: Color.theme.accent, title: "关注了角色", value: "\(viewModel.profile.watchingStoryNum)")
+                        StatsDetailRow(icon: "bonjour", iconColor: Color.theme.accent, title: "关注了小组", value: "\(viewModel.profile.watchingGroupNum)")
+                    }
+                    .padding(.vertical, 24)
+                }
+                Divider()
+                Button(action: { showStatsDetail = false }) {
+                    Text("了解")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(Color.theme.primaryText)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 52)
+                        .background(Color.theme.accent)
+                        .cornerRadius(12)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 16)
+                }
+            }
+            .frame(width: 320)
+            .background(Color.theme.inputBackground)
+            .cornerRadius(24)
+            //.shadow(color: Color.theme.settingsBackground.opacity(0.15), radius: 16, x: 0, y: 8)
+        }
+    }
     // 头部区域子视图
     private struct UserProfileHeaderView: View {
         let user: User
@@ -472,7 +496,7 @@ struct UserProfileView: View {
         let onEditProfile: () -> Void
         let onShowSettings: () -> Void
         let onShowStats: () -> Void
-
+        @ObservedObject var viewModel: ProfileViewModel
         var body: some View {
             ZStack(alignment: .top) {
                 // Background placeholder
@@ -482,39 +506,32 @@ struct UserProfileView: View {
 
                 // Info card
                 VStack(spacing: 0) {
-                    HStack(alignment: .bottom) {
-                        RectProfileImageView(avatarUrl: user.avatar, size: .InProfile2)
-                            .frame(width: 88, height: 88)
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(Color.white, lineWidth: 4))
-                            .offset(y: 8) // Adjust to sit on the top edge of the card
-                            .padding(.leading, 16)
+                    VStack(spacing: 16) {
+                        // Avatar and name
+                        VStack(spacing: 8) {
+                            RectProfileImageView(avatarUrl: user.avatar, size: .InProfile2)
+                                .frame(width: 88, height: 88)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.white, lineWidth: 4))
+                            
+                            Text(user.name)
+                                .font(.system(size: 22, weight: .bold))
+                            
+                            if !user.desc.isEmpty {
+                                Text(user.desc)
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.gray)
+                            }
+                        }
                         
-                        Spacer()
-                        
+                        // Stats in a single row
                         HStack(spacing: 24) {
-                            ProfileStatView(count: "1万", title: "获赞")
-                            ProfileStatView(count: "1874", title: "被关注")
-                            ProfileStatView(count: "\(profile.watchingStoryNum + profile.watchingGroupNum)", title: "关注")
-                        }
-                        .padding(.trailing, 16)
-                        .padding(.bottom, 8)
-                    }
-                    .padding(.top, -44) // Pulls the avatar and stats up
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(user.name)
-                            .font(.system(size: 22, weight: .bold))
-                            .padding(.top, 12)
-                        
-                        if !user.desc.isEmpty {
-                            Text(user.desc)
-                                .font(.system(size: 14))
-                                .foregroundColor(.gray)
+                            ProfileStatView(count: "\(viewModel.profile.createdStoryNum)", title: "创建故事")
+                            ProfileStatView(count: "\(viewModel.profile.createdRoleNum)", title: "创建角色")
+                            ProfileStatView(count: "\(viewModel.profile.watchingStoryNum + profile.watchingGroupNum)", title: "关注")
                         }
                     }
-                    .padding(.horizontal, 16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, -44)
                     
                     HStack(spacing: 12) {
                         Button(action: onFollow) {
@@ -545,18 +562,14 @@ struct UserProfileView: View {
             .overlay(alignment: .top) {
                 // Top navigation buttons overlay
                 HStack {
-                    Button(action: onBack) {
-                        Image(systemName: "chevron.left")
-                            .font(.title3.weight(.medium))
-                    }
                     Spacer()
                     HStack(spacing: 24) {
-                        Button(action: { /* Search action */ }) {
-                            Image(systemName: "magnifyingglass")
+                        Button(action: onShowStats) {
+                            Image(systemName: "line.3.horizontal")
                                 .font(.title3.weight(.medium))
                         }
-                        Button(action: { /* More action */ }) {
-                            Image(systemName: "ellipsis")
+                        Button(action: onShowSettings) {
+                            Image(systemName: "gear")
                                 .font(.title3.weight(.medium))
                         }
                     }
