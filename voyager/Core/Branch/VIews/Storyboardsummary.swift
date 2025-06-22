@@ -148,24 +148,18 @@ struct StoryboardSummary: View {
         dismiss: DismissAction
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack{
-                Text(storyboard.storyboard.content)
-                    .font(.system(size: 14))
-                    .foregroundColor(.theme.secondaryText)
-            }
-            .frame( alignment: .leading)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(Color.theme.secondaryBackground)
-            .cornerRadius(8)
+            Text(storyboard.storyboard.content)
+                .font(.system(size: 14))
+                .foregroundColor(.theme.secondaryText)
+                .lineSpacing(5)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
             
             // 场景列表
             ScenesListView(
                 scenes: storyboard.storyboard.sences.list,
                 currentIndex: currentSceneIndex
             )
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
             
             // 新的故事信息和创建者信息区域
             HStack(alignment: .center) {

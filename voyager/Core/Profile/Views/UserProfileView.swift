@@ -290,7 +290,7 @@ struct UserProfileView: View {
         VStack(spacing: 0) {
             CustomSegmentedControl(
                 selectedIndex: $selectedTab,
-                titles: isCurrentUser ? ["故事", "角色", "草稿"] : ["故事", "角色"]
+                titles: isCurrentUser ? ["故事", "角色"] : ["故事", "角色"]
             )
             
             TabView(selection: $selectedTab) {
@@ -309,12 +309,12 @@ struct UserProfileView: View {
                     .id("roles")
                     .frame(maxWidth: .infinity)
                 
-                if isCurrentUser {
-                    PendingTab(viewModel: unpublishedViewModel)
-                        .tag(2)
-                        .id("pending")
-                        .frame(maxWidth: .infinity)
-                }
+                // if isCurrentUser {
+                //     PendingTab(viewModel: unpublishedViewModel)
+                //         .tag(2)
+                //         .id("pending")
+                //         .frame(maxWidth: .infinity)
+                // }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(maxWidth: .infinity)
