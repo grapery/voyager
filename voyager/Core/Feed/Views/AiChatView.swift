@@ -227,120 +227,99 @@ struct DiscoveryView: View {
     }
 }
 
-// 新增 InputBar 组件
+// MARK: - InputBar (Aligned with MessageContextView.ChatInputBar)
 private struct InputBar: View {
     @Binding var text: String
     var isFocused: FocusState<Bool>.Binding
     var onSend: () -> Void
+    @State private var isShowingMediaOptions = false
 
     var body: some View {
-        HStack(spacing: 8) {
-            Button(action: {}) {
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 24))
-                    .foregroundColor(Color.theme.tertiaryText)
-            }
-            .frame(width: 36, height: 36)
+        VStack(spacing: 0) {
+            // Placeholder for future media options:
+            // if isShowingMediaOptions { mediaOptionsView.transition(.move(edge: .bottom)) }
 
-            ZStack(alignment: .leading) {
-                if text.isEmpty {
-                    Text("请输入您的问题...")
-                        .foregroundColor(Color.theme.tertiaryText.opacity(0.7))
-                        .padding(.leading, 4)
+            HStack(alignment: .center, spacing: 6) {
+                Button(action: {
+                    withAnimation { isShowingMediaOptions.toggle() }
+                }) {
+                    Image(systemName: "plus.circle")
+                        .font(.system(size: 20))
+                        .foregroundColor(Color.theme.primaryText)
                 }
-                TextField("", text: $text)
-                    .focused(isFocused)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 8)
-            }
-            .background(Color.theme.inputBackground)
-            .cornerRadius(18)
+                .frame(width: 28, height: 28)
 
-            Button(action: onSend) {
-                Image(systemName: "paperplane.fill")
-                    .font(.system(size: 20))
-                    .foregroundColor(text.isEmpty ? Color.theme.tertiaryText.opacity(0.5) : Color.theme.accent)
-                    .rotationEffect(.degrees(45))
+                ZStack(alignment: .leading) {
+                    if text.isEmpty {
+                        Text("请输入您的问题...")
+                            .foregroundColor(Color.theme.tertiaryText)
+                            .padding(.leading, 6)
+                    }
+                    TextField("", text: $text)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 6)
+                        .background(Color.theme.inputBackground)
+                        .cornerRadius(14)
+                        .focused(isFocused)
+                        .frame(minHeight: 28, maxHeight: 36)
+                }
+                .frame(minHeight: 28, maxHeight: 36)
+
+                Button(action: onSend) {
+                    Image(systemName: "paperplane.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.theme.tertiaryText : Color.theme.accent)
+                }
+                .frame(width: 28, height: 28)
+                .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-            .frame(width: 36, height: 36)
-            .disabled(text.isEmpty)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.theme.secondaryBackground)
+            .animation(.easeInOut, value: isShowingMediaOptions)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(
-            Color.theme.inputBackground
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .shadow(color: Color.theme.primaryText.opacity(0.04), radius: 8, y: 2)
-        )
-        .padding(.horizontal, 8)
-        .padding(.bottom, 0)
-        .overlay(
-            Divider(), alignment: .top
-        )
+        .shadow(color: Color.theme.tertiaryText.opacity(0.10), radius: 2, x: 0, y: 2)
     }
 }
 
-// 更新聊天气泡组件
+// MARK: - ChatBubble (Aligned with MessageContextView.MessageCellView)
 struct ChatBubble: View {
     let message: ChatMessage
     
     private var isFromCurrentUser: Bool {
-        return message.msg.sender == 1 // 假设1是当前用户ID
-    }
-    
-    private var isClickable: Bool {
-        return !isFromCurrentUser // 只有AI消息可点击
+        return message.msg.sender == 1
     }
     
     var body: some View {
-        HStack(alignment: .bottom, spacing: 8) {
+        HStack(alignment: .top, spacing: 8) {
             if !isFromCurrentUser {
-                // AI头像
-                Circle()
-                    .fill(Color.theme.secondaryBackground)
-                    .frame(width: 36, height: 36)
-                    .overlay(
-                        Text("AI")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(Color.theme.primaryText)
-                    )
+                ZStack {
+                    Circle()
+                        .fill(Color.theme.tertiaryBackground)
+                    Text("AI")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(Color.theme.primaryText)
+                }
+                .frame(width: 40, height: 40)
             } else {
                 Spacer()
             }
-            
-            // 消息气泡
+
             Text(message.msg.message)
                 .padding(.horizontal, 12)
-                .padding(.vertical, 10)
+                .padding(.vertical, 8)
                 .background(
-                    isFromCurrentUser
-                        ? Color.theme.accent
-                        : Color.theme.secondaryBackground
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(isFromCurrentUser ? Color.theme.accent : Color.theme.secondaryBackground)
                 )
-                .foregroundColor(isFromCurrentUser ? Color.white : Color.theme.primaryText)
-                .cornerRadius(18)
-                .overlay(
-                    isClickable ?
-                        RoundedRectangle(cornerRadius: 18)
-                            .stroke(Color.theme.accent.opacity(0.18), lineWidth: 1)
-                        : nil
-                )
-            
+                .foregroundColor(isFromCurrentUser ? Color.theme.buttonText : Color.theme.primaryText)
+                
             if isFromCurrentUser {
-                // 用户头像
-                Circle()
-                    .fill(Color.theme.accent)
-                    .frame(width: 36, height: 36)
-                    .overlay(
-                        Text("我")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(Color.white)
-                    )
+                // No avatar for current user in this view
             } else {
                 Spacer()
             }
         }
-        .padding(.vertical, 4)
     }
 }
 

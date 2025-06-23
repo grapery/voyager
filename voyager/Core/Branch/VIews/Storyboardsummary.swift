@@ -16,12 +16,11 @@ struct StoryboardSummary: View {
     @ObservedObject var viewModel: FeedViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var currentSceneIndex = 0
-    @State private var isLoading = true
+    @State private var isLoading = false
     @State private var errorMessage: String = ""
     @State private var showComments: Bool = false
     @State private var showBoardForks: Bool = false
     
-    // 添加计算属性来获取当前故事板
     private var currentStoryboard: Common_StoryBoardActive? {
         viewModel.storyBoardActives.first { $0.storyboard.storyBoardID == storyBoardId }
     }
@@ -35,7 +34,9 @@ struct StoryboardSummary: View {
     var body: some View {
         NavigationStack {
             Group {
-                if let storyboard = currentStoryboard {
+                if isLoading {
+                    ProgressView()
+                } else if let storyboard = currentStoryboard {
                     StoryboardContentView(
                         storyboard: storyboard,
                         userId: userId,
@@ -44,16 +45,23 @@ struct StoryboardSummary: View {
                         dismiss: dismiss
                     )
                 } else {
-                    Text("无法加载故事板信息")
+                    Text(errorMessage.isEmpty ? "无法加载故事板信息" : errorMessage)
                         .foregroundColor(.red)
                 }
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 8)
             .background(Color.theme.background)
             .onAppear {
                 if currentStoryboard == nil {
                     loadStoryboard()
+                }
+            }
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.primary)
+                    }
                 }
             }
         }
@@ -62,7 +70,6 @@ struct StoryboardSummary: View {
     private func loadStoryboard() {
         isLoading = true
         errorMessage = ""
-        
         Task {
             do {
                 let (storyboard, error) = await viewModel.fetchStoryboardDetail(storyboardId: storyBoardId)
@@ -74,7 +81,6 @@ struct StoryboardSummary: View {
                     }
                     
                     if let storyboard = storyboard {
-                        // 更新 viewModel 中的故事板数据
                         if let index = viewModel.storyBoardActives.firstIndex(where: { $0.storyboard.storyBoardID == storyBoardId }) {
                             viewModel.storyBoardActives[index] = storyboard.boardActive
                         } else {
@@ -103,40 +109,42 @@ struct StoryboardSummary: View {
         dismiss: DismissAction
     ) -> some View {
         ScrollView {
-            VStack(spacing: 0) {
-                StoryboardHeaderView(
-                    storyboard: storyboard,
-                    dismiss: dismiss
-                )
+            VStack(alignment: .leading, spacing: 12) {
+                CreatorHeaderView(creator: storyboard.creator, onFollow: {})
+                
                 StoryboardSummaryDetailsView(
                     storyboard: storyboard,
                     userId: userId,
                     viewModel: viewModel,
-                    currentSceneIndex: currentSceneIndex,
-                    dismiss: dismiss
+                    currentSceneIndex: currentSceneIndex
                 )
             }
+            .padding(.horizontal)
         }
         .background(Color.theme.background)
     }
-    
-    // MARK: - StoryboardHeaderView
-    private func StoryboardHeaderView(
-        storyboard: Common_StoryBoardActive,
-        dismiss: DismissAction
-    ) -> some View {
-        VStack{
-            HStack(alignment: .center) {
-                // 故事板标题和内容
-                HStack(alignment: .center) {
-                    Text(storyboard.summary.storyTitle)
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(.theme.primaryText)
-                }
-                .padding(.horizontal, 16)
+
+    // MARK: - CreatorHeaderView
+    private func CreatorHeaderView(creator: Common_StoryBoardActiveUser, onFollow: @escaping () -> Void) -> some View {
+        HStack(spacing: 12) {
+            KFImage(URL(string: convertImagetoSenceImage(url: creator.userAvatar, scene: .small)))
+                .resizable().scaledToFill().frame(width: 44, height: 44).clipShape(Circle())
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(creator.userName).font(.system(size: 15, weight: .medium))
+                Text("用户比较神秘，没有描述信息").font(.system(size: 13)).foregroundColor(.secondary).lineLimit(1)
+            }
+            
+            Spacer()
+            
+            Button(action: onFollow) {
+                Text("+ 关注")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16).padding(.vertical, 8)
+                    .background(Color.blue).clipShape(Capsule())
             }
         }
-        
     }
     
     // MARK: - StoryboardSummaryDetailsView
@@ -144,120 +152,50 @@ struct StoryboardSummary: View {
         storyboard: Common_StoryBoardActive,
         userId: Int64,
         viewModel: FeedViewModel,
-        currentSceneIndex: Binding<Int>,
-        dismiss: DismissAction
+        currentSceneIndex: Binding<Int>
     ) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(storyboard.storyboard.title)
+                .font(.system(size: 20, weight: .bold))
+
             Text(storyboard.storyboard.content)
-                .font(.system(size: 14))
-                .foregroundColor(.theme.secondaryText)
+                .font(.system(size: 15))
+                .foregroundColor(.secondary)
                 .lineSpacing(5)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-            
-            // 场景列表
-            ScenesListView(
-                scenes: storyboard.storyboard.sences.list,
-                currentIndex: currentSceneIndex
+
+            ScenesListView(scenes: storyboard.storyboard.sences.list, currentIndex: currentSceneIndex)
+
+            InteractionButtonsView(
+                storyboard: storyboard,
+                userId: userId,
+                viewModel: viewModel,
+                onShowComments: { self.showComments = true }
             )
-            
-            // 新的故事信息和创建者信息区域
-            HStack(alignment: .center) {
-                // 故事图片+title（左对齐）
-                HStack(spacing: 8) {
-                    KFImage(URL(string: convertImagetoSenceImage(url: storyboard.summary.storyAvatar, scene: .small)))
-                        .cacheMemoryOnly()
-                        .fade(duration: 0.25)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 24, height: 24)
-                        .clipShape(Circle())
-                    Text(String(storyboard.summary.storyTitle.prefix(5)))
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.theme.primaryText)
-                        .lineLimit(1)
-                }
-                // 左侧内容靠左
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                // 创建者信息靠右
-                VStack{
-                    HStack(spacing: 4) {
-                        Label("创建者:", systemImage: "person.circle")
-                            .font(.system(size: 8))
-                            .foregroundColor(.theme.secondaryText)
-                        KFImage(URL(string: storyboard.creator.userAvatar))
-                            .cacheMemoryOnly()
-                            .fade(duration: 0.25)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 8, height: 8)
-                            .clipShape(Circle())
-                        Text(storyboard.creator.userName)
-                            .font(.system(size: 8, weight: .medium))
-                            .foregroundColor(.theme.primaryText)
-                            .lineLimit(1)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    // 创建时间
-                    HStack(spacing: 4) {
-                        Spacer()
-                            .font(.system(size: 8))
-                            .foregroundColor(.theme.secondaryText)
-                        Text(formatCtime(storyboard.storyboard.ctime))
-                            .font(.system(size: 8, weight: .medium))
-                            .foregroundColor(.theme.primaryText)
-                            .lineLimit(1)
-                        }
-                        .frame(alignment: .trailing)
-                        .padding(.horizontal, 8)
-                    }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-           
-            //HStack() {
-                // 交互按钮
-                InteractionButtonsView(
-                    storyboard: storyboard,
-                    userId: userId,
-                    viewModel: viewModel,
-                    onShowComments: { self.showComments = true }
-                )
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-//            }
-//            .frame(maxWidth: .infinity, alignment: .leading)
-//            .padding(.horizontal, 8)
-            
+
             Divider()
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-            // 评论列表弹窗
-            .sheet(isPresented: $showComments) {
-                VStack(spacing: 0) {
-                    HStack {
-                        Spacer()
-                        Text("评论列表")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(.theme.primaryText)
-                        Spacer()
-                    }
-                    .padding(.vertical, 12)
-                    CommentListView(
-                        storyId: storyboard.storyboard.storyID,
-                        storyboardId: storyboard.storyboard.storyBoardID,
-                        userId: userId,
-                        userAvatarURL: defaultAvator,
-                        totalCommentNum: Int(storyboard.totalCommentCount)
-                    )
-                }
-                .background(Color.theme.background)
-                .presentationDetents([.medium, .large])
+
+            Text(formatTimestamp(storyboard.storyboard.ctime))
+                .font(.system(size: 12))
+                .foregroundColor(.secondary)
+
+            HStack(spacing: 8) {
+                KFImage(URL(string: convertImagetoSenceImage(url: storyboard.summary.storyAvatar, scene: .small)))
+                    .resizable().frame(width: 24, height: 24).clipShape(Circle())
+                Text("故事 · \(storyboard.summary.storyTitle)")
+                    .font(.system(size: 13, weight: .medium))
             }
+            .padding(.horizontal, 12).padding(.vertical, 8)
+            .background(Color(UIColor.systemGray6))
+            .cornerRadius(12)
         }
-        .padding(.top, 8)
+        .sheet(isPresented: $showComments) {
+            CommentListView(
+                storyId: storyboard.storyboard.storyID,
+                storyboardId: storyboard.storyboard.storyBoardID,
+                userId: userId, userAvatarURL: defaultAvator,
+                totalCommentNum: Int(storyboard.totalCommentCount)
+            )
+        }
     }
     
     // MARK: - ScenesListView
@@ -416,11 +354,15 @@ struct StoryboardSummary: View {
         }
     }
     
-    private func formatCtime(_ ctime: Int64) -> String {
+    private func formatTimestamp(_ ctime: Int64) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(ctime))
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy年MM月dd日 HH:mm:ss"
-        return formatter.string(from: date)
+        let now = Date()
+        let components = Calendar.current.dateComponents([.minute, .hour, .day], from: date, to: now)
+
+        if let day = components.day, day > 0 { return "\(day)天前" }
+        if let hour = components.hour, hour > 0 { return "\(hour)小时前" }
+        if let minute = components.minute, minute > 0 { return "\(minute)分钟前" }
+        return "刚刚"
     }
 }
 
