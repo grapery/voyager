@@ -11,16 +11,61 @@ import Kingfisher
 import Foundation
 import ActivityIndicatorView
 
+// MARK: - 新的故事板条目视图 (New Storyboard Item View)
+struct ForkedStoryboardItemView: View {
+    let storyboard: Common_StoryBoardActive
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // 1. 封面图片
+            KFImage(URL(string: convertImagetoSenceImage(url: storyboard.summary.storyAvatar, scene: .content)))
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(height: 220) // 根据设计图调整一个合适的高度
+                .clipped()
+            
+            // 2. 文本内容区域
+            VStack(alignment: .leading, spacing: 10) {
+                // 标题
+                Text(storyboard.summary.storyTitle)
+                    .font(.system(size: 18, weight: .semibold))
+                    .lineLimit(2)
+                    .foregroundColor(Color.theme.primaryText)
+
+                // 作者信息
+                HStack(spacing: 8) {
+                    KFImage(URL(string: convertImagetoSenceImage(url: storyboard.creator.userAvatar, scene: .small)))
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                        .clipShape(Circle())
+                    
+                    Text(storyboard.creator.userName)
+                        .font(.system(size: 13))
+                        .foregroundColor(Color.theme.secondaryText)
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading) // 确保VStack横向填满
+        }
+        .background(Color.theme.secondaryBackground)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .padding(.horizontal) // 在卡片两侧留出空间
+    }
+}
+
+
 // MARK: - 主视图 (Main View)
 struct StoryForkListView: View {
     // 初始故事板ID，用于获取其所有分支
     let initialStoryboardId: Int64
     let userId: Int64
+    @Environment(\.dismiss) private var dismiss
     
     // 使用 `@StateObject` 创建独立的 ViewModel
     @StateObject private var viewModel: StoryForkListViewModel
     
-    // 当前垂直分页的索引
+    // 当前水平分页的索引
     @State private var currentStoryIndex = 0
     
     // 初始化时创建 ViewModel
@@ -46,11 +91,12 @@ struct StoryForkListView: View {
                         .foregroundColor(.red)
                         .padding()
                 } else {
-                    // 垂直分页视图
+                    // 水平分页视图
                     TabView(selection: $currentStoryIndex) {
                         ForEach(Array(viewModel.forkedStoryboards.enumerated()), id: \.offset) { index, storyboard in
-                            // 复用 StoryboardSummary 的核心展示逻辑
-                           Text("wati")
+                            // 使用新的自定义视图来展示故事板摘要
+                            ForkedStoryboardItemView(storyboard: storyboard)
+                                .tag(index)
                         }
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
@@ -67,6 +113,14 @@ struct StoryForkListView: View {
             }
             .navigationTitle("故事板分支")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(Color.theme.primaryText)
+                    }
+                }
+            }
             .onAppear {
                 // 首次出现时加载数据
                 if viewModel.forkedStoryboards.isEmpty {

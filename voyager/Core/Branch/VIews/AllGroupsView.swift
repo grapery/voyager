@@ -138,7 +138,7 @@ struct GroupListItemView: View {
             .cornerRadius(12)
         }
         .buttonStyle(PlainButtonStyle())
-        .sheet(isPresented: $showGroupDetail) {
+        .fullScreenCover(isPresented: $showGroupDetail) {
              GroupDetailView(user: self.viewModel.user, group: group)
         }
     }

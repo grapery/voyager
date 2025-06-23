@@ -141,6 +141,7 @@
 		ED9EDC772DEC81110017DE69 /* EditStoryBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9EDC752DEC81110017DE69 /* EditStoryBoardView.swift */; };
 		ED9EDC782DEC81110017DE69 /* StoryBoardDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9EDC762DEC81110017DE69 /* StoryBoardDetailView.swift */; };
 		ED9EDD952DF7229E0017DE69 /* MCP in Frameworks */ = {isa = PBXBuildFile; productRef = ED9EDD942DF7229E0017DE69 /* MCP */; };
+		EDAD44ED2E09A2C200EAEFD0 /* WishePiecesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAD44EC2E09A26E00EAEFD0 /* WishePiecesView.swift */; };
 		EDB4BEBE2DFE58F4002647C3 /* RoleImageGenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB4BEBD2DFE58E2002647C3 /* RoleImageGenView.swift */; };
 		EDB4BEEB2DFEA99D002647C3 /* StoryboardVidoeGenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB4BEEA2DFEA955002647C3 /* StoryboardVidoeGenView.swift */; };
 		EDB4BF1C2DFF97C7002647C3 /* AiChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB4BF1B2DFF97B2002647C3 /* AiChatView.swift */; };
@@ -282,6 +283,7 @@
 		ED8E0CE22DC5CCF6007D1D8C /* ChatSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSettingView.swift; sourceTree = "<group>"; };
 		ED9EDC752DEC81110017DE69 /* EditStoryBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditStoryBoardView.swift; sourceTree = "<group>"; };
 		ED9EDC762DEC81110017DE69 /* StoryBoardDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryBoardDetailView.swift; sourceTree = "<group>"; };
+		EDAD44EC2E09A26E00EAEFD0 /* WishePiecesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishePiecesView.swift; sourceTree = "<group>"; };
 		EDB4BEBD2DFE58E2002647C3 /* RoleImageGenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleImageGenView.swift; sourceTree = "<group>"; };
 		EDB4BEEA2DFEA955002647C3 /* StoryboardVidoeGenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryboardVidoeGenView.swift; sourceTree = "<group>"; };
 		EDB4BF1B2DFF97B2002647C3 /* AiChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiChatView.swift; sourceTree = "<group>"; };
@@ -447,6 +449,7 @@
 		0F7602AE2BB98E1C00F8D900 /* VIews */ = {
 			isa = PBXGroup;
 			children = (
+				EDAD44EC2E09A26E00EAEFD0 /* WishePiecesView.swift */,
 				EDB4BF532E063E1D002647C3 /* StoryForkListView.swift */,
 				EDB4BEBD2DFE58E2002647C3 /* RoleImageGenView.swift */,
 				EDB4BEEA2DFEA955002647C3 /* StoryboardVidoeGenView.swift */,
@@ -899,6 +902,7 @@
 				0F2363A32BC75E8300907E75 /* NewGroupView.swift in Sources */,
 				ED8E0CE32DC5CCF6007D1D8C /* ChatSettingView.swift in Sources */,
 				0FF7FF642CA23E3300F92343 /* StoryBoardView.swift in Sources */,
+				EDAD44ED2E09A2C200EAEFD0 /* WishePiecesView.swift in Sources */,
 				0FF7FF602CA23DF900F92343 /* StoryView.swift in Sources */,
 				0F57E0F42D0576D7009DDA99 /* TimelineStep.swift in Sources */,
 				0F57E0F52D0576D7009DDA99 /* NotificationType.swift in Sources */,

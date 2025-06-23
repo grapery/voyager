@@ -186,7 +186,11 @@ struct StoryboardSummary: View {
             }
             .padding(.horizontal, 12).padding(.vertical, 8)
             .background(Color(UIColor.systemGray6))
-            .cornerRadius(12)
+            .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(Color.theme.border, lineWidth: 1)
+            )
         }
         .sheet(isPresented: $showComments) {
             CommentListView(
@@ -194,6 +198,12 @@ struct StoryboardSummary: View {
                 storyboardId: storyboard.storyboard.storyBoardID,
                 userId: userId, userAvatarURL: defaultAvator,
                 totalCommentNum: Int(storyboard.totalCommentCount)
+            )
+        }
+        .fullScreenCover(isPresented: $showBoardForks) {
+            StoryForkListView(
+                initialStoryboardId: storyboard.storyboard.storyBoardID,
+                userId: userId
             )
         }
     }
