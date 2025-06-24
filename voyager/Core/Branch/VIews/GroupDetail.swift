@@ -135,8 +135,8 @@ struct GroupInfoView: View {
                                     .font(.system(size: 15, weight: .light))
                                     .foregroundColor(.white)
                             }
-                            .padding(.horizontal, 2)
-                            .padding(.vertical, 2)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 4)
                             .background(Color.theme.accent)
                             .clipShape(Capsule())
                         }
