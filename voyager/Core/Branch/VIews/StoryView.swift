@@ -40,6 +40,8 @@ struct StoryView: View {
     
     @State private var showingParticipants = false
     
+    @State private var navigateToDetail = false
+    
     init(story: Story, userId: Int64) {
         self.story = story
         self.userId = userId
@@ -81,6 +83,20 @@ struct StoryView: View {
             }
         }
         .navigationTitle("故事")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    navigateToDetail = true
+                }) {
+                    Image(systemName: "line.3.horizontal")
+                        .font(.system(size: 20, weight: .regular))
+                }
+                .accessibilityLabel("详情")
+            }
+        }
+        .navigationDestination(isPresented: $navigateToDetail) {
+            StoryDetailView(storyId: story.storyInfo.id, story: story, userId: userId)
+        }
         .task {
             if viewModel.storyboards == nil {
                 await viewModel.fetchStory(withBoards: true)
@@ -420,10 +436,8 @@ private struct StoryHeaderView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // 用户信息部分
-            NavigationLink(destination: StoryDetailView(storyId: story.storyInfo.id, story: story, userId: userId)) {
-                UserInfoSection(story: story)
-            }
+            // 用户信息部分（去除NavigationLink，直接展示）
+            UserInfoSection(story: story)
             
             // 故事简介部分
             StoryDescriptionSection(description: story.storyInfo.origin)
