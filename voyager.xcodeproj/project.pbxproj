@@ -142,6 +142,9 @@
 		ED9EDC782DEC81110017DE69 /* StoryBoardDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9EDC762DEC81110017DE69 /* StoryBoardDetailView.swift */; };
 		ED9EDD952DF7229E0017DE69 /* MCP in Frameworks */ = {isa = PBXBuildFile; productRef = ED9EDD942DF7229E0017DE69 /* MCP */; };
 		EDAD44ED2E09A2C200EAEFD0 /* WishePiecesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAD44EC2E09A26E00EAEFD0 /* WishePiecesView.swift */; };
+		EDAD45132E0B6F7600EAEFD0 /* UserProfileComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAD45112E0B6F7600EAEFD0 /* UserProfileComponents.swift */; };
+		EDAD45182E0B704C00EAEFD0 /* UnpublishBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAD45172E0B702600EAEFD0 /* UnpublishBoardView.swift */; };
+		EDAD45232E0B71ED00EAEFD0 /* UserProfileSubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAD45202E0B71D800EAEFD0 /* UserProfileSubView.swift */; };
 		EDB4BEBE2DFE58F4002647C3 /* RoleImageGenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB4BEBD2DFE58E2002647C3 /* RoleImageGenView.swift */; };
 		EDB4BEEB2DFEA99D002647C3 /* StoryboardVidoeGenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB4BEEA2DFEA955002647C3 /* StoryboardVidoeGenView.swift */; };
 		EDB4BF1C2DFF97C7002647C3 /* AiChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB4BF1B2DFF97B2002647C3 /* AiChatView.swift */; };
@@ -284,6 +287,9 @@
 		ED9EDC752DEC81110017DE69 /* EditStoryBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditStoryBoardView.swift; sourceTree = "<group>"; };
 		ED9EDC762DEC81110017DE69 /* StoryBoardDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryBoardDetailView.swift; sourceTree = "<group>"; };
 		EDAD44EC2E09A26E00EAEFD0 /* WishePiecesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishePiecesView.swift; sourceTree = "<group>"; };
+		EDAD45112E0B6F7600EAEFD0 /* UserProfileComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileComponents.swift; sourceTree = "<group>"; };
+		EDAD45172E0B702600EAEFD0 /* UnpublishBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnpublishBoardView.swift; sourceTree = "<group>"; };
+		EDAD45202E0B71D800EAEFD0 /* UserProfileSubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileSubView.swift; sourceTree = "<group>"; };
 		EDB4BEBD2DFE58E2002647C3 /* RoleImageGenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleImageGenView.swift; sourceTree = "<group>"; };
 		EDB4BEEA2DFEA955002647C3 /* StoryboardVidoeGenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryboardVidoeGenView.swift; sourceTree = "<group>"; };
 		EDB4BF1B2DFF97B2002647C3 /* AiChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiChatView.swift; sourceTree = "<group>"; };
@@ -581,9 +587,12 @@
 		0FFA50642B0857DA00D3A4CF /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				EDAD45202E0B71D800EAEFD0 /* UserProfileSubView.swift */,
+				EDAD45112E0B6F7600EAEFD0 /* UserProfileComponents.swift */,
 				0F576B712D9E109300DE5FA1 /* UserActiveView.swift */,
 				0FA52E1A2D5A2EA40078AE65 /* SettingsView.swift */,
 				0F980A322CACCA9E00510E5A /* UserProfileView.swift */,
+				EDAD45172E0B702600EAEFD0 /* UnpublishBoardView.swift */,
 				0FFA50652B0857DA00D3A4CF /* EditProfileView.swift */,
 			);
 			path = Views;
@@ -922,6 +931,7 @@
 				0F6F16C82C8678CA004FAAD9 /* agents.pb.swift in Sources */,
 				0F88555E2B3B10BE002AD7E4 /* group.pb.swift in Sources */,
 				0F2916392CB20CAE002366BE /* tencent.swift in Sources */,
+				EDAD45232E0B71ED00EAEFD0 /* UserProfileSubView.swift in Sources */,
 				0FFA509A2B0857DA00D3A4CF /* RegistrationViewModel.swift in Sources */,
 				0F576B6E2D9E104B00DE5FA1 /* ShareStoryView.swift in Sources */,
 				0FF7FF5C2CA23D8700F92343 /* StoryViewModel.swift in Sources */,
@@ -963,6 +973,8 @@
 				0FFA509F2B0857DA00D3A4CF /* ImageUploader.swift in Sources */,
 				0FFA50902B0857DA00D3A4CF /* EditProfileView.swift in Sources */,
 				0F88555F2B3B10BE002AD7E4 /* item.pb.swift in Sources */,
+				EDAD45132E0B6F7600EAEFD0 /* UserProfileComponents.swift in Sources */,
+				EDAD45182E0B704C00EAEFD0 /* UnpublishBoardView.swift in Sources */,
 				0F6D23E02D1CE009005AEE55 /* ImagePicker.swift in Sources */,
 				EDB4BEBE2DFE58F4002647C3 /* RoleImageGenView.swift in Sources */,
 				0F0F1A252BB64BF7009494FC /* Timeline.swift in Sources */,
