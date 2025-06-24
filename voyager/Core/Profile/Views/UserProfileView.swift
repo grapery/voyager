@@ -540,20 +540,20 @@ struct UserProfileView: View {
                         if isCurrentUser {
                             Button(action: onEditProfile) {
                                 Text("编辑资料")
-                                    .font(.system(size: 16, weight: .semibold))
+                                    .font(.system(size: 12, weight: .semibold))
                                     .foregroundColor(.primary)
-                                    .frame(maxWidth: .infinity, minHeight: 44)
+                                    .frame(maxWidth: .infinity, minHeight: 40)
                                     .background(Color(UIColor.systemGray5))
                                     .clipShape(Capsule())
                             }
-                            .padding([.horizontal, .top], 16)
+                            .padding([.horizontal, .top], 12)
                         } else {
                             HStack(spacing: 12) {
                                 Button(action: onFollow) {
                                     Text("+ 关注")
-                                        .font(.system(size: 16, weight: .bold))
+                                        .font(.system(size: 12, weight: .bold))
                                         .foregroundColor(.white)
-                                        .frame(maxWidth: .infinity, minHeight: 44)
+                                        .frame(maxWidth: .infinity, minHeight: 40)
                                         .background(Color.blue)
                                         .clipShape(Capsule())
                                 }
@@ -562,22 +562,22 @@ struct UserProfileView: View {
                                         Image(systemName: "paperplane")
                                         Text("发私信")
                                     }
-                                    .font(.system(size: 14, weight: .semibold))
+                                    .font(.system(size: 12, weight: .semibold))
                                     .foregroundColor(.primary)
-                                    .frame(height: 44)
+                                    .frame(height: 40)
                                     .padding(.horizontal, 20)
                                     .background(Color(UIColor.systemGray5))
                                     .clipShape(Capsule())
                                 }
                             }
-                            .padding([.horizontal, .top], 16)
+                            .padding([.horizontal, .top], 12)
                         }
                     }
                     .padding(.vertical)
                     .background(Color.theme.background)
-                    .cornerRadius(20)
+                    .cornerRadius(8)
                     .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
-                    .padding(.horizontal, 8)
+                    //.padding(.horizontal, 8)
                     
                     // MARK: - Avatar (Floating)
                     RectProfileImageView(avatarUrl: user.avatar, size: .InContent)
@@ -818,7 +818,7 @@ struct StoryboardCell: View {
                             .overlay(
                                 Circle().stroke(Color.theme.border, lineWidth: 0.5)
                             )
-                        Text("故事：")
+                        Text("故事:")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(Color.theme.primaryText)
                         Button(action: {
@@ -832,6 +832,13 @@ struct StoryboardCell: View {
                                 .foregroundColor(Color.theme.primaryText)
                         }
                     }
+                    .padding(.horizontal, 6).padding(.vertical, 4)
+                    .background(Color(UIColor.systemGray6))
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.theme.border, lineWidth: 1)
+                    )
                 }
                 .padding(.top, 4)
             }

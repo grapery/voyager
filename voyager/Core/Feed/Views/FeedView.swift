@@ -601,8 +601,8 @@ private struct TrendingRoleCard: View {
                     }
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 60, height: 60)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .frame(width: 80, height: 80)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 // 右侧内容区
                 ZStack(alignment: .topTrailing) {
                     VStack(alignment: .leading, spacing: 6) {
@@ -632,9 +632,9 @@ private struct TrendingRoleCard: View {
             }
             .padding(16)
             .background(Color.theme.secondaryBackground)
-            .cornerRadius(16)
+            .cornerRadius(8)
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 8)
                     .stroke(Color.theme.border, lineWidth: 0.5)
             )
             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
@@ -891,8 +891,8 @@ private struct TrendingStoryCard: View {
                             }
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 60, height: 60)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .frame(width: 80, height: 80)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                         
                         // 故事信息
                         VStack(alignment: .leading, spacing: 4) {
@@ -962,26 +962,26 @@ private struct TrendingStoryCard: View {
                     }
                 }
                 
-                // 标签栏
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(["奇幻", "冒险", "热门", "创意"], id: \.self) { tag in
-                            Text(tag)
-                                .font(.system(size: 12))
-                                .foregroundColor(Color.theme.accent)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 4)
-                                .background(Color.theme.accent.opacity(0.1))
-                                .cornerRadius(12)
-                        }
-                    }
-                }
+//                // 标签栏
+//                ScrollView(.horizontal, showsIndicators: false) {
+//                    HStack(spacing: 8) {
+//                        ForEach(["奇幻", "冒险", "热门", "创意"], id: \.self) { tag in
+//                            Text(tag)
+//                                .font(.system(size: 12))
+//                                .foregroundColor(Color.theme.accent)
+//                                .padding(.horizontal, 10)
+//                                .padding(.vertical, 4)
+//                                .background(Color.theme.accent.opacity(0.1))
+//                                .cornerRadius(12)
+//                        }
+//                    }
+//                }
             }
             .padding(12)
             .background(Color.theme.secondaryBackground)
-            .cornerRadius(12)
+            .cornerRadius(8)
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 8)
                     .stroke(Color.theme.border, lineWidth: 0.5)
             )
             .shadow(color: Color.theme.primaryText.opacity(0.05), radius: 2, x: 0, y: 1)
