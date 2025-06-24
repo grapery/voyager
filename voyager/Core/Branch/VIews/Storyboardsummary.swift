@@ -184,7 +184,7 @@ struct StoryboardSummary: View {
                 Text("故事 · \(storyboard.summary.storyTitle)")
                     .font(.system(size: 13, weight: .medium))
             }
-            .padding(.horizontal, 12).padding(.vertical, 8)
+            .padding(.horizontal, 6).padding(.vertical, 4)
             .background(Color(UIColor.systemGray6))
             .clipShape(Capsule())
             .overlay(

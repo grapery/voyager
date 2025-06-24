@@ -12,6 +12,33 @@ import OpenAPIURLSession
 import Connect
 import SwiftUI
 
+// 行业经历数据模型
+struct IndustryExperience: Identifiable, Codable {
+    var id = UUID()
+    var company: String
+    var position: String
+    var duration: String
+    var description: String
+    
+    enum CodingKeys: String, CodingKey {
+        case company, position, duration, description
+    }
+}
+
+// 教育经历数据模型
+struct EducationExperience: Identifiable, Codable {
+    var id = UUID()
+    var school: String
+    var major: String
+    var degree: String
+    var duration: String
+    var description: String
+    
+    enum CodingKeys: String, CodingKey {
+        case school, major, degree, duration, description
+    }
+}
+
 enum UserProfileFilterViewModel: Int, CaseIterable {
     case storyboards
     case roles
@@ -50,7 +77,16 @@ class ProfileViewModel: ObservableObject {
     @Published var backgroundImage: UIImage?
     @Published var fullname = ""
     @Published var bio = ""
+    @Published var address = ""
     @Published var isLoad = false
+    
+    // 行业经历相关
+    @Published var industryExperiences: [IndustryExperience] = []
+    @Published var showIndustryExperience = true
+    
+    // 教育经历相关
+    @Published var educationExperiences: [EducationExperience] = []
+    @Published var showEducationExperience = true
     
     @Published var stories = [Story]()
     @Published var storyRoles = [StoryRole]()
@@ -82,9 +118,76 @@ class ProfileViewModel: ObservableObject {
                 let newProfile = await self.fetchUserProfile()
                 await MainActor.run {
                     self.profile = newProfile
+                    self.loadUserData()
                 }
             }
         }
+    }
+    
+    // 加载用户数据到UI
+    @MainActor
+    private func loadUserData() {
+        self.fullname = user?.name ?? ""
+        self.bio = user?.desc ?? ""
+        self.address = user?.location ?? ""
+        
+        // 这里可以从profile中加载行业经历和教育经历数据
+        // 暂时使用空数组，后续可以从API获取
+        self.industryExperiences = []
+        self.educationExperiences = []
+    }
+    
+    // 添加行业经历
+    @MainActor
+    func addIndustryExperience() {
+        guard industryExperiences.count < 10 else { return }
+        let newExperience = IndustryExperience(
+            company: "",
+            position: "",
+            duration: "",
+            description: ""
+        )
+        industryExperiences.append(newExperience)
+    }
+    
+    // 删除行业经历
+    @MainActor
+    func removeIndustryExperience(at index: Int) {
+        guard index < industryExperiences.count else { return }
+        industryExperiences.remove(at: index)
+    }
+    
+    // 添加教育经历
+    @MainActor
+    func addEducationExperience() {
+        guard educationExperiences.count < 10 else { return }
+        let newExperience = EducationExperience(
+            school: "",
+            major: "",
+            degree: "",
+            duration: "",
+            description: ""
+        )
+        educationExperiences.append(newExperience)
+    }
+    
+    // 删除教育经历
+    @MainActor
+    func removeEducationExperience(at index: Int) {
+        guard index < educationExperiences.count else { return }
+        educationExperiences.remove(at: index)
+    }
+    
+    // 切换行业经历显示状态
+    @MainActor
+    func toggleIndustryExperienceVisibility() {
+        showIndustryExperience.toggle()
+    }
+    
+    // 切换教育经历显示状态
+    @MainActor
+    func toggleEducationExperienceVisibility() {
+        showEducationExperience.toggle()
     }
     
     @MainActor
@@ -108,7 +211,12 @@ class ProfileViewModel: ObservableObject {
     
     @MainActor
     public func updateProfile() async {
-        let newProfile = await APIClient.shared.updateUserProfile(
+        // 更新用户基本信息
+        user?.name = fullname
+        user?.desc = bio
+        user?.location = address
+        
+        _ = await APIClient.shared.updateUserProfile(
             userId: user!.userID,
             backgroundImage: self.profile.backgroundImage,
             avatar: user!.avatar,

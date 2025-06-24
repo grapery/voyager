@@ -52,7 +52,7 @@ struct StoryBoardView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 6)
-                        .background(Color.theme.error)
+                        .background(Color.blue)
                         .cornerRadius(16)
                 }
             }
