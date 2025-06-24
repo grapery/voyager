@@ -124,16 +124,13 @@ struct GroupInfoView: View {
                         }) {
                             HStack(spacing: 4) {
                                 ZStack {
-                                    Circle()
-                                        .fill(Color.white.opacity(0.9))
-                                        .frame(width: 20, height: 20)
                                     Image(systemName: "plus")
-                                        .font(.system(size: 16, weight: .bold))
-                                        .foregroundColor(Color.theme.accent)
+                                        .font(.system(size: 16, weight: .light))
+                                        .foregroundColor(Color.theme.inputBackground)
                                 }
                                 Text("创建故事")
                                     .font(.system(size: 15, weight: .light))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Color.theme.inputBackground)
                             }
                             .padding(.horizontal, 6)
                             .padding(.vertical, 4)
