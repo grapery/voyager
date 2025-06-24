@@ -52,7 +52,6 @@ struct EditStoryRoleDetailView: View {
                         showImagePicker: $showImagePicker
                     )
                     
-                    AdvancedSettingsButton(showAdvancedSettings: $showAdvancedSettings)
                 }
             }
             
@@ -412,19 +411,3 @@ private struct PromptField: View {
     }
 }
 
-private struct AdvancedSettingsButton: View {
-    @Binding var showAdvancedSettings: Bool
-    
-    var body: some View {
-        Button(action: { showAdvancedSettings.toggle() }) {
-            HStack {
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 16))
-                    .foregroundColor(.black)
-                Text("更多高级设置")
-            }
-            .foregroundColor(.blue)
-        }
-        .padding(.vertical)
-    }
-}

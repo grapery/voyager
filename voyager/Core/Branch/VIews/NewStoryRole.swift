@@ -53,7 +53,6 @@ struct NewStoryRole: View {
                         showImagePicker: $showImagePicker
                     )
                     
-                    AdvancedSettingsButton(showAdvancedSettings: $showAdvancedSettings)
                 }
             }
             
@@ -519,22 +518,6 @@ private struct AddImageButton: View {
     }
 }
 
-private struct AdvancedSettingsButton: View {
-    @Binding var showAdvancedSettings: Bool
-    
-    var body: some View {
-        Button(action: { showAdvancedSettings.toggle() }) {
-            HStack {
-                Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 16))
-                        .foregroundColor(Color.theme.primaryText)
-                Text("更多高级设置")
-            }
-            .foregroundColor(.blue)
-        }
-        .padding(.vertical)
-    }
-}
 
 // MARK: - 图片选择器扩展
 extension View {
