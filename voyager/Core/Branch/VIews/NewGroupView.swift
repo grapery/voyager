@@ -39,7 +39,7 @@ struct NewGroupView: View {
             Color.theme.background.ignoresSafeArea() // 统一背景色
             ScrollView {
                 VStack(spacing: 24) {
-                    // 顶部栏
+                    // MARK: - 顶部栏
                     HStack {
                         Button(action: { presentationMode.wrappedValue.dismiss() }) {
                             Image(systemName: "xmark")
@@ -51,19 +51,19 @@ struct NewGroupView: View {
                     .padding(.top, 24)
                     .padding(.horizontal, 20)
 
-                    // 标题
-                    Text("Create Group")
+                    // MARK: - 标题
+                    Text(LocalizedStrings.text(.createGroup))
                         .font(.system(size: 22, weight: .bold))
                         .foregroundColor(Color.theme.primaryText)
                         .frame(maxWidth: .infinity)
                         .padding(.bottom, 8)
 
-                    // Group Name
+                    // MARK: - 小组名称
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Group Name")
+                        Text(LocalizedStrings.text(.groupName))
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(Color.theme.primaryText)
-                        TextField("Enter groupname", text: $groupName)
+                        TextField(LocalizedStrings.text(.enterGroupName), text: $groupName)
                             .padding()
                             .background(Color.theme.inputBackground)
                             .foregroundColor(Color.theme.inputText)
@@ -76,9 +76,9 @@ struct NewGroupView: View {
                     }
                     .padding(.horizontal, 20)
 
-                    // Group Description
+                    // MARK: - 小组简介
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Group Description")
+                        Text(LocalizedStrings.text(.groupDescription))
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(Color.theme.primaryText)
                         TextEditor(text: $groupDescription)
@@ -91,9 +91,9 @@ struct NewGroupView: View {
                     }
                     .padding(.horizontal, 20)
 
-                    // Privacy
+                    // MARK: - 隐私设置
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Privacy")
+                        Text(LocalizedStrings.text(.privacy))
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(Color.theme.primaryText)
                         Menu {
@@ -119,9 +119,9 @@ struct NewGroupView: View {
                     }
                     .padding(.horizontal, 20)
 
-                    // Group Avatar
+                    // MARK: - 小组头像
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Group Avatar")
+                        Text(LocalizedStrings.text(.groupAvatar))
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(Color.theme.primaryText)
                         Button(action: {
@@ -150,9 +150,9 @@ struct NewGroupView: View {
                     }
                     .padding(.horizontal, 20)
 
-                    // Background Image
+                    // MARK: - 背景图片
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Background Image")
+                        Text(LocalizedStrings.text(.backgroundImage))
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(Color.theme.primaryText)
                         Button(action: { showBackgroundPicker = true }) {
@@ -177,14 +177,15 @@ struct NewGroupView: View {
                     }
                     .padding(.horizontal, 20)
 
+                    // MARK: - 操作按钮
                     HStack{
                         Spacer()
-                        // Create Group Button
+                        // 创建按钮
                         Button(action: {
                             // 创建小组逻辑
                             self.createGroup()
                         }) {
-                            Text("Create")
+                            Text(LocalizedStrings.text(.create))
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(Color.theme.buttonText)
                                 .frame(maxWidth: .infinity)
@@ -195,12 +196,12 @@ struct NewGroupView: View {
                         .padding(.horizontal, 20)
                         .padding(.bottom, 24)
                         Spacer()
-                        // Create Group Button
+                        // 取消按钮
                         Button(action: {
                             // 取消创建小组逻辑
                             presentationMode.wrappedValue.dismiss()
                         }) {
-                            Text("Cancel")
+                            Text(LocalizedStrings.text(.cancel))
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(Color.theme.buttonText)
                                 .frame(maxWidth: .infinity)
@@ -226,9 +227,9 @@ struct NewGroupView: View {
         }
         .alert(isPresented: $showAlert) {
             Alert(
-                title: Text("错误"),
+                title: Text(LocalizedStrings.text(.error)),
                 message: Text(alertMessage),
-                dismissButton: .default(Text("确定"))
+                dismissButton: .default(Text(LocalizedStrings.text(.ok)))
             )
         }
         .overlay {
@@ -245,13 +246,13 @@ struct NewGroupView: View {
     
     private func createGroup() {
         guard !groupName.isEmpty else {
-            showAlert(message: "请输入小组名称")
+            showAlert(message: LocalizedStrings.text(.pleaseEnterGroupName))
             return
         }
         isLoading = true
         Task {
             var avatarImage: UIImage? = groupAvatar
-            // ç
+            // 如果没有选择头像，使用默认头像
             if avatarImage == nil {
                 avatarImage = UIImage(systemName: "infinity.circle")
             }
@@ -277,7 +278,7 @@ struct NewGroupView: View {
             } catch {
                 await MainActor.run {
                     isLoading = false
-                    showAlert(message: "上传图片失败：\(error.localizedDescription)")
+                    showAlert(message: "\(LocalizedStrings.text(.uploadImageFailed))：\(error.localizedDescription)")
                 }
             }
         }

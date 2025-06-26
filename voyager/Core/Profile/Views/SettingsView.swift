@@ -7,15 +7,30 @@ struct SettingsView: View {
     @State private var showLogoutAlert = false
     @State private var selectedDetail: SettingsDetailType? = nil
     
+    // MARK: - 语言管理
+    @ObservedObject private var languageManager = LanguageManager.shared
+    @State private var showLanguagePicker = false
+    
     var body: some View {
         NavigationView {
             List {
-                // 第一组设置
+                // MARK: - 第一组设置
                 Section {
+                    // 语言设置
+                    Button(action: { showLanguagePicker = true }) {
+                        SettingsRow(
+                            icon: "globe",
+                            title: LocalizedStrings.text(.language),
+                            subtitle: languageManager.currentLanguage.displayName,
+                            iconColor: Color.theme.accent
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
                     Button(action: { selectedDetail = .accountSecurity }) {
                         SettingsRow(
                             icon: "shield.checkered",
-                            title: "账号与安全",
+                            title: LocalizedStrings.text(.accountSecurity),
                             iconColor: Color.theme.accent
                         )
                     }
@@ -24,7 +39,7 @@ struct SettingsView: View {
                     Button(action: { selectedDetail = .feedback }) {
                         SettingsRow(
                             icon: "exclamationmark.bubble",
-                            title: "投诉与反馈",
+                            title: LocalizedStrings.text(.feedback),
                             iconColor: Color.theme.warning
                         )
                     }
@@ -33,7 +48,7 @@ struct SettingsView: View {
                     Button(action: { selectedDetail = .socialMedia }) {
                         SettingsRow(
                             icon: "person.3",
-                            title: "社交媒体",
+                            title: LocalizedStrings.text(.socialMedia),
                             iconColor: Color.theme.success
                         )
                     }
@@ -42,8 +57,8 @@ struct SettingsView: View {
                     Button(action: { selectedDetail = .aboutApp }) {
                         SettingsRow(
                             icon: "info.circle",
-                            title: "关于应用",
-                            subtitle: "2.0.0-2429",
+                            title: LocalizedStrings.text(.aboutApp),
+                            subtitle: LocalizedStrings.text(.appVersion),
                             iconColor: Color.theme.tertiaryText
                         )
                     }
@@ -52,20 +67,20 @@ struct SettingsView: View {
                     Button(action: { selectedDetail = .teenMode }) {
                         SettingsRow(
                             icon: "person.crop.circle.badge.clock",
-                            title: "青少年模式",
+                            title: LocalizedStrings.text(.teenMode),
                             iconColor: Color.theme.success
                         )
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
                 
-                // 退出登录按钮
+                // MARK: - 退出登录按钮
                 Section {
                     Button(action: { showLogoutAlert = true }) {
                         HStack {
                             Image(systemName: "rectangle.portrait.and.arrow.right")
                                 .foregroundColor(Color.theme.error)
-                            Text("退出登录")
+                            Text(LocalizedStrings.text(.logout))
                                 .foregroundColor(Color.theme.error)
                             Spacer()
                             Image(systemName: "chevron.right")
@@ -76,7 +91,7 @@ struct SettingsView: View {
                 }
             }
             .listStyle(InsetGroupedListStyle())
-            .navigationTitle("设置")
+            .navigationTitle(LocalizedStrings.text(.settings))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -86,9 +101,9 @@ struct SettingsView: View {
                     }
                 }
             }
-            .alert("确认退出登录？", isPresented: $showLogoutAlert) {
-                Button("取消", role: .cancel) { }
-                Button("退出登录", role: .destructive) {
+            .alert(LocalizedStrings.text(.confirmLogout), isPresented: $showLogoutAlert) {
+                Button(LocalizedStrings.text(.cancel), role: .cancel) { }
+                Button(LocalizedStrings.text(.logout), role: .destructive) {
                     Task {
                         // 1. 调用 AuthService 的登出方法
                         await AuthService.shared.signout()
@@ -132,6 +147,49 @@ struct SettingsView: View {
             }
             .sheet(item: $selectedDetail) { detail in
                 SettingsDetailView(detailType: detail)
+            }
+            .sheet(isPresented: $showLanguagePicker) {
+                LanguagePickerView()
+            }
+        }
+    }
+}
+
+// MARK: - 语言选择器视图
+struct LanguagePickerView: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var languageManager = LanguageManager.shared
+    
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(AppLanguage.allCases) { language in
+                    Button(action: {
+                        languageManager.setLanguage(language)
+                        dismiss()
+                    }) {
+                        HStack {
+                            Text(language.localizedName)
+                                .foregroundColor(Color.theme.primaryText)
+                            Spacer()
+                            if languageManager.currentLanguage == language {
+                                Image(systemName: "checkmark")
+                                    .foregroundColor(Color.theme.accent)
+                            }
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+            .navigationTitle(LocalizedStrings.text(.language))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(LocalizedStrings.text(.good)) {
+                        dismiss()
+                    }
+                    .foregroundColor(Color.theme.accent)
+                }
             }
         }
     }
@@ -177,25 +235,25 @@ enum SettingsDetailType: Identifiable {
     var id: Int { hashValue }
     var title: String {
         switch self {
-        case .accountSecurity: return "账号与安全"
-        case .feedback: return "投诉与反馈"
-        case .socialMedia: return "社交媒体"
-        case .aboutApp: return "关于应用"
-        case .teenMode: return "青少年模式"
+        case .accountSecurity: return LocalizedStrings.text(.accountSecurity)
+        case .feedback: return LocalizedStrings.text(.feedback)
+        case .socialMedia: return LocalizedStrings.text(.socialMedia)
+        case .aboutApp: return LocalizedStrings.text(.aboutApp)
+        case .teenMode: return LocalizedStrings.text(.teenMode)
         }
     }
     var content: String {
         switch self {
         case .accountSecurity:
-            return "在这里，您可以管理您的账号信息、修改密码、设置安全选项，保障您的账户安全。"
+            return LocalizedStrings.text(.accountSecurityDesc)
         case .feedback:
-            return "如有任何问题或建议，欢迎通过此页面向我们反馈，我们会尽快处理您的意见。"
+            return LocalizedStrings.text(.feedbackDesc)
         case .socialMedia:
-            return "您可以在这里绑定或管理您的社交媒体账号，方便与好友互动和分享内容。"
+            return LocalizedStrings.text(.socialMediaDesc)
         case .aboutApp:
-            return "Voyager 2.0.0-2429\n\n感谢您使用本应用！如需了解更多信息、隐私政策或用户协议，请访问我们的官方网站。"
+            return LocalizedStrings.text(.aboutAppDesc)
         case .teenMode:
-            return "青少年模式可为未成年人提供更健康的使用环境，限制部分功能和内容，守护青少年成长。"
+            return LocalizedStrings.text(.teenModeDesc)
         }
     }
 }
@@ -237,7 +295,7 @@ struct SettingsDetailView: View {
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("好的") { dismiss() }
+                    Button(LocalizedStrings.text(.good)) { dismiss() }
                         .foregroundColor(Color.theme.accent)
                 }
             }
