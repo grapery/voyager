@@ -474,12 +474,12 @@ struct RoleInfoTab: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
+            VStack(spacing: 8) {
                 RoleSummarySection(role: role, viewModel: viewModel, onRoleUpdate: onRoleUpdate)
                     .padding(.horizontal, 8)
 
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, 4)
         }
         .frame(maxWidth: .infinity)
     }
@@ -758,9 +758,9 @@ struct RoleSummarySection: View {
     var canEdit: Bool { currentUserId == roleCreatorId || currentUserId == storyCreatorId }
     
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 8) {
             // Character Description Section
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text("角色描述")
                         .font(.system(size: 16, weight: .medium))
@@ -794,11 +794,12 @@ struct RoleSummarySection: View {
             .sheet(isPresented: $showingDescriptionEditor) {
                 EditDescriptionView(role: role, viewModel: viewModel, onRoleUpdate: onRoleUpdate)
             }
-            .padding()
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             Divider()
-                .padding()
+                .padding(.horizontal, 16)
             // Character Prompt Section
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text("角色提示词")
                         .font(.system(size: 16, weight: .medium))
@@ -824,16 +825,17 @@ struct RoleSummarySection: View {
             .sheet(isPresented: $showingPromptEditor) {
                 EditPromptView(role: role, viewModel: viewModel, onRoleUpdate: onRoleUpdate)
             }
-            .padding()
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             Divider()
-                .padding()
+                .padding(.horizontal, 16)
             // Other Information Section
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text("其他信息")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(Color.theme.primaryText)
                 
-                VStack(spacing: 12) {
+                VStack(spacing: 8) {
                     InfoRow(icon: "person.fill", title: "创建者", value: "\(role.role.creator.name)")
                     InfoRow(icon: "clock.fill", title: "创建时间", value: formatDate(timestamp: role.role.ctime))
                     InfoRow(icon: "number", title: "角色ID", value: "\(role.role.roleID)")
@@ -843,9 +845,10 @@ struct RoleSummarySection: View {
                 }
             }
             .background(Color.theme.secondaryBackground)
-            .padding()
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             Divider()
-                .padding()
+                .padding(.horizontal, 16)
         }
         .frame(maxWidth: .infinity)
     }
@@ -1609,80 +1612,90 @@ struct RoleDetailTab: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 12) {
+            VStack(spacing: 6) {
                 DescriptionField(emoji: "📝", title: "角色描述", text: role.role.characterDetail.description_p)
-                    .padding()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.theme.secondaryBackground)
-                    .cornerRadius(2)
+                    .cornerRadius(8)
                 Divider()
-                    .padding()
+                    .padding(.horizontal, 16)
                 DescriptionField(emoji: "🎯", title: "短期目标", text: role.role.characterDetail.shortTermGoal)
-                    .padding()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.theme.secondaryBackground)
-                    .cornerRadius(2)
+                    .cornerRadius(8)
                 Divider()
-                    .padding()
+                    .padding(.horizontal, 16)
                 DescriptionField(emoji: "🏆", title: "长期目标", text: role.role.characterDetail.longTermGoal)
-                    .padding()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.theme.secondaryBackground)
-                    .cornerRadius(2)
+                    .cornerRadius(8)
                 Divider()
-                    .padding()
+                    .padding(.horizontal, 16)
                 DescriptionField(emoji: "😃", title: "性格特征", text: role.role.characterDetail.personality)
-                    .padding()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.theme.secondaryBackground)
-                    .cornerRadius(2)
+                    .cornerRadius(8)
                 Divider()
-                    .padding()
+                    .padding(.horizontal, 16)
                 DescriptionField(emoji: "📖", title: "背景故事", text: role.role.characterDetail.background)
-                    .padding()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.theme.secondaryBackground)
-                    .cornerRadius(2)
+                    .cornerRadius(8)
                 Divider()
-                    .padding()
+                    .padding(.horizontal, 16)
                 DescriptionField(emoji: "🤝", title: "处事方式", text: role.role.characterDetail.handlingStyle)
-                    .padding()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.theme.secondaryBackground)
-                    .cornerRadius(2)
+                    .cornerRadius(8)
                 Divider()
-                    .padding()
+                    .padding(.horizontal, 16)
                 DescriptionField(emoji: "👀", title: "认知范围", text: role.role.characterDetail.cognitionRange)
-                    .padding()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.theme.secondaryBackground)
-                    .cornerRadius(2)
+                    .cornerRadius(8)
                 Divider()
-                    .padding()
+                    .padding(.horizontal, 16)
                 DescriptionField(emoji: "💡", title: "能力特点", text: role.role.characterDetail.abilityFeatures)
-                    .padding()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.theme.secondaryBackground)
-                    .cornerRadius(2)
+                    .cornerRadius(8)
                 Divider()
-                    .padding()
+                    .padding(.horizontal, 16)
                 DescriptionField(emoji: "👤", title: "外貌特征", text: role.role.characterDetail.appearance)
-                    .padding()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.theme.secondaryBackground)
-                    .cornerRadius(2)
+                    .cornerRadius(8)
                 Divider()
-                    .padding()
+                    .padding(.horizontal, 16)
                 DescriptionField(emoji: "👗", title: "着装偏好", text: role.role.characterDetail.dressPreference)
-                    .padding()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.theme.secondaryBackground)
-                    .cornerRadius(2)
+                    .cornerRadius(8)
                 Divider()
-                    .padding()
+                    .padding(.horizontal, 16)
             }
             .padding(.horizontal, 8)
-            .padding(.vertical, 8)
+            .padding(.vertical, 4)
         }
         .frame(maxWidth: .infinity)
     }
