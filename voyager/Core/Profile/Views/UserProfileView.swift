@@ -527,14 +527,14 @@ struct UserProfileView: View {
                         .padding(.top, 12)
 
                         // User Info Section
-                        VStack(alignment: .center, spacing: 8) {
+                        VStack(alignment: .leading, spacing: 8) {
                             // Name and Badges
                             HStack {
                                 Text(user.name)
                                     .font(.system(size: 20, weight: .bold))
                             }
                         }
-                        .padding(.horizontal, 16)
+                        .padding(.leading, 24) // 与头像offset一致，左对齐
                         
                         // Action Buttons
                         if isCurrentUser {

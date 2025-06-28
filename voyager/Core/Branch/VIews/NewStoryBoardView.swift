@@ -1683,54 +1683,80 @@ struct RoleSelectionRow: View {
     let isSelected: Bool
     let onSelect: () -> Void
     
+    @State private var showDetail = false
+    
     var body: some View {
-        Button(action: onSelect) {
-            HStack(alignment: .top, spacing: 4) {
-                VStack{
-                    KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
-                        .cacheMemoryOnly()
-                        .fade(duration: 0.25)
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fill)
-                        .frame(width: 80, height: 80)
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
-                        .clipped()
-                }
-                .padding(.vertical,2)
-                .padding(.horizontal,2)
+        Button(action: { showDetail = true }) {
+            HStack(alignment: .center, spacing: 8) {
+                // 角色头像
+                KFImage(URL(string: convertImagetoSenceImage(url: role.role.characterAvatar, scene: .small)))
+                    .cacheMemoryOnly()
+                    .fade(duration: 0.25)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 88, height: 88)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.theme.border, lineWidth: 0.5)
+                    )
                 
-                VStack(alignment: .leading, spacing: 4) {
+                // 角色信息
+                VStack(alignment: .leading, spacing: 8) {
                     Text(role.role.characterName)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 17, weight: .medium))
                         .foregroundColor(Color.theme.primaryText)
-                        .padding(.top, 1)
                     Text(role.role.characterDescription)
                         .font(.system(size: 14))
                         .foregroundColor(Color.theme.secondaryText)
-                        .lineLimit(3)
-                        .truncationMode(.tail)
+                        .lineLimit(2)
                 }
-                .padding(.vertical,8)
-                .padding(.horizontal,8)
-                
-                VStack{
+                .padding(.top, 4)
+                Spacer()
+                // 选择按钮放最右侧中间
+                VStack {
                     Spacer()
-                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: 16))
-                        .foregroundColor(isSelected ? Color.theme.accent : Color.theme.tertiaryText)
+                    Button(action: onSelect) {
+                        HStack(spacing: 4) {
+                            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                                .font(.system(size: 20))
+                                .foregroundColor(isSelected ? Color.theme.accent : Color.theme.tertiaryText)
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
                     Spacer()
                 }
-                .padding(.vertical,8)
-                .padding(.horizontal,8)
             }
-            .padding(.vertical, 4)
-            .padding(.horizontal, 4)
-            .background(Color.theme.secondaryBackground)
-            .cornerRadius(4)
-            .shadow(color: Color.black.opacity(0.03), radius: 1, x: 0, y: 1)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(isSelected ? Color.theme.selection.opacity(0.18) : Color.theme.background)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isSelected ? Color.theme.accent : Color.clear, lineWidth: isSelected ? 1.5 : 0)
+            )
         }
         .buttonStyle(PlainButtonStyle())
-        .padding()
+        .fullScreenCover(isPresented: $showDetail) {
+            NavigationStack {
+                StoryRoleDetailView(
+                    roleId: role.role.roleID,
+                    userId: role.role.creatorID,
+                    role: role
+                )
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: { showDetail = false }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 16, weight: .medium))
+                            }
+                            .foregroundColor(Color.theme.primaryText)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
