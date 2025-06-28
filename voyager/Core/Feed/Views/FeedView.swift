@@ -74,11 +74,6 @@ struct FeedView: View {
                             StoryActivesView(
                                 viewModel: viewModel
                             )
-                            .tag(0)
-                            .onAppear {
-                                print("StoryActivesView apear")
-                                print("StoryActivesView apear ",viewModel.storyBoardActives.count)
-                            }
                             
                             // 热点页面
                             TrendingContentView(viewModel: viewModel)
@@ -429,7 +424,7 @@ private struct FeedCardMedia: View {
 }
 
 private struct FeedCardActions: View {
-    @State var storyBoardActive: Common_StoryBoardActive
+    @Binding var storyBoardActive: Common_StoryBoardActive
     let userId: Int64
     @ObservedObject var viewModel: FeedViewModel
     var body: some View {
@@ -443,9 +438,11 @@ private struct FeedCardActions: View {
                         if storyBoardActive.storyboard.currentUserStatus.isLiked {
                             let _ = await viewModel.unlikeStoryBoard(storyId: storyBoardActive.storyboard.storyID, boardId: storyBoardActive.storyboard.storyBoardID, userId: userId)
                             storyBoardActive.totalLikeCount -= 1
+                            storyBoardActive.storyboard.currentUserStatus.isLiked = false
                         }else{
                             let _ =  await viewModel.likeStoryBoard(storyId: storyBoardActive.storyboard.storyID, boardId: storyBoardActive.storyboard.storyBoardID, userId: userId)
                             storyBoardActive.totalLikeCount += 1
+                            storyBoardActive.storyboard.currentUserStatus.isLiked = true
                         }
                     }
                 }
@@ -471,16 +468,16 @@ private struct FeedCardActions: View {
 
 // MARK: - 主卡片视图
 private struct FeedItemCard: View {
-    let storyBoardActive: Common_StoryBoardActive
+    @State var storyBoardActive: Common_StoryBoardActive
     let userId: Int64
     @ObservedObject var viewModel: FeedViewModel
-    let sceneMediaContents: [SceneMediaContent]
+    @State private var sceneMediaContents: [SceneMediaContent]
 
     init(storyBoardActive: Common_StoryBoardActive?=nil, userId: Int64, viewModel: FeedViewModel) {
-        self.storyBoardActive = storyBoardActive!
+        self._storyBoardActive = State(initialValue: storyBoardActive!)
         self.userId = userId
         self.viewModel = viewModel
-        self.sceneMediaContents = storyBoardActive!.toSceneMediaContents()
+        self._sceneMediaContents = State(initialValue: storyBoardActive!.toSceneMediaContents())
     }
 
     var body: some View {
@@ -491,6 +488,10 @@ private struct FeedItemCard: View {
                     userId: userId,
                     viewModel: viewModel
                 )
+                .onDisappear {
+                    // 当StoryboardSummary消失时，同步更新数据
+                    syncDataFromViewModel()
+                }
             }
         ) {
             VStack(alignment: .leading, spacing: 8) {
@@ -498,7 +499,7 @@ private struct FeedItemCard: View {
                 FeedCardContent(content: storyBoardActive.storyboard.content)
                 FeedCardMedia(sceneMediaContents: sceneMediaContents)
                 FeedCardActions(
-                    storyBoardActive: storyBoardActive,
+                    storyBoardActive: $storyBoardActive,
                     userId: userId,
                     viewModel: viewModel
                 )
@@ -514,6 +515,18 @@ private struct FeedItemCard: View {
             .shadow(color: Color.theme.primaryText.opacity(0.05), radius: 4, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
+        .onAppear {
+            // 每次出现时同步数据
+            syncDataFromViewModel()
+        }
+    }
+    
+    // 从ViewModel同步数据到本地状态
+    private func syncDataFromViewModel() {
+        if let updatedActive = viewModel.storyBoardActives.first(where: { $0.storyboard.storyBoardID == storyBoardActive.storyboard.storyBoardID }) {
+            storyBoardActive = updatedActive
+            sceneMediaContents = updatedActive.toSceneMediaContents()
+        }
     }
 }
 

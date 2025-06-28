@@ -18,6 +18,7 @@ struct StoryboardSummary: View {
     @State private var currentSceneIndex = 0
     @State private var isLoading = false
     @State private var errorMessage: String = ""
+    @State private var showError: Bool = false
     @State private var showComments: Bool = false
     @State private var showBoardForks: Bool = false
     
@@ -63,6 +64,14 @@ struct StoryboardSummary: View {
                             .foregroundColor(.primary)
                     }
                 }
+            }
+            .alert("操作失败", isPresented: $showError) {
+                Button("确定") {
+                    errorMessage = ""
+                    showError = false
+                }
+            } message: {
+                Text(errorMessage)
             }
         }
     }
@@ -305,31 +314,43 @@ struct StoryboardSummary: View {
                 action: {
                     Task {
                         if !storyboard.storyboard.currentUserStatus.isLiked {
-                            if let error = await viewModel.likeStoryBoard(
+                            // 点赞操作
+                            let result = await viewModel.likeStoryBoard(
                                 storyId: storyboard.storyboard.storyID,
                                 boardId: storyboard.storyboard.storyBoardID,
                                 userId: userId
-                            ) {
-                                errorMessage = error.localizedDescription
-                            } else {
-                                // 更新本地状态
-                                if let index = viewModel.storyBoardActives.firstIndex(where: { $0.storyboard.storyBoardID == storyboard.storyboard.storyBoardID }) {
-                                    viewModel.storyBoardActives[index].storyboard.currentUserStatus.isLiked = true
-                                    viewModel.storyBoardActives[index].totalLikeCount += 1
+                            )
+                            
+                            await MainActor.run {
+                                if let error = result {
+                                    errorMessage = error.localizedDescription
+                                    showError = true
+                                } else {
+                                    // 更新本地状态
+                                    if let index = viewModel.storyBoardActives.firstIndex(where: { $0.storyboard.storyBoardID == storyboard.storyboard.storyBoardID }) {
+                                        viewModel.storyBoardActives[index].storyboard.currentUserStatus.isLiked = true
+                                        viewModel.storyBoardActives[index].totalLikeCount += 1
+                                    }
                                 }
                             }
                         } else {
-                            if let error = await viewModel.unlikeStoryBoard(
+                            // 取消点赞操作
+                            let result = await viewModel.unlikeStoryBoard(
                                 storyId: storyboard.storyboard.storyID,
                                 boardId: storyboard.storyboard.storyBoardID,
                                 userId: userId
-                            ) {
-                                errorMessage = error.localizedDescription
-                            } else {
-                                // 更新本地状态
-                                if let index = viewModel.storyBoardActives.firstIndex(where: { $0.storyboard.storyBoardID == storyboard.storyboard.storyBoardID }) {
-                                    viewModel.storyBoardActives[index].storyboard.currentUserStatus.isLiked = false
-                                    viewModel.storyBoardActives[index].totalLikeCount -= 1
+                            )
+                            
+                            await MainActor.run {
+                                if let error = result {
+                                    errorMessage = error.localizedDescription
+                                    showError = true
+                                } else {
+                                    // 更新本地状态
+                                    if let index = viewModel.storyBoardActives.firstIndex(where: { $0.storyboard.storyBoardID == storyboard.storyboard.storyBoardID }) {
+                                        viewModel.storyBoardActives[index].storyboard.currentUserStatus.isLiked = false
+                                        viewModel.storyBoardActives[index].totalLikeCount -= 1
+                                    }
                                 }
                             }
                         }
