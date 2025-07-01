@@ -9,11 +9,21 @@ import SwiftUI
 import Kingfisher
 import ActivityIndicatorView
 
+// 添加焦点管理枚举到文件顶部
+enum InputFieldType: Hashable {
+    case title
+    case storyDescription
+    case background
+}
+
 struct NewStoryBoardView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var showingValidationAlert = false
     @State private var validationMessage = ""
     
+    // 添加键盘管理状态
+    @FocusState private var isInputFocused: Bool
+    @State private var shouldHideKeyboard = false
     
     // params
     @State public var userId: Int64
@@ -213,6 +223,9 @@ struct NewStoryBoardView: View {
     }
     
     private func handlePreviousStep() {
+        // 隐藏键盘
+        hideKeyboard()
+        
         if let currentIndex = TimelineStep.allCases.firstIndex(of: currentStep),
            currentIndex > 0 {
             withAnimation {
@@ -222,6 +235,9 @@ struct NewStoryBoardView: View {
     }
 
     private func handleNextStep() {
+        // 隐藏键盘
+        hideKeyboard()
+        
         // 验证当前步骤
         if !validateCurrentStep() {
             return
@@ -370,6 +386,12 @@ struct NewStoryBoardView: View {
 
 // Error handling extension
 extension NewStoryBoardView {
+    // 隐藏键盘的方法
+    private func hideKeyboard() {
+        isInputFocused = false
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+    
     private func handleError(_ error: Error) {
         hideLoading()
         showNotification(
@@ -876,6 +898,10 @@ struct SceneGenerationView: View {
     @State private var selectedSceneIndex: Int = 0
     @State private var imageGenerationState: [Int: ImageGenStatus] = [:]
     
+    // 添加焦点管理
+    @FocusState private var isContentFocused: Bool
+    @FocusState private var isImagePromptFocused: Bool
+    
     enum ImageGenStatus {
         case idle
         case generating
@@ -931,6 +957,7 @@ struct SceneGenerationView: View {
                                         RoundedRectangle(cornerRadius: 8)
                                             .stroke(Color.theme.border, lineWidth: 1)
                                     )
+                                    .focused($isContentFocused)
                             }
                             
                             // 参与人物
@@ -958,6 +985,7 @@ struct SceneGenerationView: View {
                                         RoundedRectangle(cornerRadius: 8)
                                             .stroke(Color.theme.border, lineWidth: 1)
                                     )
+                                    .focused($isImagePromptFocused)
                             }
                             
                             // 生成图片展示区域
@@ -971,6 +999,9 @@ struct SceneGenerationView: View {
                                     icon: "hand.draw",
                                     color: .green
                                 ) {
+                                    // 隐藏键盘
+                                    isContentFocused = false
+                                    isImagePromptFocused = false
                                     Task { await moreSenseDetail(selectedSceneIndex) }
                                 }
                                 ActionButton(
@@ -978,6 +1009,9 @@ struct SceneGenerationView: View {
                                     icon: "photo.fill",
                                     color: .blue
                                 ) {
+                                    // 隐藏键盘
+                                    isContentFocused = false
+                                    isImagePromptFocused = false
                                     imageGenerationState[selectedSceneIndex] = .generating
                                     Task {
                                         await onGenerateImage(selectedSceneIndex)
@@ -999,6 +1033,9 @@ struct SceneGenerationView: View {
                                     icon: "photo.fill",
                                     color: .blue
                                 ) {
+                                    // 隐藏键盘
+                                    isContentFocused = false
+                                    isImagePromptFocused = false
                                     Task {
                                         // 新增：所有场景图片生成状态管理
                                         for idx in viewModel.storyScenes.indices {
@@ -1033,6 +1070,20 @@ struct SceneGenerationView: View {
                     Spacer().frame(height: 8)
                 }else{
                     EmptyStateView()
+                }
+            }
+        }
+        .onTapGesture {
+            // 点击空白区域隐藏键盘
+            isContentFocused = false
+            isImagePromptFocused = false
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("完成") {
+                    isContentFocused = false
+                    isImagePromptFocused = false
                 }
             }
         }
@@ -1175,6 +1226,10 @@ struct StoryContentView: View {
     
     @State private var textEditorHeight: CGFloat = 120
     
+    // 添加焦点管理
+    @FocusState private var isTitleFocused: Bool
+    @FocusState private var isContentFocused: Bool
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -1194,6 +1249,7 @@ struct StoryContentView: View {
                                 .foregroundColor(Color.theme.primaryText)
                                 .padding(.vertical, 2)
                                 .textFieldStyle(PlainTextFieldStyle())
+                                .focused($isTitleFocused)
                         }
                         
                         Divider()
@@ -1226,6 +1282,7 @@ struct StoryContentView: View {
                                     .background(Color.clear)
                                     .cornerRadius(6)
                                     .padding(.vertical, 0)
+                                    .focused($isContentFocused)
                             }
                         }
                         
@@ -1233,7 +1290,12 @@ struct StoryContentView: View {
                         
                         // 按钮组
                         HStack(spacing: 12) {
-                            Button(action: onGenerate) {
+                            Button(action: {
+                                // 隐藏键盘
+                                isTitleFocused = false
+                                isContentFocused = false
+                                onGenerate()
+                            }) {
                                 HStack {
                                     Image(systemName: "wand.and.stars")
                                     Text("生成场景")
@@ -1246,7 +1308,12 @@ struct StoryContentView: View {
                                 .cornerRadius(6)
                             }
                             
-                            Button(action: onSave) {
+                            Button(action: {
+                                // 隐藏键盘
+                                isTitleFocused = false
+                                isContentFocused = false
+                                onSave()
+                            }) {
                                 HStack {
                                     Image(systemName: "square.and.arrow.down")
                                     Text("保存")
@@ -1280,6 +1347,20 @@ struct StoryContentView: View {
             }
             .padding()
         }
+        .onTapGesture {
+            // 点击空白区域隐藏键盘
+            isTitleFocused = false
+            isContentFocused = false
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("完成") {
+                    isTitleFocused = false
+                    isContentFocused = false
+                }
+            }
+        }
     }
 }
 
@@ -1302,6 +1383,9 @@ struct StoryInputView: View {
     var onGenerate: () async -> Void
     var onSave: () async -> Void
     
+    // 添加焦点管理
+    @FocusState private var focusedField: InputFieldType?
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -1318,35 +1402,76 @@ struct StoryInputView: View {
                 userId: userId
             )
         }
+        .onTapGesture {
+            // 点击空白区域隐藏键盘
+            focusedField = nil
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("完成") {
+                    focusedField = nil
+                }
+            }
+        }
     }
     
     private var inputSection: some View {
         VStack(spacing: 24) {
-            InputField(
-                title: "标题",
-                placeholder: "请输入标题",
-                text: $title
-            )
+            // 标题输入
+            VStack(alignment: .leading, spacing: 8) {
+                Text("标题")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(Color.theme.secondaryText)
+                
+                TextField("请输入标题", text: $title)
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.theme.border, lineWidth: 1)
+                    )
+                    .focused($focusedField, equals: .title)
+            }
             
-            InputField(
-                title: "描述",
-                placeholder: "请输入描述",
-                text: $description,
-                isMultiline: true
-            )
+            // 描述输入
+            VStack(alignment: .leading, spacing: 8) {
+                Text("描述")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(Color.theme.secondaryText)
+                
+                TextEditor(text: $description)
+                    .frame(minHeight: 120)
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.theme.border, lineWidth: 1)
+                    )
+                    .focused($focusedField, equals: .storyDescription)
+            }
             
-            InputField(
-                title: "背景设定",
-                placeholder: "请输入背景设定",
-                text: $background,
-                isMultiline: true
-            )
+            // 背景设定输入
+            VStack(alignment: .leading, spacing: 8) {
+                Text("背景设定")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(Color.theme.secondaryText)
+                
+                TextEditor(text: $background)
+                    .frame(minHeight: 120)
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.theme.border, lineWidth: 1)
+                    )
+                    .focused($focusedField, equals: .background)
+            }
             
             roleSection
             // 生成按钮
             HStack{
                 Spacer()
                 Button(action: {
+                    // 隐藏键盘
+                    focusedField = nil
                     Task {
                         await onGenerate()
                         isGenerated = true
@@ -1364,6 +1489,8 @@ struct StoryInputView: View {
                 }
                 Spacer()
                 Button(action: {
+                    // 隐藏键盘
+                    focusedField = nil
                     Task {
                         await onSave()
                     }
