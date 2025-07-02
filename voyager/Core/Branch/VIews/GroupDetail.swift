@@ -229,7 +229,7 @@ struct GroupActionButtonsView: View {
                         .font(.system(size: 15))
                 }
                 .foregroundColor(.white)
-                .frame(width: 24, height: 24)
+                .frame(width: 32, height: 32)
                 .background(Color.theme.secondary.opacity(0.3))
                 .background(group?.info.currentUserStatus.isJoined ?? false ? Color.blue :Color.theme.tertiaryBackground)
                 .clipShape(Circle())
@@ -267,7 +267,7 @@ struct GroupActionButtonsView: View {
                         .font(.system(size: 15))
                 }
                 .foregroundColor(.white)
-                .frame(width: 24, height: 24)
+                .frame(width: 32, height: 32)
                 .background(Color.theme.secondary.opacity(0.3))
                 .background(group?.info.currentUserStatus.isFollowed ?? false ? Color.blue: Color.theme.tertiaryBackground)
                 .clipShape(Circle())
@@ -493,7 +493,7 @@ struct GroupDetailView: View {
                         }) {
                             Image(systemName: "chevron.left")
                                 .foregroundColor(.white)
-                                .frame(width: 24, height: 24)
+                                .frame(width: 32, height: 32)
                                 .background(Color.theme.secondary.opacity(0.3))
                                 .clipShape(Circle())
                         }
@@ -507,7 +507,7 @@ struct GroupDetailView: View {
                             }) {
                                 Image(systemName: "slider.vertical.3")
                                     .foregroundColor(.white)
-                                    .frame(width: 24, height: 24)
+                                    .frame(width: 32, height: 32)
                                     .background(Color.theme.secondary.opacity(0.3))
                                     .clipShape(Circle())
                             }
@@ -516,7 +516,7 @@ struct GroupDetailView: View {
                             }) {
                                 Image(systemName: "gearshape")
                                     .foregroundColor(.white)
-                                    .frame(width: 24, height: 24)
+                                    .frame(width: 32, height: 32)
                                     .background(Color.theme.secondary.opacity(0.3))
                                     .clipShape(Circle())
                             }

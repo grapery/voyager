@@ -317,67 +317,85 @@ extension Common_StoryBoardActive {
 }
 
 // MARK: - 子视图
+private struct StoryInfoCapsule: View {
+    let avatarUrl: String
+    let title: String
+    var body: some View {
+        HStack(spacing: 6) {
+            KFImage(URL(string: convertImagetoSenceImage(url: avatarUrl, scene: .small)))
+                .cacheMemoryOnly()
+                .fade(duration: 0.25)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 20, height: 20)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
+            Text(title)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(Color.theme.primaryText)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+        .background(Capsule().fill(Color.theme.secondaryBackground))
+        .overlay(Capsule().stroke(Color.theme.border, lineWidth: 0.5))
+    }
+}
+
 private struct FeedCardHeader: View {
     let storyBoardActive: Common_StoryBoardActive
     var body: some View {
-        HStack {
-            HStack(spacing: 4) {
-                HStack(spacing: 8) {
-                    KFImage(URL(string: convertImagetoSenceImage(url: storyBoardActive.summary.storyAvatar, scene: .small)))
-                        .cacheMemoryOnly()
-                        .fade(duration: 0.25)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 32, height: 32)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
-                    Text(storyBoardActive.summary.storyTitle)
-                        .font(.system(size: 15))
-                        .foregroundColor(Color.theme.accent)
+        HStack(spacing: 8) {
+            // 故事图片
+            KFImage(URL(string: convertImagetoSenceImage(url: storyBoardActive.summary.storyAvatar, scene: .small)))
+                .cacheMemoryOnly()
+                .fade(duration: 0.25)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 36, height: 36)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
+            // 标题和时间
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 2) {
+                    Text(String(storyBoardActive.summary.storyTitle.prefix(6)))
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(Color.theme.captionText)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                    Text(".")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(Color.theme.highlight)
+                        .alignmentGuide(.firstTextBaseline) { d in d[.firstTextBaseline] }
+                    Text(String(storyBoardActive.storyboard.title.prefix(6)))
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(Color.theme.captionText)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                 }
-                Divider()
-                HStack{
-                    KFImage(URL(string: convertImagetoSenceImage(url: storyBoardActive.creator.userAvatar, scene: .small)))
-                        .cacheMemoryOnly()
-                        .fade(duration: 0.25)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 20, height: 20)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.theme.border, lineWidth: 0.5))
-                    Text(storyBoardActive.creator.userName)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color.theme.primaryText)
-                    Text("创建")
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundColor(Color.theme.primaryText)
-                }
-                .alignmentGuide(.bottom) { d in d[.bottom] }
+                Text(formatTimeAgo(timestamp: storyBoardActive.storyboard.ctime))
+                    .font(.system(size: 12))
+                    .foregroundColor(Color.theme.tertiaryText)
             }
+            .frame(height: 32, alignment: .center)
             Spacer()
-            Text(formatTimeAgo(timestamp: storyBoardActive.storyboard.ctime))
-                .font(.system(size: 12))
-                .foregroundColor(Color.theme.tertiaryText)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .padding(.horizontal, 4)
+        .padding(.vertical, 2)
     }
 }
 
 private struct FeedCardContent: View {
     let content: String
     var body: some View {
-        VStack{
+        VStack(alignment: .leading, spacing: 0) {
             Text(content)
                 .font(.system(size: 15))
                 .foregroundColor(Color.theme.primaryText)
                 .lineLimit(3)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        
+        .padding(.horizontal, 4)
+        .padding(.vertical, 2)
     }
-    
 }
 
 private struct FeedCardMedia: View {
@@ -417,8 +435,8 @@ private struct FeedCardMedia: View {
                     }
                 }
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
         }
     }
 }
@@ -427,8 +445,11 @@ private struct FeedCardActions: View {
     @Binding var storyBoardActive: Common_StoryBoardActive
     let userId: Int64
     @ObservedObject var viewModel: FeedViewModel
+    var showStoryInfo: Bool = false
+    let creatorAvatar: String?
+    let creatorName: String?
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
             StorySubViewInteractionButton(
                 icon: storyBoardActive.storyboard.currentUserStatus.isLiked ? "heart.fill" : "heart",
                 count: "\(storyBoardActive.totalLikeCount)",
@@ -460,9 +481,13 @@ private struct FeedCardActions: View {
                 action: {}
             )
             Spacer()
+            // 右下角显示创作者信息胶囊
+            if showStoryInfo, let avatar = creatorAvatar, let name = creatorName {
+                StoryInfoCapsule(avatarUrl: avatar, title: name)
+            }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .padding(.horizontal, 4)
+        .padding(.vertical, 2)
     }
 }
 
@@ -494,18 +519,20 @@ private struct FeedItemCard: View {
                 }
             }
         ) {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 4) {
                 FeedCardHeader(storyBoardActive: storyBoardActive)
                 FeedCardContent(content: storyBoardActive.storyboard.content)
                 FeedCardMedia(sceneMediaContents: sceneMediaContents)
                 FeedCardActions(
                     storyBoardActive: $storyBoardActive,
                     userId: userId,
-                    viewModel: viewModel
+                    viewModel: viewModel,
+                    showStoryInfo: true,
+                    creatorAvatar: storyBoardActive.creator.userAvatar,
+                    creatorName: storyBoardActive.creator.userName
                 )
             }
-            .padding()
-            .padding(.vertical, 6)
+            .padding(8)
             .background(Color.theme.secondaryBackground)
             .cornerRadius(8)
             .overlay(
