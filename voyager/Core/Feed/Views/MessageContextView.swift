@@ -8,7 +8,6 @@
 import SwiftUI
 import Kingfisher
 import ActivityIndicatorView
-import Combine
 
 
 struct MessageContextView: View {
@@ -27,8 +26,6 @@ struct MessageContextView: View {
     @State private var isLoadingHistory = false
     @State private var hasMoreMessages = true  // 新增：标记是否还有更多消息
     @State private var showChatSetting = false
-    
-    @StateObject private var keyboard = KeyboardResponder()
     
     init(userId: Int64, roleId: Int64, role: StoryRole) {
         self.role = role
@@ -65,7 +62,6 @@ struct MessageContextView: View {
                     }
                 )
             }
-            .padding(.bottom, keyboard.currentHeight)
         }
         .navigationBarHidden(true)
         .ignoresSafeArea(.keyboard)
@@ -512,21 +508,6 @@ struct AvatarView: View {
     }
 }
 
-// 键盘高度监听辅助类
-final class KeyboardResponder: ObservableObject {
-    @Published var currentHeight: CGFloat = 0
-    private var cancellableSet: Set<AnyCancellable> = []
 
-    init() {
-        let willShow = NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
-            .map { ($0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect)?.height ?? 0 }
-        let willHide = NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
-            .map { _ in CGFloat(0) }
-
-        Publishers.Merge(willShow, willHide)
-            .assign(to: \KeyboardResponder.currentHeight, on: self)
-            .store(in: &cancellableSet)
-    }
-}
 
 
