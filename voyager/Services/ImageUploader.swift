@@ -141,88 +141,28 @@ func convertImagetoSenceImage(
     customSpec: ImageSpec? = nil
 ) -> String {
     // 如果URL为空，返回空字符串
-    if url!.isEmpty {
-        return ""
-    }
-    
-    // 根据场景获取对应的图片规格
-    let spec: ImageSpec
+    guard let url = url, !url.isEmpty else { return "" }
+    print("[convertImagetoSenceImage] 原始URL: \(url)")
+    // 根据 scene 参数拼接不同后缀
+    let formatSuffix: String
     switch scene {
-    case .small:
-        spec = .fixedWidth(200)  // 小图使用200宽度，自适应高度
-    case .thumbnail:
-        spec = .fixedScale(width: 400, height: 300)  // 缩略图使用400x300比例
-    case .preview:
-        spec = .fixedWidth(800)  // 预览图使用800宽度，自适应高度
-    case .content:
-        spec = .fixedWidth(1200)  // 内容图使用1200宽度，自适应高度
-    case .original:
-        spec = .original  // 原始图不做处理
+    case .content:    formatSuffix = "_content"
+    case .preview:    formatSuffix = "_preview"
+    case .small:      formatSuffix = "_small"
+    case .thumbnail:  formatSuffix = "_thumbnail"
+    case .original:   print("[convertImagetoSenceImage] 处理后URL: \(url)"); return url // 原图直接返回
     }
-    
-    // 使用自定义规格或场景默认规格
-    let finalSpec = customSpec ?? spec
-    
-    // 如果是原始图且没有其他处理参数，直接返回原始URL
-    if case .original = finalSpec, case .original = format, quality == nil {
-        return url!
+    // 在扩展名前插入后缀
+    let resultUrl: String
+    if let dotRange = url.range(of: ".", options: .backwards) {
+        let prefix = url[..<dotRange.lowerBound]
+        let ext = url[dotRange.lowerBound...] // 包含点
+        resultUrl = "\(prefix)\(formatSuffix)\(ext)"
+    } else {
+        // 没有扩展名，直接拼接
+        resultUrl = url + formatSuffix
     }
-    
-    // 构建处理参数数组
-    var processes: [String] = []
-    
-    // 添加规格处理参数
-    if finalSpec.processParam.isEmpty == false {
-        processes.append(finalSpec.processParam)
-    }
-    
-    // 添加格式转换参数
-    if format.processParam.isEmpty == false {
-        processes.append(format.processParam)
-    }
-    
-    // 添加质量参数
-    if let quality = quality {
-        processes.append(quality.processParam)
-    }
-    
-    // 如果没有处理参数，返回原始URL
-    if processes.isEmpty {
-        return url!
-    }
-    
-    // 组合所有处理参数
-    let finnalUrl = url! + "?x-oss-process=image/" + processes.joined(separator: "/")
-    // AliyunClient.ProcessAndStoreImageByHTTP(objectUrl: url!, scene: scene, completion: {
-    //     success, targetObject in
-    //     if success {
-    //         print("convert success: ",url as Any)
-    //     } else {
-    //         print("convert failed: ",url as Any)
-    //     }
-    // })
-//    let objectUrl = url // 你的 OSS object key
-//    var results: [ImageScene: String] = [:]
-//    let group = DispatchGroup()
-//    
-//    for scene in ImageScene.allCases {
-//        group.enter()
-//        AliyunClient.ProcessAndStoreImageByHTTP(objectUrl: objectUrl!, scene: scene) { success, targetObject in
-//            if success, let path = targetObject {
-//                results[scene] = path
-//                print("scene \(scene): \(path)")
-//            } else {
-//                print("scene \(scene) convert failed")
-//            }
-//            group.leave()
-//        }
-//    }
-//
-//    // 等待所有异步任务完成
-//    group.notify(queue: .main) {
-//        print("所有scene处理完成，结果：\(results)")
-//        // 你可以在这里使用 results 字典
-//    }
-    return url!
+    print("[convertImagetoSenceImage] 处理后URL: \(resultUrl)")
+    return resultUrl
 }
 

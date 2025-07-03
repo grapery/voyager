@@ -31,219 +31,190 @@ enum AppTheme {
         case .light:
             return ThemeColors(
                 // MARK: - Background Colors (背景色)
-                background: Color(red: 0.949, green: 0.949, blue: 0.969), // #F2F2F7 - 主背景
-                secondaryBackground: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 次要背景
-                tertiaryBackground: Color(red: 0.898, green: 0.898, blue: 0.918), // #E5E5EA - 第三级背景
-                cardBackground: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 卡片背景
-                sheetBackground: Color(red: 0.949, green: 0.949, blue: 0.969), // #F2F2F7 - 底部弹窗背景
-                modalBackground: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 模态框背景
-                navigationBackground: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 导航栏背景
-                tabBarBackground: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 标签栏背景
-                searchBarBackground: Color(red: 0.898, green: 0.898, blue: 0.918), // #E5E5EA - 搜索栏背景
-                listBackground: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 列表背景
-                groupBackground: Color(red: 0.949, green: 0.949, blue: 0.969), // #F2F2F7 - 分组背景
-                
+                background: Color(hex: "FFFFFF"), // 主背景白色
+                secondaryBackground: Color(hex: "FFFFFF"), // 卡片/弹窗白色
+                tertiaryBackground: Color(hex: "A7D8DE"), // 天青色，三级背景
+                cardBackground: Color(hex: "FFFFFF"),
+                sheetBackground: Color(hex: "FFFFFF"),
+                modalBackground: Color(hex: "FFFFFF"),
+                navigationBackground: Color(hex: "FFFFFF"), // 导航栏白色
+                tabBarBackground: Color(hex: "FFFFFF"), // TabBar白色
+                searchBarBackground: Color(hex: "FFFFFF"), // 搜索栏白色
+                listBackground: Color(hex: "FFFFFF"),
+                groupBackground: Color(hex: "FFFFFF"),
                 // MARK: - Text Colors (文字颜色)
-                primaryText: Color(red: 0.0, green: 0.0, blue: 0.0), // #000000 - 主要文字
-                secondaryText: Color(red: 0.235, green: 0.235, blue: 0.263), // #3C3C43 - 次要文字
-                tertiaryText: Color(red: 0.471, green: 0.471, blue: 0.502), // #787880 - 第三级文字
-                placeholderText: Color(red: 0.471, green: 0.471, blue: 0.502), // #787880 - 占位符文字
-                linkText: Color(red: 0.0, green: 0.478, blue: 1.0), // #007AFF - 链接文字
-                captionText: Color(red: 0.471, green: 0.471, blue: 0.502), // #787880 - 说明文字
-                labelText: Color(red: 0.235, green: 0.235, blue: 0.263), // #3C3C43 - 标签文字
-                titleText: Color(red: 0.0, green: 0.0, blue: 0.0), // #000000 - 标题文字
-                subtitleText: Color(red: 0.235, green: 0.235, blue: 0.263), // #3C3C43 - 副标题文字
-                
+                primaryText: Color(hex: "222222"), // 黑色
+                secondaryText: Color(hex: "2C3552"), // 藏青色
+                tertiaryText: Color(hex: "A7D8DE"), // 天青色
+                placeholderText: Color(hex: "A7D8DE"), // 天青色
+                linkText: Color(hex: "7ECFFF"), // 天蓝色
+                captionText: Color(hex: "222222"), // 黑色（说明文字/时间）
+                labelText: Color(hex: "2C3552"), // 藏青色
+                titleText: Color(hex: "222222"), // 黑色
+                subtitleText: Color(hex: "2C3552"), // 藏青色
                 // MARK: - Content Colors (内容颜色)
-                primary: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661 - 主色调
-                secondary: Color(red: 0.173, green: 0.173, blue: 0.180), // #2C2C2E - 次要色调
-                accent: Color(red: 0.0, green: 0.478, blue: 1.0), // #007AFF - 强调色
-                highlight: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661 - 高亮色
-                selection: Color(red: 0.0, green: 0.478, blue: 1.0), // #007AFF - 选中色
-                
+                primary: Color(hex: "7ECFFF"), // 天蓝色
+                secondary: Color(hex: "A7D8DE"), // 天青色
+                accent: Color(hex: "7ECFFF"), // 天蓝色
+                highlight: Color(hex: "FFB3A7"), // 浅红色
+                selection: Color(hex: "7ECFFF"),
                 // MARK: - Status Colors (状态颜色)
-                success: Color(red: 0.204, green: 0.780, blue: 0.349), // #34C759 - 成功
-                warning: Color(red: 1.0, green: 0.584, blue: 0.0), // #FF9500 - 警告
-                error: Color(red: 1.0, green: 0.231, blue: 0.188), // #FF3B30 - 错误
-                info: Color(red: 0.0, green: 0.478, blue: 1.0), // #007AFF - 信息
-                
+                success: Color(hex: "A7D8DE"), // 天青色
+                warning: Color(hex: "FFB366"), // 柔和橙色
+                error: Color(hex: "FFB3A7"), // 浅红色
+                info: Color(hex: "7ECFFF"), // 天蓝色
                 // MARK: - Interactive Colors (交互颜色)
-                buttonBackground: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661 - 按钮背景
-                buttonText: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 按钮文字
-                buttonSecondaryBackground: Color(red: 0.898, green: 0.898, blue: 0.918), // #E5E5EA - 次要按钮背景
-                buttonSecondaryText: Color(red: 0.0, green: 0.0, blue: 0.0), // #000000 - 次要按钮文字
-                buttonDisabledBackground: Color(red: 0.898, green: 0.898, blue: 0.918), // #E5E5EA - 禁用按钮背景
-                buttonDisabledText: Color(red: 0.471, green: 0.471, blue: 0.502), // #787880 - 禁用按钮文字
-                
+                buttonBackground: Color(hex: "7ECFFF"), // 天蓝色
+                buttonText: Color(hex: "FFFFFF"), // 按钮文字白色
+                buttonSecondaryBackground: Color(hex: "A7D8DE"), // 天青色
+                buttonSecondaryText: Color(hex: "2C3552"), // 藏青色
+                buttonDisabledBackground: Color(hex: "F5E9DA"), // 锆石沙色
+                buttonDisabledText: Color(hex: "A7D8DE"), // 天青色
                 // MARK: - Input Colors (输入框颜色)
-                inputBackground: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 输入框背景
-                inputText: Color(red: 0.0, green: 0.0, blue: 0.0), // #000000 - 输入框文字
-                inputBorder: Color(red: 0.820, green: 0.820, blue: 0.839), // #D1D1D6 - 输入框边框
-                inputFocusBorder: Color(red: 0.0, green: 0.478, blue: 1.0), // #007AFF - 输入框聚焦边框
-                inputErrorBorder: Color(red: 1.0, green: 0.231, blue: 0.188), // #FF3B30 - 输入框错误边框
-                
+                inputBackground: Color(hex: "FFFFFF"),
+                inputText: Color(hex: "222222"),
+                inputBorder: Color(hex: "A7D8DE"),
+                inputFocusBorder: Color(hex: "7ECFFF"),
+                inputErrorBorder: Color(hex: "FFB3A7"),
                 // MARK: - Divider & Border Colors (分割线和边框颜色)
-                divider: Color(red: 0.776, green: 0.776, blue: 0.784), // #C6C6C8 - 分割线
-                border: Color(red: 0.820, green: 0.820, blue: 0.839), // #D1D1D6 - 边框
-                cardBorder: Color(red: 0.898, green: 0.898, blue: 0.918), // #E5E5EA - 卡片边框
-                separator: Color(red: 0.776, green: 0.776, blue: 0.784), // #C6C6C8 - 分隔符
-                
+                divider: Color(hex: "A7D8DE"),
+                border: Color(hex: "A7D8DE"),
+                cardBorder: Color(hex: "A7D8DE"),
+                separator: Color(hex: "F5E9DA"),
                 // MARK: - Icon Colors (图标颜色)
-                iconColor: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661 - 主图标色
-                iconSecondary: Color(red: 0.471, green: 0.471, blue: 0.502), // #787880 - 次要图标色
-                iconTertiary: Color(red: 0.235, green: 0.235, blue: 0.263), // #3C3C43 - 第三级图标色
-                iconDisabled: Color(red: 0.776, green: 0.776, blue: 0.784), // #C6C6C8 - 禁用图标色
-                
+                iconColor: Color(hex: "7ECFFF"),
+                iconSecondary: Color(hex: "A7D8DE"),
+                iconTertiary: Color(hex: "2C3552"),
+                iconDisabled: Color(hex: "F5E9DA"),
                 // MARK: - Social Action Colors (社交操作颜色)
-                likeIcon: Color(red: 0.976, green: 0.231, blue: 0.188), // #FA3B30 - 点赞图标
-                followIcon: Color(red: 0.0, green: 0.478, blue: 1.0), // #007AFF - 关注图标
-                joinedIcon: Color(red: 0.204, green: 0.780, blue: 0.349), // #34C759 - 加入图标
-                commentedIcon: Color(red: 0.471, green: 0.471, blue: 0.502), // #787880 - 评论图标
-                forkedIcon: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661 - 分支图标
-                sharedIcon: Color(red: 0.0, green: 0.478, blue: 1.0), // #007AFF - 分享图标
-                
+                likeIcon: Color(hex: "FFB3A7"), // 浅红色
+                followIcon: Color(hex: "FFB3A7"), // 浅红色
+                joinedIcon: Color(hex: "A7D8DE"),
+                commentedIcon: Color(hex: "2C3552"),
+                forkedIcon: Color(hex: "FFB366"),
+                sharedIcon: Color(hex: "7ECFFF"),
                 // MARK: - Special Colors (特殊颜色)
-                settingsBackground: Color(red: 0.949, green: 0.949, blue: 0.969), // #F2F2F7 - 设置背景
-                appProfileBlue: Color(red: 0.0, green: 0.478, blue: 1.0), // #007AFF - 应用配置蓝色
-                shadow: Color(red: 0.0, green: 0.0, blue: 0.0, opacity: 0.1), // 阴影色
-                overlay: Color(red: 0.0, green: 0.0, blue: 0.0, opacity: 0.5), // 遮罩色
-                blur: Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.8), // 模糊背景
-                
+                settingsBackground: Color(hex: "FFFFFF"),
+                appProfileBlue: Color(hex: "7ECFFF"),
+                shadow: Color(hex: "A7D8DE").opacity(0.12),
+                overlay: Color(hex: "2C3552").opacity(0.08),
+                blur: Color(hex: "FFFFFF").opacity(0.7),
                 // MARK: - Profile Colors (个人资料颜色)
-                profileBackground: Color(red: 0.949, green: 0.949, blue: 0.969), // #F2F2F7 - 个人资料背景
-                profileCardBackground: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 个人资料卡片背景
-                profileSectionBackground: Color(red: 0.898, green: 0.898, blue: 0.918), // #E5E5EA - 个人资料分区背景
-                
+                profileBackground: Color(hex: "FFFFFF"),
+                profileCardBackground: Color(hex: "FFFFFF"),
+                profileSectionBackground: Color(hex: "A7D8DE"),
                 // MARK: - Story Colors (故事相关颜色)
-                storyBackground: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 故事背景
-                storyCardBackground: Color(red: 0.949, green: 0.949, blue: 0.969), // #F2F2F7 - 故事卡片背景
-                storyHighlight: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661 - 故事高亮
-                
+                storyBackground: Color(hex: "FFFFFF"),
+                storyCardBackground: Color(hex: "FFFFFF"),
+                storyHighlight: Color(hex: "7ECFFF"),
                 // MARK: - Chat Colors (聊天相关颜色)
-                chatBackground: Color(red: 0.949, green: 0.949, blue: 0.969), // #F2F2F7 - 聊天背景
-                chatBubbleBackground: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 聊天气泡背景
-                chatBubbleText: Color(red: 0.0, green: 0.0, blue: 0.0), // #000000 - 聊天气泡文字
-                chatInputBackground: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 聊天输入背景
-                
+                chatBackground: Color(hex: "FFFFFF"),
+                chatBubbleBackground: Color(hex: "FFFFFF"),
+                chatBubbleText: Color(hex: "222222"),
+                chatInputBackground: Color(hex: "FFFFFF"),
                 // MARK: - Notification Colors (通知相关颜色)
-                notificationBackground: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 通知背景
-                notificationBadge: Color(red: 1.0, green: 0.231, blue: 0.188), // #FF3B30 - 通知徽章
-                notificationUnread: Color(red: 0.0, green: 0.478, blue: 1.0), // #007AFF - 未读通知
-                
+                notificationBackground: Color(hex: "FFFFFF"),
+                notificationBadge: Color(hex: "FFB3A7"),
+                notificationUnread: Color(hex: "7ECFFF"),
                 // MARK: - Loading Colors (加载相关颜色)
-                loadingBackground: Color(red: 0.949, green: 0.949, blue: 0.969), // #F2F2F7 - 加载背景
-                loadingIndicator: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661 - 加载指示器
-                skeletonBackground: Color(red: 0.898, green: 0.898, blue: 0.918), // #E5E5EA - 骨架屏背景
-                skeletonHighlight: Color(red: 1.0, green: 1.0, blue: 1.0) // #FFFFFF - 骨架屏高亮
+                loadingBackground: Color(hex: "FFFFFF"),
+                loadingIndicator: Color(hex: "7ECFFF"),
+                skeletonBackground: Color(hex: "A7D8DE"),
+                skeletonHighlight: Color(hex: "FFFFFF")
             )
-            
         case .dark:
             return ThemeColors(
                 // MARK: - Background Colors (背景色)
-                background: Color(red: 0.063, green: 0.098, blue: 0.071), // #101912 - 主背景
-                secondaryBackground: Color(red: 0.098, green: 0.133, blue: 0.102), // #19221A - 次要背景
-                tertiaryBackground: Color(red: 0.137, green: 0.157, blue: 0.137), // #232823 - 第三级背景
-                cardBackground: Color(red: 0.098, green: 0.133, blue: 0.102), // #19221A - 卡片背景
-                sheetBackground: Color(red: 0.063, green: 0.098, blue: 0.071), // #101912 - 底部弹窗背景
-                modalBackground: Color(red: 0.098, green: 0.133, blue: 0.102), // #19221A - 模态框背景
-                navigationBackground: Color(red: 0.063, green: 0.098, blue: 0.071), // #101912 - 导航栏背景
-                tabBarBackground: Color(red: 0.063, green: 0.098, blue: 0.071), // #101912 - 标签栏背景
-                searchBarBackground: Color(red: 0.137, green: 0.157, blue: 0.137), // #232823 - 搜索栏背景
-                listBackground: Color(red: 0.098, green: 0.133, blue: 0.102), // #19221A - 列表背景
-                groupBackground: Color(red: 0.063, green: 0.098, blue: 0.071), // #101912 - 分组背景
-                
+                background: Color(hex: "222222"), // 主背景黑色
+                secondaryBackground: Color(hex: "232B3A"), // 深藏青
+                tertiaryBackground: Color(hex: "2C3552"), // 藏青色
+                cardBackground: Color(hex: "232B3A"),
+                sheetBackground: Color(hex: "232B3A"),
+                modalBackground: Color(hex: "232B3A"),
+                navigationBackground: Color(hex: "232B3A"),
+                tabBarBackground: Color(hex: "232B3A"),
+                searchBarBackground: Color(hex: "222222"), // 搜索栏黑色
+                listBackground: Color(hex: "232B3A"),
+                groupBackground: Color(hex: "232B3A"),
                 // MARK: - Text Colors (文字颜色)
-                primaryText: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 主要文字
-                secondaryText: Color(red: 0.749, green: 0.784, blue: 0.761), // #BFC8C2 - 次要文字
-                tertiaryText: Color(red: 0.596, green: 0.596, blue: 0.624), // #98989F - 第三级文字
-                placeholderText: Color(red: 0.596, green: 0.596, blue: 0.624), // #98989F - 占位符文字
-                linkText: Color(red: 0.039, green: 0.518, blue: 1.0), // #0A84FF - 链接文字
-                captionText: Color(red: 0.596, green: 0.596, blue: 0.624), // #98989F - 说明文字
-                labelText: Color(red: 0.749, green: 0.784, blue: 0.761), // #BFC8C2 - 标签文字
-                titleText: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 标题文字
-                subtitleText: Color(red: 0.749, green: 0.784, blue: 0.761), // #BFC8C2 - 副标题文字
-                
+                primaryText: Color(hex: "FFFFFF"), // 白色
+                secondaryText: Color(hex: "A7D8DE"), // 天青色
+                tertiaryText: Color(hex: "7ECFFF"), // 天蓝色
+                placeholderText: Color(hex: "A7D8DE"),
+                linkText: Color(hex: "7ECFFF"), // 天蓝色
+                captionText: Color(hex: "FFFFFF"), // 白色（说明文字/时间）
+                labelText: Color(hex: "A7D8DE"), // 天青色
+                titleText: Color(hex: "FFFFFF"), // 白色
+                subtitleText: Color(hex: "A7D8DE"), // 天青色
                 // MARK: - Content Colors (内容颜色)
-                primary: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661 - 主色调
-                secondary: Color(red: 0.173, green: 0.173, blue: 0.180), // #2C2C2E - 次要色调
-                accent: Color(red: 0.039, green: 0.518, blue: 1.0), // #0A84FF - 强调色
-                highlight: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661 - 高亮色
-                selection: Color(red: 0.039, green: 0.518, blue: 1.0), // #0A84FF - 选中色
-                
+                primary: Color(hex: "7ECFFF"),
+                secondary: Color(hex: "A7D8DE"),
+                accent: Color(hex: "7ECFFF"),
+                highlight: Color(hex: "FFB3A7"),
+                selection: Color(hex: "7ECFFF"),
                 // MARK: - Status Colors (状态颜色)
-                success: Color(red: 0.188, green: 0.820, blue: 0.345), // #30D158 - 成功
-                warning: Color(red: 1.0, green: 0.624, blue: 0.039), // #FF9F0A - 警告
-                error: Color(red: 1.0, green: 0.271, blue: 0.227), // #FF453A - 错误
-                info: Color(red: 0.039, green: 0.518, blue: 1.0), // #0A84FF - 信息
-                
+                success: Color(hex: "A7D8DE"),
+                warning: Color(hex: "FFB366"),
+                error: Color(hex: "FFB3A7"),
+                info: Color(hex: "7ECFFF"),
                 // MARK: - Interactive Colors (交互颜色)
-                buttonBackground: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661 - 按钮背景
-                buttonText: Color(red: 0.063, green: 0.098, blue: 0.071), // #101912 - 按钮文字
-                buttonSecondaryBackground: Color(red: 0.137, green: 0.157, blue: 0.137), // #232823 - 次要按钮背景
-                buttonSecondaryText: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 次要按钮文字
-                buttonDisabledBackground: Color(red: 0.137, green: 0.157, blue: 0.137), // #232823 - 禁用按钮背景
-                buttonDisabledText: Color(red: 0.596, green: 0.596, blue: 0.624), // #98989F - 禁用按钮文字
-                
+                buttonBackground: Color(hex: "7ECFFF"),
+                buttonText: Color(hex: "222222"), // 按钮文字黑色
+                buttonSecondaryBackground: Color(hex: "232B3A"),
+                buttonSecondaryText: Color(hex: "A7D8DE"),
+                buttonDisabledBackground: Color(hex: "2C3552"),
+                buttonDisabledText: Color(hex: "A7D8DE"),
                 // MARK: - Input Colors (输入框颜色)
-                inputBackground: Color(red: 0.098, green: 0.133, blue: 0.102), // #19221A - 输入框背景
-                inputText: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 输入框文字
-                inputBorder: Color(red: 0.220, green: 0.220, blue: 0.227), // #38383A - 输入框边框
-                inputFocusBorder: Color(red: 0.039, green: 0.518, blue: 1.0), // #0A84FF - 输入框聚焦边框
-                inputErrorBorder: Color(red: 1.0, green: 0.271, blue: 0.227), // #FF453A - 输入框错误边框
-                
+                inputBackground: Color(hex: "232B3A"),
+                inputText: Color(hex: "FFFFFF"),
+                inputBorder: Color(hex: "A7D8DE"),
+                inputFocusBorder: Color(hex: "7ECFFF"),
+                inputErrorBorder: Color(hex: "FFB3A7"),
                 // MARK: - Divider & Border Colors (分割线和边框颜色)
-                divider: Color(red: 0.137, green: 0.157, blue: 0.137), // #232823 - 分割线
-                border: Color(red: 0.220, green: 0.220, blue: 0.227), // #38383A - 边框
-                cardBorder: Color(red: 0.137, green: 0.157, blue: 0.137), // #232823 - 卡片边框
-                separator: Color(red: 0.137, green: 0.157, blue: 0.137), // #232823 - 分隔符
-                
+                divider: Color(hex: "A7D8DE"),
+                border: Color(hex: "A7D8DE"),
+                cardBorder: Color(hex: "A7D8DE"),
+                separator: Color(hex: "2C3552"),
                 // MARK: - Icon Colors (图标颜色)
-                iconColor: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661 - 主图标色
-                iconSecondary: Color(red: 0.596, green: 0.596, blue: 0.624), // #98989F - 次要图标色
-                iconTertiary: Color(red: 0.749, green: 0.784, blue: 0.761), // #BFC8C2 - 第三级图标色
-                iconDisabled: Color(red: 0.137, green: 0.157, blue: 0.137), // #232823 - 禁用图标色
-                
+                iconColor: Color(hex: "7ECFFF"),
+                iconSecondary: Color(hex: "A7D8DE"),
+                iconTertiary: Color(hex: "F5E9DA"),
+                iconDisabled: Color(hex: "232B3A"),
                 // MARK: - Social Action Colors (社交操作颜色)
-                likeIcon: Color(red: 0.976, green: 0.231, blue: 0.188), // #FA3B30 - 点赞图标
-                followIcon: Color(red: 0.039, green: 0.518, blue: 1.0), // #0A84FF - 关注图标
-                joinedIcon: Color(red: 0.188, green: 0.820, blue: 0.345), // #30D158 - 加入图标
-                commentedIcon: Color(red: 0.596, green: 0.596, blue: 0.624), // #98989F - 评论图标
-                forkedIcon: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661 - 分支图标
-                sharedIcon: Color(red: 0.039, green: 0.518, blue: 1.0), // #0A84FF - 分享图标
-                
+                likeIcon: Color(hex: "FFB3A7"),
+                followIcon: Color(hex: "FFB3A7"),
+                joinedIcon: Color(hex: "A7D8DE"),
+                commentedIcon: Color(hex: "A7D8DE"),
+                forkedIcon: Color(hex: "FFB366"),
+                sharedIcon: Color(hex: "7ECFFF"),
                 // MARK: - Special Colors (特殊颜色)
-                settingsBackground: Color(red: 0.063, green: 0.098, blue: 0.071), // #101912 - 设置背景
-                appProfileBlue: Color(red: 0.039, green: 0.518, blue: 1.0), // #0A84FF - 应用配置蓝色
-                shadow: Color(red: 0.0, green: 0.0, blue: 0.0, opacity: 0.3), // 阴影色
-                overlay: Color(red: 0.0, green: 0.0, blue: 0.0, opacity: 0.7), // 遮罩色
-                blur: Color(red: 0.063, green: 0.098, blue: 0.071, opacity: 0.8), // 模糊背景
-                
+                settingsBackground: Color(hex: "232B3A"),
+                appProfileBlue: Color(hex: "7ECFFF"),
+                shadow: Color(hex: "A7D8DE").opacity(0.12),
+                overlay: Color(hex: "232B3A").opacity(0.08),
+                blur: Color(hex: "232B3A").opacity(0.7),
                 // MARK: - Profile Colors (个人资料颜色)
-                profileBackground: Color(red: 0.063, green: 0.098, blue: 0.071), // #101912 - 个人资料背景
-                profileCardBackground: Color(red: 0.098, green: 0.133, blue: 0.102), // #19221A - 个人资料卡片背景
-                profileSectionBackground: Color(red: 0.137, green: 0.157, blue: 0.137), // #232823 - 个人资料分区背景
-                
+                profileBackground: Color(hex: "232B3A"),
+                profileCardBackground: Color(hex: "232B3A"),
+                profileSectionBackground: Color(hex: "232B3A"),
                 // MARK: - Story Colors (故事相关颜色)
-                storyBackground: Color(red: 0.098, green: 0.133, blue: 0.102), // #19221A - 故事背景
-                storyCardBackground: Color(red: 0.063, green: 0.098, blue: 0.071), // #101912 - 故事卡片背景
-                storyHighlight: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661 - 故事高亮
-                
+                storyBackground: Color(hex: "232B3A"),
+                storyCardBackground: Color(hex: "232B3A"),
+                storyHighlight: Color(hex: "7ECFFF"),
                 // MARK: - Chat Colors (聊天相关颜色)
-                chatBackground: Color(red: 0.063, green: 0.098, blue: 0.071), // #101912 - 聊天背景
-                chatBubbleBackground: Color(red: 0.098, green: 0.133, blue: 0.102), // #19221A - 聊天气泡背景
-                chatBubbleText: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF - 聊天气泡文字
-                chatInputBackground: Color(red: 0.098, green: 0.133, blue: 0.102), // #19221A - 聊天输入背景
-                
+                chatBackground: Color(hex: "232B3A"),
+                chatBubbleBackground: Color(hex: "232B3A"),
+                chatBubbleText: Color(hex: "FFFFFF"),
+                chatInputBackground: Color(hex: "232B3A"),
                 // MARK: - Notification Colors (通知相关颜色)
-                notificationBackground: Color(red: 0.098, green: 0.133, blue: 0.102), // #19221A - 通知背景
-                notificationBadge: Color(red: 1.0, green: 0.271, blue: 0.227), // #FF453A - 通知徽章
-                notificationUnread: Color(red: 0.039, green: 0.518, blue: 1.0), // #0A84FF - 未读通知
-                
+                notificationBackground: Color(hex: "232B3A"),
+                notificationBadge: Color(hex: "FFB3A7"),
+                notificationUnread: Color(hex: "7ECFFF"),
                 // MARK: - Loading Colors (加载相关颜色)
-                loadingBackground: Color(red: 0.063, green: 0.098, blue: 0.071), // #101912 - 加载背景
-                loadingIndicator: Color(red: 0.647, green: 0.839, blue: 0.380), // #A5D661 - 加载指示器
-                skeletonBackground: Color(red: 0.137, green: 0.157, blue: 0.137), // #232823 - 骨架屏背景
-                skeletonHighlight: Color(red: 0.098, green: 0.133, blue: 0.102) // #19221A - 骨架屏高亮
+                loadingBackground: Color(hex: "232B3A"),
+                loadingIndicator: Color(hex: "7ECFFF"),
+                skeletonBackground: Color(hex: "A7D8DE"),
+                skeletonHighlight: Color(hex: "232B3A")
             )
         }
     }

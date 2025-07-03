@@ -8,6 +8,8 @@
 import SwiftUI
 import Kingfisher
 import ActivityIndicatorView
+import Combine
+
 
 struct MessageContextView: View {
     @ObservedObject var viewModel: MessageContextViewModel
@@ -26,6 +28,7 @@ struct MessageContextView: View {
     @State private var hasMoreMessages = true  // 新增：标记是否还有更多消息
     @State private var showChatSetting = false
     
+    @StateObject private var keyboard = KeyboardResponder()
     
     init(userId: Int64, roleId: Int64, role: StoryRole) {
         self.role = role
@@ -51,16 +54,18 @@ struct MessageContextView: View {
                     onLoadMore: loadMoreMessages
                 )
                 
-                ChatInputBar(
-                    newMessageContent: $newMessageContent,
-                    isInputFocused: $isInputFocused,
-                    onSendMessage: {
+                CommonInputBar(
+                    text: $newMessageContent,
+                    isFocused: $isInputFocused,
+                    placeholder: "发送消息",
+                    onSend: {
                         Task {
                             await sendMessage()
                         }
                     }
                 )
             }
+            .padding(.bottom, keyboard.currentHeight)
         }
         .navigationBarHidden(true)
         .ignoresSafeArea(.keyboard)
@@ -300,89 +305,6 @@ struct MessageContextView: View {
             }
         }
     }
-    
-    // 输入栏组件
-    private struct ChatInputBar: View {
-        @Binding var newMessageContent: String
-        var isInputFocused: FocusState<Bool>.Binding
-        let onSendMessage: () -> Void
-        @State private var isShowingMediaOptions = false
-        
-        var body: some View {
-            VStack(spacing: 0) {
-                if isShowingMediaOptions {
-                    mediaOptionsView
-                        .transition(.move(edge: .bottom))
-                }
-                HStack(alignment: .center, spacing: 6) {
-                    Button(action: {
-                        withAnimation {
-                            isShowingMediaOptions.toggle()
-                        }
-                    }) {
-                        Image(systemName: "plus.circle")
-                            .font(.system(size: 20))
-                            .foregroundColor(Color.theme.primaryText)
-                    }
-                    .frame(width: 28, height: 28)
-                    
-                    ZStack(alignment: .leading) {
-                        if newMessageContent.isEmpty {
-                            Text("发送消息")
-                                .foregroundColor(Color.theme.tertiaryText)
-                                .padding(.leading, 6)
-                        }
-                        TextField("", text: $newMessageContent)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 6)
-                            .background(Color.theme.inputBackground)
-                            .cornerRadius(14)
-                            .focused(isInputFocused)
-                            .frame(minHeight: 28, maxHeight: 36)
-                    }
-                    .frame(minHeight: 28, maxHeight: 36)
-                    
-                    Button(action: onSendMessage) {
-                        Image(systemName: "paperplane.circle.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(newMessageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.theme.tertiaryText : Color.theme.accent)
-                    }
-                    .frame(width: 28, height: 28)
-                    .disabled(newMessageContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                }
-                .padding(.horizontal, 6)
-                .padding(.vertical, 4)
-                .background(Color.theme.secondaryBackground)
-                .animation(.easeInOut, value: isShowingMediaOptions)
-            }
-            .shadow(color: Color.theme.tertiaryText.opacity(0.10), radius: 2, x: 0, y: 2)
-        }
-        
-        private var mediaOptionsView: some View {
-            HStack(spacing: 14) {
-                mediaOption(icon: "photo", title: "相册")
-                mediaOption(icon: "camera", title: "拍摄")
-                mediaOption(icon: "mic", title: "语音")
-                mediaOption(icon: "location", title: "位置")
-            }
-            .padding(6)
-            .background(Color.theme.secondaryBackground)
-        }
-        
-        private func mediaOption(icon: String, title: String) -> some View {
-            VStack {
-                Image(systemName: icon)
-                    .font(.system(size: 18))
-                    .foregroundColor(.white)
-                    .frame(width: 30, height: 30)
-                    .background(Color.orange)
-                    .cornerRadius(7)
-                Text(title)
-                    .font(.caption2)
-                    .foregroundColor(.gray)
-            }
-        }
-    }
 }
 
 struct MessageCellView: View {
@@ -587,6 +509,23 @@ struct AvatarView: View {
             return defaultAvator
         }
         return ""
+    }
+}
+
+// 键盘高度监听辅助类
+final class KeyboardResponder: ObservableObject {
+    @Published var currentHeight: CGFloat = 0
+    private var cancellableSet: Set<AnyCancellable> = []
+
+    init() {
+        let willShow = NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+            .map { ($0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect)?.height ?? 0 }
+        let willHide = NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+            .map { _ in CGFloat(0) }
+
+        Publishers.Merge(willShow, willHide)
+            .assign(to: \KeyboardResponder.currentHeight, on: self)
+            .store(in: &cancellableSet)
     }
 }
 

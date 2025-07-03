@@ -146,6 +146,7 @@
 		EDAD45182E0B704C00EAEFD0 /* UnpublishBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAD45172E0B702600EAEFD0 /* UnpublishBoardView.swift */; };
 		EDAD45232E0B71ED00EAEFD0 /* UserProfileSubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAD45202E0B71D800EAEFD0 /* UserProfileSubView.swift */; };
 		EDAD452A2E0D94BA00EAEFD0 /* localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAD45292E0D94BA00EAEFD0 /* localization.swift */; };
+		EDAD45502E157E6B00EAEFD0 /* CommonInputBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAD454F2E157E6B00EAEFD0 /* CommonInputBar.swift */; };
 		EDB4BEBE2DFE58F4002647C3 /* RoleImageGenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB4BEBD2DFE58E2002647C3 /* RoleImageGenView.swift */; };
 		EDB4BEEB2DFEA99D002647C3 /* StoryboardVidoeGenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB4BEEA2DFEA955002647C3 /* StoryboardVidoeGenView.swift */; };
 		EDB4BF1C2DFF97C7002647C3 /* AiChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB4BF1B2DFF97B2002647C3 /* AiChatView.swift */; };
@@ -292,6 +293,7 @@
 		EDAD45172E0B702600EAEFD0 /* UnpublishBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnpublishBoardView.swift; sourceTree = "<group>"; };
 		EDAD45202E0B71D800EAEFD0 /* UserProfileSubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileSubView.swift; sourceTree = "<group>"; };
 		EDAD45292E0D94BA00EAEFD0 /* localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = localization.swift; sourceTree = "<group>"; };
+		EDAD454F2E157E6B00EAEFD0 /* CommonInputBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonInputBar.swift; sourceTree = "<group>"; };
 		EDB4BEBD2DFE58E2002647C3 /* RoleImageGenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleImageGenView.swift; sourceTree = "<group>"; };
 		EDB4BEEA2DFEA955002647C3 /* StoryboardVidoeGenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryboardVidoeGenView.swift; sourceTree = "<group>"; };
 		EDB4BF1B2DFF97B2002647C3 /* AiChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiChatView.swift; sourceTree = "<group>"; };
@@ -553,6 +555,7 @@
 		0FFA505C2B0857DA00D3A4CF /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				EDAD454F2E157E6B00EAEFD0 /* CommonInputBar.swift */,
 				ED6EA4822DDAA56100C5BA3D /* ProfileHelpers.swift */,
 				ED6EA4832DDAA56100C5BA3D /* ProfileScreen.swift */,
 				0F5D96182D6A169F00A2EDFE /* SearchBar.swift */,
@@ -964,6 +967,7 @@
 				0F7602A92BB92ACD00F8D900 /* TextArea.swift in Sources */,
 				EDB4BF582E06EAFF002647C3 /* StoryForkListViewModel.swift in Sources */,
 				0F07092A2B1F65910023F8EC /* SearchService.swift in Sources */,
+				EDAD45502E157E6B00EAEFD0 /* CommonInputBar.swift in Sources */,
 				0F2916342CB124FC002366BE /* NewStoryView.swift in Sources */,
 				0F1CE90D2BB81B4A00C7A8AD /* comment.pb.swift in Sources */,
 				0FFA508F2B0857DA00D3A4CF /* ProfileViewModel.swift in Sources */,

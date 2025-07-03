@@ -12,6 +12,7 @@ import SwiftUI
 import Kingfisher
 import ActivityIndicatorView
 
+
 struct DiscoveryView: View {
     @ObservedObject var viewModel: FeedViewModel
     @State private var messageText: String = ""
@@ -115,9 +116,10 @@ struct DiscoveryView: View {
                 .animation(.easeInOut(duration: 0.2), value: isFocused)
             }
             // 新输入栏
-            InputBar(
+            CommonInputBar(
                 text: $messageText,
                 isFocused: $isFocused,
+                placeholder: "请输入您的问题...",
                 onSend: sendMessage
             )
         }
@@ -224,61 +226,6 @@ struct DiscoveryView: View {
         } else {
             return "我理解您说的是'你好'。请问还有其他我能帮助您的吗？"
         }
-    }
-}
-
-// MARK: - InputBar (Aligned with MessageContextView.ChatInputBar)
-private struct InputBar: View {
-    @Binding var text: String
-    var isFocused: FocusState<Bool>.Binding
-    var onSend: () -> Void
-    @State private var isShowingMediaOptions = false
-
-    var body: some View {
-        VStack(spacing: 0) {
-            // Placeholder for future media options:
-            // if isShowingMediaOptions { mediaOptionsView.transition(.move(edge: .bottom)) }
-
-            HStack(alignment: .center, spacing: 6) {
-                Button(action: {
-                    withAnimation { isShowingMediaOptions.toggle() }
-                }) {
-                    Image(systemName: "plus.circle")
-                        .font(.system(size: 20))
-                        .foregroundColor(Color.theme.primaryText)
-                }
-                .frame(width: 28, height: 28)
-
-                ZStack(alignment: .leading) {
-                    if text.isEmpty {
-                        Text("请输入您的问题...")
-                            .foregroundColor(Color.theme.tertiaryText)
-                            .padding(.leading, 6)
-                    }
-                    TextField("", text: $text)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 6)
-                        .background(Color.theme.inputBackground)
-                        .cornerRadius(14)
-                        .focused(isFocused)
-                        .frame(minHeight: 28, maxHeight: 36)
-                }
-                .frame(minHeight: 28, maxHeight: 36)
-
-                Button(action: onSend) {
-                    Image(systemName: "paperplane.circle.fill")
-                        .font(.system(size: 24))
-                        .foregroundColor(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.theme.tertiaryText : Color.theme.accent)
-                }
-                .frame(width: 28, height: 28)
-                .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Color.theme.secondaryBackground)
-            .animation(.easeInOut, value: isShowingMediaOptions)
-        }
-        .shadow(color: Color.theme.tertiaryText.opacity(0.10), radius: 2, x: 0, y: 2)
     }
 }
 
