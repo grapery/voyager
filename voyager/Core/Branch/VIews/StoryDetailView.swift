@@ -42,16 +42,16 @@ struct StoryDetailView: View {
     
     var body: some View {
         ZStack {
-            Color(.systemGray6).ignoresSafeArea()
+            Color.theme.background.ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: 8) {
                     storyHeader
                     storyStats
-                    Divider()
+                    Divider().background(Color.theme.divider)
                     //storyDetails
                     aiGenerationDetails
-                    Divider()
+                    Divider().background(Color.theme.divider)
                     charactersList
                     participantsList
                 }
@@ -67,6 +67,7 @@ struct StoryDetailView: View {
                     }
                     isEditing.toggle()
                 }
+                .font(.footnote)
             }
         }
         .sheet(isPresented: $showImagePicker) {
@@ -201,8 +202,8 @@ struct StoryDetailView: View {
     }
     
     private var aiGenerationDetails: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            VStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(spacing: 16) {
                 NavigationLink(destination: StorySettingDetailView(
                     title: "故事简介",
                     content: Binding(
@@ -217,17 +218,20 @@ struct StoryDetailView: View {
                     SettingRow(title: "故事简介") {
                         let desc = viewModel.story?.storyInfo.desc ?? ""
                         Text(desc.isEmpty ? " " : desc)
-                            .font(.subheadline)
+                            .font(.footnote)
                             .foregroundColor(Color.theme.secondaryText)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
-                            .padding(12)
+                            .padding(10)
                             .frame(minHeight: 24, alignment: .leading)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(10)
+                            .background(Color.clear)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                    .foregroundColor(Color.theme.border)
+                            )
                     }
                 }
-                
                 NavigationLink(destination: StorySettingDetailView(
                     title: "故事背景",
                     content: Binding(
@@ -242,82 +246,43 @@ struct StoryDetailView: View {
                     SettingRow(title: "故事背景") {
                         let bg = viewModel.story?.storyInfo.params.background ?? ""
                         Text(bg.isEmpty ? " " : bg)
-                            .font(.subheadline)
+                            .font(.footnote)
                             .foregroundColor(Color.theme.secondaryText)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
-                            .padding(12)
+                            .padding(10)
                             .frame(minHeight: 24, alignment: .leading)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(10)
+                            .background(Color.clear)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                    .foregroundColor(Color.theme.border)
+                            )
                     }
                 }
-                
-                NavigationLink(destination: StorySettingDetailView(
-                    title: "正面提示词",
-                    content: Binding(
-                        get: { viewModel.story?.storyInfo.params.negativePrompt ?? "" },
-                        set: { viewModel.story?.storyInfo.params.negativePrompt = $0 }
-                    ),
-                    onSave: { newContent in
-                        viewModel.story?.storyInfo.params.negativePrompt = newContent
-                        viewModel.saveStory()
-                    }
-                )) {
-                    SettingRow(title: "正面提示词") {
-                        let pos = viewModel.story?.storyInfo.params.negativePrompt ?? ""
-                        Text(pos.isEmpty ? " " : pos)
-                            .font(.subheadline)
-                            .foregroundColor(Color.theme.secondaryText)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.leading)
-                            .padding(12)
-                            .frame(minHeight: 24, alignment: .leading)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(10)
-                    }
-                }
-                
-                NavigationLink(destination: StorySettingDetailView(
-                    title: "负面提示词",
-                    content: Binding(
-                        get: { viewModel.story?.storyInfo.params.negativePrompt ?? "" },
-                        set: { viewModel.story?.storyInfo.params.negativePrompt = $0 }
-                    ),
-                    onSave: { newContent in
-                        viewModel.story?.storyInfo.params.negativePrompt = newContent
-                        viewModel.saveStory()
-                    }
-                )) {
-                    SettingRow(title: "负面提示词") {
-                        let neg = viewModel.story?.storyInfo.params.negativePrompt ?? ""
-                        Text(neg.isEmpty ? " " : neg)
-                            .font(.subheadline)
-                            .foregroundColor(Color.theme.secondaryText)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.leading)
-                            .padding(12)
-                            .frame(minHeight: 24, alignment: .leading)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(10)
-                    }
-                }
-                // 用新版 SettingRow 组件实现"故事风格"和"场景数量"
                 SettingRow(title: "故事风格") {
                     StylePicker(selectedStyle: Binding(
                         get: { viewModel.storyStyle },
                         set: { viewModel.storyStyle = $0 }
                     ))
+                    .frame(maxWidth: 320)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
                 SettingRow(title: "场景数量") {
                     SceneStepper(count: Binding(
                         get: { Int(viewModel.sceneCount) },
                         set: { viewModel.sceneCount = Int(Int32($0)) }
                     ))
+                    .frame(maxWidth: 320)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
             }
-            .background(Color(.systemBackground))
+            .background(Color.theme.secondaryBackground)
             .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.theme.border, lineWidth: 1)
+            )
         }
     }
     
@@ -733,7 +698,9 @@ struct SettingRow<Content: View>: View {
             Text(title)
                 .font(.headline)
                 .foregroundColor(Color.theme.primaryText)
+                .padding(.bottom, 4)
             content
+                .padding(.top, 4)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -763,80 +730,58 @@ struct StylePicker: View {
     }
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
+            // 只画一层 Capsule 线框
             HStack(spacing: 0) {
                 // 左按钮
                 Button(action: {
                     let newIndex = (currentIndex - 1 + styles.count) % styles.count
                     selectedStyle = styles[newIndex]
                 }) {
-                    ZStack {
-                        Color.purple.opacity(0.08)
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(Color.theme.accent)
-                            .font(.system(size: 18, weight: .bold))
-                    }
-                    .frame(width: 56, height: 40)
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(Color.theme.accent)
+                        .font(.system(size: 16, weight: .bold))
+                        .frame(width: 32, height: 32)
+                        .contentShape(Circle())
                 }
-                .clipShape(RoundedCorners(radius: 20, corners: [.topLeft, .bottomLeft]))
-                .buttonStyle(PlainButtonStyle())
-
                 // 中间风格名
                 Text(selectedStyle)
-                    .font(.system(size: 16, weight: .medium))
-                    .frame(minWidth: 60, maxWidth: .infinity, minHeight: 40, maxHeight: 40)
-                    .background(Color.white)
-                    .animation(.default, value: selectedStyle)
-                    .overlay(
-                        Rectangle()
-                            .frame(width: 1)
-                            .foregroundColor(Color.theme.border),
-                        alignment: .leading
-                    )
-                    .overlay(
-                        Rectangle()
-                            .frame(width: 1)
-                            .foregroundColor(Color.theme.border),
-                        alignment: .trailing
-                    )
-
+                    .font(.caption)
+                    .frame(minWidth: 60, maxWidth: .infinity, minHeight: 32, maxHeight: 32)
+                    .multilineTextAlignment(.center)
                 // 右按钮
                 Button(action: {
                     let newIndex = (currentIndex + 1) % styles.count
                     selectedStyle = styles[newIndex]
                 }) {
-                    ZStack {
-                        Color.purple.opacity(0.08)
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(Color.theme.accent)
-                            .font(.system(size: 18, weight: .bold))
-                    }
-                    .frame(width: 56, height: 40)
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(Color.theme.accent)
+                        .font(.system(size: 16, weight: .bold))
+                        .frame(width: 32, height: 32)
+                        .contentShape(Circle())
                 }
-                .clipShape(RoundedCorners(radius: 20, corners: [.topRight, .bottomRight]))
-                .buttonStyle(PlainButtonStyle())
             }
+            .frame(height: 32)
+            .background(Color.clear)
             .overlay(
                 Capsule()
                     .stroke(Color.theme.border, lineWidth: 1)
             )
-            .frame(height: 40)
-
             // 样例图片区域
             if let imageName = imageName(for: selectedStyle), UIImage(named: imageName) != nil {
                 Image(imageName)
                     .resizable()
                     .aspectRatio(1, contentMode: .fit)
-                    .frame(height: 80)
-                    .cornerRadius(10)
-                    .padding(.top, 4)
+                    .frame(height: 56)
+                    .cornerRadius(8)
+                    .padding(.top, 2)
             } else {
                 Image(systemName: "photo.fill.on.rectangle.fill")
                     .resizable()
                     .aspectRatio(1, contentMode: .fit)
-                    .frame(height: 80)
+                    .frame(height: 56)
                     .foregroundColor(Color.theme.tertiaryText.opacity(0.5))
-                    .padding(.top, 4)
+                    .padding(.top, 2)
             }
         }
     }
@@ -844,7 +789,7 @@ struct StylePicker: View {
 
 struct SceneStepper: View {
     @Binding var count: Int
-    let minValue: Int = 1
+    let minValue: Int = 0 // 允许0个场景
     let maxValue: Int = 8
     @State private var lastTapped: String? = nil // "up" or "down"
 
@@ -857,37 +802,18 @@ struct SceneStepper: View {
                     lastTapped = "down"
                 }
             }) {
-                ZStack {
-                    Color.purple.opacity(0.08)
-                    Image(systemName: "triangle.fill")
-                        .rotationEffect(.degrees(180))
-                        .foregroundColor(lastTapped == "down" ? Color.theme.accent : Color.theme.tertiaryText)
-                        .font(.system(size: 18, weight: .bold))
-                }
-                .frame(width: 56, height: 40)
+                Image(systemName: "triangle.fill")
+                    .rotationEffect(.degrees(180))
+                    .foregroundColor(count > minValue ? Color.theme.accent : Color.theme.tertiaryText)
+                    .font(.system(size: 16, weight: .bold))
+                    .frame(width: 32, height: 32)
+                    .contentShape(Circle())
             }
-            .clipShape(RoundedCorners(radius: 20, corners: [.topLeft, .bottomLeft]))
-            .buttonStyle(PlainButtonStyle())
-
             // 中间文本
             Text("\(count) 个场景")
-                .font(.system(size: 16, weight: .medium))
-                .frame(minWidth: 60, maxWidth: .infinity, minHeight: 40, maxHeight: 40)
-                .background(Color.white)
-                .animation(.default, value: count)
-                .overlay(
-                    Rectangle()
-                        .frame(width: 1)
-                        .foregroundColor(Color.theme.border),
-                    alignment: .leading
-                )
-                .overlay(
-                    Rectangle()
-                        .frame(width: 1)
-                        .foregroundColor(Color.theme.border),
-                    alignment: .trailing
-                )
-
+                .font(.caption)
+                .frame(minWidth: 60, maxWidth: .infinity, minHeight: 32, maxHeight: 32)
+                .multilineTextAlignment(.center)
             // 右按钮（增加）
             Button(action: {
                 if count < maxValue {
@@ -895,23 +821,20 @@ struct SceneStepper: View {
                     lastTapped = "up"
                 }
             }) {
-                ZStack {
-                    Color.purple.opacity(0.08)
-                    Image(systemName: "triangle.fill")
-                        .rotationEffect(.degrees(0))
-                        .foregroundColor(lastTapped == "up" ? Color.theme.accent : Color.theme.tertiaryText)
-                        .font(.system(size: 18, weight: .bold))
-                }
-                .frame(width: 56, height: 40)
+                Image(systemName: "triangle.fill")
+                    .rotationEffect(.degrees(0))
+                    .foregroundColor(count < maxValue ? Color.theme.accent : Color.theme.tertiaryText)
+                    .font(.system(size: 16, weight: .bold))
+                    .frame(width: 32, height: 32)
+                    .contentShape(Circle())
             }
-            .clipShape(RoundedCorners(radius: 20, corners: [.topRight, .bottomRight]))
-            .buttonStyle(PlainButtonStyle())
         }
+        .frame(height: 32)
+        .background(Color.clear)
         .overlay(
             Capsule()
                 .stroke(Color.theme.border, lineWidth: 1)
         )
-        .frame(height: 40)
     }
 }
 

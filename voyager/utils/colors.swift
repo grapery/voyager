@@ -53,18 +53,18 @@ enum AppTheme {
                 titleText: Color(hex: "222222"),
                 subtitleText: Color(hex: "888888"),
                 // MARK: - Content Colors (内容颜色)
-                primary: Color(hex: "42C02E"), // 主绿色
+                primary: Color(hex: "2E5A8A"), // 藏青色
                 secondary: Color(hex: "3C9EFF"), // 蓝色
-                accent: Color(hex: "42C02E"), // 高亮绿色
+                accent: Color(hex: "2E5A8A"), // 高亮藏青色
                 highlight: Color(hex: "FFAC2D"), // 橙色
-                selection: Color(hex: "42C02E"),
+                selection: Color(hex: "2E5A8A"),
                 // MARK: - Status Colors (状态颜色)
-                success: Color(hex: "42C02E"),
+                success: Color(hex: "2E5A8A"), // 藏青色
                 warning: Color(hex: "FFAC2D"),
                 error: Color(hex: "FF5A5A"),
                 info: Color(hex: "3C9EFF"),
                 // MARK: - Interactive Colors (交互颜色)
-                buttonBackground: Color(hex: "42C02E"), // 主按钮绿色
+                buttonBackground: Color(hex: "2E5A8A"), // 主按钮藏青色
                 buttonText: Color(hex: "FFFFFF"), // 按钮文字白色
                 buttonSecondaryBackground: Color(hex: "F0F1F2"),
                 buttonSecondaryText: Color(hex: "222222"),
@@ -74,7 +74,7 @@ enum AppTheme {
                 inputBackground: Color(hex: "F0F1F2"),
                 inputText: Color(hex: "222222"),
                 inputBorder: Color(hex: "EDEDED"),
-                inputFocusBorder: Color(hex: "42C02E"),
+                inputFocusBorder: Color(hex: "2E5A8A"), // 藏青色
                 inputErrorBorder: Color(hex: "FF5A5A"),
                 // MARK: - Divider & Border Colors (分割线和边框颜色)
                 divider: Color(hex: "EDEDED"),
@@ -82,14 +82,14 @@ enum AppTheme {
                 cardBorder: Color(hex: "EDEDED"),
                 separator: Color(hex: "EDEDED"),
                 // MARK: - Icon Colors (图标颜色)
-                iconColor: Color(hex: "42C02E"),
+                iconColor: Color(hex: "2E5A8A"), // 藏青色
                 iconSecondary: Color(hex: "888888"),
                 iconTertiary: Color(hex: "BBBBBB"),
                 iconDisabled: Color(hex: "EDEDED"),
                 // MARK: - Social Action Colors (社交操作颜色)
                 likeIcon: Color(hex: "FF5A5A"), // 点赞/红色
                 followIcon: Color(hex: "FF5A5A"), // 关注/红色
-                joinedIcon: Color(hex: "42C02E"),
+                joinedIcon: Color(hex: "2E5A8A"), // 藏青色
                 commentedIcon: Color(hex: "888888"),
                 forkedIcon: Color(hex: "FFAC2D"),
                 sharedIcon: Color(hex: "3C9EFF"),
@@ -115,93 +115,106 @@ enum AppTheme {
                 // MARK: - Notification Colors (通知相关颜色)
                 notificationBackground: Color(hex: "FFFFFF"),
                 notificationBadge: Color(hex: "FF5A5A"),
-                notificationUnread: Color(hex: "42C02E"),
+                notificationUnread: Color(hex: "2E5A8A"), // 藏青色
                 // MARK: - Loading Colors (加载相关颜色)
                 loadingBackground: Color(hex: "F7F7F7"),
-                loadingIndicator: Color(hex: "42C02E"),
+                loadingIndicator: Color(hex: "2E5A8A"), // 藏青色
                 skeletonBackground: Color(hex: "EDEDED"),
                 skeletonHighlight: Color(hex: "FFFFFF")
             )
         case .dark:
             return ThemeColors(
                 // MARK: - Background Colors (背景色)
-                background: Color(hex: "232B3A"),
-                secondaryBackground: Color(hex: "222222"),
-                tertiaryBackground: Color(hex: "2C3552"),
-                cardBackground: Color(hex: "232B3A"),
-                sheetBackground: Color(hex: "232B3A"),
-                modalBackground: Color(hex: "232B3A"),
-                navigationBackground: Color(hex: "232B3A"),
-                tabBarBackground: Color(hex: "232B3A"),
-                searchBarBackground: Color(hex: "222222"),
-                listBackground: Color(hex: "232B3A"),
-                groupBackground: Color(hex: "232B3A"),
+                background: Color(hex: "232A34"), // 柔和深灰蓝
+                secondaryBackground: Color(hex: "262E38"), // 卡片/弹窗
+                tertiaryBackground: Color(hex: "2A3240"), // 三级背景/输入框
+                cardBackground: Color(hex: "262E38"),
+                sheetBackground: Color(hex: "262E38"),
+                modalBackground: Color(hex: "262E38"),
+                navigationBackground: Color(hex: "232A34"),
+                tabBarBackground: Color(hex: "232A34"),
+                searchBarBackground: Color(hex: "262E38"),
+                listBackground: Color(hex: "232A34"),
+                groupBackground: Color(hex: "232A34"),
                 // MARK: - Text Colors (文字颜色)
-                primaryText: Color(hex: "FFFFFF"),
-                secondaryText: Color(hex: "A7D8DE"),
-                tertiaryText: Color(hex: "7ECFFF"),
-                placeholderText: Color(hex: "A7D8DE"),
-                linkText: Color(hex: "3C9EFF"),
-                captionText: Color(hex: "BBBBBB"),
-                labelText: Color(hex: "A7D8DE"),
-                titleText: Color(hex: "FFFFFF"),
-                subtitleText: Color(hex: "A7D8DE"),
-                primary: Color(hex: "42C02E"),
-                secondary: Color(hex: "3C9EFF"),
-                accent: Color(hex: "42C02E"),
-                highlight: Color(hex: "FFAC2D"),
-                selection: Color(hex: "42C02E"),
-                success: Color(hex: "42C02E"),
-                warning: Color(hex: "FFAC2D"),
-                error: Color(hex: "FF5A5A"),
-                info: Color(hex: "3C9EFF"),
-                buttonBackground: Color(hex: "42C02E"),
-                buttonText: Color(hex: "FFFFFF"),
-                buttonSecondaryBackground: Color(hex: "2C3552"),
-                buttonSecondaryText: Color(hex: "FFFFFF"),
-                buttonDisabledBackground: Color(hex: "232B3A"),
-                buttonDisabledText: Color(hex: "BBBBBB"),
-                inputBackground: Color(hex: "2C3552"),
-                inputText: Color(hex: "FFFFFF"),
-                inputBorder: Color(hex: "BBBBBB"),
-                inputFocusBorder: Color(hex: "42C02E"),
-                inputErrorBorder: Color(hex: "FF5A5A"),
-                divider: Color(hex: "2C3552"),
-                border: Color(hex: "2C3552"),
-                cardBorder: Color(hex: "2C3552"),
-                separator: Color(hex: "2C3552"),
-                iconColor: Color(hex: "42C02E"),
-                iconSecondary: Color(hex: "A7D8DE"),
-                iconTertiary: Color(hex: "BBBBBB"),
-                iconDisabled: Color(hex: "232B3A"),
-                likeIcon: Color(hex: "FF5A5A"),
-                followIcon: Color(hex: "FF5A5A"),
-                joinedIcon: Color(hex: "42C02E"),
-                commentedIcon: Color(hex: "A7D8DE"),
-                forkedIcon: Color(hex: "FFAC2D"),
-                sharedIcon: Color(hex: "3C9EFF"),
-                settingsBackground: Color(hex: "232B3A"),
-                appProfileBlue: Color(hex: "3C9EFF"),
-                shadow: Color(hex: "BBBBBB").opacity(0.12),
-                overlay: Color(hex: "222222").opacity(0.08),
-                blur: Color(hex: "232B3A").opacity(0.7),
-                profileBackground: Color(hex: "232B3A"),
-                profileCardBackground: Color(hex: "232B3A"),
-                profileSectionBackground: Color(hex: "2C3552"),
-                storyBackground: Color(hex: "232B3A"),
-                storyCardBackground: Color(hex: "232B3A"),
-                storyHighlight: Color(hex: "FFAC2D"),
-                chatBackground: Color(hex: "232B3A"),
-                chatBubbleBackground: Color(hex: "2C3552"),
-                chatBubbleText: Color(hex: "FFFFFF"),
-                chatInputBackground: Color(hex: "2C3552"),
-                notificationBackground: Color(hex: "232B3A"),
-                notificationBadge: Color(hex: "FF5A5A"),
-                notificationUnread: Color(hex: "42C02E"),
-                loadingBackground: Color(hex: "232B3A"),
-                loadingIndicator: Color(hex: "42C02E"),
-                skeletonBackground: Color(hex: "2C3552"),
-                skeletonHighlight: Color(hex: "232B3A")
+                primaryText: Color(hex: "F3F6F9"), // 柔和白
+                secondaryText: Color(hex: "A6B2C2"), // 淡蓝灰
+                tertiaryText: Color(hex: "7A869A"), // 更淡灰蓝
+                placeholderText: Color(hex: "A6B2C2"),
+                linkText: Color(hex: "5CAEFF"), // 柔和蓝
+                captionText: Color(hex: "A6B2C2"),
+                labelText: Color(hex: "A6B2C2"),
+                titleText: Color(hex: "F3F6F9"),
+                subtitleText: Color(hex: "A6B2C2"),
+                // MARK: - Content Colors (内容颜色)
+                primary: Color(hex: "4A7BA7"), // 柔和藏青色
+                secondary: Color(hex: "5CAEFF"), // 柔和蓝
+                accent: Color(hex: "4A7BA7"), // 高亮藏青色
+                highlight: Color(hex: "FFB84D"), // 柔和橙
+                selection: Color(hex: "4A7BA7"),
+                // MARK: - Status Colors (状态颜色)
+                success: Color(hex: "4A7BA7"), // 柔和藏青色
+                warning: Color(hex: "FFB84D"),
+                error: Color(hex: "FF7A7A"), // 柔和红
+                info: Color(hex: "5CAEFF"),
+                // MARK: - Interactive Colors (交互颜色)
+                buttonBackground: Color(hex: "4A7BA7"), // 柔和藏青色
+                buttonText: Color(hex: "F3F6F9"), // 柔和白
+                buttonSecondaryBackground: Color(hex: "2A3240"),
+                buttonSecondaryText: Color(hex: "F3F6F9"),
+                buttonDisabledBackground: Color(hex: "2C3440"), // 柔和禁用
+                buttonDisabledText: Color(hex: "A6B2C2"),
+                // MARK: - Input Colors (输入框颜色)
+                inputBackground: Color(hex: "2A3240"),
+                inputText: Color(hex: "F3F6F9"),
+                inputBorder: Color(hex: "2A3240"),
+                inputFocusBorder: Color(hex: "4A7BA7"), // 柔和藏青色
+                inputErrorBorder: Color(hex: "FF7A7A"),
+                // MARK: - Divider & Border Colors (分割线和边框颜色)
+                divider: Color(hex: "2A3240"),
+                border: Color(hex: "2A3240"),
+                cardBorder: Color(hex: "2A3240"),
+                separator: Color(hex: "2A3240"),
+                // MARK: - Icon Colors (图标颜色)
+                iconColor: Color(hex: "4A7BA7"), // 柔和藏青色
+                iconSecondary: Color(hex: "A6B2C2"), // 淡蓝灰
+                iconTertiary: Color(hex: "7A869A"), // 更淡灰蓝
+                iconDisabled: Color(hex: "2C3440"),
+                // MARK: - Social Action Colors (社交操作颜色)
+                likeIcon: Color(hex: "FF7A7A"), // 柔和红
+                followIcon: Color(hex: "FF7A7A"),
+                joinedIcon: Color(hex: "4A7BA7"), // 柔和藏青色
+                commentedIcon: Color(hex: "A6B2C2"),
+                forkedIcon: Color(hex: "FFB84D"),
+                sharedIcon: Color(hex: "5CAEFF"),
+                // MARK: - Special Colors (特殊颜色)
+                settingsBackground: Color(hex: "232A34"),
+                appProfileBlue: Color(hex: "5CAEFF"),
+                shadow: Color(hex: "7A869A").opacity(0.10), // 柔和阴影
+                overlay: Color(hex: "232A34").opacity(0.08),
+                blur: Color(hex: "232A34").opacity(0.7),
+                // MARK: - Profile Colors (个人资料颜色)
+                profileBackground: Color(hex: "232A34"),
+                profileCardBackground: Color(hex: "262E38"),
+                profileSectionBackground: Color(hex: "2A3240"),
+                // MARK: - Story Colors (故事相关颜色)
+                storyBackground: Color(hex: "232A34"),
+                storyCardBackground: Color(hex: "262E38"),
+                storyHighlight: Color(hex: "FFB84D"),
+                // MARK: - Chat Colors (聊天相关颜色)
+                chatBackground: Color(hex: "232A34"),
+                chatBubbleBackground: Color(hex: "2A3240"),
+                chatBubbleText: Color(hex: "F3F6F9"),
+                chatInputBackground: Color(hex: "2A3240"),
+                // MARK: - Notification Colors (通知相关颜色)
+                notificationBackground: Color(hex: "232A34"),
+                notificationBadge: Color(hex: "FF7A7A"),
+                notificationUnread: Color(hex: "4A7BA7"), // 柔和藏青色
+                // MARK: - Loading Colors (加载相关颜色)
+                loadingBackground: Color(hex: "232A34"),
+                loadingIndicator: Color(hex: "4A7BA7"), // 柔和藏青色
+                skeletonBackground: Color(hex: "2A3240"),
+                skeletonHighlight: Color(hex: "232A34")
             )
         }
     }
