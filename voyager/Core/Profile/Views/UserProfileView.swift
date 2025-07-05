@@ -497,11 +497,16 @@ struct UserProfileView: View {
         private let statsWidth: CGFloat = 260
         // 统计区域高度与头像一致
         private let statsHeight: CGFloat = 88
+        // 默认头像URL
+        private let defaultAvator = "https://grapery-dev.oss-cn-shanghai.aliyuncs.com/default.png"
 
         @State private var showStatsDetail: Bool = false // 控制统计详情弹窗
 
         var body: some View {
             ZStack(alignment: .top) {
+                // 背景图片展示
+                backgroundImageView
+                
                 // 参考设计图重构布局
                 VStack(spacing: 20) {
                     // 主内容区：左头像，右用户名和描述
@@ -627,6 +632,44 @@ struct UserProfileView: View {
             }
             .frame(height: 270)
         }
+        
+        // 背景图片展示视图
+        private var backgroundImageView: some View {
+            ZStack {
+//                // 使用用户背景图片或默认图片
+//                if let backgroundImageUrl = viewModel.user?.backgroundImage, !backgroundImageUrl.isEmpty {
+//                    KFImage(URL(string: backgroundImageUrl))
+//                        .resizable()
+//                        .aspectRatio(contentMode: .fill)
+//                        .frame(height: 270)
+//                        .clipped()
+//                        .overlay(backgroundGradient)
+//                } else {
+                    // 使用默认头像作为背景
+                    KFImage(URL(string: defaultAvator))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(height: 270)
+                        .clipped()
+                        .opacity(0.4) // 提升透明度，降低不透明度到60%
+                        .overlay(backgroundGradient)
+//                }
+            }
+        }
+        
+        // 背景渐变遮罩
+        private var backgroundGradient: some View {
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.theme.background.opacity(0.4),
+                    Color.theme.background.opacity(0.2),
+                    Color.theme.background.opacity(0.4)
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+        
         // 统计详情弹窗内容，现代风格，参考设计图
         private var userStatsDetail: some View {
             VStack(spacing: 0) {
