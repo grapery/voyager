@@ -69,6 +69,9 @@ struct UserProfileView: View {
                         onShowStats: {
                             showStatsDetail = true
                         },
+                        onShowBackgroundPicker: {
+                            showingBackgroundPicker = true
+                        },
                         viewModel: self.viewModel,
                         isCurrentUser: self.isCurrentUser
                     )
@@ -484,6 +487,7 @@ struct UserProfileView: View {
         let onEditProfile: () -> Void
         let onShowSettings: () -> Void
         let onShowStats: () -> Void
+        let onShowBackgroundPicker: () -> Void
         @ObservedObject var viewModel: ProfileViewModel
         let isCurrentUser: Bool
 
@@ -599,17 +603,21 @@ struct UserProfileView: View {
                             Image(systemName: "chevron.left")
                                 .font(.title3.weight(.light))
                                 .foregroundColor(.primary)
-                                .background(Color.theme.buttonBackground.opacity(0.3))
                                 .clipShape(Circle())
                         }
                     }
                     Spacer()
                     if isCurrentUser {
+                        Button(action: onShowBackgroundPicker) {
+                            Image(systemName: "camera.metering.center.weighted.average")
+                                .font(.title3.weight(.light))
+                                .foregroundColor(.primary)
+                                .clipShape(Rectangle())
+                        }
                         Button(action: onShowSettings) {
                             Image(systemName: "gearshape.fill")
                                 .font(.title3.weight(.light))
                                 .foregroundColor(.primary)
-                                .background(Color.theme.buttonBackground.opacity(0.3))
                                 .clipShape(Circle())
                         }
                     }
