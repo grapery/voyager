@@ -474,44 +474,6 @@ struct UserProfileView: View {
             }
         }
     }
-    private var userStatsDetail: some View {
-        ZStack {
-            Color.theme.background.opacity(0.3).ignoresSafeArea()
-            VStack(spacing: 0) {
-                VStack(spacing: 0) {
-                    Text("创建和关注")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(Color.theme.primaryText)
-                        .padding(.top, 24)
-                    VStack(alignment: .listRowSeparatorTrailing,spacing: 20) {
-                        StatsDetailRow(icon: "fossil.shell", iconColor: Color.theme.accent, title: "创建了故事", value: "\(viewModel.profile.createdStoryNum)")
-                        StatsDetailRow(icon: "person.text.rectangle", iconColor: Color.theme.accent, title: "创建了角色", value: "\(viewModel.profile.createdRoleNum)")
-                        StatsDetailRow(icon: "list.clipboard", iconColor: Color.theme.accent, title: "创建了故事版", value: "\(viewModel.profile.createdStoryNum)")
-                        StatsDetailRow(icon: "person.2.fill", iconColor: Color.theme.accent, title: "关注了故事", value: "\(viewModel.profile.watchingStoryNum)")
-                        StatsDetailRow(icon: "person.text.rectangle", iconColor: Color.theme.accent, title: "关注了角色", value: "\(viewModel.profile.watchingStoryNum)")
-                        StatsDetailRow(icon: "bonjour", iconColor: Color.theme.accent, title: "关注了小组", value: "\(viewModel.profile.watchingGroupNum)")
-                    }
-                    .padding(.vertical, 24)
-                }
-                Divider()
-                Button(action: { showStatsDetail = false }) {
-                    Text("了解")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(Color.theme.primaryText)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 52)
-                        .background(Color.theme.accent)
-                        .cornerRadius(12)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 16)
-                }
-            }
-            .frame(width: 320)
-            .background(Color.theme.inputBackground)
-            .cornerRadius(24)
-            //.shadow(color: Color.theme.settingsBackground.opacity(0.15), radius: 16, x: 0, y: 8)
-        }
-    }
     // 头部区域子视图
     private struct UserProfileHeaderView: View {
         let user: User
@@ -532,47 +494,103 @@ struct UserProfileView: View {
         // 统计区域高度与头像一致
         private let statsHeight: CGFloat = 88
 
+        @State private var showStatsDetail: Bool = false // 控制统计详情弹窗
+
         var body: some View {
             ZStack(alignment: .top) {
-                // 内容层：头像+右侧信息（用户名+简介）
-                HStack(alignment: .center, spacing: 0) {
-                    Spacer()
-                    // 左侧：头像
-                    RectProfileImageView(avatarUrl: user.avatar, size: .InContent)
-                        .frame(width: avatarSize, height: avatarSize)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.white, lineWidth: 4))
-                        .shadow(radius: 3)
-                        .padding(.leading, 4)
-                        //.padding(.top, 12)
-                    // 右侧：用户名+简介区域，左侧固定4pt间距
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(user.name)
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(Color.theme.primaryText)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                        let descText: String = {
-                            if let desc = viewModel.user?.desc, !desc.isEmpty {
-                                return desc
-                            } else {
-                                return "这个用户是NPC"
-                            }
-                        }()
-                        Text(descText)
-                            .font(.system(size: 12))
-                            .foregroundColor(Color.theme.secondaryText)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 8)
-                            .frame(minWidth: 60, maxWidth: 180, alignment: .leading)
+                // 参考设计图重构布局
+                VStack(spacing: 20) {
+                    // 主内容区：左头像，右用户名和描述
+                    HStack(alignment: .center, spacing: 20) {
+                        // 头像
+                        RectProfileImageView(avatarUrl: user.avatar, size: .InContent)
+                            .frame(width: avatarSize, height: avatarSize)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.white, lineWidth: 4))
+                            .shadow(radius: 3)
+                        // 用户名和描述
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(user.name)
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(Color.theme.primaryText)
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                            let descText: String = {
+                                if let desc = viewModel.user?.desc, !desc.isEmpty {
+                                    return desc
+                                } else {
+                                    return "这个用户是NPC"
+                                }
+                            }()
+                            Text(descText)
+                                .font(.system(size: 13))
+                                .foregroundColor(Color.theme.secondaryText)
+                                .lineLimit(2)
+                                .truncationMode(.tail)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .padding(.leading, 4)
-                    .padding(.trailing, 8)
-                    Spacer()
-                    Spacer()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    // 统计区+按钮区同一行，防止超出边界
+                    HStack(alignment: .center, spacing: 16) {
+                        // 统计区，优先占空间，添加点击手势弹出详情
+                        UserStatsView(
+                            createdStoryNum: Int(viewModel.profile.createdStoryNum),
+                            watchingStoryNum: Int(viewModel.profile.watchingStoryNum),
+                            createdRoleNum: Int(viewModel.profile.createdRoleNum),
+                            height: 48
+                        )
+                        .frame(height: 48)
+                        .layoutPriority(1)
+                        .onTapGesture {
+                            showStatsDetail = true
+                        }
+                        Spacer(minLength: 8)
+                        // 按钮区，宽度自适应且不会撑破父视图
+                        if isCurrentUser {
+                            Button(action: onEditProfile) {
+                                Text("编辑资料")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundColor(.primary)
+                                    .frame(minWidth: 90, maxWidth: 140, minHeight: 44)
+                                    .background(Color(UIColor.systemGray5))
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                            }
+                            .layoutPriority(0)
+                        } else {
+                            HStack(spacing: 8) {
+                                Button(action: onFollow) {
+                                    Text("+ 关注")
+                                        .font(.system(size: 15, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .frame(minWidth: 70, maxWidth: 100, minHeight: 44)
+                                        .background(Color.blue)
+                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                }
+                                Button(action: onMessage) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "paperplane")
+                                        Text("发私信")
+                                    }
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundColor(.primary)
+                                    .frame(minWidth: 70, maxWidth: 100, minHeight: 44)
+                                    .background(Color(UIColor.systemGray5))
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                                }
+                            }
+                            .layoutPriority(0)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                //.frame(height: avatarSize)
-                .padding(.top, 120)
+                .padding(.horizontal, 28)
+                .padding(.top, 70)
+                // 统计详情弹窗内容，必须放在HeaderView struct内部，避免作用域问题
+                .sheet(isPresented: $showStatsDetail) {
+                    self.userStatsDetail
+                }
 
                 // 顶部按钮
                 HStack {
@@ -598,60 +616,77 @@ struct UserProfileView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 50)
-
-                // 编辑/关注/私信按钮和统计区域
-                VStack {
-                    Spacer()
-                    HStack(spacing: 4) {
-                        Spacer()
-                        // 统计区域缩小高度
-                        UserStatsView(
-                            createdStoryNum: Int(viewModel.profile.createdStoryNum),
-                            watchingStoryNum: Int(viewModel.profile.watchingStoryNum),
-                            createdRoleNum: Int(viewModel.profile.createdRoleNum),
-                            height: 48 // 新增参数，缩小高度
-                        )
-                        .frame(width: statsWidth, height: 48)
-                        if isCurrentUser {
-                            Button(action: onEditProfile) {
-                                Text("编辑资料")
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(.primary)
-                                    .frame(maxWidth: 120, minHeight: 42) // 增高按钮
-                                    .background(Color(UIColor.systemGray5))
-                                    .clipShape(Capsule())
-                            }
-                        } else {
-                            HStack(spacing: 4) {
-                                Button(action: onFollow) {
-                                    Text("+ 关注")
-                                        .font(.system(size: 13, weight: .bold))
-                                        .foregroundColor(.white)
-                                        .frame(maxWidth: 80, minHeight: 42)
-                                        .background(Color.blue)
-                                        .clipShape(Capsule())
-                                }
-                                Button(action: onMessage) {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "paperplane")
-                                        Text("发私信")
-                                    }
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(.primary)
-                                    .frame(height: 42)
-                                    .padding(.horizontal, 20)
-                                    .background(Color(UIColor.systemGray5))
-                                    .clipShape(Capsule())
-                                }
-                            }
-                        }
-                        Spacer()
-                    }
-                    .padding(.top, 12)
-                }
-                .frame(height: 270, alignment: .bottom)
             }
             .frame(height: 270)
+        }
+        // 统计详情弹窗内容，现代风格，参考设计图
+        private var userStatsDetail: some View {
+            VStack(spacing: 0) {
+                // 卡片内容（含统计项和按钮）
+                VStack(spacing: 18) {
+                    // 标题
+                    Text("创建和关注")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(Color.theme.primaryText)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.top, 24)
+                    // 统计项
+                    VStack(spacing: 12) {
+                        statsRow(icon: "globe.asia.australia", color: Color.theme.accent, text: "创建了故事", value: "\(viewModel.profile.createdStoryNum)")
+                        statsRow(icon: "person.text.rectangle", color: Color.theme.accent, text: "创建了角色", value: "\(viewModel.profile.createdRoleNum)")
+                        statsRow(icon: "list.clipboard", color: Color.theme.accent, text: "创建了故事版", value: "\(viewModel.profile.createdStoryNum)")
+                        Divider().padding(.vertical, 2)
+                        statsRow(icon: "person.2.fill", color: Color.theme.accent, text: "关注了故事", value: "\(viewModel.profile.watchingStoryNum)")
+                        statsRow(icon: "person.text.rectangle", color: Color.theme.accent, text: "关注了角色", value: "\(viewModel.profile.watchingStoryNum)")
+                        statsRow(icon: "atom", color: Color.theme.accent, text: "关注了小组", value: "\(viewModel.profile.watchingGroupNum)")
+                    }
+                    .padding(.horizontal, 16)
+                    // 按钮放在卡片内部
+                    Button(action: { showStatsDetail = false }) {
+                        Text("了解")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
+                            .background(Color.theme.accent)
+                            .cornerRadius(16)
+                    }
+                    .padding(.top, 16)
+                    .padding(.horizontal, 8)
+                    .padding(.bottom, 16)
+                }
+                .background(Color(.systemGray6))
+                .cornerRadius(16)
+                .padding(.horizontal, 24)
+                .padding(.top, 24)
+            }
+            .background(Color.theme.inputBackground)
+            .ignoresSafeArea()
+        }
+        // 单行统计项视图，带虚线圆角包裹
+        private func statsRow(icon: String, color: Color, text: String, value: String) -> some View {
+            HStack(spacing: 10) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(color)
+                    .frame(width: 22)
+                Text(text)
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundColor(Color.theme.primaryText)
+                    .frame(minWidth: 70, alignment: .leading)
+                Spacer()
+                Text(value)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(Color.theme.primaryText)
+                    .frame(width: 28, alignment: .trailing)
+            }
+            .padding(.vertical, 6)
+            .padding(.horizontal, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
+                    .foregroundColor(Color.theme.accent.opacity(0.5))
+            )
         }
     }
 
